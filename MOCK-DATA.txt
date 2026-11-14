@@ -1,0 +1,69 @@
+สาน (Saan) installer demo provenance — 2026-11-05, full trial added 2026-11-13
+
+The installer offers three kinds of initial data:
+  demo   "พร้อมข้อมูลตัวอย่าง": the website sample below plus a tiny operational sample. No accounts besides the administrator.
+  blank  "เว็บเปล่าพร้อมโครงหน้า": none of the fictional records/media; it keeps safe draft structures.
+  full   "ทดลองเต็มระบบ (โรงเรียนสมมติ)": the website sample plus a whole fictional school in every module and trial accounts.
+         For trials only. Never use a full-trial install for a real school.
+
+WEBSITE SAMPLE (demo and full)
+resources/install/demo is a curated export of the fictional สาน (Saan) demonstration.
+62 published CMS records in 12 types, 53 referenced media assets. Each file is size/SHA-256 verified.
+Only published settings and content ship. No source users/passwords/sessions/historical audit/private drafts.
+Fictional operational samples (demo mode only): 6 teachers, 24 students, 3 classrooms, timetable/duty/attendance/leave examples.
+No real identity numbers or scans, home-registration/citizen-card/passport images, or health records.
+
+Artwork: monthly ChatGPT-authenticated Codex native image generation used for campus photos, fictional
+adult staff portraits, category imagery, theme artwork and icon/banner sheets. Existing originals were
+preserved in the developer archive; distributed assets are optimized derivatives. No paid API key needed
+to install/use the CMS, and no image-generation service runs during installation.
+Document covers: real first-page raster previews of generated fictional Thai example PDFs.
+Videos: three 9-second still-image slideshows, no audio; not recorded school events.
+Logos: original trusted book/stream/sprout SVG designs, three shapes, with transparent PNG alternatives.
+
+FULL TRIAL (mode full, or `php artisan saan:demo install` on a blank trial that is still empty)
+Code: app/Domain/Demo (DemoSchool and one class per area), command app/Console/Commands/SaanDemo.php.
+The school "โรงเรียนต้นธารวิทยา" does not exist. It is built for the academic year and term of the install day:
+  - two terms (the current one open, the one before it closed and its results announced), calendar days, 7 bell periods;
+  - 13 staff (a principal and 12 teachers, six of them homeroom teachers), 6 classrooms (ม.1/1 to ม.6/1), 120 students,
+    about 150 guardians, identity numbers of every kind the register knows (Thai, passport, G code, other, documents pending);
+  - a clash-free full week of lessons per classroom, attendance of the last 15 school days, courses with scores (grades,
+    GPA and GPAX in the student and guardian portals), behaviour, weight and height, health profiles;
+  - personnel profiles and the public staff directory, leave requests in every state, a duty roster, payslips of one
+    published period, fees (invoices, receipts, transfer slips waiting/approved/rejected), correspondence registers,
+    assets and repair requests, an annual action plan with projects and reports;
+  - clubs with roll calls and certificates, a finished student-council election, project-based learning, an exam with
+    scored answer sheets, learning links, an archive of an older year, one API client and a request log;
+  - on the website: group pages with documents, an open survey with answers, a closed quiz with certificates, a name list
+    shown with masked family names, complaints in different states, contact messages, the 18 ITA items.
+Everything is invented:
+  - names are combinations made up for this data set (app/Domain/Demo/DemoNames.php); they are not taken from any list of
+    real people, and a likeness to a living person is a coincidence;
+  - Thai identity numbers pass the check digit so that the screens accept them, but all start with 0 9999 (a first digit
+    the civil registry never issues); passports name the country code ZZ, which does not exist;
+  - phone numbers use the prefix 000, addresses the invented ตำบลต้นธาร อำเภอธารทอง จังหวัดสมมติ, e-mail addresses the
+    reserved domain example.test; links point to example.org;
+  - payslip salaries are repeated digits (22,222.00 and so on) and every payslip item is labelled as a fictional figure;
+  - documents and slips are generated placeholders (a one-page PDF with a line of Latin text, a drawn PNG), portraits are
+    the six fictional staff portraits of the website sample. No scan, photo or record of a real person or school is used.
+Accounts of the full trial:
+  - the administrator is the account typed into the installer; nothing else has a known password before the install;
+  - one account per kind of user is created (principal, homeroom teacher, subject teacher, finance officer, payroll
+    officer, clerk/technician, website editor, two students, two guardians). Their passwords are random for every install,
+    shown once on the installer's last page (or printed once by the command) and written to
+    storage/app/private/demo-accounts.txt (mode 0600). Delete that file after noting the passwords. There is no fixed or
+    documented password and no demo-login button; SCHOOL_DEMO stays false. The other teachers have accounts nobody knows
+    the password of; the administrator can send them a password link;
+  - the same list holds the generated room codes of two learning-link pages and the tracking code of one sample complaint.
+A trial is marked: the school name carries "(ระบบทดลอง)", the site badge says so, the setting demo.school records the
+build, storage/installed.json says mode "full" and `php artisan saan:demo status` reports it. `php artisan school:doctor`
+and the page /cms#deployment show [WARN] "ระบบทดลอง (ข้อมูลสมมติ) ห้ามใช้กับโรงเรียนจริง" on such an install, and a second [WARN]
+for as long as storage/app/private/demo-accounts.txt (the passwords) has not been deleted.
+There is no uninstall. Throw the trial away (new folder, new database) and install blank for the real school.
+
+Five school-reference notices retain source_kind=reference and source URLs. Images are illustrative
+generated category images, not photographs from those original notices. Source documents and school
+names remain the property of their owners and are not covered by the project licence. The project itself
+(code, generated demo content and artwork) is licensed AGPL-3.0-only, see LICENSE. The demonstration does
+not accept applications or bids.
+Blank mode installs none of these published fictional records/media; it retains safe draft structures.

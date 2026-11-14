@@ -1,0 +1,92 @@
+{
+    "id": "web-ita",
+    "name": "ITA การเปิดเผยข้อมูลสาธารณะ",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {
+            "web-cms": ">=0.6.0"
+        }
+    },
+    "description": "เผยแพร่ข้อมูลตามตัวชี้วัด ITA/OIT แยกปีงบประมาณ: หัวข้อ รายการ ลิงก์และไฟล์ คัดลอกโครงจากปีก่อนได้",
+    "families": [
+        "M01",
+        "G1"
+    ],
+    "routes": [
+        "/portal/ita",
+        "/api/ita/*"
+    ],
+    "disable_policy": "keep-data",
+    "admin_assets": [
+        "assets/modules/web-ita/ita-admin.css",
+        "assets/modules/web-ita/ita-admin.js"
+    ],
+    "admin_menu": [
+        {
+            "key": "ita",
+            "label": "ITA เปิดเผยข้อมูลสาธารณะ",
+            "path": "/cms#ita",
+            "icon": "shield",
+            "roles": [
+                "admin",
+                "principal",
+                "editor"
+            ]
+        }
+    ],
+    "package": "separate",
+    "edition": "both",
+    "public_projection": [
+        {
+            "table": "ita_years",
+            "where": {
+                "status": "published"
+            },
+            "columns": {
+                "id": "keep",
+                "school_id": "keep",
+                "fiscal_year": "keep",
+                "title": "keep",
+                "status": "keep",
+                "version": "keep",
+                "published_at": "keep",
+                "created_at": "keep",
+                "updated_at": "keep"
+            }
+        },
+        {
+            "table": "ita_topics",
+            "filter": "ita_published_topics",
+            "columns": {
+                "id": "keep",
+                "school_id": "keep",
+                "year_id": "keep",
+                "code": "keep",
+                "title": "keep",
+                "sort": "keep",
+                "created_at": "keep",
+                "updated_at": "keep"
+            }
+        },
+        {
+            "table": "ita_items",
+            "filter": "ita_published_items",
+            "columns": {
+                "id": "keep",
+                "school_id": "keep",
+                "topic_id": "keep",
+                "title": "keep",
+                "url": "keep",
+                "media_id": "keep",
+                "note": "keep",
+                "source": "keep",
+                "source_opts": "keep",
+                "sort": "keep",
+                "created_at": "keep",
+                "updated_at": "keep"
+            }
+        }
+    ]
+}

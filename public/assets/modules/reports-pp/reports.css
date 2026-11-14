@@ -1,0 +1,20 @@
+.rp-page { padding: 16px; max-width: 960px; margin: 0 auto; }
+.rp-page h1 { font-size: 1.4rem; margin: 0 0 12px; }
+.rp-page h2 { font-size: 1.1rem; margin: 20px 0 8px; }
+.rp-field { display: grid; gap: 4px; max-width: 360px; margin-bottom: 8px; }
+.rp-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.rp-card { display: grid; gap: 6px; padding: 12px; border: 1px solid rgba(127, 127, 127, .35); border-radius: 10px; }
+.rp-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.rp-actions a, .rp-card button, .rp-settings button { min-height: 44px; padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(127, 127, 127, .5); background: transparent; color: inherit; font: inherit; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; }
+.rp-card textarea, .rp-card input, .rp-card select, .rp-settings input:not([type=checkbox]), .rp-settings select { width: 100%; min-height: 44px; padding: 8px; font: inherit; box-sizing: border-box; }
+.rp-settings { margin-top: 20px; }
+.rp-settings fieldset { margin: 10px 0; display: grid; gap: 8px; }
+.rp-settings label { display: grid; gap: 4px; }
+.rp-row { display: grid; gap: 6px; grid-template-columns: 1fr; }
+.rp-check { display: flex !important; align-items: center; gap: 8px; }
+.rp-notice { padding: 10px 12px; border-radius: 8px; margin-bottom: 10px; }
+.rp-notice ul { margin: 0; padding-left: 20px; }
+.rp-error { background: rgba(200, 40, 40, .15); }
+.rp-ok { background: rgba(40, 150, 80, .15); }
+.rp-hint, .rp-empty { opacity: .8; font-size: .9rem; }
+@media (min-width: 700px) { .rp-row { grid-template-columns: 1fr 1fr; } .rp-card { grid-template-columns: 1fr; } }

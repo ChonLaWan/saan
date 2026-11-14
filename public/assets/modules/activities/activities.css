@@ -1,0 +1,41 @@
+/* activities module: clubs and election pages inside the staff work shell */
+.act-page{display:grid;gap:14px}
+.act-card{padding:16px;border-radius:14px;display:grid;gap:10px}
+.act-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.act-head h1,.act-head h2{margin:0;font-size:1.25rem}
+.act-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.act-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.act-btn{min-height:44px;padding:0 16px;border-radius:10px;border:1px solid var(--line,#b9c4bd);background:var(--card,#fff);color:inherit;font:inherit;cursor:pointer}
+.act-btn:disabled{opacity:.55;cursor:not-allowed}
+.act-btn.primary{background:var(--accent,#1f6f4a);border-color:var(--accent,#1f6f4a);color:#fff}
+.act-btn.danger{border-color:#b3261e;color:#b3261e}
+.act-field{display:grid;gap:4px;min-width:0}
+.act-field input,.act-field select,.act-field textarea{min-height:44px;padding:8px 10px;border-radius:8px;border:1px solid var(--line,#b9c4bd);font:inherit;background:var(--card,#fff);color:inherit;width:100%}
+.act-form{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.act-badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:99px;font-size:.85rem;border:1px solid var(--line,#b9c4bd)}
+.act-badge.ok{background:#e3f4ea;border-color:#7cc49a;color:#14532d}
+.act-badge.warn{background:#fff3d6;border-color:#e0b34a;color:#6b4a00}
+.act-badge.off{background:#eee;color:#444}
+.act-notice{padding:10px 14px;border-radius:10px;border:1px solid var(--line,#b9c4bd)}
+.act-notice.error{background:#fde8e6;border-color:#e08b85;color:#7a1710}
+.act-notice.ok{background:#e3f4ea;border-color:#7cc49a;color:#14532d}
+.act-table{width:100%;border-collapse:collapse}
+.act-table th,.act-table td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line,#d7ddd9);vertical-align:middle}
+.act-bar{height:10px;border-radius:99px;background:#dfe6e2;overflow:hidden}
+.act-bar>span{display:block;height:100%;background:var(--accent,#1f6f4a)}
+@media (max-width:640px){
+  .act-table thead{position:absolute;left:-9999px}
+  .act-table,.act-table tbody,.act-table tr,.act-table td{display:block;width:100%}
+  .act-table tr{border:1px solid var(--line,#d7ddd9);border-radius:10px;margin-bottom:10px;padding:6px}
+  .act-table td{border:0;display:flex;justify-content:space-between;gap:10px}
+  .act-table td::before{content:attr(data-label);font-weight:600}
+}
+/* election kiosk: large touch targets, one student at a time */
+.act-kiosk{display:grid;gap:14px}
+.act-students{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.act-students .act-btn{min-height:56px}
+.act-ballot{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.act-cand{min-height:96px;padding:12px;border-radius:14px;border:2px solid var(--line,#b9c4bd);background:var(--card,#fff);font:inherit;color:inherit;cursor:pointer;text-align:left;display:grid;gap:4px}
+.act-cand strong{font-size:1.6rem}
+.act-cand:focus-visible,.act-btn:focus-visible{outline:3px solid #1b5fc4;outline-offset:2px}
+.act-cand.abstain{border-style:dashed}

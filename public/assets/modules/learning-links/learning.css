@@ -1,0 +1,22 @@
+/* learning-links module. Mobile-first (390px). */
+.work-app .lrn-page{padding:1rem;border-radius:var(--radius,16px);color:var(--ink,#163b30)}
+.work-app .lrn-page h1{margin:0 0 .25rem;font-size:1.35rem}
+.work-app .lrn-page h2{margin:0 0 .5rem;font-size:1.05rem}
+.work-app .lrn-lead,.work-app .lrn-empty,.work-app .lrn-meta{color:var(--muted,#51675b)}
+.work-app .lrn-box{border:1px solid var(--line,#c4ccbe);border-radius:12px;padding:.8rem;margin:0 0 .9rem;background:var(--sheet,#fffdf5)}
+.work-app .lrn-form{display:grid;gap:.6rem;grid-template-columns:minmax(0,1fr)}
+.work-app .lrn-field{display:grid;gap:.2rem;font-size:.9rem}
+.work-app .lrn-field input,.work-app .lrn-field select{min-height:44px;padding:.4rem .6rem;font-size:16px;border:1px solid var(--line,#c4ccbe);border-radius:8px;background:var(--sheet,#fffdf5);color:inherit;max-width:100%;min-width:0;box-sizing:border-box}
+.work-app .lrn-actions{display:flex;gap:.5rem;flex-wrap:wrap;align-items:end}
+.work-app .lrn-days{width:9rem}
+.work-app .lrn-btn{min-height:44px;padding:0 .9rem;border:1px solid var(--line,#c4ccbe);border-radius:10px;background:transparent;color:inherit;font:inherit;cursor:pointer}
+.work-app .lrn-primary{background:var(--ink,#163b30);color:var(--sheet,#fffdf5);border-color:transparent}
+.work-app .lrn-danger{color:var(--danger,#8a1c1c)}
+.work-app .lrn-list{list-style:none;margin:0;padding:0;display:grid;gap:.6rem}
+.work-app .lrn-item{display:grid;gap:.5rem;padding:.7rem;border:1px solid var(--line,#c4ccbe);border-radius:10px}
+.work-app .lrn-url{word-break:break-all;font-size:.85rem}
+.work-app .lrn-code{font-size:1.1rem;padding:.6rem;border:2px dashed var(--ink,#163b30);border-radius:10px}
+.work-app .lrn-note{padding:.6rem .8rem;border-radius:10px;margin:.5rem 0;border:1px solid var(--line,#c4ccbe)}
+.work-app .lrn-error{color:var(--danger,#8a1c1c);border-color:currentColor}
+.work-app .lrn-sso{padding:0 .4rem;border:1px solid currentColor;border-radius:999px}
+@media (min-width:720px){.work-app .lrn-form{grid-template-columns:repeat(2,minmax(0,1fr))}.work-app .lrn-form .lrn-actions{grid-column:1/-1}.work-app .lrn-item{grid-template-columns:1fr auto;align-items:center}}

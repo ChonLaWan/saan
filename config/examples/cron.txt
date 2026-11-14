@@ -1,0 +1,14 @@
+# Saan scheduler: ONE line per app folder, every minute, run as the website account.
+# The scheduler does all timed work: publishing on schedule, push/pull between the internal and public site, scheduled backup,
+# removal of expired full names and other retention jobs, update checks and settling an interrupted update (saan:update --recover --auto).
+# No queue worker is needed (QUEUE_CONNECTION=sync). A standard install has TWO app folders, so it needs TWO lines (internal and public).
+#
+# DirectAdmin (Advanced Features > Cron Jobs: minute * hour * day * month * weekday *, command = the part after the five stars).
+# Replace USER, DOMAIN, the app folder and the PHP path. The PHP path below is only an example: find the real one as the manual (section 8) explains.
+* * * * * /usr/local/php84/bin/php /home/USER/domains/DOMAIN/saan/artisan schedule:run >/dev/null 2>&1
+#
+# Second line of a standard install (the public app folder):
+# * * * * * /usr/local/php84/bin/php /home/USER/domains/DOMAIN/saan-public/artisan schedule:run >/dev/null 2>&1
+#
+# Own server (crontab -e of the website account), with a log file:
+# * * * * * cd /var/www/saan && /usr/bin/php artisan schedule:run >> /var/www/saan/storage/logs/scheduler.log 2>&1

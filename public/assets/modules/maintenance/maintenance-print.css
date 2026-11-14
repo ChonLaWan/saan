@@ -1,0 +1,21 @@
+/* maintenance module: printable asset label sheet, A4 portrait, 3 columns of 63.5 x 38.1 mm labels */
+@page{size:A4 portrait;margin:8mm 6mm}
+.ml{margin:0;background:#f3f1ea;color:#1a1a1a;font:14px/1.35 "Sarabun","Noto Sans Thai",system-ui,sans-serif}
+.ml-bar{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:#fff;border-bottom:1px solid #c4ccbe}
+.ml-bar a{color:#163b30}
+.ml-bar button{min-height:44px;padding:.4rem 1.1rem;border:0;border-radius:999px;background:#163b30;color:#fff;font:inherit;cursor:pointer}
+.ml-bar button:focus-visible,.ml-bar a:focus-visible{outline:2px solid #b83317;outline-offset:2px}
+.ml-sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(14rem,1fr));gap:2mm;max-width:210mm;margin:1rem auto;padding:1rem;background:#fff}
+.ml-label{box-sizing:border-box;border:1px dashed #666;padding:2.5mm 3mm;min-height:38mm;overflow:hidden;break-inside:avoid;display:flex;flex-direction:column;justify-content:center;text-align:center}
+.ml-label p{margin:0;overflow-wrap:anywhere}
+.ml-school{font-size:.75rem;color:#444}
+.ml-code{font:700 1.35rem/1.2 ui-monospace,Consolas,monospace;letter-spacing:.02em;margin:.15rem 0}
+.ml-name{font-size:.9rem}
+.ml-loc{font-size:.75rem;color:#444}
+.ml-empty{grid-column:1/-1;text-align:center;color:#555}
+@media print{
+  .ml{background:#fff}
+  .ml-bar{display:none}
+  .ml-sheet{display:grid;grid-template-columns:repeat(3,63.5mm);gap:0 2mm;max-width:none;margin:0;padding:0}
+  .ml-label{height:38.1mm;min-height:0;border:1px solid #999}
+}

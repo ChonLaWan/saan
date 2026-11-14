@@ -1,0 +1,143 @@
+name: Saan CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint (php -l, node --check)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, sodium
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: php -l on every PHP file
+        run: |
+          set -e
+          find . -name '*.php' -not -path './vendor/*' -not -path './node_modules/*' -not -path './storage/*' -print0 \
+            | xargs -0 -n1 -P4 php -l > /tmp/phplint.txt || { grep -v '^No syntax errors' /tmp/phplint.txt; exit 1; }
+          echo "php -l ok: $(grep -c '^No syntax errors' /tmp/phplint.txt) files"
+      - name: node --check on every JS file
+        run: |
+          set -e
+          n=0
+          while IFS= read -r -d '' f; do node --check "$f"; n=$((n+1)); done \
+            < <(find public resources modules -name '*.js' -not -path '*/node_modules/*' -not -path 'public/build/*' -print0)
+          echo "node --check ok: $n files"
+      - name: Secret and PII scan of the tree that would be committed
+        run: php tools/release/scan-secrets.php --fail --json=scan-secrets.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scan-secrets-report
+          path: scan-secrets.json
+          if-no-files-found: ignore
+
+  # Advisories and abandoned packages change without any code change, so they must not block PRs (continue-on-error on pull_request only).
+  # The weekly schedule and pushes fail for real, so GitHub sends a notification and a patch release can be cut.
+  audit:
+    name: Composer audit (advisory on PRs, failing on schedule)
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      - run: composer audit --locked
+
+  The maintainer's DirectAdmin host runs MariaDB 10.6; other hosts run MySQL 8. Collation and unique-index rules
+  # differ, so the same suite must pass against each real server (RefreshDatabase runs all migrations on it).
+  test-server-db:
+    name: PHPUnit PHP ${{ matrix.php }} / ${{ matrix.db.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.4', '8.5']
+        db:
+          - { name: 'MariaDB 10.6', image: 'mariadb:10.6', driver: 'mariadb' }
+          - { name: 'MariaDB 11.8', image: 'mariadb:11.8', driver: 'mariadb' }
+          - { name: 'MySQL 8.0', image: 'mysql:8.0', driver: 'mysql' }
+    services:
+      db:
+        image: ${{ matrix.db.image }}
+        env:
+          MYSQL_ROOT_PASSWORD: ci-root-only
+          MARIADB_ROOT_PASSWORD: ci-root-only
+          MYSQL_DATABASE: saan_ci
+          MARIADB_DATABASE: saan_ci
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -pci-root-only || mariadb-admin ping -h 127.0.0.1 -pci-root-only"
+          --health-interval=5s --health-timeout=5s --health-retries=30
+    env:
+      DB_CONNECTION: ${{ matrix.db.driver }}
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: saan_ci
+      DB_USERNAME: root
+      DB_PASSWORD: ci-root-only
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_mysql, gd, mbstring, curl, xml, zip, sodium, intl
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: cp .env.example .env && php artisan key:generate
+      - name: Show server version
+        run: mysql -h 127.0.0.1 -uroot -pci-root-only -e 'select version()' || mariadb -h 127.0.0.1 -uroot -pci-root-only -e 'select version()' || true
+      - run: composer validate --no-check-publish
+      - run: vendor/bin/phpunit --log-junit junit-${{ matrix.db.driver }}-${{ matrix.php }}.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: junit-${{ matrix.db.driver }}-${{ matrix.php }}
+          path: junit-*.xml
+          if-no-files-found: ignore
+
+  release-build:
+    name: Build and verify release packages (test signing key)
+    runs-on: ubuntu-latest
+    needs: [lint, test-server-db]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, gd, mbstring, curl, xml, zip, sodium, intl
+          coverage: none
+      - run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist --no-progress
+      - name: Generate a throwaway signing key (never the real release key)
+        run: php tools/release/make-test-key.php "$RUNNER_TEMP/test-signing-key.json"
+      - name: Build packages
+        run: php tools/release/build-release.php "$RUNNER_TEMP/release-out" "$RUNNER_TEMP/test-signing-key.json" --allow-test-key
+      - name: Verify signatures, hashes and forbidden files
+        run: php tools/release/verify-release.php "$RUNNER_TEMP/release-out" --key-file="$RUNNER_TEMP/test-signing-key.json" --allow-test-key
+      - name: Keep only an index, never the key
+        run: cp "$RUNNER_TEMP/release-out/release-index.json" release-index-TEST-SIGNED.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-index-test-signed
+          path: release-index-TEST-SIGNED.json

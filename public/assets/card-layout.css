@@ -1,0 +1,59 @@
+/* Repeated cards stretch by row; metadata and actions share a bottom footer. */
+.school-news-grid,.service-grid,.album-grid,.directory-grid,.desk-module-grid,.desk-media-grid,.mock-library-grid,.mock-document-grid,.mock-portraits,.concept-grid,.module-grid{align-items:stretch}
+.news-card,.school-news-card{display:flex;flex-direction:column;align-self:stretch;height:100%;min-width:0}
+.news-card>.news-cover-link,.school-news-card>.news-cover-link{flex:none}
+.news-card-copy{display:flex;flex-direction:column;flex:1 1 auto;min-width:0;min-height:0;container:card-copy / inline-size}
+.card-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none;margin-block-start:auto!important;padding-block-start:12px;border-block-start:1px solid var(--line);min-block-size:44px;line-height:1.5}
+.card-footer>time,.card-footer>small{white-space:nowrap;font-variant-numeric:tabular-nums}
+.news-card .news-card-foot,.school-news-card .news-card-foot{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 12px;margin-block-start:auto!important;padding-block-start:12px!important;min-block-size:44px}
+.news-card-foot>time{white-space:nowrap;line-height:1.5}
+.news-card-foot>a{display:inline-flex;align-items:center;justify-self:end;gap:8px;white-space:nowrap;line-height:1.5}
+@container card-copy (max-width:210px){.news-card-foot{grid-template-columns:1fr!important;row-gap:4px!important;min-block-size:72px!important}.news-card-foot>a{justify-self:end}.news-card-foot>time{justify-self:start}}
+.service-grid>a{position:relative;grid-template-columns:42px minmax(0,1fr)!important;padding-block-end:40px!important}
+.service-grid>a>svg.ui-icon[data-ui-icon]{position:absolute!important;inset-block-start:auto!important;inset-block-end:12px!important;inset-inline-end:14px!important;top:auto!important;bottom:12px!important;right:14px!important;grid-column:auto!important;grid-row:auto!important;transform:none!important}
+.notice-list>a{display:flex!important;flex-direction:column;align-items:stretch;gap:8px!important}
+.notice-list>a>.notice-type{align-self:flex-start}
+.notice-list>a>.notice-card-footer{width:100%;font-size:14px}
+.notice-card-footer time{display:block!important;text-align:start!important}
+.event-list>a{display:flex!important;flex-direction:column;align-items:stretch;gap:8px;padding:16px!important}
+.event-list>a h3{margin:0}.event-card-footer{font-size:14px}
+.event-card-footer>span{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;flex:none}
+.album-grid>a>div{display:flex;flex-direction:column;min-height:145px}
+.album-grid>a h3{margin-block:0 12px}.album-card-footer{color:inherit;border-color:currentColor;font-size:13px}
+.album-card-footer time{color:inherit}
+.directory-grid>.directory-card{display:flex!important;flex-direction:column;height:100%;min-width:0}
+.directory-card>.card-footer{width:100%;margin-top:auto;font-size:14px}
+.directory-card>.card-footer small{font-size:inherit}
+.desk-module-grid>a{display:flex;flex-direction:column;min-width:0;height:100%;padding:12px!important}
+.desk-module-grid>a>h3{padding-inline-start:29px;min-height:24px}
+.desk-module-grid>a>svg{margin:0;top:14px!important;left:12px!important}
+.desk-module-grid .desk-module-footer{width:100%;min-height:48px;padding-block-start:8px;gap:8px;align-items:flex-end}
+.desk-module-grid .desk-module-footer>p{margin:0;padding:0;min-width:0}
+.desk-module-grid .desk-module-footer>.desk-module-arrow{position:static!important;flex:0 0 20px;transform:none}
+.desk-quick-settings>a{align-items:flex-end!important;padding-block:12px!important}
+.desk-media-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))!important}
+.desk-media-grid>article{display:flex;flex-direction:column;height:100%;min-width:0}
+.desk-media-grid>article>img,.desk-media-grid>article>.desk-pdf-cover{flex:none}
+.desk-media-grid>article>div:not(.desk-pdf-cover){display:flex;flex-direction:column;flex:1 1 auto;min-width:0}
+.desk-media-grid footer{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,44px);gap:8px!important;align-items:stretch;margin-block-start:auto!important;margin-inline:0;padding:12px 0 0!important;border-block-start:1px solid var(--line);max-width:none;width:100%}
+.desk-media-grid footer>button,.desk-media-grid footer>a{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:44px!important;min-height:44px!important;min-width:0;margin:0;line-height:1.35;white-space:nowrap}
+.mock-library-grid>article,.mock-portraits>figure,.mock-document-grid>a,.concept-card,.module-tile,.post-card{display:flex;flex-direction:column;height:100%;min-width:0}
+.mock-library-grid .mock-module-photo,.mock-portraits img,.mock-document-grid img,.concept-card>a{flex:none}
+.mock-module-copy,.mock-portraits figcaption,.concept-card>div{display:flex;flex-direction:column;flex:1 1 auto;min-width:0}
+.mock-module-footer{display:flex;flex-direction:column;align-items:stretch;gap:12px}
+.mock-module-footer details{width:100%}.mock-module-footer summary{margin-top:0}
+.mock-module-footer nav{width:100%;margin-top:auto}
+.mock-document-grid>a>span,.mock-portraits figcaption>small,.concept-card small{margin-block-start:auto;padding-block-start:8px}
+.mock-document-grid>a{padding:12px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.module-tile>button,.post-card>.card-actions{margin-block-start:auto}
+.module-tile>button{align-self:flex-start}.post-card>.card-actions{padding-block-start:12px}
+.cms-presets>.cms-preset{display:flex;flex-direction:column;height:100%}
+.cms-preset>.preset-thumb{flex:none;width:100%}.cms-preset>span:last-child{margin-block-start:auto;padding-block-start:4px}
+html[data-contrast=high] .card-footer{font-size:16px}
+html[data-contrast=high] .card-footer time,html[data-contrast=high] .card-footer>a,html[data-contrast=high] .card-footer>small{font-size:16px!important}
+html[data-contrast=high] .desk-media-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))!important}
+@media(min-width:641px) and (max-width:900px){.school-updates-row .news-card{display:flex;flex-direction:column}}
+@media(max-width:640px){.service-grid>a{grid-template-columns:32px minmax(0,1fr)!important}.notice-list>a{padding-block:14px!important}.album-grid>a>div{min-height:145px}.directory-card>.card-footer{font-size:13px}}
+html[data-contrast=high] .service-grid>a{grid-template-columns:42px minmax(0,1fr)!important}
+/* Hover feedback must not move a footer out of its row's baseline. */
+.news-card:hover,.school-news-card:hover,.service-grid>a:hover,.album-grid>a:hover,.directory-card:hover,.desk-module-grid>a:hover,.desk-quick-settings>a:hover,.mock-library-grid>article:hover,.mock-document-grid>a:hover,.concept-card:hover,.module-tile:hover{transform:none!important}

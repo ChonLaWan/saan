@@ -1,0 +1,64 @@
+{
+    "id": "guardian-portal",
+    "name": "พอร์ทัลผู้ปกครอง",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {
+            "registry": ">=0.1.0"
+        }
+    },
+    "description": "ผู้ปกครองดูค่าธรรมเนียม ใบแจ้งหนี้ บัญชีโอนและ QR แนบสลิป รับใบเสร็จ (เมื่อเปิดโมดูลการเงิน) ดูการมาเรียน พฤติกรรม ผลการเรียนที่ปิดผลแล้ว และน้ำหนักส่วนสูง แล้วกดรับทราบ ผ่านลิงก์ใช้ครั้งเดียวที่ครูประจำชั้นออกให้หรือบัญชีที่ตั้งรหัสเอง จำกัดเฉพาะบุตรหลานที่ผูกไว้ ไม่ใช้รหัสนักเรียนเปิดดู บัญชีเห็นเฉพาะบุตรหลานที่ครูออกลิงก์ตั้งบัญชีให้และยังไม่ยกเลิก ครูปิดบัญชีและยกเลิกสิทธิ์ได้จากหน้าจอ",
+    "families": [
+        "G4"
+    ],
+    "routes": [
+        "/guardian",
+        "/guardian/*",
+        "/api/guardian-portal/*"
+    ],
+    "disable_policy": "keep-data",
+    "work_menu": [
+        {
+            "key": "guardians",
+            "label": "ลิงก์ผู้ปกครอง",
+            "path": "/work#guardians",
+            "icon": "people",
+            "roles": [
+                "admin",
+                "principal",
+                "teacher"
+            ]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/guardian-portal/staff.css",
+        "assets/modules/guardian-portal/staff.js"
+    ],
+    "package": "separate",
+    "settings_schema": [
+        {
+            "key": "guardian.restricted_can_view",
+            "label": "ให้ผู้ปกครองที่ถูกจำกัดการรับนักเรียนดูข้อมูลได้",
+            "type": "bool",
+            "default": false,
+            "help": "ปิดไว้เป็นค่าเริ่มต้น"
+        },
+        {
+            "key": "portal.show_pp6",
+            "label": "แสดง ปพ.6 (ดูอย่างเดียว) ให้นักเรียนและผู้ปกครอง",
+            "type": "bool",
+            "default": false
+        },
+        {
+            "key": "portal.password_min",
+            "label": "ความยาวรหัสผ่านสั้นที่สุดของนักเรียนและผู้ปกครอง (ตัวเลขล้วนต้องมี 6 หลักขึ้นไปเสมอ)",
+            "type": "int",
+            "min": 6,
+            "max": 64,
+            "default": 6
+        }
+    ],
+    "edition": "internal"
+}

@@ -1,0 +1,65 @@
+{
+    "id": "reports-pp",
+    "name": "ปพ. และรายงานผลการเรียน",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {
+            "assessment": ">=0.1.0"
+        }
+    },
+    "description": "พิมพ์แบบบันทึกผลการเรียนรายวิชา (ปพ.5) รายงานผลการเรียนรายบุคคล (ปพ.6) และสรุปผลรายห้อง พร้อมผลพิเศษ ร/มผ/มส หมายเหตุครูประจำชั้น เทมเพลตแยกตามปีการศึกษา และส่งออก CSV",
+    "families": [
+        "M10",
+        "M12"
+    ],
+    "routes": [
+        "/api/reports-pp/*",
+        "/print/pp/*"
+    ],
+    "disable_policy": "keep-data",
+    "work_menu": [
+        {
+            "key": "reports",
+            "label": "ปพ. และรายงานผลการเรียน",
+            "path": "/work#reports",
+            "icon": "document",
+            "roles": [
+                "teacher",
+                "admin",
+                "principal"
+            ]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/reports-pp/reports.css",
+        "assets/modules/reports-pp/reports.js"
+    ],
+    "package": "separate",
+    "settings_schema": [
+        {
+            "key": "reports.show_rank",
+            "label": "แสดงลำดับที่ในรายงานผลการเรียน",
+            "type": "bool",
+            "default": false
+        },
+        {
+            "key": "reports.gpa_rounding",
+            "label": "การปัดเศษเกรดเฉลี่ย",
+            "type": "text",
+            "options": {
+                "truncate": "ตัดทิ้ง",
+                "round": "ปัดเศษ"
+            },
+            "default": "truncate"
+        },
+        {
+            "key": "reports.signers",
+            "label": "ผู้ลงนามท้ายรายงาน (สูงสุด 6 ราย)",
+            "type": "json",
+            "default": [],
+            "help": "รายการ {\"label\":\"ตำแหน่ง\",\"name\":\"ชื่อ\"} เว้นว่างเพื่อใช้ค่าเริ่มต้นของแต่ละแบบฟอร์ม"
+        }
+    ]
+}

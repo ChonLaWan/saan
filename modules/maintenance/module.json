@@ -1,0 +1,66 @@
+{
+    "id": "maintenance",
+    "name": "แจ้งซ่อมและครุภัณฑ์",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {}
+    },
+    "description": "แจ้งซ่อมจากมือถือพร้อมรูป ติดตามสถานะโดยช่าง ทะเบียนครุภัณฑ์ ประวัติซ่อมรายชิ้น พัสดุสิ้นเปลืองและจุดสั่งซื้อ รายงาน CSV และแผ่นป้ายรหัสครุภัณฑ์สำหรับพิมพ์",
+    "families": [
+        "M21"
+    ],
+    "routes": [
+        "/api/maintenance/*",
+        "/maintenance/labels"
+    ],
+    "disable_policy": "keep-data",
+    "storage_tables": [{"table": "mnt_requests", "bytes": "photo_size"}],
+    "private_storage": [
+        "maintenance"
+    ],
+    "work_menu": [
+        {
+            "key": "repairs",
+            "label": "แจ้งซ่อม",
+            "path": "/work#repairs",
+            "icon": "edit",
+            "roles": ["admin", "principal", "teacher", "editor"]
+        },
+        {
+            "key": "assets",
+            "label": "ครุภัณฑ์และพัสดุ",
+            "path": "/work#assets",
+            "icon": "layers",
+            "roles": ["admin", "principal"]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/maintenance/maintenance.css",
+        "assets/modules/maintenance/maintenance.js"
+    ],
+    "package": "separate",
+    "settings_schema": [
+        {
+            "key": "maintenance.technician_user_ids",
+            "label": "ช่างซ่อมและเจ้าหน้าที่พัสดุ",
+            "type": "users",
+            "roles_hint": [
+                "teacher",
+                "editor"
+            ],
+            "default": [],
+            "help": "บัญชีที่รับงานซ่อมได้ ผู้ดูแลระบบและผู้อำนวยการมีสิทธิ์อยู่แล้ว"
+        },
+        {
+            "key": "maintenance.photo_retention_months",
+            "label": "เก็บรูปงานซ่อมที่ปิดแล้ว (เดือน)",
+            "type": "int",
+            "min": 0,
+            "max": 120,
+            "default": 12,
+            "help": "0 คือไม่ลบอัตโนมัติ"
+        }
+    ]
+}

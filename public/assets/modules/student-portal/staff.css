@@ -1,0 +1,31 @@
+/* student-portal: work page "student-accounts". Mobile-first (390px), follows the work shell colours, light and dark. */
+.sps-page{padding:16px}
+.sps-page h1{font-size:1.3rem;margin:0 0 .6rem}
+.sps-page h2{font-size:1.05rem;margin:0}
+.sps-muted{opacity:.75}
+.sps-card{border:1px solid currentColor;border-color:color-mix(in srgb,currentColor 25%,transparent);border-radius:14px;padding:14px;margin:0 0 12px}
+.sps-row,.sps-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sps-actions{margin:8px 0}
+.sps-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:6px 16px;border:1px solid currentColor;border-radius:999px;background:transparent;color:inherit;font:inherit;cursor:pointer}
+.sps-btn.sps-primary{background:CanvasText;color:Canvas;border-color:CanvasText}
+.sps-btn.sps-small{min-height:36px;padding:2px 12px;font-size:.9rem}
+.sps-btn[disabled]{opacity:.6;cursor:default}
+.sps-btn:focus-visible,.sps-page select:focus-visible,.sps-page input:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.sps-badge{display:inline-block;padding:0 10px;border:1px solid currentColor;border-radius:999px;font-size:.85rem}
+.sps-badge.err{font-weight:700}
+.sps-note{padding:10px 12px;border:1px solid currentColor;border-radius:10px;margin:0 0 10px}
+.sps-field{display:grid;gap:4px;margin:0 0 10px}
+.sps-field select,.sps-page input[type=datetime-local]{min-height:44px;padding:6px 10px;border:1px solid currentColor;border-radius:10px;font:inherit;background:transparent;color:inherit}
+.sps-gl,.sps-terms{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:8px}
+.sps-g{padding-top:8px;border-top:1px dashed currentColor}
+.sps-slips{display:grid;grid-template-columns:1fr;gap:8px}
+.sps-slip{border:1px dashed currentColor;border-radius:8px;padding:10px;break-inside:avoid;overflow-wrap:anywhere}
+.sps-slip code{font-size:1.1rem;font-weight:700}
+@media (min-width:720px){.sps-slips{grid-template-columns:1fr 1fr}}
+@media print{
+  body.sps-printing *{visibility:hidden}
+  body.sps-printing .sps-sheet,body.sps-printing .sps-sheet *{visibility:visible}
+  body.sps-printing .sps-sheet{position:absolute;left:0;top:0;width:100%;color:#000;background:#fff}
+  .sps-noprint{display:none!important}
+  @page{size:A4;margin:12mm}
+}

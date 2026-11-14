@@ -1,0 +1,14 @@
+/* Saan platform brand. Images keep their aspect ratio; light/dark follow html[data-appearance]. */
+.saan-brand{display:inline-flex;align-items:center;line-height:0;text-decoration:none}
+.saan-brand img{display:block;width:auto;height:100%;max-width:100%;object-fit:contain}
+.saan-brand-logo{height:56px}
+.saan-brand-mark{height:40px}
+.saan-tone-auto .saan-brand-dark{display:none}
+html[data-appearance=dark] .saan-tone-auto .saan-brand-light{display:none}
+html[data-appearance=dark] .saan-tone-auto .saan-brand-dark{display:block}
+.saan-brand:focus-visible{outline:3px solid currentColor;outline-offset:4px;border-radius:6px}
+.login-sheet .saan-brand-logo{height:72px;margin:0 0 8px -10px}
+.account-top .saan-brand-logo{height:44px}
+.school-nav-brand .saan-brand-logo{height:46px;margin-left:-6px}
+.saan-platform-note{font-size:.8rem;opacity:.85}
+@media (max-width:640px){.login-sheet .saan-brand-logo{height:60px}.account-top .saan-brand-logo{height:38px}}

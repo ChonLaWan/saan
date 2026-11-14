@@ -1,0 +1,11 @@
+Run through the hosting database panel or a privileged database administrator. MariaDB 10.6+ or MySQL 8.0+ only (no other database is supported).
+Create the database with utf8mb4 / utf8mb4_unicode_ci, for example saan (the panel may add an account prefix such as USER_saan).
+Create a distinct account for this website; grant it privileges on that database only.
+The installer needs CREATE, ALTER, INDEX, REFERENCES, SELECT, INSERT, UPDATE and DELETE.
+Do not enter a database server root account in the installer.
+
+Standard (two-app) install: two empty databases and two accounts, one pair for the internal app and one pair for the public site.
+The wizard (step 3) either creates them with a database administrator account, or prints the names and 32-character passwords for you to create in the panel;
+each account must be able to reach its own database only (the wizard checks that the other database is refused).
+
+Examples are placeholders. Enter actual credentials privately through /install/.

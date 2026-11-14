@@ -1,0 +1,52 @@
+{
+    "id": "assessment",
+    "name": "หลักสูตรรายวิชาและบันทึกคะแนน",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {}
+    },
+    "description": "ตั้งรายวิชา มอบหมายครูผู้สอนต่อภาคเรียนและห้อง บันทึกคะแนนเป็นตารางต่อรายวิชา คำนวณเกรด 8 ระดับ เก็บประวัติการแก้คะแนน และคุณลักษณะ/สมรรถนะ",
+    "families": [
+        "M08",
+        "M09",
+        "GAP-OPS-002",
+        "OPS-001",
+        "OPS-004",
+        "OPS-008",
+        "G8"
+    ],
+    "routes": [
+        "/api/assessment/*"
+    ],
+    "disable_policy": "keep-data",
+    "work_menu": [
+        {
+            "key": "scores",
+            "label": "บันทึกคะแนน",
+            "path": "/work#scores",
+            "icon": "grid",
+            "roles": [
+                "teacher",
+                "admin",
+                "principal"
+            ]
+        },
+        {
+            "key": "courses",
+            "label": "รายวิชาและครูผู้สอน",
+            "path": "/work#courses",
+            "icon": "grid",
+            "roles": [
+                "admin",
+                "principal"
+            ]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/assessment/assessment.css",
+        "assets/modules/assessment/assessment.js"
+    ],
+    "package": "separate"
+}

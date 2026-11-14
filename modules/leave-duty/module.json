@@ -1,0 +1,51 @@
+{
+    "id": "leave-duty",
+    "name": "ใบลาและเวรครู",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {}
+    },
+    "description": "ใบลาครูบนมือถือ (ยื่น ถอน ขอยกเลิก ยื่นซ้ำ อนุมัติ โควตาปีงบประมาณ ไฟล์แนบส่วนตัว) และตารางเวร (มอบหมาย ยกเลิก ขอแลกเวร อนุมัติ) พร้อมแจ้งผลทางอีเมล",
+    "families": [
+        "M14",
+        "M24",
+        "GAP-OPS-005"
+    ],
+    "routes": [
+        "/api/leave/*",
+        "/api/duty/*"
+    ],
+    "disable_policy": "keep-data",
+    "private_storage": ["leave-duty"],
+    "storage_tables": [{"table": "leave_requests", "bytes": "attachment_bytes"}],
+    "work_menu": [
+        {
+            "key": "leave",
+            "label": "ใบลา",
+            "path": "/work#leave",
+            "icon": "document",
+            "roles": ["admin", "principal", "teacher"]
+        },
+        {
+            "key": "leave-approve",
+            "label": "อนุมัติใบลา",
+            "path": "/work#leave-approve",
+            "icon": "check",
+            "roles": ["admin", "principal"]
+        },
+        {
+            "key": "duty",
+            "label": "เวร",
+            "path": "/work#duty",
+            "icon": "calendar",
+            "roles": ["admin", "principal", "teacher"]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/leave-duty/leave-duty.css",
+        "assets/modules/leave-duty/leave-duty.js"
+    ],
+    "package": "separate"
+}

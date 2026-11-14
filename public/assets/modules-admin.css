@@ -1,0 +1,23 @@
+.mods-card{border:1px solid var(--line,#c4ccbe);border-radius:12px;padding:1rem;margin:0 0 .8rem;background:var(--sheet,#fffdf5);display:grid;gap:.5rem}
+.mods-card h3{margin:0;font-size:1.05rem}
+.mods-card p{margin:0}
+.mods-meta{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.mods-badge{display:inline-block;padding:.15rem .6rem;border-radius:999px;border:1px solid var(--line,#c4ccbe);font-size:.85rem}
+.mods-badge.on{background:var(--ink,#163b30);color:var(--sheet,#fffdf5)}
+.mods-badge.warn{border-color:var(--danger,#a72d1b);color:var(--danger,#a72d1b)}
+.mods-actions{display:flex;flex-wrap:wrap;gap:.5rem}
+.mods-actions button,.mods-card button,.mods-feed-actions button{min-height:44px;padding:.5rem 1rem;border-radius:10px;border:1px solid var(--ink,#163b30);background:transparent;color:inherit;cursor:pointer}
+.mods-actions button[data-ok]{background:var(--ink,#163b30);color:var(--sheet,#fffdf5)}
+.mods-card button:disabled{opacity:.5;cursor:not-allowed}
+.mods-card button:focus-visible,.mods-actions button:focus-visible,.mods-dialog input:focus-visible{outline:2px solid var(--accent,#b83317);outline-offset:2px}
+.mods-note{color:var(--muted,#4a5d54);font-size:.9rem}
+.mods-error{color:var(--danger,#a72d1b)}
+.mods-dialog{max-width:min(92vw,28rem);border:1px solid var(--line,#c4ccbe);border-radius:14px;padding:1.2rem;background:var(--sheet,#fffdf5);color:var(--ink,#163b30)}
+.mods-dialog label{display:grid;gap:.3rem;margin:.6rem 0}
+.mods-dialog input{min-height:44px;padding:.4rem .6rem;font:inherit}
+.mods-new ul,.mods-notes{padding-left:1.2rem}
+.mods-notes li{margin:.3rem 0}
+.mods-notes code{background:rgba(0,0,0,.06);padding:0 .25rem;border-radius:4px}
+@media (min-width:700px){.mods-card{grid-template-columns:1fr auto;align-items:start}.mods-card .mods-actions{justify-content:flex-end}}
+.mods-banner{margin:.6rem 1rem;padding:.7rem 1rem;border:1px solid var(--line,#c4ccbe);border-radius:12px;background:var(--sheet,#fffdf5);color:var(--ink,#163b30)}
+.mods-banner a{margin-left:.5rem;text-decoration:underline}

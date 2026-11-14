@@ -1,0 +1,48 @@
+{
+    "id": "student-portal",
+    "name": "พอร์ทัลนักเรียน",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {
+            "registry": ">=0.1.0",
+            "guardian-portal": ">=0.1.0",
+            "api-gateway": ">=0.1.0",
+            "assessment": ">=0.1.0",
+            "reports-pp": ">=0.1.0"
+        }
+    },
+    "description": "นักเรียนเข้าดูผลการเรียน (เกรด หน่วยกิต GPA GPAX ร/มผ/มส ลำดับที่เมื่อเปิดใช้) และตารางเรียนของตนเองด้วยรหัสนักเรียนกับรหัสตัวเลขหรือรหัสผ่านสั้นที่ครูประจำชั้นออกให้ ไม่ต้องมีอีเมล ล็อกบัญชีเมื่อใส่ผิดซ้ำ จำกัดอัตราตามเครือข่ายและโรงเรียน ครูประจำชั้นออกรหัส รีเซ็ต ปลดล็อก และพิมพ์ใบรหัสทั้งห้องได้ (แสดงครั้งเดียว) รวมถึงบัญชีผู้ปกครองที่ไม่มีอีเมล ลืมรหัสผ่านทางอีเมลที่ยืนยันแล้วเท่านั้น ผลการเรียนแสดงหลังโรงเรียนกดประกาศผลของภาคเรียนนั้น",
+    "families": [
+        "F8"
+    ],
+    "student_tables": [
+        {"table": "stu_events", "column": "student_id"}
+    ],
+    "routes": [
+        "/student",
+        "/student/*",
+        "/api/student-portal/*"
+    ],
+    "disable_policy": "keep-data",
+    "work_menu": [
+        {
+            "key": "student-accounts",
+            "label": "รหัสเข้าระบบนักเรียน",
+            "path": "/work#student-accounts",
+            "icon": "person",
+            "roles": [
+                "admin",
+                "principal",
+                "teacher"
+            ]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/student-portal/staff.css",
+        "assets/modules/student-portal/staff.js"
+    ],
+    "package": "separate",
+    "edition": "internal"
+}

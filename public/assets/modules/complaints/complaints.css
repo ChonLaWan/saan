@@ -1,0 +1,44 @@
+/* complaints module (F1): staff pages in /work. Mobile first (390px). */
+.work-app .cmp-work{padding:1rem;border-radius:var(--radius,16px);color:var(--ink,#163b30)}
+.work-app .cmp-work h1{margin:0 0 .5rem;font-size:1.35rem}
+.work-app .cmp-work h2{margin:.2rem 0 .5rem;font-size:1.1rem}
+.work-app .cmp-work h3{margin:.2rem 0 .4rem;font-size:1rem}
+.work-app .cmp-tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin:0 0 .75rem}
+.work-app .cmp-tabs a{padding:.5rem .9rem;min-height:44px;display:inline-flex;align-items:center;border:1px solid var(--line,#c4ccbe);border-radius:999px;color:inherit;text-decoration:none}
+.work-app .cmp-tabs a[aria-current=page]{background:var(--ink,#163b30);color:var(--sheet,#fffdf5)}
+.work-app .cmp-note{padding:.6rem .8rem;border-radius:10px;border:1px solid var(--line,#c4ccbe);margin:.5rem 0;background:var(--sheet,#fffdf5)}
+.work-app .cmp-error{border-color:var(--danger,#a72d1b);color:var(--danger,#a72d1b)}
+.work-app .cmp-warn{border-color:#8a5a00;color:#5c3c00}
+.work-app .cmp-ok{border-color:#1d6b4f}
+.work-app .cmp-filter{display:grid;gap:.5rem;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));align-items:end;margin:.5rem 0}
+.work-app .cmp-filter label,.work-app .cmp-inline label,.work-app .cmp-field{display:grid;gap:.25rem}
+.work-app .cmp-work input,.work-app .cmp-work select,.work-app .cmp-work textarea{min-height:44px;padding:.4rem .6rem;font-size:16px;border:1px solid var(--line,#c4ccbe);border-radius:8px;background:var(--sheet,#fffdf5);color:inherit;box-sizing:border-box;max-width:100%}
+.work-app .cmp-work textarea{width:100%}
+.work-app .cmp-check{display:flex;gap:.5rem;align-items:center;min-height:44px}
+.work-app .cmp-check input{min-height:22px;width:22px;height:22px}
+.work-app .cmp-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 1rem;border:1px solid var(--line,#7a8f74);border-radius:10px;background:var(--sheet,#fffdf5);color:inherit;text-decoration:none;cursor:pointer;font-size:1rem}
+.work-app .cmp-btn:disabled{opacity:.5;cursor:not-allowed}
+.work-app .cmp-primary{background:var(--ink,#163b30);color:var(--sheet,#fffdf5);border-color:var(--ink,#163b30)}
+.work-app .cmp-btn:focus-visible,.work-app .cmp-work a:focus-visible{outline:2px solid var(--accent,#b83317);outline-offset:2px}
+.work-app .cmp-scroll{overflow-x:auto}
+.work-app .cmp-table{border-collapse:collapse;width:100%}
+.work-app .cmp-table th,.work-app .cmp-table td{border:1px solid var(--line,#c4ccbe);padding:.5rem .6rem;text-align:left;vertical-align:top}
+.work-app .cmp-table thead th{background:var(--sheet,#fffdf5)}
+.work-app .cmp-tag{display:inline-block;padding:0 .5rem;border-radius:999px;border:1px solid var(--line,#7a8f74);font-size:.85rem}
+.work-app .cmp-late{border-color:var(--danger,#a72d1b);color:var(--danger,#a72d1b);font-weight:600}
+.work-app .cmp-status{display:inline-block;padding:0 .6rem;border-radius:999px;border:1px solid currentColor;font-size:.9rem;font-weight:600}
+.work-app .cmp-s-closed{color:#51675b}.work-app .cmp-s-replied{color:#1d6b4f}.work-app .cmp-s-in_progress{color:#1f4f8a}.work-app .cmp-s-received{color:#8a5a00}
+.work-app .cmp-box{border:1px solid var(--line,#c4ccbe);border-radius:12px;padding:.75rem 1rem;margin:.75rem 0;background:var(--sheet,#fffdf5)}
+.work-app .cmp-inline{display:flex;flex-wrap:wrap;gap:.6rem;align-items:end;margin:.4rem 0}
+.work-app .cmp-text{white-space:pre-wrap;overflow-wrap:anywhere;margin:.25rem 0}
+.work-app .cmp-dl{display:grid;grid-template-columns:max-content 1fr;gap:.25rem 1rem;margin:0}.work-app .cmp-dl dd{margin:0;overflow-wrap:anywhere}
+.work-app .cmp-checks{display:grid;gap:.1rem;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));margin:.4rem 0}
+.work-app .cmp-help{margin:.2rem 0;color:#51675b;font-size:.95rem}
+.work-app .cmp-notes,.work-app .cmp-files,.work-app .cmp-log{padding-left:1.2rem;margin:.25rem 0}
+.work-app .cmp-pager{display:flex;gap:.75rem;align-items:center;margin:.75rem 0}
+@media (max-width:640px){
+  .work-app .cmp-cards thead{position:absolute;left:-10000px}
+  .work-app .cmp-cards tr{display:block;border:1px solid var(--line,#c4ccbe);border-radius:10px;margin:.5rem 0}
+  .work-app .cmp-cards td{display:flex;gap:.75rem;border:0;border-bottom:1px solid var(--line,#e3e8de)}
+  .work-app .cmp-cards td::before{content:attr(data-label);font-weight:600;min-width:7.5rem}
+}

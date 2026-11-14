@@ -1,0 +1,7 @@
+<x-account-layout title="โมดูล">
+<link rel="stylesheet" href="{{ \App\Support\WebsiteView::asset('assets/modules-admin.css') }}"><script defer src="{{ \App\Support\WebsiteView::asset('assets/modules-admin.js') }}"></script>
+<p class="account-intro">เปิดหรือปิดความสามารถของระบบได้ที่นี่ การปิดโมดูลไม่ลบข้อมูล ข้อมูลยังอยู่ในฐานข้อมูลและกลับมาใช้ได้เมื่อเปิดอีกครั้ง ไฟล์ตั้งค่าเซิร์ฟเวอร์ (.env) มีสิทธิ์เหนือหน้านี้เมื่อสั่งปิดโมดูล</p>
+<section class="account-card glass" id="mods-feed" aria-live="polite"><h2>ตรวจรุ่นใหม่</h2><p class="account-help">ปิดอยู่เป็นค่าเริ่มต้น เมื่อเปิด ระบบจะดึงรายการรุ่นที่ลงลายเซ็นวันละครั้งจากเซิร์ฟเวอร์โครงการ ไม่ส่งข้อมูลโรงเรียนไปด้วย และไม่ติดตั้งอะไรให้เอง</p><div data-feed>กำลังโหลด…</div></section>
+<section class="account-card glass"><h2>รายการโมดูล</h2><div id="mods-list" aria-busy="true"><p>กำลังโหลด…</p></div></section>
+<dialog id="mods-dialog" class="mods-dialog"><form method="dialog" id="mods-form"><h3 data-title></h3><p data-text></p><label data-confirm-wrap hidden>พิมพ์รหัสโมดูลเพื่อยืนยัน <b data-confirm-id></b><input data-confirm autocomplete="off" maxlength="60"></label><label>รหัสผ่านของคุณ<input type="password" data-password autocomplete="current-password" maxlength="72" required></label><p class="mods-error" data-error role="alert" hidden></p><div class="mods-actions"><button type="button" data-cancel>ยกเลิก</button><button type="submit" data-ok>ยืนยัน</button></div></form></dialog>
+</x-account-layout>

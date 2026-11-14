@@ -1,0 +1,51 @@
+{
+  "css_source": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&family=Noto+Serif+Thai:wght@400;500;600&display=swap",
+  "licences": [
+    "ibmplexsansthai-OFL.txt",
+    "notoserifthai-OFL.txt"
+  ],
+  "files": [
+    {
+      "source": "https://fonts.gstatic.com/s/ibmplexsansthai/v11/m8JMje1VVIzcq1HzJq2AEdo2Tj_qvLqE-vUFbQ.ttf",
+      "file": "ec8d798ca235fecac2.ttf",
+      "bytes": 105280,
+      "sha256": "ec8d798ca235fecac2833f5ab6ba871fde47dafd576e705fe1b3e84de066cf30"
+    },
+    {
+      "source": "https://fonts.gstatic.com/s/ibmplexsansthai/v11/m8JMje1VVIzcq1HzJq2AEdo2Tj_qvLqE1vIFbQ.ttf",
+      "file": "2553bc047128487a72.ttf",
+      "bytes": 105468,
+      "sha256": "2553bc047128487a725a663f60ce446fa95214ca02a6433dc849cc619d83d551"
+    },
+    {
+      "source": "https://fonts.gstatic.com/s/ibmplexsansthai/v11/m8JMje1VVIzcq1HzJq2AEdo2Tj_qvLqEsvMFbQ.ttf",
+      "file": "5f9a1bbc18e1ef408a.ttf",
+      "bytes": 105568,
+      "sha256": "5f9a1bbc18e1ef408ae7e83acc177e0a8b1b68f46d7dd9b15b0c912d0b97c80a"
+    },
+    {
+      "source": "https://fonts.gstatic.com/s/ibmplexsansthai/v11/m8JPje1VVIzcq1HzJq2AEdo2Tj_qvLq8Dg.ttf",
+      "file": "b4b746c92c0fe46a39.ttf",
+      "bytes": 105108,
+      "sha256": "b4b746c92c0fe46a392e6f68b6d1fc98ec124bdd44bfcfb78f4b82d9825a8a08"
+    },
+    {
+      "source": "https://fonts.gstatic.com/s/notoserifthai/v28/k3kyo80MPvpLmixYH7euCxWpSMu3-gcWGj0hHAKGvUQlUv_bCKDUSzB5L0oQF-RR.ttf",
+      "file": "f13d6a0246a9ff21f0.ttf",
+      "bytes": 59940,
+      "sha256": "f13d6a0246a9ff21f083c61689fd02b5f7ce8f06a07a332b970b2595983827d9"
+    },
+    {
+      "source": "https://fonts.gstatic.com/s/notoserifthai/v28/k3kyo80MPvpLmixYH7euCxWpSMu3-gcWGj0hHAKGvUQlUv_bCKDUSzB5L0oiF-RR.ttf",
+      "file": "9c577a5f94f8704a3c.ttf",
+      "bytes": 59704,
+      "sha256": "9c577a5f94f8704a3c68442b371176e8ca0041d7df17de3c91f4919289b54fee"
+    },
+    {
+      "source": "https://fonts.gstatic.com/s/notoserifthai/v28/k3kyo80MPvpLmixYH7euCxWpSMu3-gcWGj0hHAKGvUQlUv_bCKDUSzB5L0r8EORR.ttf",
+      "file": "d2f56f954d004debed.ttf",
+      "bytes": 59880,
+      "sha256": "d2f56f954d004debeda37cbfc7f10b5cfe19551df8c4001d20360cbdb8dd9754"
+    }
+  ]
+}

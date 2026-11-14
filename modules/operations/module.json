@@ -1,0 +1,11 @@
+{
+    "id": "operations",
+    "name": "ภาพรวมงานโรงเรียน (ดูอย่างเดียว)",
+    "version": "0.6.0",
+    "readiness": "experimental",
+    "requires": { "core": ">=0.6.0", "modules": {} },
+    "description": "หน้าภาพรวมแบบดูอย่างเดียวของต้นแบบเดิม (/operations, GET /api/state) งานแก้ไขตารางสอน เวร ลา เช็คชื่อ และคะแนนย้ายไปโมดูลใน /work แล้ว เส้นทางเขียนเดิม (/api/lessons, /api/duties, /api/leaves, /api/attendance, /api/grades) ตอบ 410 Gone",
+    "families": ["M04", "M07", "M09", "M14", "M24"],
+    "routes": ["/operations", "/api/state", "/api/lessons*", "/api/duties*", "/api/duty-suggestions", "/api/leaves*", "/api/attendance", "/api/grades", "/api/posts*", "/api/operations/catalogue"],
+    "disable_policy": "keep-data"
+}

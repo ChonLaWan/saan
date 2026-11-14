@@ -1,0 +1,30 @@
+/* timetable print view: A4 landscape, Thai. Screen preview is a centred sheet; @media print removes the toolbar. */
+@page{size:A4 landscape;margin:10mm}
+.tt-print{margin:0;font-family:"Sarabun","Noto Sans Thai","Tahoma",sans-serif;color:#111;background:#eef0ea}
+.tt-bar{display:flex;gap:.75rem;align-items:center;justify-content:space-between;padding:.6rem 1rem;background:#163b30}
+.tt-bar a{color:#fffdf5;min-height:44px;line-height:44px}
+.tt-bar button{min-height:44px;padding:0 1rem;border:0;border-radius:999px;background:#fffdf5;color:#163b30;font:inherit;cursor:pointer}
+.tt-sheet{max-width:277mm;margin:1rem auto;padding:1rem;background:#fff;overflow-x:auto}
+.tt-sheet header{text-align:center;margin-bottom:.6rem}
+.tt-sheet h1{margin:0;font-size:1.3rem}
+.tt-school,.tt-sub{margin:.1rem 0;font-size:.95rem}
+.tt-grid{width:100%;border-collapse:collapse;table-layout:fixed;min-width:640px}
+.tt-grid th,.tt-grid td{border:1px solid #333;padding:3px 4px;text-align:center;vertical-align:top;font-size:.82rem}
+.tt-grid thead th{background:#e6ebe2}
+.tt-grid th small{display:block;font-weight:400;font-size:.7rem}
+.tt-grid .tt-day{width:5.5rem;background:#e6ebe2}
+.tt-grid td{height:2.6rem}
+.tt-grid .tt-break{background:#f0f0f0;vertical-align:middle;color:#555}
+.tt-lesson{display:flex;flex-direction:column;gap:1px;margin-bottom:2px}
+.tt-lesson b{font-weight:700}
+.tt-lesson span{font-size:.74rem;color:#333}
+.tt-sheet footer{display:flex;justify-content:space-between;margin-top:.6rem;font-size:.85rem}
+.tt-sheet footer p{margin:0}
+@media print{
+  .tt-print{background:#fff}
+  .tt-bar{display:none}
+  .tt-sheet{max-width:none;margin:0;padding:0;overflow:visible}
+  .tt-grid{min-width:0}
+  .tt-grid th,.tt-grid td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .tt-grid tr{break-inside:avoid}
+}

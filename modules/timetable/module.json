@@ -1,0 +1,37 @@
+{
+    "id": "timetable",
+    "name": "ตารางสอน",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {}
+    },
+    "description": "จัดตารางสอนรายภาคเรียน ดูตามห้อง ตามครู ตามสถานที่ ตรวจคาบชน คัดลอกจากภาคก่อนพร้อมรายงาน ลบแล้วเรียกคืนได้ และพิมพ์ A4 ราย ห้อง/ครู. โมดูลอื่นที่อ่านตาราง lessons ต้องใช้ Timetable::liveLessons() (กรองคาบที่ลบแล้ว) และ Timetable::roomLabel() (ห้องที่ไม่ระบุเก็บเป็นค่าภายใน ~none~); TeacherScope::classroomIds และ dutyAvailable ของโค้ดเก่าต้องเพิ่มเงื่อนไข deleted_at ตอน cutover",
+    "families": [
+        "M07"
+    ],
+    "routes": [
+        "/api/timetable/*",
+        "/timetable/print/*"
+    ],
+    "disable_policy": "keep-data",
+    "work_menu": [
+        {
+            "key": "timetable",
+            "label": "ตารางสอน",
+            "path": "/work#timetable",
+            "icon": "calendar",
+            "roles": [
+                "admin",
+                "principal",
+                "teacher"
+            ]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/timetable/timetable.css",
+        "assets/modules/timetable/timetable.js"
+    ],
+    "package": "separate"
+}

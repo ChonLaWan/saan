@@ -1,0 +1,68 @@
+/* timetable module: mobile-first (390px). Below 641px each day becomes a card and each period a labelled line. */
+.work-app .tt-page{padding:1rem;border-radius:var(--radius,16px);color:var(--ink,#163b30)}
+.work-app .tt-page h1{margin:0 0 .5rem;font-size:1.35rem}
+.work-app .tt-page h2{margin:0 0 .5rem;font-size:1.05rem}
+.work-app .tt-muted{color:var(--muted,#51675b)}
+.work-app .tt-bar{display:grid;gap:.6rem;grid-template-columns:1fr;margin:0 0 .8rem}
+.work-app .tt-f{display:grid;gap:.2rem;font-size:.9rem}
+.work-app .tt-f>span{font-weight:600}
+.work-app .tt-page select,.work-app .tt-page input{width:100%;min-height:44px;padding:.5rem .6rem;border:1px solid var(--line,#c4ccbe);border-radius:10px;font:inherit;color:inherit;background:var(--sheet,#fffdf5)}
+.work-app .tt-page select:focus-visible,.work-app .tt-page input:focus-visible,.work-app .tt-btn:focus-visible,.work-app .tt-tab:focus-visible,.work-app .tt-lesson:focus-visible,.work-app .tt-add:focus-visible{outline:2px solid var(--accent,#b83317);outline-offset:2px}
+.work-app .tt-tabs{display:flex;gap:.35rem;overflow-x:auto}
+.work-app .tt-tab{min-height:44px;padding:.4rem .9rem;border:1px solid var(--line,#c4ccbe);border-radius:999px;background:transparent;color:inherit;font:inherit;white-space:nowrap;cursor:pointer}
+.work-app .tt-tab[aria-selected=true]{background:var(--ink,#163b30);color:var(--sheet,#fffdf5);border-color:var(--ink,#163b30)}
+.work-app .tt-actions{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.work-app .tt-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:.4rem .95rem;border:1px solid var(--ink,#163b30);border-radius:999px;background:transparent;color:var(--ink,#163b30);font:inherit;cursor:pointer;text-decoration:none}
+.work-app .tt-btn.primary{background:var(--ink,#163b30);color:var(--sheet,#fffdf5)}
+.work-app .tt-btn.danger{border-color:var(--danger,#a72d1b);color:var(--danger,#a72d1b)}
+.work-app .tt-btn[disabled]{opacity:.55;cursor:wait}
+.work-app .tt-note{margin:0 0 .8rem;padding:.7rem .9rem;border-radius:12px;border:1px solid var(--line,#c4ccbe)}
+.work-app .tt-note ul{margin:0;padding-left:1.1rem}
+.work-app .tt-err{border-color:var(--danger,#a72d1b);color:var(--danger,#a72d1b)}
+.work-app .tt-ok{border-color:var(--moss,#658034);color:var(--moss,#658034)}
+.work-app .tt-warn{border-color:var(--accent,#b83317)}
+.work-app .tt-err .tt-btn{margin-top:.5rem}
+.work-app .tt-card{border:1px solid var(--line,#c4ccbe);border-radius:12px;padding:.8rem;margin:0 0 .9rem;background:var(--sheet,#fffdf5)}
+.work-app .tt-form{display:grid;gap:.6rem;grid-template-columns:1fr}
+.work-app .tt-form h2,.work-app .tt-form .tt-actions{grid-column:1 / -1}
+.work-app .tt-report ul,.work-app .tt-trash{margin:.4rem 0;padding-left:1.1rem}
+.work-app .tt-trash{list-style:none;padding:0;display:grid;gap:.5rem}
+.work-app .tt-trash li{display:flex;gap:.6rem;justify-content:space-between;align-items:center;flex-wrap:wrap;padding:.5rem .6rem;border:1px solid var(--line,#c4ccbe);border-radius:10px}
+.work-app .tt-sum{margin:.2rem 0 .5rem;color:var(--muted,#51675b)}
+
+/* grid: card per day on small screens */
+.work-app .tt-grid,.work-app .tt-table{width:100%;border-collapse:collapse}
+.work-app .tt-grid thead,.work-app .tt-table thead{position:absolute;left:-9999px}
+.work-app .tt-grid tr,.work-app .tt-table tr{display:block;margin:0 0 .7rem;border:1px solid var(--line,#c4ccbe);border-radius:12px;overflow:hidden;background:var(--sheet,#fffdf5)}
+.work-app .tt-grid tbody th{display:block;padding:.5rem .7rem;text-align:left;background:var(--ink,#163b30);color:var(--sheet,#fffdf5)}
+.work-app .tt-grid td,.work-app .tt-table td{display:grid;grid-template-columns:7.5rem 1fr;gap:.4rem;align-items:center;padding:.45rem .7rem;border-top:1px solid var(--line,#c4ccbe)}
+.work-app .tt-grid td::before,.work-app .tt-table td::before{content:attr(data-label);font-size:.8rem;color:var(--muted,#51675b)}
+.work-app .tt-grid td.empty:not(:has(.tt-add)){display:none}
+.work-app .tt-table td:last-child::before{content:none}
+.work-app .tt-grid td.tt-break{background:rgba(0,0,0,.04);color:var(--muted,#51675b)}
+/* a lesson box never lets its text out: long subject and teacher names wrap inside the cell (the app-wide button style keeps text on one line) */
+.work-app .tt-lesson{display:flex;flex-direction:column;gap:.1rem;min-height:44px;width:100%;min-width:0;max-width:100%;box-sizing:border-box;padding:.35rem .6rem;border:1px solid var(--line,#c4ccbe);border-radius:10px;background:var(--sheet,#fffdf5);color:inherit;font:inherit;text-align:left;margin:0 0 .25rem;white-space:normal;overflow:hidden}
+.work-app button.tt-lesson{cursor:pointer}
+.work-app .tt-lesson b,.work-app .tt-lesson span,.work-app .tt-lesson small{display:block;min-width:0;max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.35}
+.work-app .tt-lesson b{font-weight:700}
+.work-app .tt-lesson span,.work-app .tt-lesson small{font-size:.82rem;color:var(--muted,#51675b)}
+.work-app .tt-add{min-width:44px;min-height:44px;border:1px dashed var(--line,#c4ccbe);border-radius:10px;background:transparent;color:var(--muted,#51675b);font:inherit;font-size:1.2rem;cursor:pointer}
+
+@media (min-width:641px){
+  .work-app .tt-bar{grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));align-items:end}
+  .work-app .tt-bar .tt-tabs,.work-app .tt-bar .tt-actions{grid-column:1 / -1}
+  .work-app .tt-form{grid-template-columns:repeat(auto-fit,minmax(11rem,1fr))}
+  .work-app .tt-grid{table-layout:fixed;min-width:760px}
+  .work-app .tt-grid thead,.work-app .tt-table thead{position:static}
+  .work-app .tt-grid tr,.work-app .tt-table tr{display:table-row;margin:0;border:0;border-radius:0;overflow:visible;background:none}
+  .work-app .tt-grid th,.work-app .tt-grid td,.work-app .tt-table th,.work-app .tt-table td{display:table-cell;border:1px solid var(--line,#c4ccbe);padding:.4rem;vertical-align:top;text-align:left}
+  .work-app .tt-grid thead th:first-child{width:5.5rem}
+  .work-app .tt-grid tbody th{display:table-cell;padding:.4rem;background:rgba(0,0,0,.05);color:inherit;width:5.5rem;vertical-align:middle}
+  .work-app .tt-grid .tt-lesson{padding:.35rem .45rem;font-size:.88rem}
+  .work-app .tt-grid td.tt-break{width:4.75rem;text-align:center;vertical-align:middle}
+  .work-app .tt-grid thead th.tt-break-h{width:4.75rem}
+  .work-app .tt-grid thead th small{display:block;font-weight:400;color:var(--muted,#51675b)}
+  .work-app .tt-grid td::before,.work-app .tt-table td::before{content:none}
+  .work-app .tt-grid td.empty:not(:has(.tt-add)){display:table-cell}
+  .work-app .tt-grid-wrap,.work-app .tt-body{overflow-x:auto}
+}

@@ -1,0 +1,76 @@
+/* exam-checker module: page #exams. Mobile-first (390px); tables collapse into cards below 640px. */
+.exm{display:grid;gap:1rem;color:var(--ink,#163b30)}
+.exm-panel{padding:1rem;border-radius:var(--radius,16px);display:grid;gap:.9rem}
+.exm h1{margin:0;font-size:1.35rem;line-height:1.3}
+.exm h2{margin:.6rem 0 0;font-size:1.1rem}
+.exm a{color:inherit}
+.exm-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.6rem}
+.exm-sub,.exm-count{margin:0;color:var(--muted,#4d6258);font-size:.95rem}
+.exm-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:.5rem 1rem;border:1px solid var(--line,#c4ccbe);border-radius:999px;background:var(--sheet,#fffdf5);color:inherit;font:inherit;text-decoration:none;cursor:pointer}
+.exm-btn.primary{background:var(--ink,#163b30);border-color:var(--ink,#163b30);color:var(--sheet,#fffdf5)}
+.exm-btn.danger{border-color:var(--danger,#a72d1b);color:var(--danger,#a72d1b)}
+.exm-btn:disabled{opacity:.5;cursor:not-allowed}
+.exm-btn:focus-visible,.exm input:focus-visible,.exm select:focus-visible,.exm textarea:focus-visible,.exm-tabs a:focus-visible,.exm-card:focus-visible{outline:2px solid var(--accent,#b83317);outline-offset:2px}
+.exm-actions,.exm-bar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:.6rem}
+.exm-bar .exm-sub{flex:1 1 16rem}
+.exm-cards{list-style:none;margin:0;padding:0;display:grid;gap:.7rem;grid-template-columns:1fr}
+.exm-card{display:grid;gap:.25rem;padding:.8rem 1rem;border:1px solid var(--line,#c4ccbe);border-radius:12px;background:var(--sheet,#fffdf5);text-decoration:none;color:inherit}
+.exm-card.static{margin-bottom:.6rem}
+.exm-card span{color:var(--muted,#4d6258);font-size:.92rem}
+.exm-badge{display:inline-block;justify-self:start;padding:.05rem .6rem;border-radius:999px;border:1px solid var(--line,#c4ccbe);font-size:.8rem;line-height:1.6;background:var(--sheet,#fffdf5)}
+.exm-badge.open{border-color:var(--ink,#163b30);color:var(--ink,#163b30)}
+.exm-badge.closed{background:var(--muted,#4d6258);border-color:var(--muted,#4d6258);color:#fff}
+.exm-tabs{display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.2rem}
+.exm-tabs a{display:inline-flex;align-items:center;min-height:44px;padding:.4rem .9rem;border-radius:999px;border:1px solid var(--line,#c4ccbe);text-decoration:none;white-space:nowrap}
+.exm-tabs a[aria-current=page]{background:var(--ink,#163b30);border-color:var(--ink,#163b30);color:var(--sheet,#fffdf5)}
+.exm-form{display:grid;gap:.7rem;grid-template-columns:1fr}
+.exm-field{display:grid;gap:.25rem;font-size:.95rem}
+.exm-field span{font-weight:600}
+.exm-field small{font-weight:400;color:var(--muted,#4d6258)}
+.exm-field.narrow{min-width:12rem}
+.exm input:not([type=checkbox]):not([type=file]),.exm select,.exm textarea{min-height:44px;padding:.45rem .7rem;border:1px solid var(--line,#c4ccbe);border-radius:10px;background:var(--sheet,#fffdf5);color:inherit;font:inherit;width:100%;box-sizing:border-box}
+.exm textarea{font-family:inherit;letter-spacing:.05em}
+.exm-check{display:flex;align-items:center;gap:.5rem;min-height:44px}
+.exm-check input{width:1.2rem;height:1.2rem}
+.exm-live{min-height:1.2em}
+.exm-live.bad,.exm-alert{color:var(--danger,#a72d1b)}
+.exm-alert,.exm-conflict{padding:.8rem 1rem;border:2px solid var(--danger,#a72d1b);border-radius:12px;background:color-mix(in srgb,var(--danger,#a72d1b) 10%,var(--sheet,#fffdf5));margin:0}
+.exm-conflict{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin-bottom:.8rem}
+.exm-conflict p{margin:0;flex:1 1 14rem}
+.exm-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.exm-table{border-collapse:collapse;width:100%;font-size:.95rem}
+.exm-table th,.exm-table td{padding:.45rem .55rem;border-bottom:1px solid var(--line,#c4ccbe);text-align:left;vertical-align:middle}
+.exm-table td.key{background:color-mix(in srgb,var(--ink,#163b30) 14%,transparent);font-weight:700}
+.exm-table tr.review{background:color-mix(in srgb,var(--accent,#b83317) 10%,transparent)}
+.exm-table small{color:var(--muted,#4d6258)}
+.exm-entry input.exm-ans{min-width:12rem;letter-spacing:.12em;font-size:1.05rem}
+.exm-entry input.exm-ans.bad{border-color:var(--danger,#a72d1b);border-width:2px}
+.exm-entry tr.dirty{background:color-mix(in srgb,var(--accent,#b83317) 8%,transparent)}
+.exm-entry tr.err .sc{color:var(--danger,#a72d1b);font-weight:600}
+.exm-entry .sc{font-weight:700;min-width:3rem}
+.exm-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem;margin:0}
+.exm-stats div{padding:.6rem .8rem;border:1px solid var(--line,#c4ccbe);border-radius:12px;background:var(--sheet,#fffdf5)}
+.exm-stats dt{color:var(--muted,#4d6258);font-size:.85rem}
+.exm-stats dd{margin:0;font-size:1.3rem;font-weight:700}
+.exm-dist{list-style:none;margin:0;padding:0;display:grid;gap:.3rem}
+.exm-dist li{display:grid;grid-template-columns:5.5rem 1fr 2.5rem;align-items:center;gap:.5rem}
+.exm-dist i{display:block;height:1rem;min-width:2px;border-radius:4px;background:var(--ink,#163b30)}
+.exm-dist b{text-align:right}
+.exm-plain{margin:0;padding-left:1.2rem}
+.exm-doc{border:1px solid var(--line,#c4ccbe);border-radius:12px;padding:.6rem 1rem;background:var(--sheet,#fffdf5)}
+.exm-doc summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
+.exm .wide{grid-column:1/-1}
+@media (min-width:640px){
+    .exm-form{grid-template-columns:repeat(2,1fr)}
+    .exm-cards{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+    .exm-stats{grid-template-columns:repeat(4,1fr)}
+}
+@media (max-width:639px){
+    .exm-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+    .exm-table,.exm-table tbody{display:block}
+    .exm-table tr{display:grid;grid-template-columns:1fr 1fr;gap:.2rem .8rem;margin-bottom:.6rem;padding:.6rem .8rem;border:1px solid var(--line,#c4ccbe);border-radius:12px;background:var(--sheet,#fffdf5)}
+    .exm-table td{display:block;padding:.1rem 0;border:0}
+    .exm-table td::before{content:attr(data-label);display:block;font-size:.75rem;color:var(--muted,#4d6258)}
+    .exm-entry td:nth-child(3){grid-column:1/-1}
+    .exm-entry input.exm-ans{min-width:0}
+}

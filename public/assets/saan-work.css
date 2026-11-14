@@ -1,0 +1,16 @@
+.work-app .work-tabs{padding:.5rem;margin:0 0 1rem;border-radius:var(--radius,16px)}
+/* The strip of module links is longer than most screens: it scrolls inside itself, shows a thin scrollbar and fades the edge that still has links beyond it (the data attributes are set by saan-work.js) */
+.work-app .work-tabs-track{display:flex;gap:.4rem;overflow-x:auto;padding:0 0 .4rem;scrollbar-width:thin;scrollbar-color:var(--control-line,#7d8a80) transparent;overscroll-behavior-x:contain}
+.work-app .work-tabs-track[data-more-end]{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 3rem),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 3rem),transparent)}
+.work-app .work-tabs-track[data-more-start]{-webkit-mask-image:linear-gradient(to left,#000 calc(100% - 3rem),transparent);mask-image:linear-gradient(to left,#000 calc(100% - 3rem),transparent)}
+.work-app .work-tabs-track[data-more-start][data-more-end]{-webkit-mask-image:linear-gradient(to right,transparent,#000 3rem,#000 calc(100% - 3rem),transparent);mask-image:linear-gradient(to right,transparent,#000 3rem,#000 calc(100% - 3rem),transparent)}
+.work-app .work-tabs a{flex:none;display:inline-flex;align-items:center;gap:.4rem;padding:.55rem .9rem;min-height:44px;border-radius:999px;color:var(--ink,#163b30);text-decoration:none;white-space:nowrap}
+.work-app .work-tabs a[aria-current=page]{background:var(--ink,#163b30);color:var(--sheet,#fffdf5)}
+.work-app .work-tabs a:focus-visible{outline:2px solid var(--accent,#b83317);outline-offset:2px}
+.work-app #work-view{min-height:40vh}
+.work-app .work-empty,.work-app .work-home,.work-app .work-error{padding:1.25rem;border-radius:var(--radius,16px)}
+.work-app .work-empty h1,.work-app .work-home h1{margin:0 0 .5rem;font-size:1.4rem}
+.work-app .work-home ul{list-style:none;margin:0;padding:0;display:grid;gap:.6rem;grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}
+.work-app .work-home a{display:block;padding:.9rem 1rem;border:1px solid var(--line,#c4ccbe);border-radius:12px;color:inherit;text-decoration:none;background:var(--sheet,#fffdf5)}
+.work-app .work-error{border:1px solid var(--danger,#a72d1b);color:var(--danger,#a72d1b)}
+@media (max-width:480px){.work-app .work-home ul{grid-template-columns:1fr}}

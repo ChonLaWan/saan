@@ -1,0 +1,1 @@
+@if($atlas=\App\Domain\Cms\ThemeRegistry::asset($theme['preset'],'icons'))<span class="school-art-icon" aria-hidden="true" style="background-image:url('{{ $atlas }}');background-position:{{ ((int)($iconIndex??0)%3)*50 }}% {{ intdiv((int)($iconIndex??0),3)*50 }}%"></span>@endif

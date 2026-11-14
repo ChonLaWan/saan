@@ -1,0 +1,7 @@
+student_code,display_name,sex,birth_date,nationality_status,classroom,needs_interpreter
+BAD-01,Good Row,M,2016-01-01,thai,ป.4/1,False
+BAD-02,Bad Sex,X,2016-01-01,thai,ป.4/1,False
+BAD-03,Bad Room,F,2016-01-01,thai,ห้องไม่มี,False
+,No Code,F,2016-01-01,thai,,False
+BAD-01,Dup Code,F,2016-01-01,thai,,False
+BAD-06,Bad Date,F,2016-13-45,thai,,False

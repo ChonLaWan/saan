@@ -1,0 +1,17 @@
+student_id,guardian_id,relationship,relationship_th,is_emergency_contact,contact_priority,can_pick_up
+DEMO-S001,DEMO-G001,mother,มารดา,True,1,True
+DEMO-S001,DEMO-G002,father,บิดา,False,2,True
+DEMO-S002,DEMO-G003,father,บิดา,True,1,True
+DEMO-S002,DEMO-G004,mother,มารดา,False,2,True
+DEMO-S004,DEMO-G007,mother,มารดา,True,1,True
+DEMO-S004,DEMO-G008,father,บิดา,False,2,False
+DEMO-S005,DEMO-G009,grandmother,ยาย,True,1,True
+DEMO-S005,DEMO-G010,mother,มารดา,False,2,True
+DEMO-S008,DEMO-G015,father,บิดา,True,1,True
+DEMO-S008,DEMO-G016,mother,มารดา,False,2,True
+DEMO-S010,DEMO-G019,mother,มารดา,True,1,True
+DEMO-S010,DEMO-G020,father,บิดา,False,2,False
+DEMO-S012,DEMO-G007,mother,มารดา,True,1,True
+DEMO-S012,DEMO-G008,father,บิดา,False,2,False
+DEMO-S013,DEMO-G023,mother,มารดา,True,1,True
+DEMO-S013,DEMO-G024,father,บิดา,False,2,True

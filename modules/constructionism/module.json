@@ -1,0 +1,54 @@
+{
+    "id": "constructionism",
+    "name": "โครงงาน Constructionism",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {}
+    },
+    "description": "สำหรับโรงเรียนที่ใช้โครงการ Constructionism (การเรียนรู้โดยการสร้างชิ้นงาน): ทีมโครงงานรายห้อง คำถามนำ สมาชิกและบทบาท สมุดบันทึกความก้าวหน้า ชิ้นงานและไฟล์ส่วนตัว การสะท้อนคิดพร้อมรูบริกที่โรงเรียนแก้ได้ และใบสรุปโครงงานสำหรับพิมพ์ ครูเป็นผู้บันทึกเท่านั้น นักเรียนไม่ต้องมีบัญชี",
+    "families": [
+        "M17"
+    ],
+    "routes": [
+        "/api/pbl/*",
+        "/pbl/projects/*"
+    ],
+    "disable_policy": "keep-data",
+    "student_tables": [
+        {"table": "con_members", "column": "student_id"},
+        {"table": "con_reflections", "column": "student_id"}
+    ],
+    "term_tables": [
+        {"table": "con_projects", "column": "term_id", "label": "โครงงานคอนสตรักชันนิซึม"}
+    ],
+    "private_storage": [
+        "constructionism"
+    ],
+    "storage_tables": [
+        {"table": "con_artifacts", "bytes": "size"}
+    ],
+    "work_menu": [
+        {
+            "key": "pbl",
+            "label": "โครงงาน Constructionism",
+            "path": "/work#pbl",
+            "icon": "palette",
+            "roles": ["admin", "principal", "teacher"]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/constructionism/pbl.css",
+        "assets/modules/constructionism/pbl.js"
+    ],
+    "package": "separate",
+    "settings_schema": [
+        {
+            "key": "constructionism.rubric",
+            "label": "เกณฑ์รูบริกการเรียนรู้แบบลงมือสร้าง",
+            "type": "json",
+            "help": "รูปแบบ {\"criteria\":[{\"key\",\"label\",\"levels\":[4 ข้อความ]}]} 1-10 เกณฑ์ เกณฑ์ที่มีการให้คะแนนแล้วลบไม่ได้"
+        }
+    ]
+}

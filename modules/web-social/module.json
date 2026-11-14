@@ -1,0 +1,59 @@
+{
+    "id": "web-social",
+    "name": "ข่าวจากเพจ Facebook",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {
+            "web-cms": ">=0.6.0"
+        }
+    },
+    "description": "แสดงโพสต์ล่าสุดจากเพจ Facebook ของโรงเรียนบนหน้าแรก แบบกดเพื่อโหลด ไม่ต้องใช้ access token และไม่ส่งข้อมูลผู้ชมให้ Facebook จนกว่าจะกด",
+    "families": [
+        "M01",
+        "M23",
+        "G2"
+    ],
+    "routes": [
+        "/api/social"
+    ],
+    "disable_policy": "keep-data",
+    "admin_assets": [
+        "assets/modules/web-social/social-admin.js"
+    ],
+    "admin_menu": [
+        {
+            "key": "social",
+            "label": "ข่าวจากเพจ Facebook",
+            "path": "/cms#social",
+            "icon": "web",
+            "roles": [
+                "admin",
+                "principal",
+                "editor"
+            ]
+        }
+    ],
+    "package": "separate",
+    "edition": "both",
+    "public_projection": [
+        {
+            "table": "social_feeds",
+            "where": {
+                "enabled": 1
+            },
+            "columns": {
+                "id": "keep",
+                "school_id": "keep",
+                "facebook_url": "keep",
+                "heading": "keep",
+                "height": "keep",
+                "enabled": "keep",
+                "version": "keep",
+                "created_at": "keep",
+                "updated_at": "keep"
+            }
+        }
+    ]
+}

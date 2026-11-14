@@ -1,0 +1,38 @@
+{
+    "id": "projects",
+    "name": "โครงการและแผนปฏิบัติการ",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {}
+    },
+    "description": "แผนปฏิบัติการประจำปี โครงการ กิจกรรม งบประมาณและการใช้จ่าย (หน่วยสตางค์) อนุมัติโดยผู้บริหาร รายงานผลพร้อมหลักฐาน สรุปรายแผนและรายแหล่งงบ พิมพ์แบบฟอร์มโครงการ A4 และส่งออก CSV",
+    "families": [
+        "M16"
+    ],
+    "routes": [
+        "/api/projects/*"
+    ],
+    "disable_policy": "keep-data",
+    "work_menu": [
+        {
+            "key": "projects",
+            "label": "โครงการ/แผนปฏิบัติการ",
+            "path": "/work#projects",
+            "icon": "chart",
+            "roles": ["teacher", "admin", "principal"]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/projects/projects.css",
+        "assets/modules/projects/projects.js"
+    ],
+    "private_storage": [
+        "projects"
+    ],
+    "storage_tables": [
+        {"table": "prj_reports", "bytes": "evidence_size", "where": {}}
+    ],
+    "package": "separate"
+}

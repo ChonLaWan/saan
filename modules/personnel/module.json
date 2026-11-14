@@ -1,0 +1,111 @@
+{
+    "id": "personnel",
+    "name": "แฟ้มสะสมงานและทะเบียนบุคลากร",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": []
+    },
+    "description": "แฟ้มสะสมงานครู (อัปโหลดเข้าแฟ้มของตนเอง โควตา ตรวจสอบ PA ดาวน์โหลดเป็น zip) ทะเบียนบุคลากร ข้อมูลทำเนียบบุคลากรสำหรับเว็บไซต์ และนโยบายเก็บรักษาไฟล์",
+    "families": [
+        "M13",
+        "G3",
+        "G9"
+    ],
+    "routes": [
+        "/api/personnel/*"
+    ],
+    "disable_policy": "keep-data",
+    "storage_tables": [
+        {
+            "table": "per_files",
+            "bytes": "size",
+            "where": {
+                "status": [
+                    "active",
+                    "archived"
+                ]
+            }
+        }
+    ],
+    "private_storage": [
+        "personnel"
+    ],
+    "work_menu": [
+        {
+            "key": "portfolio",
+            "label": "แฟ้มสะสมงาน",
+            "path": "/work#portfolio",
+            "icon": "document",
+            "roles": [
+                "teacher",
+                "admin",
+                "principal"
+            ]
+        },
+        {
+            "key": "personnel",
+            "label": "ทะเบียนบุคลากร",
+            "path": "/work#personnel",
+            "icon": "people",
+            "roles": [
+                "admin",
+                "principal"
+            ]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/personnel/personnel.css",
+        "assets/modules/personnel/personnel.js"
+    ],
+    "package": "separate",
+    "settings_schema": [
+        {
+            "key": "personnel.teacher_quota_mb",
+            "label": "โควตาแฟ้มสะสมงานต่อครู (MB)",
+            "type": "int",
+            "min": 0,
+            "max": 1048576,
+            "default": 2048,
+            "help": "0 คือไม่จำกัด"
+        }
+    ],
+    "edition": "both",
+    "public_projection": [
+        {
+            "table": "teachers",
+            "filter": "directory_teachers",
+            "columns": {
+                "id": "keep",
+                "school_id": "keep",
+                "name": "keep",
+                "subject": "const:"
+            }
+        },
+        {
+            "table": "per_profiles",
+            "filter": "directory_profiles",
+            "where": {
+                "show_in_directory": 1
+            },
+            "columns": {
+                "id": "keep",
+                "school_id": "keep",
+                "teacher_id": "keep",
+                "position": "keep",
+                "academic_standing": "keep",
+                "department": "keep",
+                "work_group": "keep",
+                "photo_path": "keep",
+                "show_in_directory": "keep",
+                "directory_order": "keep",
+                "start_date": "null",
+                "education": "null",
+                "version": "keep",
+                "created_at": "keep",
+                "updated_at": "keep"
+            }
+        }
+    ]
+}

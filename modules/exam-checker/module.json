@@ -1,0 +1,32 @@
+{
+    "id": "exam-checker",
+    "name": "ตรวจข้อสอบและวิเคราะห์ข้อสอบ",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {}
+    },
+    "description": "ตั้งเฉลยข้อสอบ กรอกคำตอบทั้งห้องแบบพิมพ์เร็ว นำเข้า CSV และไฟล์จากเครื่องสแกน OMR ตรวจให้คะแนนอัตโนมัติ ตรวจใหม่เมื่อเฉลยเปลี่ยน วิเคราะห์ข้อสอบรายข้อ สรุปรายห้อง และใบแจ้งผลรายคน",
+    "families": [
+        "M11"
+    ],
+    "routes": [
+        "/api/exam-checker/*"
+    ],
+    "disable_policy": "keep-data",
+    "work_menu": [
+        {
+            "key": "exams",
+            "label": "ตรวจข้อสอบ",
+            "path": "/work#exams",
+            "icon": "check",
+            "roles": ["teacher", "admin", "principal"]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/exam-checker/exams.css",
+        "assets/modules/exam-checker/exams.js"
+    ],
+    "package": "separate"
+}

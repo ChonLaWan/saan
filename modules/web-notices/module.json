@@ -1,0 +1,86 @@
+{
+    "id": "web-notices",
+    "name": "ประกาศรายชื่อสาธารณะ",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {
+            "web-cms": ">=0.6.0"
+        }
+    },
+    "description": "ประกาศรายชื่อ (จัดห้อง ผลรับสมัคร ผลศึกษาต่อ) แบบเปิดเผยข้อมูลน้อยที่สุด ปิดบังชื่อฝั่งเซิร์ฟเวอร์ มีวันหมดอายุ ไม่ถูกจัดทำดัชนี และลบรายชื่ออัตโนมัติหลังหมดอายุ",
+    "families": [
+        "G5"
+    ],
+    "routes": [
+        "/portal/notices/*",
+        "/api/notices/*"
+    ],
+    "disable_policy": "keep-data",
+    "admin_assets": [
+        "assets/modules/web-notices/notices-admin.css",
+        "assets/modules/web-notices/notices-admin.js"
+    ],
+    "admin_menu": [
+        {
+            "key": "notices",
+            "label": "ประกาศรายชื่อ",
+            "path": "/cms#notices",
+            "icon": "document",
+            "roles": [
+                "admin",
+                "principal",
+                "editor"
+            ]
+        }
+    ],
+    "package": "separate",
+    "edition": "both",
+    "public_projection": [
+        {
+            "table": "notice_lists",
+            "where": {
+                "status": "published",
+                "publish_from": {
+                    "op": "<=",
+                    "value": "@today"
+                },
+                "expires_on": {
+                    "op": ">=",
+                    "value": "@today"
+                }
+            },
+            "columns": {
+                "id": "keep",
+                "school_id": "keep",
+                "slug": "keep",
+                "title": "keep",
+                "intro": "keep",
+                "columns": "keep",
+                "name_mode": "keep",
+                "full_name_until": "keep",
+                "search_only": "keep",
+                "publish_from": "keep",
+                "expires_on": "keep",
+                "access_code_hash": "keep",
+                "status": "keep",
+                "version": "keep",
+                "created_at": "keep",
+                "updated_at": "keep"
+            }
+        },
+        {
+            "table": "pub_notice_rows",
+            "derived": "notice_masked_rows",
+            "columns": {
+                "id": "keep",
+                "school_id": "keep",
+                "list_id": "keep",
+                "order_no": "keep",
+                "cells": "keep",
+                "full_name_until": "keep"
+            }
+        }
+    ]
+}

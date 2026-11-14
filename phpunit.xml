@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+>
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory>tests/Feature</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>app</directory>
+        </include>
+    </source>
+    <php>
+        <ini name="memory_limit" value="1024M"/>
+        <env name="APP_ENV" value="testing"/>
+        <env name="APP_URL" value="http://localhost" force="true"/>
+        <env name="APP_MAINTENANCE_DRIVER" value="file"/>
+        <env name="BCRYPT_ROUNDS" value="4"/>
+        <env name="BROADCAST_CONNECTION" value="null"/>
+        <env name="CACHE_STORE" value="array"/>
+        <!-- The suite runs on MariaDB/MySQL only (the databases Saan supports). Every DB_* value is set here so the developer's .env can never
+             point the suite at a real database; override with real environment variables (CI, another port). TestCase refuses a database
+             whose name has no "test" or "ci" part. The user must be allowed to CREATE/DROP DATABASE and CREATE USER/GRANT (split and installer tests create
+             temporary databases and one restricted account per side), so use root of a server that holds nothing but test data. -->
+        <env name="DB_CONNECTION" value="mariadb"/>
+        <env name="DB_HOST" value="127.0.0.1"/>
+        <env name="DB_PORT" value="3306"/>
+        <env name="DB_DATABASE" value="saan_test"/>
+        <env name="DB_USERNAME" value="root"/>
+        <env name="DB_PASSWORD" value=""/>
+        <env name="DB_SOCKET" value=""/>
+        <env name="DB_PREFIX" value=""/>
+        <env name="DB_URL" value=""/>
+        <env name="MAIL_MAILER" value="array"/>
+        <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="SESSION_DRIVER" value="array"/>
+        <!-- The suite must not depend on the developer's own .env: tests of the experimental modules and of the seeded demo accounts need
+             demo mode from the moment the application boots (ModuleRegistry, CurrentSchoolAccount). CI copies .env.example, which has it off. -->
+        <env name="SCHOOL_DEMO" value="true" force="true"/>
+        <env name="SAAN_EDITION" value="combined" force="true"/>
+        <env name="SAAN_UPDATE_FINISH" value="inline" force="true"/>
+        <env name="SAAN_INTERNAL_URL" value="" force="true"/>
+        <env name="SAAN_PUBLIC_URL" value="" force="true"/>
+        <env name="PULSE_ENABLED" value="false"/>
+        <env name="TELESCOPE_ENABLED" value="false"/>
+        <env name="NIGHTWATCH_ENABLED" value="false"/>
+    </php>
+</phpunit>

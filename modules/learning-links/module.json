@@ -1,0 +1,103 @@
+{
+    "id": "learning-links",
+    "name": "ลิงก์การเรียนรู้",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": []
+    },
+    "description": "รวมลิงก์ระบบและแอปการเรียนรู้ภายนอก (LMS, Google Classroom, วิดีโอ เอกสาร เว็บที่โรงเรียนทำเอง) แยกตามห้องเรียนหรือรายวิชา นักเรียนเปิดดูได้จากหน้าสาธารณะด้วยรหัสห้องเรียนสั้น ๆ โดยไม่แสดงข้อมูลนักเรียน",
+    "families": [
+        "M22"
+    ],
+    "routes": [
+        "/api/learning/*",
+        "/learn/*"
+    ],
+    "disable_policy": "keep-data",
+    "work_menu": [
+        {
+            "key": "learning",
+            "label": "ลิงก์การเรียนรู้",
+            "path": "/work#learning",
+            "icon": "layers",
+            "roles": [
+                "admin",
+                "principal",
+                "teacher"
+            ]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/learning-links/learning.css",
+        "assets/modules/learning-links/learning.js"
+    ],
+    "package": "separate",
+    "edition": "both",
+    "public_projection": [
+        {
+            "table": "lrn_links",
+            "filter": "learning_public_links",
+            "columns": {
+                "id": "keep",
+                "school_id": "keep",
+                "term_id": "keep",
+                "classroom_id": "keep",
+                "course_id": "keep",
+                "scope_key": "keep",
+                "title": "keep",
+                "url": "keep",
+                "url_hash": "keep",
+                "kind": "keep",
+                "api_client_id": "null",
+                "sort": "keep",
+                "created_by": "null",
+                "version": "keep",
+                "created_at": "keep",
+                "updated_at": "keep"
+            }
+        },
+        {
+            "table": "lrn_access",
+            "where": {
+                "expires_at": {
+                    "op": ">",
+                    "value": "@now"
+                }
+            },
+            "columns": {
+                "id": "keep",
+                "school_id": "keep",
+                "classroom_id": "keep",
+                "code_hash": "keep",
+                "expires_at": "keep",
+                "created_by": "null",
+                "version": "keep",
+                "created_at": "keep",
+                "updated_at": "keep"
+            }
+        },
+        {
+            "table": "pub_learning_rooms",
+            "derived": "learning_rooms",
+            "columns": {
+                "id": "keep",
+                "school_id": "keep",
+                "name": "keep"
+            }
+        },
+        {
+            "table": "academic_terms",
+            "filter": "current_term",
+            "columns": {
+                "id": "keep",
+                "school_id": "keep",
+                "year": "keep",
+                "term": "keep",
+                "starts_on": "keep",
+                "ends_on": "keep"
+            }
+        }
+    ]
+}

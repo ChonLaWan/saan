@@ -1,0 +1,18 @@
+/* Shared 24-unit outline icons; fixed square boxes across every theme and viewport. */
+html svg.ui-icon[data-ui-icon]{display:inline-block!important;inline-size:20px!important;block-size:20px!important;min-inline-size:20px!important;min-block-size:20px!important;max-inline-size:20px!important;max-block-size:20px!important;flex:0 0 20px!important;aspect-ratio:1;margin:0!important;padding:0!important;border:0!important;color:inherit!important;fill:none!important;stroke:currentColor!important;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.2em;overflow:visible;pointer-events:none}
+.ui-icon>path{vector-effect:non-scaling-stroke}
+.text-link,.back-link,.account-back,.evidence-link,.cms-published-link,.public-banner>a{display:inline-flex;align-items:center;gap:8px;max-width:100%}
+.site-button,.campus-button,.news-card-foot>a,.school-utility>a{gap:8px;align-items:center}
+.desk-module-grid .desk-module-arrow{display:grid;place-items:center;inline-size:20px;block-size:20px;right:16px!important;bottom:14px!important;line-height:1;pointer-events:none}
+.desk-module-grid>a>p{padding-inline-end:26px}
+.desk-quick-settings>a{align-items:center;min-width:0;padding-inline:14px!important;gap:12px!important}
+.desk-quick-settings>a>span[aria-hidden],.desk-live-card a>span[aria-hidden],.news-card-foot a>span[aria-hidden],.text-link>span[aria-hidden]{display:inline-flex;align-items:center;justify-content:center;flex:0 0 20px;inline-size:20px;block-size:20px;line-height:1}
+.service-grid>a{grid-template-columns:42px minmax(0,1fr) 20px!important;column-gap:12px!important}
+.service-grid>a>.ui-icon{grid-column:3;grid-row:1 / span 2;align-self:center;justify-self:end;position:static!important}
+.service-grid>a>.school-art-icon{grid-column:1;grid-row:1 / span 2}
+.service-grid>a>h3,.service-grid>a>p{grid-column:2;min-width:0;overflow-wrap:anywhere}
+.event-list>a{position:relative;padding-inline-end:54px!important}
+.event-list>a>span[aria-hidden]{position:absolute!important;right:16px!important;inset-inline-end:16px!important;top:50%!important;bottom:auto!important;transform:translateY(-50%);display:grid;place-items:center;width:20px;height:20px;margin:0;line-height:1}
+.site-pagination a,.banner-slider-controls button{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.cms-public-link>.ui-icon{position:static!important}
+@media(max-width:640px){.service-grid>a{grid-template-columns:32px minmax(0,1fr) 20px!important;column-gap:8px!important}.desk-module-grid .desk-module-arrow{right:12px!important;bottom:12px!important}.desk-quick-settings>a{padding-inline:12px!important;gap:8px!important}}

@@ -1,0 +1,36 @@
+{
+    "id": "behavior",
+    "name": "พฤติกรรมนักเรียน (บันทึกคะแนนความดี/ควรปรับปรุง)",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {}
+    },
+    "description": "ครูบันทึกคะแนนพฤติกรรมรายคนหรือทั้งกลุ่ม ยกเลิกพร้อมเหตุผล ดูประวัติและคะแนนรวมรายภาคเรียน สรุปรายห้อง รายงานโรงเรียน ส่งออก CSV และมีชั้นอ่านข้อมูลสำหรับโมดูลผู้ปกครอง",
+    "families": [
+        "M05"
+    ],
+    "routes": [
+        "/api/behavior/*"
+    ],
+    "disable_policy": "keep-data",
+    "work_menu": [
+        {
+            "key": "behavior",
+            "label": "พฤติกรรมนักเรียน",
+            "path": "/work#behavior",
+            "icon": "people",
+            "roles": [
+                "teacher",
+                "admin",
+                "principal"
+            ]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/behavior/behavior.css",
+        "assets/modules/behavior/behavior.js"
+    ],
+    "package": "separate"
+}

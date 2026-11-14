@@ -1,0 +1,11 @@
+{
+    "id": "demo-library",
+    "name": "คลังภาพและข้อมูลสมมติ",
+    "version": "2026.11.5-2",
+    "readiness": "beta",
+    "requires": { "core": ">=0.6.0", "modules": { "web-cms": ">=0.6.0" } },
+    "description": "ชุดข้อมูลสาธิตแบบเสริม ใช้เฉพาะการติดตั้งแบบสาธิตหรือเครื่องทดลอง",
+    "families": [],
+    "routes": ["/demo-library*"],
+    "disable_policy": "keep-data"
+}

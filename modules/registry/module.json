@@ -1,0 +1,42 @@
+{
+    "id": "registry",
+    "name": "ทะเบียนนักเรียนและผู้ปกครอง",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {}
+    },
+    "description": "ทะเบียนนักเรียนและผู้ปกครอง รองรับนักเรียนไทย ต่างชาติ ไร้สัญชาติ และรอเอกสาร พร้อมที่เก็บเอกสารยืนยันตัวตนแบบส่วนตัว นำเข้า CSV ย้อนกลับได้ และส่งออกรายชื่อห้อง",
+    "families": [
+        "M03",
+        "M03.10"
+    ],
+    "routes": [
+        "/api/registry/*"
+    ],
+    "disable_policy": "keep-data",
+    "private_storage": ["registry"],
+    "storage_tables": [{"table": "reg_documents", "bytes": "size"}],
+    "work_menu": [
+        {
+            "key": "students",
+            "label": "ทะเบียนนักเรียน",
+            "path": "/work#students",
+            "icon": "people",
+            "roles": ["admin", "principal", "teacher"]
+        },
+        {
+            "key": "import",
+            "label": "นำเข้าข้อมูลนักเรียน",
+            "path": "/work#import",
+            "icon": "document",
+            "roles": ["admin", "principal"]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/registry/registry.css",
+        "assets/modules/registry/registry.js"
+    ],
+    "package": "separate"
+}

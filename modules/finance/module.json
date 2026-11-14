@@ -1,0 +1,81 @@
+{
+    "id": "finance",
+    "name": "การเงินนักเรียน",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {}
+    },
+    "description": "ค่าบำรุงการศึกษาและค่าธรรมเนียมนักเรียน ใบแจ้งหนี้ ใบเสร็จรับเงิน สมุดเงินสดอย่างง่าย สรุปรับเงินรายวัน และปิดงวดรายเดือน ไม่ใช่ระบบบัญชีภาครัฐเต็มรูปแบบ",
+    "families": [
+        "M15"
+    ],
+    "routes": [
+        "/api/finance/*"
+    ],
+    "disable_policy": "keep-data",
+    "edition": "internal",
+    "private_storage": ["finance"],
+    "storage_tables": [{"table": "fin_claim_slips", "bytes": "size"}, {"table": "fin_payment_accounts", "bytes": "qr_size"}],
+    "term_tables": [
+        {"table": "fin_fee_items", "column": "term_id", "label": "รายการค่าธรรมเนียม"}
+    ],
+    "work_menu": [
+        {
+            "key": "finance",
+            "label": "การเงิน",
+            "path": "/work#finance",
+            "icon": "chart",
+            "roles": ["admin", "principal", "teacher"]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/finance/finance.css",
+        "assets/modules/finance/finance.js",
+        "assets/modules/finance/finance-fees.js"
+    ],
+    "package": "separate",
+    "settings_schema": [
+        {
+            "key": "finance.staff_user_ids",
+            "label": "เจ้าหน้าที่การเงิน",
+            "type": "users",
+            "roles": [
+                "teacher"
+            ],
+            "roles_hint": [
+                "teacher"
+            ],
+            "default": [],
+            "help": "บัญชีครูที่ได้รับสิทธิ์ใช้โมดูลการเงิน"
+        },
+        {
+            "key": "finance.invoice_prefix",
+            "label": "อักษรนำเลขที่ใบแจ้งหนี้",
+            "type": "text",
+            "maxlength": 8,
+            "pattern": "^[A-Za-z0-9]{1,8}$",
+            "default": "INV",
+            "help": "ตัวอักษรอังกฤษหรือตัวเลข 1-8 ตัว"
+        },
+        {
+            "key": "finance.receipt_prefix",
+            "label": "อักษรนำเลขที่ใบเสร็จ",
+            "type": "text",
+            "maxlength": 8,
+            "pattern": "^[A-Za-z0-9]{1,8}$",
+            "default": "RC",
+            "help": "ตัวอักษรอังกฤษหรือตัวเลข 1-8 ตัว"
+        },
+        {
+            "key": "finance.slip_retention_years",
+            "label": "เก็บไฟล์สลิปการโอนไว้ (ปี)",
+            "type": "int",
+            "min": 0,
+            "max": 20,
+            "default": 5,
+            "help": "ลบไฟล์สลิปของรายการที่ตรวจแล้วเมื่อครบกำหนดนับจากวันตรวจ ใบเสร็จและยอดชำระไม่ถูกลบ ใส่ 0 เพื่อเก็บไว้ตลอด"
+        }
+    ]
+}

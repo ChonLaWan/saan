@@ -1,0 +1,57 @@
+{
+    "id": "documents",
+    "name": "สารบรรณและทะเบียนหนังสือ",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {}
+    },
+    "description": "ทะเบียนหนังสือรับ หนังสือส่ง คำสั่ง ประกาศ และบันทึกข้อความ เลขทะเบียนรันต่อเล่มต่อปี พ.ศ. ส่งต่อให้บุคลากรรับทราบ แนบไฟล์แบบส่วนตัว ค้นหา และพิมพ์ทะเบียนรายเดือน",
+    "families": [
+        "M20"
+    ],
+    "routes": [
+        "/api/documents/*",
+        "/documents/print"
+    ],
+    "disable_policy": "keep-data",
+    "storage_tables": [{"table": "doc_files", "bytes": "size"}],
+    "private_storage": [
+        "documents"
+    ],
+    "work_menu": [
+        {
+            "key": "inbox",
+            "label": "หนังสือเข้าถึงฉัน",
+            "path": "/work#inbox",
+            "icon": "document",
+            "roles": ["admin", "principal", "teacher", "editor"]
+        },
+        {
+            "key": "documents",
+            "label": "ทะเบียนหนังสือ",
+            "path": "/work#documents",
+            "icon": "document",
+            "roles": ["admin", "principal", "teacher"]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/documents/documents.css",
+        "assets/modules/documents/documents.js"
+    ],
+    "package": "separate",
+    "settings_schema": [
+        {
+            "key": "documents.clerk_user_ids",
+            "label": "เจ้าหน้าที่ธุรการสารบรรณ",
+            "type": "users",
+            "roles_hint": [
+                "teacher",
+                "editor"
+            ],
+            "default": [],
+            "help": "บัญชีที่ลงทะเบียนรับ-ส่งหนังสือได้"
+        }
+    ]
+}

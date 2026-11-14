@@ -1,0 +1,113 @@
+{
+    "id": "complaints",
+    "name": "ร้องเรียนและรับเรื่อง",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {}
+    },
+    "description": "ช่องทางร้องเรียนและรับเรื่องสำหรับ ITA (O13/O14): ฟอร์มสาธารณะแบบไม่ระบุชื่อได้ ออกเลขรับเรื่องและรหัสติดตาม ตรวจสถานะด้วยเลขและรหัส ฝั่งภายในมอบหมาย กำหนดเวลา ตอบ ปิดเรื่อง เรื่องทุจริตเห็นเฉพาะผู้บริหารที่กำหนด ผู้ถูกร้องมองไม่เห็นเรื่องของตัวเอง และรายงานสรุปรายปีงบประมาณ",
+    "families": [
+        "F1",
+        "G1"
+    ],
+    "routes": [
+        "/portal/complaints/*",
+        "/api/complaints/*"
+    ],
+    "disable_policy": "keep-data",
+    "storage_tables": [{"table": "cmp_files", "bytes": "size"}],
+    "private_storage": [
+        "complaints"
+    ],
+    "work_menu": [
+        {
+            "key": "complaints",
+            "label": "ร้องเรียนและรับเรื่อง",
+            "path": "/work#complaints",
+            "icon": "shield",
+            "roles": ["admin", "principal", "teacher", "editor"]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/complaints/complaints.css",
+        "assets/modules/complaints/complaints.js"
+    ],
+    "package": "separate",
+    "edition": "both",
+    "settings_schema": [
+        {
+            "key": "complaints.officer_user_ids",
+            "label": "เจ้าหน้าที่รับเรื่องร้องเรียน",
+            "type": "users",
+            "roles_hint": ["teacher", "editor", "admin"],
+            "default": [],
+            "help": "บัญชีที่ดูและดำเนินการเรื่องทั่วไป ข้อเสนอแนะ และขอข้อมูลข่าวสารได้ ถ้าเว้นว่าง ผู้ดูแลระบบและผู้อำนวยการทำหน้าที่นี้ เรื่องทุจริตและประพฤติมิชอบไม่เปิดให้เจ้าหน้าที่กลุ่มนี้ ยกเว้นผู้ที่อยู่ในรายชื่อผู้บริหารด้านล่าง"
+        },
+        {
+            "key": "complaints.executive_user_ids",
+            "label": "ผู้บริหารที่เห็นเรื่องทุจริตและประพฤติมิชอบ",
+            "type": "users",
+            "roles_hint": ["principal"],
+            "default": [],
+            "help": "เรื่องทุจริตและประพฤติมิชอบเห็นได้เฉพาะบัญชีในรายชื่อนี้ (ผู้ดูแลระบบไม่เห็นถ้าไม่ได้อยู่ในรายชื่อ) ถ้าเว้นว่างจะไม่มีใครเห็นเรื่องกลุ่มนี้ ผู้ที่ถูกตั้งเป็นผู้ถูกร้องในเรื่องใดจะไม่เห็นเรื่องนั้นแม้อยู่ในรายชื่อ"
+        },
+        {
+            "key": "complaints.sla_general",
+            "label": "กำหนดเวลาตอบ: เรื่องทั่วไป (วัน)",
+            "type": "int",
+            "min": 1,
+            "max": 365,
+            "default": 15
+        },
+        {
+            "key": "complaints.sla_corruption",
+            "label": "กำหนดเวลาตอบ: ทุจริตและประพฤติมิชอบ (วัน)",
+            "type": "int",
+            "min": 1,
+            "max": 365,
+            "default": 30
+        },
+        {
+            "key": "complaints.sla_suggestion",
+            "label": "กำหนดเวลาตอบ: ข้อเสนอแนะ (วัน)",
+            "type": "int",
+            "min": 1,
+            "max": 365,
+            "default": 15
+        },
+        {
+            "key": "complaints.sla_info_request",
+            "label": "กำหนดเวลาตอบ: ขอข้อมูลข่าวสาร (วัน)",
+            "type": "int",
+            "min": 1,
+            "max": 365,
+            "default": 15
+        }
+    ],
+    "public_projection": [
+        {
+            "table": "pub_complaint_status",
+            "derived": "complaint_status",
+            "columns": {
+                "receipt_no": "keep",
+                "track_hash": "keep",
+                "category_label": "keep",
+                "status": "keep",
+                "received_at": "keep",
+                "updated_at": "keep",
+                "public_reply": "keep"
+            }
+        },
+        {
+            "table": "pub_complaint_reports",
+            "derived": "complaint_reports",
+            "columns": {
+                "fiscal_year": "keep",
+                "snapshot": "keep",
+                "published_at": "keep"
+            }
+        }
+    ]
+}

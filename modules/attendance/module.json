@@ -1,0 +1,56 @@
+{
+    "id": "attendance",
+    "name": "เช็คชื่อและรายงานการมาเรียน",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {}
+    },
+    "description": "ครูบันทึกเฉพาะผู้ขาด ลา สาย ป่วยรายห้องรายวันบนมือถือ ที่เหลือถือว่ามาเรียน กันเขียนทับจากหน้าจอเก่า มีบันทึกการแก้ไข และรายงานรายเดือน รายวัน รายบุคคล ส่งออก CSV",
+    "families": [
+        "M04"
+    ],
+    "routes": [
+        "/api/attendance/classes",
+        "/api/attendance/sheet",
+        "/api/attendance/reports/*",
+        "/api/attendance/export"
+    ],
+    "disable_policy": "keep-data",
+    "term_tables": [
+        {"table": "attendances", "column": "term_id", "label": "การเช็กชื่อ"}
+    ],
+    "package": "separate",
+    "work_assets": [
+        "assets/modules/attendance/attendance.css",
+        "assets/modules/attendance/attendance.js"
+    ],
+    "work_menu": [
+        {
+            "key": "attendance",
+            "label": "เช็คชื่อ",
+            "path": "/work#attendance",
+            "icon": "check",
+            "roles": ["teacher", "admin", "principal"]
+        },
+        {
+            "key": "attendance-report",
+            "label": "รายงานการมาเรียน",
+            "path": "/work#attendance-report",
+            "icon": "chart",
+            "roles": ["admin", "principal", "teacher"]
+        }
+    ],
+    "settings_schema": [
+        {
+            "key": "attendance.edit_window_days",
+            "label": "จำนวนวันที่ครูแก้ไขการเช็คชื่อย้อนหลังได้",
+            "type": "int",
+            "min": 0,
+            "max": 365,
+            "default": 3,
+            "help": "เกินกำหนดนี้ต้องระบุเหตุผลในการแก้ไข 0 คือเฉพาะวันนี้ไม่ต้องระบุเหตุผล"
+        }
+    ]
+}

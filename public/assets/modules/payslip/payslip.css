@@ -1,0 +1,46 @@
+/* payslip module: staff page #payslip. Mobile-first (390px); lists are cards; colours from the shared theme tokens. Payroll amounts only appear inside the opened slip or officer screens. */
+.psl{padding:1rem;border-radius:var(--radius,16px);display:grid;gap:.9rem;color:var(--ink,#163b30)}
+.psl h1{margin:0;font-size:1.35rem;line-height:1.3}
+.psl h2{margin:.4rem 0 0;font-size:1.1rem}
+.psl h3{margin:.3rem 0 0;font-size:1rem}
+.psl a{color:inherit}
+.psl-tabs{display:flex;gap:.4rem;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:.2rem}
+.psl-tabs a{flex:0 0 auto;display:inline-flex;align-items:center;min-height:44px;padding:.4rem .9rem;border:1px solid var(--line,#c4ccbe);border-radius:999px;text-decoration:none;background:var(--sheet,#fffdf5)}
+.psl-tabs a[aria-current=page]{background:var(--ink,#163b30);border-color:var(--ink,#163b30);color:var(--sheet,#fffdf5)}
+.psl-body{display:grid;gap:.9rem}
+.psl-hint{margin:0;color:var(--muted,#4d6258);font-size:.95rem}
+.psl-warn{margin:0;padding:.5rem .7rem;border:1px solid var(--danger,#a72d1b);border-radius:10px;color:var(--danger,#a72d1b)}
+.psl-field{display:grid;gap:.25rem;font-size:.95rem}
+.psl-field span{font-weight:600}
+.psl input:not([type=checkbox]):not([type=file]),.psl select,.psl textarea{min-height:44px;padding:.45rem .7rem;border:1px solid var(--line,#c4ccbe);border-radius:10px;background:var(--sheet,#fffdf5);color:inherit;font:inherit;width:100%;box-sizing:border-box}
+.psl textarea{min-height:6rem}
+.psl input[type=file]{width:100%;font:inherit}
+.psl-grid{display:grid;gap:.7rem;grid-template-columns:1fr}
+.psl-check{display:flex;align-items:center;gap:.5rem;min-height:44px}
+.psl-check input{width:1.2rem;height:1.2rem}
+.psl fieldset{border:1px solid var(--line,#c4ccbe);border-radius:12px;padding:.6rem .8rem;margin:0;display:grid;gap:.6rem}
+.psl-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:.5rem 1rem;border:1px solid var(--line,#c4ccbe);border-radius:999px;background:var(--sheet,#fffdf5);color:inherit;font:inherit;cursor:pointer;text-decoration:none}
+.psl-btn.primary{background:var(--ink,#163b30);border-color:var(--ink,#163b30);color:var(--sheet,#fffdf5)}
+.psl-btn.danger{border-color:var(--danger,#a72d1b);color:var(--danger,#a72d1b)}
+.psl-btn.small{min-height:36px;padding:.2rem .8rem;font-size:.9rem}
+.psl-btn:disabled{opacity:.5;cursor:not-allowed}
+.psl-btn:focus-visible,.psl input:focus-visible,.psl select:focus-visible,.psl textarea:focus-visible,.psl summary:focus-visible,.psl-tabs a:focus-visible,.psl-cards a:focus-visible{outline:2px solid var(--accent,#b83317);outline-offset:2px}
+.psl-cards{list-style:none;margin:0;padding:0;display:grid;gap:.5rem}
+.psl-cards li{border:1px solid var(--line,#c4ccbe);border-radius:12px;background:var(--sheet,#fffdf5);padding:.6rem .7rem;display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:space-between}
+.psl-cards li>div{display:grid;gap:.1rem;min-width:0;flex:1 1 12rem;overflow-wrap:anywhere}
+.psl-sub{color:var(--muted,#4d6258);font-size:.9rem}
+.psl-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+.psl-badge{display:inline-block;padding:.05rem .6rem;border-radius:999px;border:1px solid var(--line,#c4ccbe);font-size:.85rem}
+.psl-badge.published,.psl-badge.issued,.psl-badge.active{border-color:var(--ok,#1f6f43);color:var(--ok,#1f6f43)}
+.psl-badge.cancelled,.psl-badge.voided,.psl-badge.stale,.psl-badge.missing{border-color:var(--danger,#a72d1b);color:var(--danger,#a72d1b)}
+.psl-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;margin:0}
+.psl-stats div{border:1px solid var(--line,#c4ccbe);border-radius:12px;padding:.5rem .7rem;background:var(--sheet,#fffdf5)}
+.psl-stats dt{font-size:.85rem;color:var(--muted,#4d6258)}.psl-stats dd{margin:0;font-weight:700;font-size:1.05rem;overflow-wrap:anywhere}
+.psl-lines{width:100%;border-collapse:collapse}
+.psl-lines td{padding:.3rem .2rem;border-bottom:1px solid var(--line,#c4ccbe)}
+.psl-lines td.n{text-align:right;white-space:nowrap}
+.psl-lines tr.sum td{font-weight:700}
+.psl-services{border:1px solid var(--line,#c4ccbe);border-radius:12px;padding:.6rem .8rem;background:var(--sheet,#fffdf5)}
+.psl-services ul{margin:.3rem 0 0;padding-left:1.2rem}
+.work-services h2{margin:0 0 .4rem;font-size:1.1rem}
+@media (min-width:700px){.psl-grid{grid-template-columns:repeat(2,1fr)}.psl-stats{grid-template-columns:repeat(4,1fr)}}

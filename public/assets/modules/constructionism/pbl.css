@@ -1,0 +1,23 @@
+/* constructionism module. Mobile-first (390px). */
+.work-app .pbl-page{padding:1rem;border-radius:var(--radius,16px);color:var(--ink,#163b30)}
+.work-app .pbl-page h1{margin:0 0 .25rem;font-size:1.35rem}
+.work-app .pbl-page h2{margin:0 0 .5rem;font-size:1.05rem}
+.work-app .pbl-page h3{margin:.8rem 0 .4rem;font-size:1rem}
+.work-app .pbl-lead,.work-app .pbl-empty,.work-app .pbl-meta{color:var(--muted,#51675b)}
+.work-app .pbl-box{border:1px solid var(--line,#c4ccbe);border-radius:12px;padding:.8rem;margin:0 0 .9rem;background:var(--sheet,#fffdf5)}
+.work-app .pbl-form{display:grid;gap:.6rem;grid-template-columns:1fr;margin:.5rem 0}
+.work-app .pbl-field{display:grid;gap:.2rem;font-size:.9rem}
+.work-app .pbl-field input,.work-app .pbl-field select,.work-app .pbl-field textarea{min-height:44px;padding:.4rem .6rem;font:inherit;font-size:16px;border:1px solid var(--line,#c4ccbe);border-radius:8px;background:var(--sheet,#fffdf5);color:inherit;max-width:100%}
+.work-app .pbl-actions{display:flex;gap:.5rem;flex-wrap:wrap;align-items:end}
+.work-app .pbl-btn{display:inline-flex;align-items:center;min-height:44px;padding:0 .9rem;border:1px solid var(--line,#c4ccbe);border-radius:10px;background:transparent;color:inherit;font:inherit;cursor:pointer;text-decoration:none}
+.work-app .pbl-primary{background:var(--ink,#163b30);color:var(--sheet,#fffdf5);border-color:transparent}
+.work-app .pbl-danger{color:var(--danger,#8a1c1c)}
+.work-app .pbl-list{list-style:none;margin:0;padding:0;display:grid;gap:.6rem}
+.work-app .pbl-item{display:grid;gap:.5rem;padding:.7rem;border:1px solid var(--line,#c4ccbe);border-radius:10px}
+.work-app .pbl-item p{margin:.3rem 0 0}
+.work-app .pbl-url{word-break:break-all;font-size:.85rem}
+.work-app .pbl-rubric{display:grid;gap:.5rem;grid-template-columns:1fr}
+.work-app .pbl-refl{padding:.7rem;border:1px solid var(--line,#c4ccbe);border-radius:10px;margin:.5rem 0}
+.work-app .pbl-note{padding:.6rem .8rem;border-radius:10px;margin:.5rem 0;border:1px solid var(--line,#c4ccbe)}
+.work-app .pbl-error{color:var(--danger,#8a1c1c);border-color:currentColor}
+@media (min-width:720px){.work-app .pbl-form{grid-template-columns:1fr 1fr}.work-app .pbl-wide{grid-column:1/-1}.work-app .pbl-rubric{grid-template-columns:repeat(3,1fr)}.work-app .pbl-item{grid-template-columns:1fr auto;align-items:center}}

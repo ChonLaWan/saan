@@ -1,0 +1,46 @@
+{
+    "id": "academic",
+    "name": "ตั้งค่าโรงเรียน (ปีการศึกษา คาบเวลา ห้องเรียน ครู ปฏิทิน)",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {}
+    },
+    "description": "ขั้นตอนตั้งข้อมูลพื้นฐานของโรงเรียนใหม่: ปีการศึกษา/ภาคเรียน คาบเวลา ห้องเรียน ครู ครูประจำชั้น บัญชีครู และปฏิทินโรงเรียน ใช้ได้กับฐานข้อมูลว่าง",
+    "families": [
+        "GAP-OPS-001"
+    ],
+    "routes": [
+        "/api/academic/*"
+    ],
+    "disable_policy": "keep-data",
+    "work_menu": [
+        {
+            "key": "setup",
+            "label": "ตั้งค่าโรงเรียน",
+            "path": "/work#setup",
+            "icon": "grid",
+            "roles": [
+                "admin",
+                "principal"
+            ]
+        },
+        {
+            "key": "calendar",
+            "label": "ปฏิทินโรงเรียน",
+            "path": "/work#calendar",
+            "icon": "calendar",
+            "roles": [
+                "admin",
+                "principal",
+                "teacher"
+            ]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/academic/academic.css",
+        "assets/modules/academic/academic.js"
+    ],
+    "package": "separate"
+}

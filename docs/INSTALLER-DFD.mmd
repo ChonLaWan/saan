@@ -1,0 +1,25 @@
+flowchart TD
+    Owner["เจ้าของ hosting / ผู้ดูแลติดตั้ง"] --> Files["แตก source หรือ upload-ready ZIP นอก web root"]
+    Files --> Public["DocumentRoot = public + HTTPS"]
+    Public --> Check["/install: PHP / dependencies / permission checks"]
+    Check --> Token[("Owner token outside public")]
+    Owner -->|"อ่าน token ผ่าน File Manager / SSH"| Unlock["CSRF + native private session + shared attempt limit"]
+    Token --> Unlock
+    Unlock --> Database["PDO connection + empty database check"]
+    Database -->|"มีตารางอื่น"| Reject["ปฏิเสธ ไม่ DROP / ไม่เขียนทับ"]
+    Database -->|"ว่าง หรือ own interrupted receipt"| Input["School + admin password + blank/demo + URL validation"]
+    Input --> Lock["Exclusive install lock + state receipt"]
+    Lock --> Migrate["Forward migrations, no migrate:fresh"]
+    Migrate --> Seed["Transactional administrator + content bootstrap"]
+    Manifest[("Trusted demo manifest + file bytes/SHA-256")] -->|"demo only"| Seed
+    Seed --> DB[("School database; one non-demo administrator")]
+    Seed --> Media[("Private media; published reference gate")]
+    Seed --> Config[("Atomic private .env + random APP_KEY")]
+    Config --> Installed[("installed marker; remove owner token/state")]
+    Installed --> Login["Normal email/password login; installer locked"]
+    CLI["Offline school:archive"] --> Backup[("Private ZIP: schema/data/media/config + checksums")]
+    DB --> CLI
+    Media --> CLI
+    Config --> CLI
+    Backup -->|"trusted archive + explicit flag"| Empty["Verify new empty recovery database"]
+    Empty --> Restore["Restore counts/checksums; preserve target DB and URL"]

@@ -1,0 +1,36 @@
+/* F5a public-site extras: popular news, chat links, map placeholder. Mobile first (390px). */
+.school-popular,.school-map{margin:0 auto;padding:28px 16px;max-width:1310px}
+.school-popular .section-heading,.school-map .section-heading{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
+.popular-list{list-style:none;margin:0;padding:0;display:grid;gap:10px;counter-reset:none}
+.popular-list li{display:flex;gap:14px;align-items:center;padding:12px 14px;background:color-mix(in srgb,var(--page-bg,#f2f0e5) 55%,#fff);border:1px solid var(--line,#cdd7c4);border-radius:12px}
+.popular-rank{flex:0 0 auto;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--brand,#285747);color:var(--on-brand,#fff);font-weight:700;font-variant-numeric:tabular-nums}
+.popular-list a{display:block;color:var(--ink,#183e32);font-weight:600;line-height:1.5;text-decoration:none;overflow-wrap:anywhere}
+.popular-list a:hover,.popular-list a:focus-visible{text-decoration:underline}
+.popular-list time{display:block;color:var(--muted,#617062);font-size:13px}
+.article-views{color:var(--muted,#617062)}
+@media(min-width:760px){.school-popular,.school-map{padding:36px max(28px,calc((100vw - 1310px)/2))}.popular-list{grid-template-columns:repeat(2,1fr)}}
+.map-stage{border:1px solid var(--line,#cdd7c4);border-radius:14px;overflow:hidden;background:color-mix(in srgb,var(--page-bg,#f2f0e5) 55%,#fff)}
+.map-placeholder{display:grid;gap:12px;justify-items:start;padding:16px}
+.map-art{width:100%;max-width:520px;height:auto}
+.map-art-bg{fill:#dfe8d6}.map-art-road{fill:none;stroke:#fff;stroke-width:8;stroke-linecap:round}.map-art-pin{fill:var(--brand,#285747);stroke:none}.map-art-dot{fill:#fff;stroke:none}
+.map-address{margin:0;font-weight:600;overflow-wrap:anywhere}
+.map-actions{display:flex;flex-wrap:wrap;gap:10px}
+.map-load{min-height:44px;padding:10px 18px;border:1px solid var(--brand,#285747);border-radius:8px;background:transparent;color:var(--brand,#285747);font:inherit;font-weight:600;cursor:pointer}
+.map-load:hover,.map-load:focus-visible{background:var(--brand,#285747);color:var(--on-brand,#fff)}
+.map-note{margin:0;color:var(--muted,#617062);font-size:13px}
+.map-stage iframe{display:block;width:100%;height:min(70vh,420px);border:0}
+.map-stage.is-loaded .map-placeholder{padding:12px}
+.map-stage.is-loaded .map-art,.map-stage.is-loaded .map-note{display:none}
+/* chat links: plain anchors, no third-party code. Floating ones stay at the bottom edge, away from the header menu (top) and the observance ribbon corners. */
+.chat-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:48px;min-height:48px;padding:0 14px;border-radius:999px;color:#fff;font-weight:600;text-decoration:none;box-shadow:0 3px 12px #0003;border:2px solid #fff}
+.chat-link svg{width:24px;height:24px;flex:0 0 auto}
+.chat-link-messenger{background:#0a5cc4}.chat-link-line{background:#05703a}
+.chat-link:focus-visible{outline:3px solid #ffbf47;outline-offset:2px}
+.chat-links-floating{position:fixed;z-index:60;right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px;align-items:flex-end}
+.chat-links-floating .chat-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.chat-links-floating .chat-link{padding:0;width:48px}
+body:has(.observance-ribbon-wrap[data-corner=bottom-right]) .chat-links-floating{right:auto;left:max(12px,env(safe-area-inset-left));align-items:flex-start}
+body:has(#public-navigation.open) .chat-links-floating{display:none}
+.chat-links-footer{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+@media(min-width:760px){.chat-links-floating .chat-label{position:static;width:auto;height:auto;clip-path:none}.chat-links-floating .chat-link{width:auto;padding:0 16px}}
+@media print{.chat-links,.map-load{display:none!important}}

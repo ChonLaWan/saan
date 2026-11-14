@@ -1,0 +1,1121 @@
+{
+  "branding": {
+    "storage": "branding",
+    "title": "โลโก้และชื่อโรงเรียน",
+    "fields": [
+      {
+        "key": "school_name",
+        "label": "ชื่อโรงเรียน",
+        "type": "text",
+        "default": "โรงเรียนตัวอย่าง",
+        "group": "identity",
+        "scope": "theme",
+        "max": 140
+      },
+      {
+        "key": "tagline",
+        "label": "คำขวัญ / ข้อความใต้ชื่อ",
+        "type": "text",
+        "default": "",
+        "group": "identity",
+        "scope": "theme",
+        "max": 160
+      },
+      {
+        "key": "source",
+        "label": "รูปแบบโลโก้ที่แสดง",
+        "type": "select",
+        "default": "auto",
+        "group": "identity",
+        "scope": "values",
+        "options": {
+          "auto": "ใช้ภาพที่อัปโหลดถ้ามี",
+          "builtin": "ใช้ตราเวกเตอร์ที่เลือก",
+          "uploaded": "ใช้ภาพโลโก้ของโรงเรียน"
+        }
+      },
+      {
+        "key": "mark",
+        "label": "ตราที่ออกแบบไว้",
+        "type": "select",
+        "default": "book",
+        "group": "identity",
+        "scope": "values",
+        "options": {
+          "book": "หนังสือและต้นธาร",
+          "circle": "วงกลมแห่งการเรียนรู้",
+          "shield": "โล่การเรียนรู้"
+        }
+      },
+      {
+        "key": "logo_media_id",
+        "label": "โลโก้หลักสำหรับพื้นสว่าง",
+        "type": "media",
+        "default": null,
+        "group": "images",
+        "scope": "theme",
+        "nullable": true
+      },
+      {
+        "key": "dark_media_id",
+        "label": "โลโก้สำหรับพื้นมืด",
+        "type": "media",
+        "default": null,
+        "group": "images",
+        "scope": "values",
+        "nullable": true
+      },
+      {
+        "key": "mobile_media_id",
+        "label": "โลโก้บนมือถือ (พื้นสว่าง)",
+        "type": "media",
+        "default": null,
+        "group": "images",
+        "scope": "values",
+        "nullable": true
+      },
+      {
+        "key": "mobile_dark_media_id",
+        "label": "โลโก้บนมือถือ (พื้นมืด)",
+        "type": "media",
+        "default": null,
+        "group": "images",
+        "scope": "values",
+        "nullable": true
+      },
+      {
+        "key": "alt",
+        "label": "คำอธิบายโลโก้",
+        "type": "text",
+        "default": "ตราโรงเรียน",
+        "group": "images",
+        "scope": "values",
+        "max": 180
+      },
+      {
+        "key": "link",
+        "label": "ลิงก์เมื่อกดโลโก้",
+        "type": "url",
+        "default": "/portal",
+        "group": "identity",
+        "scope": "values",
+        "max": 1000
+      },
+      {
+        "key": "width",
+        "label": "ความกว้างโลโก้ (px)",
+        "type": "number",
+        "default": 48,
+        "group": "size",
+        "scope": "values",
+        "min": 28,
+        "max": 220
+      },
+      {
+        "key": "height",
+        "label": "ความสูงโลโก้ (px)",
+        "type": "number",
+        "default": 48,
+        "group": "size",
+        "scope": "values",
+        "min": 24,
+        "max": 120
+      },
+      {
+        "key": "mobile_width",
+        "label": "ความกว้างบนมือถือ (px)",
+        "type": "number",
+        "default": 38,
+        "group": "size",
+        "scope": "values",
+        "min": 24,
+        "max": 160
+      },
+      {
+        "key": "mobile_height",
+        "label": "ความสูงบนมือถือ (px)",
+        "type": "number",
+        "default": 38,
+        "group": "size",
+        "scope": "values",
+        "min": 24,
+        "max": 96
+      },
+      {
+        "key": "padding",
+        "label": "ขอบว่างภายในตรา (px)",
+        "type": "number",
+        "default": 2,
+        "group": "size",
+        "scope": "values",
+        "min": 0,
+        "max": 20
+      },
+      {
+        "key": "radius",
+        "label": "ความโค้งกรอบตรา (px)",
+        "type": "number",
+        "default": 10,
+        "group": "size",
+        "scope": "values",
+        "min": 0,
+        "max": 60
+      },
+      {
+        "key": "gap",
+        "label": "ระยะตรากับชื่อ (px)",
+        "type": "number",
+        "default": 10,
+        "group": "size",
+        "scope": "values",
+        "min": 4,
+        "max": 30
+      },
+      {
+        "key": "show_name",
+        "label": "แสดงชื่อโรงเรียน",
+        "type": "boolean",
+        "default": true,
+        "group": "text",
+        "scope": "values"
+      },
+      {
+        "key": "show_tagline",
+        "label": "แสดงคำขวัญ",
+        "type": "boolean",
+        "default": true,
+        "group": "text",
+        "scope": "values"
+      },
+      {
+        "key": "name_size",
+        "label": "ขนาดชื่อโรงเรียน (px)",
+        "type": "number",
+        "default": 18,
+        "group": "text",
+        "scope": "values",
+        "min": 14,
+        "max": 30
+      },
+      {
+        "key": "mobile_name_size",
+        "label": "ขนาดชื่อบนมือถือ (px)",
+        "type": "number",
+        "default": 15,
+        "group": "text",
+        "scope": "values",
+        "min": 13,
+        "max": 22
+      },
+      {
+        "key": "tagline_size",
+        "label": "ขนาดคำขวัญ (px)",
+        "type": "number",
+        "default": 12,
+        "group": "text",
+        "scope": "values",
+        "min": 11,
+        "max": 18
+      },
+      {
+        "key": "mobile_tagline_size",
+        "label": "ขนาดคำขวัญบนมือถือ (px)",
+        "type": "number",
+        "default": 11,
+        "group": "text",
+        "scope": "values",
+        "min": 11,
+        "max": 16
+      },
+      {
+        "key": "mark_color",
+        "label": "สีหลักของตรา (ว่าง = ตามธีม)",
+        "type": "color",
+        "default": null,
+        "group": "colors",
+        "scope": "values",
+        "nullable": true
+      },
+      {
+        "key": "accent_color",
+        "label": "สีต้นอ่อน / จุดเน้น",
+        "type": "color",
+        "default": null,
+        "group": "colors",
+        "scope": "values",
+        "nullable": true
+      },
+      {
+        "key": "background",
+        "label": "พื้นกรอบตรา (ว่าง = โปร่งใส)",
+        "type": "color",
+        "default": null,
+        "group": "colors",
+        "scope": "values",
+        "nullable": true
+      },
+      {
+        "key": "arrangement",
+        "label": "การวางตราและชื่อ",
+        "type": "select",
+        "default": "inline",
+        "group": "size",
+        "scope": "values",
+        "options": {
+          "inline": "ตราข้างชื่อ",
+          "stacked": "ตราเหนือชื่อ"
+        }
+      },
+      {
+        "key": "use_mark_favicon",
+        "label": "ใช้ตราที่เลือกเป็น favicon เมื่อยังไม่อัปโหลด",
+        "type": "boolean",
+        "default": true,
+        "group": "identity",
+        "scope": "values"
+      }
+    ]
+  },
+  "header": {
+    "storage": "header",
+    "title": "ส่วนหัวและเมนูเว็บไซต์",
+    "fields": [
+      {
+        "key": "utility",
+        "label": "แสดงแถบข้อมูลด้านบน",
+        "type": "boolean",
+        "default": true,
+        "group": "layout",
+        "scope": "values"
+      },
+      {
+        "key": "badge",
+        "label": "แสดงป้ายชื่อเว็บไซต์",
+        "type": "boolean",
+        "default": true,
+        "group": "layout",
+        "scope": "values"
+      },
+      {
+        "key": "levels",
+        "label": "แสดงระดับชั้น",
+        "type": "boolean",
+        "default": true,
+        "group": "layout",
+        "scope": "values"
+      },
+      {
+        "key": "staff_link",
+        "label": "แสดงทางเข้าบุคลากร",
+        "type": "boolean",
+        "default": true,
+        "group": "layout",
+        "scope": "values"
+      },
+      {
+        "key": "staff_label",
+        "label": "ข้อความทางเข้าบุคลากร",
+        "type": "text",
+        "default": "สำหรับบุคลากร",
+        "group": "text",
+        "scope": "values",
+        "max": 60
+      },
+      {
+        "key": "staff_url",
+        "label": "ลิงก์บุคลากร",
+        "type": "url",
+        "default": "/login",
+        "group": "text",
+        "scope": "values",
+        "max": 1000
+      },
+      {
+        "key": "layout",
+        "label": "รูปแบบ header",
+        "type": "select",
+        "default": "inline",
+        "group": "layout",
+        "scope": "values",
+        "options": {
+          "inline": "ตราด้านซ้าย เมนูด้านขวา",
+          "centered": "ตราตรงกลาง เมนูแถวล่าง"
+        }
+      },
+      {
+        "key": "sticky",
+        "label": "ให้ header อยู่ด้านบนขณะเลื่อน",
+        "type": "boolean",
+        "default": true,
+        "group": "layout",
+        "scope": "values"
+      },
+      {
+        "key": "max_width",
+        "label": "ความกว้างส่วนหัวสูงสุด (px)",
+        "type": "number",
+        "default": 1440,
+        "group": "size",
+        "scope": "values",
+        "min": 960,
+        "max": 1800
+      },
+      {
+        "key": "padding_x",
+        "label": "ขอบซ้ายขวา (px)",
+        "type": "number",
+        "default": 20,
+        "group": "size",
+        "scope": "values",
+        "min": 12,
+        "max": 64
+      },
+      {
+        "key": "padding_y",
+        "label": "ขอบบนล่าง (px)",
+        "type": "number",
+        "default": 12,
+        "group": "size",
+        "scope": "values",
+        "min": 6,
+        "max": 30
+      },
+      {
+        "key": "nav_gap",
+        "label": "ระยะห่างเมนู (px)",
+        "type": "number",
+        "default": 18,
+        "group": "size",
+        "scope": "values",
+        "min": 6,
+        "max": 36
+      },
+      {
+        "key": "nav_size",
+        "label": "ขนาดเมนู (px)",
+        "type": "number",
+        "default": 15,
+        "group": "text",
+        "scope": "values",
+        "min": 13,
+        "max": 20
+      },
+      {
+        "key": "mobile_nav_size",
+        "label": "ขนาดเมนูมือถือ (px)",
+        "type": "number",
+        "default": 16,
+        "group": "text",
+        "scope": "values",
+        "min": 14,
+        "max": 20
+      },
+      {
+        "key": "menu_align",
+        "label": "แนววางเมนู",
+        "type": "select",
+        "default": "end",
+        "group": "layout",
+        "scope": "values",
+        "options": {
+          "start": "ชิดต้นแถว",
+          "center": "กึ่งกลาง",
+          "end": "ชิดท้ายแถว"
+        }
+      },
+      {
+        "key": "search",
+        "label": "แสดงปุ่มค้นหา",
+        "type": "boolean",
+        "default": true,
+        "group": "links",
+        "scope": "values"
+      },
+      {
+        "key": "directory",
+        "label": "แสดงลิงก์รวมข้อมูล",
+        "type": "boolean",
+        "default": true,
+        "group": "links",
+        "scope": "values"
+      },
+      {
+        "key": "directory_label",
+        "label": "ข้อความลิงก์รวมข้อมูล",
+        "type": "text",
+        "default": "ข้อมูลทั้งหมด",
+        "group": "links",
+        "scope": "values",
+        "max": 60
+      },
+      {
+        "key": "color_control",
+        "label": "แสดงตัวเลือกโหมดสี",
+        "type": "boolean",
+        "default": true,
+        "group": "links",
+        "scope": "values"
+      },
+      {
+        "key": "cta_label",
+        "label": "ข้อความปุ่มพิเศษ (ว่าง = ซ่อน)",
+        "type": "text",
+        "default": "",
+        "group": "links",
+        "scope": "values",
+        "max": 60
+      },
+      {
+        "key": "cta_url",
+        "label": "ลิงก์ปุ่มพิเศษ",
+        "type": "url",
+        "default": "/portal/contact",
+        "group": "links",
+        "scope": "values",
+        "max": 1000
+      },
+      {
+        "key": "cta_style",
+        "label": "รูปแบบปุ่มพิเศษ",
+        "type": "select",
+        "default": "filled",
+        "group": "links",
+        "scope": "values",
+        "options": {
+          "filled": "สีทึบ",
+          "outline": "เส้นขอบ"
+        }
+      },
+      {
+        "key": "background",
+        "label": "พื้น header โหมดสว่าง (ว่าง = ตามธีม)",
+        "type": "color",
+        "default": null,
+        "group": "colors",
+        "scope": "values",
+        "nullable": true
+      },
+      {
+        "key": "text_color",
+        "label": "ตัวอักษรโหมดสว่าง (ว่าง = ตามธีม)",
+        "type": "color",
+        "default": null,
+        "group": "colors",
+        "scope": "values",
+        "nullable": true
+      },
+      {
+        "key": "dark_background",
+        "label": "พื้น header โหมดมืด (ว่าง = ตามธีม)",
+        "type": "color",
+        "default": null,
+        "group": "colors",
+        "scope": "values",
+        "nullable": true
+      },
+      {
+        "key": "dark_text_color",
+        "label": "ตัวอักษรโหมดมืด (ว่าง = ตามธีม)",
+        "type": "color",
+        "default": null,
+        "group": "colors",
+        "scope": "values",
+        "nullable": true
+      },
+      {
+        "key": "border",
+        "label": "แสดงเส้นแบ่งส่วนหัว",
+        "type": "boolean",
+        "default": true,
+        "group": "colors",
+        "scope": "values"
+      },
+      {
+        "key": "shadow",
+        "label": "แสดงเงาใต้ส่วนหัว",
+        "type": "boolean",
+        "default": false,
+        "group": "colors",
+        "scope": "values"
+      },
+      {
+        "key": "badge",
+        "label": "ข้อความป้ายแถบบน",
+        "type": "text",
+        "default": "เว็บไซต์โรงเรียน",
+        "scope": "shared",
+        "group": "text",
+        "max": 100
+      },
+      {
+        "key": "levels",
+        "label": "ข้อความระดับชั้นแถบบน",
+        "type": "text",
+        "default": "ประถมศึกษาและมัธยมศึกษา",
+        "scope": "shared",
+        "group": "text",
+        "max": 180
+      },
+      {
+        "key": "opacity",
+        "label": "ความทึบพื้น header (%)",
+        "type": "number",
+        "default": 96,
+        "scope": "values",
+        "group": "colors",
+        "min": 70,
+        "max": 100
+      },
+      {
+        "key": "blur",
+        "label": "ความเบลอพื้นกระจก (px)",
+        "type": "number",
+        "default": 12,
+        "scope": "values",
+        "group": "colors",
+        "min": 0,
+        "max": 24
+      },
+      {
+        "key": "radius",
+        "label": "ความโค้งกรอบ header (px)",
+        "type": "number",
+        "default": 0,
+        "scope": "values",
+        "group": "size",
+        "min": 0,
+        "max": 28
+      },
+      {
+        "key": "mobile_padding_x",
+        "label": "ขอบซ้ายขวา header บนมือถือ (px)",
+        "type": "number",
+        "default": 14,
+        "scope": "values",
+        "group": "size",
+        "min": 8,
+        "max": 28
+      },
+      {
+        "key": "mobile_padding_y",
+        "label": "ขอบบนล่าง header บนมือถือ (px)",
+        "type": "number",
+        "default": 10,
+        "scope": "values",
+        "group": "size",
+        "min": 6,
+        "max": 22
+      },
+      {
+        "key": "utility_background",
+        "label": "สีพื้นแถบบน (ว่าง = ตามธีม)",
+        "type": "color",
+        "default": null,
+        "scope": "values",
+        "group": "colors",
+        "nullable": true
+      },
+      {
+        "key": "utility_text_color",
+        "label": "สีตัวอักษรแถบบน (ว่าง = ตามธีม)",
+        "type": "color",
+        "default": null,
+        "scope": "values",
+        "group": "colors",
+        "nullable": true
+      },
+      {
+        "key": "utility_size",
+        "label": "ขนาดตัวอักษรแถบบน (px)",
+        "type": "number",
+        "default": 12,
+        "scope": "values",
+        "group": "text",
+        "min": 12,
+        "max": 16
+      }
+    ]
+  },
+  "hero": {
+    "storage": "hero_design",
+    "title": "ออกแบบ hero และสไลด์",
+    "fields": [
+      {
+        "key": "show_hero",
+        "label": "แสดง hero หน้าแรก",
+        "type": "boolean",
+        "default": true,
+        "group": "layout",
+        "scope": "theme"
+      },
+      {
+        "key": "layout",
+        "label": "ความกว้าง hero",
+        "type": "select",
+        "default": "full",
+        "group": "layout",
+        "scope": "values",
+        "options": {
+          "full": "เต็มแนวกว้าง",
+          "boxed": "กรอบตามเนื้อหา"
+        }
+      },
+      {
+        "key": "height",
+        "label": "ความสูงขั้นต่ำจอคอมพิวเตอร์ (px)",
+        "type": "number",
+        "default": 350,
+        "group": "size",
+        "scope": "values",
+        "min": 300,
+        "max": 760
+      },
+      {
+        "key": "mobile_height",
+        "label": "ความสูงขั้นต่ำมือถือ (px)",
+        "type": "number",
+        "default": 440,
+        "group": "size",
+        "scope": "values",
+        "min": 360,
+        "max": 900
+      },
+      {
+        "key": "radius",
+        "label": "ความโค้งกรอบ (px)",
+        "type": "number",
+        "default": 0,
+        "group": "size",
+        "scope": "values",
+        "min": 0,
+        "max": 40
+      },
+      {
+        "key": "outer_gap",
+        "label": "ขอบว่างด้านบนล่าง (px)",
+        "type": "number",
+        "default": 0,
+        "group": "size",
+        "scope": "values",
+        "min": 0,
+        "max": 40
+      },
+      {
+        "key": "content_width",
+        "label": "ความกว้างพื้นที่ข้อความ (%)",
+        "type": "number",
+        "default": 65,
+        "group": "size",
+        "scope": "values",
+        "min": 35,
+        "max": 90
+      },
+      {
+        "key": "content_max",
+        "label": "พื้นที่ข้อความสูงสุด (px)",
+        "type": "number",
+        "default": 720,
+        "group": "size",
+        "scope": "values",
+        "min": 360,
+        "max": 1100
+      },
+      {
+        "key": "padding_x",
+        "label": "ขอบข้อความซ้ายขวา (px)",
+        "type": "number",
+        "default": 32,
+        "group": "size",
+        "scope": "values",
+        "min": 16,
+        "max": 96
+      },
+      {
+        "key": "padding_y",
+        "label": "ขอบข้อความบนล่าง (px)",
+        "type": "number",
+        "default": 28,
+        "group": "size",
+        "scope": "values",
+        "min": 16,
+        "max": 90
+      },
+      {
+        "key": "title_size",
+        "label": "ขนาดหัวเรื่อง (px)",
+        "type": "number",
+        "default": 36,
+        "group": "text",
+        "scope": "values",
+        "min": 24,
+        "max": 64
+      },
+      {
+        "key": "mobile_title_size",
+        "label": "ขนาดหัวเรื่องมือถือ (px)",
+        "type": "number",
+        "default": 29,
+        "group": "text",
+        "scope": "values",
+        "min": 24,
+        "max": 44
+      },
+      {
+        "key": "description_size",
+        "label": "ขนาดคำอธิบาย (px)",
+        "type": "number",
+        "default": 16,
+        "group": "text",
+        "scope": "values",
+        "min": 14,
+        "max": 22
+      },
+      {
+        "key": "mobile_description_size",
+        "label": "ขนาดคำอธิบายมือถือ (px)",
+        "type": "number",
+        "default": 15,
+        "group": "text",
+        "scope": "values",
+        "min": 14,
+        "max": 20
+      },
+      {
+        "key": "kicker_size",
+        "label": "ขนาดข้อความเหนือหัวเรื่อง (px)",
+        "type": "number",
+        "default": 13,
+        "group": "text",
+        "scope": "values",
+        "min": 12,
+        "max": 18
+      },
+      {
+        "key": "show_kicker",
+        "label": "แสดงข้อความเหนือหัวเรื่อง",
+        "type": "boolean",
+        "default": true,
+        "group": "text",
+        "scope": "values"
+      },
+      {
+        "key": "show_description",
+        "label": "แสดงคำอธิบาย",
+        "type": "boolean",
+        "default": true,
+        "group": "text",
+        "scope": "values"
+      },
+      {
+        "key": "show_buttons",
+        "label": "แสดงปุ่มของสไลด์",
+        "type": "boolean",
+        "default": true,
+        "group": "text",
+        "scope": "values"
+      },
+      {
+        "key": "title_color",
+        "label": "สีหัวเรื่อง",
+        "type": "color",
+        "default": "#fffef4",
+        "group": "colors",
+        "scope": "values",
+        "nullable": false
+      },
+      {
+        "key": "description_color",
+        "label": "สีคำอธิบาย",
+        "type": "color",
+        "default": "#f1f5e9",
+        "group": "colors",
+        "scope": "values",
+        "nullable": false
+      },
+      {
+        "key": "kicker_color",
+        "label": "สีข้อความเหนือหัวเรื่อง",
+        "type": "color",
+        "default": "#e0edbd",
+        "group": "colors",
+        "scope": "values",
+        "nullable": false
+      },
+      {
+        "key": "overlay_color",
+        "label": "สีม่านทับภาพ",
+        "type": "color",
+        "default": "#0c2b1f",
+        "group": "colors",
+        "scope": "values",
+        "nullable": false
+      },
+      {
+        "key": "overlay_override",
+        "label": "ความทึบทุกสไลด์ (%; ว่าง = ใช้ค่ารายสไลด์)",
+        "type": "number",
+        "default": null,
+        "group": "colors",
+        "scope": "values",
+        "min": 30,
+        "max": 85,
+        "nullable": true
+      },
+      {
+        "key": "button_background",
+        "label": "สีปุ่มหลัก",
+        "type": "color",
+        "default": "#dbe9aa",
+        "group": "buttons",
+        "scope": "values",
+        "nullable": false
+      },
+      {
+        "key": "button_radius",
+        "label": "ความโค้งปุ่ม (px)",
+        "type": "number",
+        "default": 9,
+        "group": "buttons",
+        "scope": "values",
+        "min": 0,
+        "max": 32
+      },
+      {
+        "key": "button_size",
+        "label": "ขนาดข้อความปุ่ม (px)",
+        "type": "number",
+        "default": 14,
+        "group": "buttons",
+        "scope": "values",
+        "min": 13,
+        "max": 20
+      },
+      {
+        "key": "button_padding_x",
+        "label": "ขอบปุ่มซ้ายขวา (px)",
+        "type": "number",
+        "default": 18,
+        "group": "buttons",
+        "scope": "values",
+        "min": 10,
+        "max": 36
+      },
+      {
+        "key": "button_padding_y",
+        "label": "ขอบปุ่มบนล่าง (px)",
+        "type": "number",
+        "default": 10,
+        "group": "buttons",
+        "scope": "values",
+        "min": 8,
+        "max": 22
+      },
+      {
+        "key": "button_style",
+        "label": "รูปแบบปุ่มหลัก",
+        "type": "select",
+        "default": "filled",
+        "group": "buttons",
+        "scope": "values",
+        "options": {
+          "filled": "สีทึบ",
+          "outline": "เส้นขอบ"
+        }
+      },
+      {
+        "key": "hero_autoplay",
+        "label": "สลับสไลด์อัตโนมัติ",
+        "type": "boolean",
+        "default": true,
+        "group": "playback",
+        "scope": "shared"
+      },
+      {
+        "key": "hero_interval",
+        "label": "เวลาต่อสไลด์ (มิลลิวินาที)",
+        "type": "number",
+        "default": 7000,
+        "group": "playback",
+        "scope": "shared",
+        "min": 4000,
+        "max": 15000
+      },
+      {
+        "key": "hero_search",
+        "label": "แสดงช่องค้นหาบน hero",
+        "type": "boolean",
+        "default": true,
+        "group": "controls",
+        "scope": "shared"
+      },
+      {
+        "key": "search_placeholder",
+        "label": "ข้อความในช่องค้นหา",
+        "type": "text",
+        "default": "ค้นหาข่าว ประกาศ และข้อมูลโรงเรียน",
+        "group": "controls",
+        "scope": "values",
+        "max": 120
+      },
+      {
+        "key": "arrows",
+        "label": "แสดงลูกศรเลื่อนสไลด์",
+        "type": "boolean",
+        "default": true,
+        "group": "controls",
+        "scope": "values"
+      },
+      {
+        "key": "dots",
+        "label": "แสดงจุดเลือกสไลด์",
+        "type": "boolean",
+        "default": true,
+        "group": "controls",
+        "scope": "values"
+      },
+      {
+        "key": "counter",
+        "label": "แสดงลำดับสไลด์",
+        "type": "boolean",
+        "default": true,
+        "group": "controls",
+        "scope": "values"
+      },
+      {
+        "key": "pause",
+        "label": "แสดงปุ่มหยุด / เล่น (คงไว้เมื่อเล่นอัตโนมัติ)",
+        "type": "boolean",
+        "default": true,
+        "group": "controls",
+        "scope": "values"
+      },
+      {
+        "key": "pause_hover",
+        "label": "พักการสลับเมื่อชี้เมาส์",
+        "type": "boolean",
+        "default": true,
+        "group": "playback",
+        "scope": "values"
+      },
+      {
+        "key": "swipe",
+        "label": "เลื่อนสไลด์ด้วยการปัด",
+        "type": "boolean",
+        "default": true,
+        "group": "playback",
+        "scope": "values"
+      },
+      {
+        "key": "loop",
+        "label": "วนกลับสไลด์แรก",
+        "type": "boolean",
+        "default": true,
+        "group": "playback",
+        "scope": "values"
+      },
+      {
+        "key": "ken_burns",
+        "label": "ภาพขยับขยายอย่างนุ่มนวล",
+        "type": "boolean",
+        "default": true,
+        "group": "playback",
+        "scope": "values"
+      },
+      {
+        "key": "transition_ms",
+        "label": "เวลาค่อย ๆ เปลี่ยนภาพ (มิลลิวินาที)",
+        "type": "number",
+        "default": 650,
+        "group": "playback",
+        "scope": "values",
+        "min": 0,
+        "max": 1500
+      },
+      {
+        "key": "hero_title",
+        "label": "หัวเรื่องตั้งต้น เมื่อไม่มีสไลด์",
+        "type": "textarea",
+        "default": "ทุกการเรียนรู้เริ่มที่นี่",
+        "group": "fallback",
+        "scope": "theme",
+        "max": 200
+      },
+      {
+        "key": "hero_description",
+        "label": "คำอธิบายตั้งต้น",
+        "type": "textarea",
+        "default": "",
+        "group": "fallback",
+        "scope": "theme",
+        "max": 500
+      },
+      {
+        "key": "hero_media_id",
+        "label": "ภาพตั้งต้น เมื่อไม่มีสไลด์",
+        "type": "media",
+        "default": null,
+        "group": "fallback",
+        "scope": "theme",
+        "nullable": true
+      },
+      {
+        "key": "fallback_kicker",
+        "label": "ข้อความเหนือหัวเรื่องตั้งต้น",
+        "type": "text",
+        "default": "พื้นที่แห่งการเรียนรู้",
+        "group": "fallback",
+        "scope": "values",
+        "max": 100
+      },
+      {
+        "key": "fallback_button",
+        "label": "ปุ่มหลักตั้งต้น",
+        "type": "text",
+        "default": "ข่าวและกิจกรรม",
+        "group": "fallback",
+        "scope": "values",
+        "max": 60
+      },
+      {
+        "key": "fallback_url",
+        "label": "ลิงก์ปุ่มหลักตั้งต้น",
+        "type": "url",
+        "default": "/portal/news",
+        "group": "fallback",
+        "scope": "values",
+        "max": 1000
+      },
+      {
+        "key": "fallback_secondary",
+        "label": "ปุ่มรองตั้งต้น",
+        "type": "text",
+        "default": "รู้จักโรงเรียน",
+        "group": "fallback",
+        "scope": "values",
+        "max": 60
+      },
+      {
+        "key": "fallback_secondary_url",
+        "label": "ลิงก์ปุ่มรองตั้งต้น",
+        "type": "url",
+        "default": "/portal/pages",
+        "group": "fallback",
+        "scope": "values",
+        "max": 1000
+      }
+    ]
+  },
+  "group_labels": {
+    "identity": "ตราและชื่อโรงเรียน",
+    "images": "ภาพโลโก้แต่ละอุปกรณ์",
+    "size": "ขนาดและระยะห่าง",
+    "text": "ข้อความและตัวอักษร",
+    "colors": "สีและพื้นหลัง",
+    "layout": "โครงสร้างและการแสดงผล",
+    "links": "ลิงก์และปุ่มพิเศษ",
+    "buttons": "รูปแบบปุ่ม",
+    "controls": "เครื่องมือบน hero",
+    "playback": "การเล่นและการเคลื่อนไหว",
+    "fallback": "ภาพและข้อความตั้งต้น"
+  }
+}

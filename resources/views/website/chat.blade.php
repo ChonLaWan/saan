@@ -1,0 +1,6 @@
+@php($chatLinks=\App\Domain\Cms\SiteExtras::chatLinks($site['extras']??[]))
+@php($chatPlacement=\App\Domain\Cms\SiteExtras::normalize($site['extras']??[])['chat']['placement'])
+@if($chatLinks&&in_array($chatPlacement,$variant==='floating'?['floating','both']:['footer','both'],true))
+{{-- F5a chat buttons: plain links. Nothing from Messenger or LINE (script, SDK, iframe, pixel, font) is loaded before the visitor clicks one. --}}
+<nav class="chat-links chat-links-{{ $variant }}" aria-label="ช่องทางแชตกับโรงเรียน" data-chat-links>@foreach($chatLinks as $chat)<a class="chat-link chat-link-{{ $chat['key'] }}" href="{{ $chat['url'] }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $chat['aria'] }}">@if($chat['key']==='messenger')<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3C7 3 3.5 6.5 3.5 11c0 2.4 1.1 4.4 2.9 5.8V21l3.3-1.8c.7.2 1.5.3 2.3.3 5 0 8.5-3.5 8.5-8.5S17 3 12 3z"/><path d="m7.5 13.5 3-3.5 2 2 3-3"/></svg>@else<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 11c0-3.9 3.6-7 8-7s8 3.1 8 7-3.6 7-8 7c-.7 0-1.4-.1-2-.2L6 20v-3.3C4.8 15.5 4 13.4 4 11z"/><path d="M9 10v3M12 10v3M15 10v3"/></svg>@endif<span class="chat-label">{{ $chat['label'] }}</span></a>@endforeach</nav>
+@endif

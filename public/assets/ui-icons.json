@@ -1,0 +1,10 @@
+{
+  "arrow-right": "M5 12h14m-6-6 6 6-6 6",
+  "arrow-left": "M19 12H5m6-6-6 6 6 6",
+  "arrow-up-right": "M7 17 17 7M7 7h10v10",
+  "arrow-down": "M12 5v14m-6-6 6 6 6-6",
+  "chevron-right": "m9 6 6 6-6 6",
+  "chevron-left": "m15 6-6 6 6 6",
+  "chevron-down": "m6 9 6 6 6-6",
+  "chevron-up": "m6 15 6-6 6 6"
+}

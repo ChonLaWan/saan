@@ -1,0 +1,120 @@
+{
+    "id": "web-cms",
+    "name": "เว็บไซต์โรงเรียน",
+    "version": "0.6.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": []
+    },
+    "description": "ข่าว หน้าเนื้อหา 12 ประเภท ธีม เมนู hero คลังสื่อ เครื่องมือเว็บไซต์ และหน้ากลุ่มงาน/กลุ่มสาระพร้อมกล่องเอกสารและตัวนับดาวน์โหลด",
+    "families": [
+        "M01"
+    ],
+    "routes": [
+        "/cms",
+        "/api/site/*",
+        "/api/cms/*",
+        "/portal/*"
+    ],
+    "disable_policy": "core-required",
+    "edition": "both",
+    "work_menu": [
+        {
+            "key": "hubs",
+            "label": "หน้ากลุ่มงาน/กลุ่มสาระ",
+            "path": "/work#hubs",
+            "icon": "document",
+            "roles": [
+                "admin",
+                "principal",
+                "editor",
+                "teacher"
+            ]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/web-cms/hubs.css",
+        "assets/modules/web-cms/hubs.js"
+    ],
+    "public_projection": [
+        {
+            "table": "cms_hubs",
+            "where": {
+                "status": "published"
+            },
+            "columns": {
+                "id": "keep",
+                "school_id": "keep",
+                "slug": "keep",
+                "title": "keep",
+                "kind": "keep",
+                "group_name": "keep",
+                "description": "keep",
+                "news_category": "keep",
+                "news_tag": "keep",
+                "news_limit": "keep",
+                "box_limit": "keep",
+                "contact": "keep",
+                "committee": "keep",
+                "sort": "keep",
+                "status": "keep",
+                "version": "keep",
+                "created_at": "keep",
+                "updated_at": "keep"
+            }
+        },
+        {
+            "table": "cms_hub_categories",
+            "filter": "hub_categories",
+            "columns": {
+                "id": "keep",
+                "school_id": "keep",
+                "hub_id": "keep",
+                "parent_id": "keep",
+                "label": "keep",
+                "rule": "keep",
+                "sort": "keep",
+                "is_hidden": "keep",
+                "version": "keep",
+                "created_at": "keep",
+                "updated_at": "keep"
+            }
+        },
+        {
+            "table": "cms_hub_documents",
+            "filter": "hub_documents",
+            "where": {
+                "is_published": 1
+            },
+            "columns": {
+                "id": "keep",
+                "school_id": "keep",
+                "hub_id": "keep",
+                "category_id": "keep",
+                "title": "keep",
+                "doc_date": "keep",
+                "media_id": "keep",
+                "file_name": "keep",
+                "external_url": "keep",
+                "period_month": "keep",
+                "period_year": "keep",
+                "is_published": "keep",
+                "sort": "keep",
+                "version": "keep",
+                "created_at": "keep",
+                "updated_at": "keep"
+            }
+        },
+        {
+            "table": "pub_popular_posts",
+            "derived": "popular_posts",
+            "columns": {
+                "post_id": "keep",
+                "views_7": "keep",
+                "views_30": "keep",
+                "views_total": "keep"
+            }
+        }
+    ]
+}

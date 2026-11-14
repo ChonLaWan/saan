@@ -1,0 +1,51 @@
+{
+    "id": "api-gateway",
+    "name": "เกตเวย์ API สำหรับแอปภายนอก",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {
+            "academic": ">=0.1.0",
+            "registry": ">=0.1.0"
+        }
+    },
+    "description": "ให้แอปการเรียนภายนอกอ่านข้อมูลโรงเรียนอย่างปลอดภัย ด้วย OAuth2 client_credentials, scope ระดับ field, rate limit และ IP allowlist พร้อมเข้าสู่ระบบนักเรียนแบบ authorization code + PKCE ด้วยรหัสนักเรียนและ PIN แทน SQL proxy เดิม",
+    "families": [
+        "G6"
+    ],
+    "routes": [
+        "/api/v1/*",
+        "/oauth/*",
+        "/api/api-gateway/*"
+    ],
+    "disable_policy": "keep-data",
+    "work_menu": [
+        {
+            "key": "api",
+            "label": "เชื่อมต่อแอปภายนอก (API)",
+            "path": "/work#api",
+            "icon": "layers",
+            "roles": [
+                "admin"
+            ]
+        },
+        {
+            "key": "student-pins",
+            "label": "PIN เข้าแอปเรียนของนักเรียน",
+            "path": "/work#student-pins",
+            "icon": "people",
+            "roles": [
+                "admin",
+                "principal",
+                "teacher"
+            ]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/api-gateway/api-gateway.css",
+        "assets/modules/api-gateway/api-gateway.js"
+    ],
+    "package": "separate",
+    "edition": "internal"
+}

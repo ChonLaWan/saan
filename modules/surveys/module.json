@@ -1,0 +1,79 @@
+{
+    "id": "surveys",
+    "name": "แบบสอบถามและเกียรติบัตร",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {
+            "web-cms": ">=0.6.0"
+        }
+    },
+    "description": "แบบสอบถาม/แบบประเมินสาธารณะแบบไม่ต้องเข้าระบบ หนึ่งคนหนึ่งคำตอบ (ยืนยันอีเมลหรือรหัสรายชื่อ) พร้อมเกียรติบัตรที่ตรวจสอบเลขที่ได้",
+    "families": [
+        "M19",
+        "G7"
+    ],
+    "routes": [
+        "/portal/surveys/*",
+        "/portal/certificates/*",
+        "/api/surveys/*"
+    ],
+    "disable_policy": "keep-data",
+    "admin_assets": [
+        "assets/modules/surveys/surveys-admin.css",
+        "assets/modules/surveys/surveys-admin.js"
+    ],
+    "admin_menu": [
+        {
+            "key": "surveys",
+            "label": "แบบสอบถามและเกียรติบัตร",
+            "path": "/cms#surveys",
+            "icon": "check",
+            "roles": [
+                "admin",
+                "principal",
+                "editor"
+            ]
+        }
+    ],
+    "package": "separate",
+    "edition": "both",
+    "public_projection": [
+        {
+            "table": "srv_surveys",
+            "where": {
+                "status": "open"
+            },
+            "columns": {
+                "id": "keep",
+                "school_id": "keep",
+                "slug": "keep",
+                "title": "keep",
+                "intro": "keep",
+                "questions": "scrub_answer_keys",
+                "identity_mode": "keep",
+                "opens_at": "keep",
+                "closes_at": "keep",
+                "anon_ip_hour": "keep",
+                "max_responses": "keep",
+                "certificate": "keep",
+                "status": "keep",
+                "version": "keep",
+                "created_at": "keep",
+                "updated_at": "keep"
+            }
+        },
+        {
+            "table": "pub_certificates",
+            "derived": "certificate_verify",
+            "columns": {
+                "number": "keep",
+                "holder_name": "mask_name",
+                "survey_title": "keep",
+                "issued_at": "keep",
+                "key_hash": "keep"
+            }
+        }
+    ]
+}

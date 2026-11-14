@@ -1,0 +1,20 @@
+flowchart TD
+    Admin["ผู้ดูแลโรงเรียน"] --> UI["/cms#mail: Gmail / SMTP / server config / disabled"]
+    UI -->|"Session + CSRF"| Gate["Active account + same school + admin + request validation"]
+    Gate -->|"save with expected version"| Version["DB transaction + row lock + version check"]
+    Version --> Encrypt["Encrypt complete settings with APP_KEY"]
+    Encrypt --> DB[("school_mail_settings: encrypted payload")]
+    DB --> Read["Admin read: omit password; return presence flag"]
+    Read --> UI
+    Gate -->|"test: explicit recipient + version + UUID"| Once["Throttle + school lock + single-use request"]
+    Once --> Transport["Decrypt in memory; TLS required; certificate verified"]
+    Transport --> Gmail["smtp.gmail.com 587 STARTTLS / 465 TLS"]
+    Transport --> SMTP["School SMTP server"]
+    Transport --> Local["Local-only loopback mock; no external delivery"]
+    Gmail --> Status["Accepted or generic failure; inbox delivery not inferred"]
+    SMTP --> Status
+    Local --> Status
+    Status --> DB
+    Status --> UI
+    Version --> Audit[("Audit: provider/version only; no password/raw SMTP reply")]
+    Status --> Audit

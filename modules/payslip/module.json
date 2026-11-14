@@ -1,0 +1,114 @@
+{
+    "id": "payslip",
+    "name": "สลิปเงินเดือนและหนังสือรับรอง 50 ทวิ",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {}
+    },
+    "description": "สลิปเงินเดือนของเงินที่โรงเรียนจ่ายเอง (ลูกจ้าง อัตราจ้าง ค่าตอบแทนจากเงินโรงเรียน และสลิปข้าราชการที่โรงเรียนแจกเอง): นำเข้ารายเดือนจาก CSV/XLSX หรืออัปโหลด PDF รายคน ตรวจยอดก่อนยืนยัน เผยแพร่ ยกเลิกงวด ยกเลิกและแทนที่สลิปรายคน ผู้รับเปิดดูและพิมพ์ได้เฉพาะของตัวเอง หนังสือรับรองการหักภาษี ณ ที่จ่าย (50 ทวิ) รายปี และบล็อก บริการบุคลากร ที่ลิงก์ไปบริการส่วนกลาง (บำนาญ เงินเดือนข้าราชการ) ยอดเงิน เลขบัญชี และเลขประจำตัวเก็บแบบเข้ารหัส ใช้เฉพาะระบบภายใน",
+    "families": [
+        "F2"
+    ],
+    "routes": [
+        "/api/payslip/*"
+    ],
+    "disable_policy": "keep-data",
+    "edition": "internal",
+    "private_storage": ["payslip"],
+    "storage_tables": [{"table": "psl_slips", "bytes": "file_size", "where": {"status": ["active"]}}],
+    "work_menu": [
+        {
+            "key": "payslip",
+            "label": "สลิปเงินเดือน",
+            "path": "/work#payslip",
+            "icon": "document",
+            "roles": ["admin", "principal", "teacher", "editor"]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/payslip/payslip.css",
+        "assets/modules/payslip/payslip.js"
+    ],
+    "package": "separate",
+    "settings_schema": [
+        {
+            "key": "payslip.officer_user_ids",
+            "label": "เจ้าหน้าที่การเงินเงินเดือน (ผู้จัดการสลิป)",
+            "type": "users",
+            "roles": ["teacher", "admin"],
+            "roles_hint": ["teacher"],
+            "default": [],
+            "help": "บัญชีที่จัดการงวด นำเข้าข้อมูล ยกเลิกสลิป และออก 50 ทวิ ได้ ผู้บริหารและผู้ดูแลระบบดูได้เฉพาะสรุป"
+        },
+        {
+            "key": "payslip.retention_years",
+            "label": "เก็บสลิปไว้ (ปี)",
+            "type": "int",
+            "min": 0,
+            "max": 30,
+            "default": 10,
+            "help": "ลบสลิปและไฟล์ของงวดที่จ่ายเงินนานกว่านี้ (ค่าเริ่มต้น 10 ปีตามเหตุผลด้านภาษี) ใส่ 0 เพื่อเก็บไว้ตลอด"
+        },
+        {
+            "key": "payslip.payer_name",
+            "label": "ชื่อผู้จ่ายเงินบน 50 ทวิ",
+            "type": "text",
+            "maxlength": 200,
+            "default": "",
+            "help": "เว้นว่างเพื่อใช้ชื่อโรงเรียนในการตั้งค่าเว็บไซต์"
+        },
+        {
+            "key": "payslip.payer_tax_id",
+            "label": "เลขประจำตัวผู้เสียภาษีของผู้จ่ายเงิน",
+            "type": "text",
+            "maxlength": 13,
+            "pattern": "^\\d{13}$",
+            "default": "",
+            "help": "ตัวเลข 13 หลัก"
+        },
+        {
+            "key": "payslip.payer_address",
+            "label": "ที่อยู่ผู้จ่ายเงินบน 50 ทวิ",
+            "type": "text",
+            "maxlength": 400,
+            "default": "",
+            "help": "เว้นว่างเพื่อใช้ที่อยู่ในการตั้งค่าเว็บไซต์"
+        },
+        {
+            "key": "payslip.link_pension_label",
+            "label": "ชื่อลิงก์บริการบำนาญส่วนกลาง",
+            "type": "text",
+            "maxlength": 80,
+            "default": "",
+            "help": "ข้อความที่แสดงในบล็อก บริการบุคลากร เว้นว่างเพื่อใช้ข้อความกลาง"
+        },
+        {
+            "key": "payslip.link_pension_url",
+            "label": "ที่อยู่เว็บบริการบำนาญส่วนกลาง (https เท่านั้น)",
+            "type": "text",
+            "maxlength": 400,
+            "pattern": "^https://[A-Za-z0-9._~:/?#@!$&()*+,;=%-]{4,390}$",
+            "default": "",
+            "help": "ขึ้นต้นด้วย https:// เว้นว่างเพื่อซ่อนลิงก์ ผู้รับบำนาญรับเงินจากส่วนกลาง ไม่มีบัญชีในระบบนี้"
+        },
+        {
+            "key": "payslip.link_salary_label",
+            "label": "ชื่อลิงก์บริการเงินเดือนข้าราชการส่วนกลาง",
+            "type": "text",
+            "maxlength": 80,
+            "default": "",
+            "help": "ข้อความที่แสดงในบล็อก บริการบุคลากร เว้นว่างเพื่อใช้ข้อความกลาง"
+        },
+        {
+            "key": "payslip.link_salary_url",
+            "label": "ที่อยู่เว็บบริการเงินเดือนข้าราชการส่วนกลาง (https เท่านั้น)",
+            "type": "text",
+            "maxlength": 400,
+            "pattern": "^https://[A-Za-z0-9._~:/?#@!$&()*+,;=%-]{4,390}$",
+            "default": "",
+            "help": "ขึ้นต้นด้วย https:// เว้นว่างเพื่อซ่อนลิงก์"
+        }
+    ]
+}

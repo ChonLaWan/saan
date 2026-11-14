@@ -1,0 +1,41 @@
+{
+    "id": "connectors",
+    "name": "ข้อมูลปีเก่าและตัวนำเข้าจากระบบเดิม",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {}
+    },
+    "description": "ค้นข้อมูลปีการศึกษาเก่าแบบอ่านอย่างเดียว (แยกจากข้อมูลปัจจุบัน) ส่งออกประวัตินักเรียนรายคน และแปลงไฟล์ CSV จากระบบเดิมเข้าสู่การนำเข้าของทะเบียนนักเรียน",
+    "families": [
+        "G10",
+        "M23"
+    ],
+    "routes": [
+        "/api/connectors/*"
+    ],
+    "disable_policy": "keep-data",
+    "work_menu": [
+        {
+            "key": "archives",
+            "label": "ข้อมูลปีเก่า",
+            "path": "/work#archives",
+            "icon": "document",
+            "roles": ["admin", "principal", "teacher"]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/connectors/connectors.css",
+        "assets/modules/connectors/connectors.js"
+    ],
+    "package": "separate",
+    "settings_schema": [
+        {
+            "key": "connectors.teacher_lookup",
+            "label": "อนุญาตให้ค้นหาครูจากไฟล์ที่นำเข้า",
+            "type": "bool",
+            "default": false
+        }
+    ]
+}

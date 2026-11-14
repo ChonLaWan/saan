@@ -1,0 +1,26 @@
+/* documents module: printable monthly registry book, A4 landscape */
+@page{size:A4 landscape;margin:12mm}
+.dp{margin:0;background:#f3f1ea;color:#1a1a1a;font:14px/1.45 "Sarabun","Noto Sans Thai",system-ui,sans-serif}
+.dp-bar{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:#fff;border-bottom:1px solid #c4ccbe}
+.dp-bar a{color:#163b30}
+.dp-bar button{min-height:44px;padding:.4rem 1.1rem;border:0;border-radius:999px;background:#163b30;color:#fff;font:inherit;cursor:pointer}
+.dp-bar button:focus-visible,.dp-bar a:focus-visible{outline:2px solid #b83317;outline-offset:2px}
+.dp-sheet{max-width:1100px;margin:1rem auto;padding:1rem;background:#fff;overflow-x:auto}
+.dp-sheet header{text-align:center;margin-bottom:.6rem}
+.dp-sheet h1{margin:.1rem 0;font-size:1.3rem}
+.dp-school,.dp-sub{margin:0}
+.dp-table{width:100%;border-collapse:collapse;min-width:44rem}
+.dp-table th,.dp-table td{border:1px solid #444;padding:.25rem .4rem;text-align:left;vertical-align:top}
+.dp-table th{background:#eee;font-weight:700}
+.dp-no{white-space:nowrap;width:5.5rem}
+.dp-subject{width:32%}
+.dp-empty{text-align:center;color:#555}
+.dp-count{margin:.5rem 0 0;text-align:right}
+@media print{
+  .dp{background:#fff;font-size:11pt}
+  .dp-bar{display:none}
+  .dp-sheet{max-width:none;margin:0;padding:0;overflow:visible}
+  .dp-table{min-width:0}
+  .dp-table thead{display:table-header-group}
+  .dp-table tr{break-inside:avoid}
+}

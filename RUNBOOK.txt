@@ -1,0 +1,53 @@
+สาน (Saan) - คู่มือปฏิบัติการย่อ (RUNBOOK)
+
+ไฟล์นี้เป็นสรุปคำสั่งที่ใช้บ่อย รายละเอียดเต็มอยู่ในคู่มือ docs/installation.th.html (เปิดจากเว็บที่ /manual/)
+เลขรุ่นจริงอยู่ในไฟล์ VERSION ประวัติการเปลี่ยนแปลงอยู่ใน CHANGELOG.md (หน้า /whats-new อ่านไฟล์เดียวกัน)
+คำสั่ง php artisan รันในโฟลเดอร์แอป ด้วย PHP รุ่นเดียวกับเว็บ (8.4.1 ขึ้นไป) ฐานข้อมูลที่รองรับคือ MariaDB 10.6+ หรือ MySQL 8.0+ เท่านั้น
+
+1. ติดตั้ง
+   - วางไฟล์แอปนอกโฟลเดอร์ที่เปิดจากเว็บ ตั้ง DocumentRoot ของโดเมนไปที่ public/ ของแอป เปิด HTTPS
+   - เปิด https://โดเมน/install/ อ่านรหัสเจ้าของจาก storage/app/private/setup/owner-token.txt (ใช้ File Manager ได้) แล้วทำตามหน้าจอ
+   - รูปแบบเริ่มต้น "มาตรฐาน" ใช้สองโฟลเดอร์แอป (ระบบภายใน และหน้าบ้าน) สองโดเมน/ซับโดเมน สองฐานข้อมูล ขั้นตอนเต็มอยู่ในคู่มือหัวข้อ 6
+   - ไม่ต้องคัดลอก .env ก่อนใช้ตัวติดตั้ง ตัวติดตั้งสร้างให้และล็อกตัวเองเมื่อเสร็จ
+
+2. cron (ต้องมี)
+   - ตั้ง cron ทุกนาทีเรียก php artisan schedule:run ในทุกโฟลเดอร์แอป: ติดตั้งแบบมาตรฐานต้องมี 2 บรรทัด (ระบบภายใน 1 หน้าบ้าน 1)
+   - ตัวอย่าง (ต้องแก้ USER, DOMAIN และ path ของ PHP ให้ตรงกับโฮสต์ของท่าน):
+       * * * * * /usr/local/php84/bin/php /home/USER/domains/DOMAIN/saan/artisan schedule:run >/dev/null 2>&1
+   - ไม่ต้องรัน queue worker (QUEUE_CONNECTION=sync)
+   - ตรวจว่า cron ทำงาน: หน้า /cms#deployment รายการ "cron (schedule:run) ทำงาน" หรือ php artisan school:doctor
+
+3. สำรองข้อมูล
+   - อัตโนมัติ: ถ้ามี cron ระบบสำรองทุกวันเวลา 02:30 (ตั้ง SAAN_BACKUP_DAILY_AT ใน .env, เว้นว่าง = ปิด) เก็บ 7 ไฟล์ล่าสุด (SAAN_BACKUP_KEEP)
+     ไฟล์อยู่ที่ storage/app/private/backups/auto-YYYYMMDD.zip (บนระบบภายใน/ระบบรวมเท่านั้น)
+   - ด้วยมือ: php artisan school:archive backup /path/นอก/public/ไฟล์.zip (ใส่โฟลเดอร์แทนชื่อไฟล์ได้ ระบบตั้งชื่อให้) ไม่เขียนทับไฟล์เดิม
+   - ต้องดาวน์โหลดไฟล์ออกจากเซิร์ฟเวอร์เป็นระยะ (File Manager) ไฟล์มีข้อมูลโรงเรียนและ APP_KEY ห้ามเก็บในที่สาธารณะ
+   - กู้คืนต้องใช้บรรทัดคำสั่ง (SSH หรือให้ฝ่ายสนับสนุนของโฮสต์ทำ) ลงฐานข้อมูลที่ว่างเท่านั้น:
+       php artisan school:archive restore /path/ไฟล์.zip --yes-empty-database
+     ทำค้างกลางทาง: รันซ้ำพร้อม --resume
+
+4. อัปเดต (แพ็กเกจ saan-core-*.zip หรือ saan-mod-*.zip ที่มีลายเซ็นของโครงการเท่านั้น)
+   - ผ่านเว็บ (ไม่ต้องมี SSH): วางไฟล์ zip ที่ storage/app/private/updates/incoming/ ด้วย File Manager แล้วเข้า /cms#deployment
+     ส่วน "อัปเดตระบบ" กรอกรหัสผ่านของผู้ดูแลและกด "ติดตั้ง"
+   - ผ่านคำสั่ง: php artisan saan:update /path/saan-core-X.Y.Z.zip   (ตรวจอย่างเดียว: เพิ่ม --check)
+   - ติดตั้งแบบมาตรฐาน (สองโฟลเดอร์แอป): php artisan saan:update --both /path/saan-core-X.Y.Z.zip
+     ระบบอัปเดตระบบภายในแล้วหน้าบ้าน และคืนทั้งสองฝั่งถ้าฝั่งใดล้ม ปุ่มอัปเดตในเว็บของระบบภายในแบบมาตรฐานจะไม่ทำงานและให้ใช้คำสั่งนี้แทน
+   - ระบบตรวจลายเซ็น สำรองฐานข้อมูล (storage/app/private/backups/pre-update-*.zip) พักไฟล์ใหม่ขณะเว็บยังเปิด แล้วจึงปิดเว็บสลับไฟล์
+   - ขณะสลับไฟล์ ผู้เข้าชมเห็นหน้า "กำลังปรับปรุงระบบ" (503) ซึ่งโหลดใหม่เองและข้อมูลไม่หาย ปกติใช้เวลาสั้น (ชุดทดสอบ: วินาที ถึงราวหนึ่งนาที)
+     ผ่านครบทุกขั้นเว็บเปิดเป็นรุ่นใหม่ ไม่ผ่านระบบคืนไฟล์รุ่นเดิมและเปิดเว็บให้เอง
+   - ถ้าหน้านี้ค้างเกินสองสามนาที: cron (ข้อ 2) สั่ง php artisan saan:update --recover --auto ทุกนาทีและจะปิดงานที่ค้างให้เอง
+     สั่งเองได้ด้วย php artisan saan:update --recover
+   - ประวัติการอัปเดตอยู่ในหน้า /cms#deployment และตาราง system_updates
+
+5. ตรวจระบบ
+   - php artisan school:doctor (เพิ่ม --json ได้) แสดง [OK] / [WARN] / [ERR] ทุกรายการ [ERR] ต้องแก้ก่อนอัปเดต
+   - ผู้ดูแลเห็นแถบเตือนบนหน้า /cms และ /work เมื่อ cron เงียบเกิน 10 นาที หรือมีรายการที่ผิดพลาด
+   - หลังแก้ .env: php artisan optimize:clear แล้ว php artisan config:cache
+
+6. บันทึก (log)
+   - storage/logs/laravel-YYYY-MM-DD.log (รายวัน เก็บ 14 วันตามค่า LOG_DAILY_DAYS ระดับ warning ขึ้นไป)
+   - ถ้าสร้าง cron แบบเขียน log เอง ไฟล์อยู่ตามที่ท่านกำหนด (ตัวอย่างใน config/examples/cron.txt)
+
+7. ความปลอดภัยและสัญญาอนุญาต
+   - ห้ามเปิด .env, storage, vendor หรือไฟล์สำรองสู่เว็บ ห้าม chmod 777
+   - แจ้งช่องโหว่ตาม SECURITY.md  สัญญาอนุญาต AGPL-3.0-only ดู LICENSE และ THIRD-PARTY-NOTICES.txt

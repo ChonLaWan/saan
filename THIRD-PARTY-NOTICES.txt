@@ -1,0 +1,18 @@
+สาน (Saan) — third-party notices / 2026-11-13
+
+Application code: GNU Affero General Public License v3 (AGPL-3.0-only), see LICENSE. Third-party components below keep their own licences;
+the Laravel skeleton and framework retain their original MIT notices.
+Composer dependencies: locked in composer.lock; installed packages carry their own LICENSE files. The production tree (composer install --no-dev)
+currently holds MIT (most packages), BSD-3-Clause, Apache-2.0 and a few dual/multi-licensed packages; list them with `composer licenses --no-dev`.
+IBM Plex Sans Thai: SIL Open Font License, public/assets/fonts/ibmplexsansthai-OFL.txt.
+Noto Serif Thai: SIL Open Font License, public/assets/fonts/notoserifthai-OFL.txt.
+Font sources and per-file SHA-256: public/assets/fonts/font-manifest.json.
+Original สาน (Saan) book/stream/sprout SVG marks and native UI code: distributed with the application.
+School demo photos, fictional staff portraits, category illustrations and icons: generated demo artwork;
+not photographs of the named real schools, students or personnel. Provenance described in MOCK-DATA.txt.
+Video examples are 9-second AI still-image slideshows with no audio.
+PDF demo attachments are fictional examples, not official government documents or identity facsimiles.
+Five public-school reference notices retain source URLs/school names in metadata. They are references,
+not open applications/tenders and not endorsements. Original third-party documents are not relicensed
+under this project's AGPL-3.0-only licence. Public installer package includes illustrative generated attachments.
+Do not remove source attribution or claim fictional images depict a real school's events.

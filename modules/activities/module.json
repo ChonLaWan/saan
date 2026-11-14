@@ -1,0 +1,84 @@
+{
+    "id": "activities",
+    "name": "ชุมนุม เลือกตั้งสภานักเรียน และเกียรติบัตรกิจกรรม",
+    "version": "0.1.0",
+    "readiness": "beta",
+    "requires": {
+        "core": ">=0.6.0",
+        "modules": {}
+    },
+    "description": "ชุมนุมประจำภาคเรียน (ลงทะเบียนทั้งห้อง จำกัดจำนวน รายชื่อสำรอง เช็คชื่อ ผลผ่าน/ไม่ผ่านจากเวลาเรียน) เลือกตั้งสภานักเรียนแบบลงคะแนนลับด้วยหน้าคูหาที่ครูปลดล็อกทีละคน และเกียรติบัตรกิจกรรมพร้อมเลขที่เฉพาะของแต่ละใบ",
+    "families": [
+        "M18"
+    ],
+    "routes": [
+        "/api/activities/*",
+        "/activities/*"
+    ],
+    "disable_policy": "keep-data",
+    "student_tables": [
+        {"table": "act_members", "column": "student_id"},
+        {"table": "act_attendance", "column": "student_id"},
+        {"table": "act_candidates", "column": "student_id"},
+        {"table": "act_voters", "column": "student_id"},
+        {"table": "act_certificates", "column": "student_id"}
+    ],
+    "term_tables": [
+        {"table": "act_clubs", "column": "term_id", "label": "ชุมนุม"},
+        {"table": "act_members", "column": "term_id", "label": "สมาชิกชุมนุม"}
+    ],
+    "work_menu": [
+        {
+            "key": "clubs",
+            "label": "ชุมนุม",
+            "path": "/work#clubs",
+            "icon": "people",
+            "roles": ["admin", "principal", "teacher"]
+        },
+        {
+            "key": "elections",
+            "label": "เลือกตั้งสภานักเรียน",
+            "path": "/work#elections",
+            "icon": "check",
+            "roles": ["admin", "principal", "teacher"]
+        }
+    ],
+    "work_assets": [
+        "assets/modules/activities/activities.css",
+        "assets/modules/activities/activities.js"
+    ],
+    "package": "separate",
+    "settings_schema": [
+        {
+            "key": "activities.pass_percent",
+            "label": "เกณฑ์ผ่านกิจกรรม (ร้อยละการเข้าร่วม)",
+            "type": "int",
+            "min": 1,
+            "max": 100,
+            "default": 80
+        },
+        {
+            "key": "activities.cert_prefix",
+            "label": "อักษรนำเลขที่เกียรติบัตรกิจกรรม",
+            "type": "text",
+            "maxlength": 12,
+            "pattern": "^[A-Za-z0-9]{1,12}$",
+            "default": "",
+            "help": "เว้นว่างเพื่อใช้ค่าเริ่มต้น"
+        },
+        {
+            "key": "activities.signer_name",
+            "label": "ชื่อผู้ลงนามเกียรติบัตร",
+            "type": "text",
+            "maxlength": 120,
+            "default": ""
+        },
+        {
+            "key": "activities.signer_title",
+            "label": "ตำแหน่งผู้ลงนามเกียรติบัตร",
+            "type": "text",
+            "maxlength": 120,
+            "default": ""
+        }
+    ]
+}
