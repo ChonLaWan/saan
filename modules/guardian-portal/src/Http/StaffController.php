@@ -169,7 +169,7 @@ class StaffController
     public function disableAccount(Request $r, int $guardianId): JsonResponse
     {
         $d = $r->validate(['version' => ['required', 'integer', 'min:1'], 'active' => ['required', 'boolean']]);
-        if ($r->boolean('active')) abort(422, 'ปิดบัญชีได้อย่างเดียว การเปิดใช้ใหม่ทำโดยออกลิงก์ตั้งบัญชี');
+        if ($r->boolean('active')) abort(422, 'ปิดบัญชีได้อย่างเดียว การเปิดใช้ใหม่ทำโดยผู้ดูแลระบบหรือผู้อำนวยการออกลิงก์ตั้งบัญชี');
         $a = Links::disableAccount($this->user(), $guardianId, (int) $d['version']);
         return response()->json(['guardian_id' => (int) $a->guardian_id, 'version' => (int) $a->version, 'active' => (bool) $a->is_active]);
     }

@@ -28,7 +28,7 @@ $testSigned = (bool) $key['test_only'];
 if (!is_dir($out)) mkdir($out, 0700, true);
 $version = trim((string) file_get_contents($root.'/VERSION'));
 
-$excludeRe = '~^(\.env(\..*)?$|\.git/|\.github/|node_modules/|storage/|tests/|tools/release/|bootstrap/cache/(?!\.gitignore$)|public/storage|public/(cms-demo|cms-easy|cms-release|compact-review|design|implementation|mockup-review|navigation-review|presentation-review|student-registry-design)/|resources/install/library/|\.phpunit|phpunit\.xml|\.editorconfig|\.gitattributes|\.gitignore)~';
+$excludeRe = '~^(\.env(\..*)?$|\.git/|\.github/|node_modules/|storage/|tests/|tools/release/|bootstrap/cache/(?!\.gitignore$)|public/storage|public/(cms-demo|cms-easy|cms-release|compact-review|design|implementation|mockup-review|navigation-review|presentation-review|student-registry-design)/|resources/install/library/|docs/manual/|\.phpunit|phpunit\.xml|\.editorconfig|\.gitattributes|\.gitignore)~';
 $separate = [];
 foreach (glob($root.'/modules/*/module.json') as $mf) { $m = json_decode((string) file_get_contents($mf), true); if (($m['package'] ?? '') === 'separate') $separate[$m['id']] = $m; }
 
@@ -109,12 +109,18 @@ $extensions = []; foreach (array_keys((array) ($composer['require'] ?? [])) as $
 sort($extensions);
 $requires = ['php' => '>=8.4.1', 'extensions' => $extensions];
 foreach ($argv as $a) if (str_starts_with($a, '--min-from=')) { $from = substr($a, 11); if (!preg_match('/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/', $from)) { fwrite(STDERR, "[ERR] --min-from needs a version like 0.7.0\n"); exit(2); } $requires['from'] = $from; }
-$results[] = pack_zip($out.'/saan-core-'.$version.'.zip', $entries, ['type' => 'core', 'id' => 'core', 'version' => $version, 'requires' => $requires] + ($testSigned ? ['test_signed' => true] : []), $secret);
+// what the core brings along that an administrator wants to see before installing: the laravel/framework version of this release (from composer.lock)
+$provides = [];
+$lock = json_decode((string) @file_get_contents($root.'/composer.lock'), true);
+foreach ((array) ($lock['packages'] ?? []) as $pkg) if (($pkg['name'] ?? '') === 'laravel/framework' && preg_match('/^v?(\d+\.\d+\.\d+)$/', (string) ($pkg['version'] ?? ''), $lv)) $provides['laravel'] = $lv[1];
+$coreMeta = ['type' => 'core', 'id' => 'core', 'version' => $version, 'requires' => $requires] + ($provides ? ['provides' => $provides] : []);
+$results[] = pack_zip($out.'/saan-core-'.$version.'.zip', $entries, $coreMeta + ($testSigned ? ['test_signed' => true] : []), $secret) + $coreMeta;
 // separate modules
 foreach ($separate as $id => $m) {
     $entries = [];
     foreach (array_merge(files($root, 'modules/'.$id), files($root, 'public/assets/modules/'.$id)) as $rel) { if (preg_match('~\.(tmp|sqlite3?|ppk|pem|key|p12|pfx|zip|bak|log)$~i', $rel)) continue; $entries[$rel] = $root.'/'.$rel; }
-    $results[] = pack_zip($out.'/saan-mod-'.$id.'-'.$m['version'].'.zip', $entries, ['type' => 'module', 'id' => $id, 'version' => $m['version'], 'requires' => $m['requires']] + ($testSigned ? ['test_signed' => true] : []), $secret);
+    $modMeta = ['type' => 'module', 'id' => $id, 'version' => $m['version'], 'requires' => $m['requires']];
+    $results[] = pack_zip($out.'/saan-mod-'.$id.'-'.$m['version'].'.zip', $entries, $modMeta + ($testSigned ? ['test_signed' => true] : []), $secret) + $modMeta;
 }
 file_put_contents($out.'/release-index.json', json_encode(['version' => $version, 'packages' => $results, 'public_key' => $key['public_key']] + ($testSigned ? ['test_signed' => true] : []), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 // verify what was just written before anyone can publish it; a failure removes the index

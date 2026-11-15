@@ -1,0 +1,6028 @@
+{
+ "module": "leave-duty",
+ "title": "ใบลาและเวรครู",
+ "area": "งานบุคลากรและงานธุรการ",
+ "purpose": "ครูยื่นใบลาจากคอมพิวเตอร์หรือโทรศัพท์ ระบบนับวันทำการ ตรวจโควตาตามปีงบประมาณและเงื่อนไขไฟล์แนบ ผู้อำนวยการหรือผู้ดูแลระบบอนุมัติหรือไม่อนุมัติพร้อมเหตุผล และรับคำขอยกเลิกใบลาที่อนุมัติแล้ว ส่วนเวรครู ผู้อำนวยการมอบหมายเวรตามวัน เวลา และจุดเวร ยกเลิกเวรพร้อมระบุครูแทน ครูขอแลกเวรกับเพื่อนครู เพื่อนตอบรับ แล้วผู้อำนวยการอนุมัติ ระบบไม่ให้มอบหมายเวรทับเวลากันหรือตรงกับวันที่ครูลา",
+ "roles": [
+  "ครู (ยื่น ถอน แก้ร่าง ขอยกเลิกใบลาของตนเอง ดูโควตา ดูเวรของตน ขอแลกเวรและตอบคำขอแลกเวร)",
+  "ผู้อำนวยการและผู้ดูแลระบบ (ทำได้ทุกอย่างของครู และอนุมัติใบลา ดูรายงานโควตา กำหนดประเภทการลา มอบหมายและยกเลิกเวร อนุมัติการแลกเวร แต่ตัดสินใบลาหรือคำขอแลกเวรของตนเองไม่ได้)"
+ ],
+ "menu": [
+  "เมนูด้านซ้าย \"งานโรงเรียน\" > \"ใบลา\" (/work#leave) สำหรับผู้ดูแลระบบ ผู้อำนวยการ และครู",
+  "เมนูด้านซ้าย \"งานโรงเรียน\" > \"อนุมัติใบลา\" (/work#leave-approve) สำหรับผู้ดูแลระบบและผู้อำนวยการ",
+  "เมนูด้านซ้าย \"งานโรงเรียน\" > \"เวร\" (/work#duty) สำหรับผู้ดูแลระบบ ผู้อำนวยการ และครู"
+ ],
+ "prerequisites": [
+  {
+   "module": "admin-users",
+   "text": "บัญชีของครูต้องผูกกับรายชื่อครูในทะเบียนบุคลากร มิฉะนั้นระบบแจ้งว่า \"บัญชีนี้ยังไม่ได้ผูกกับครู\" และยื่นใบลาหรือรับเวรไม่ได้"
+  }
+ ],
+ "vars": {},
+ "workflows": [
+  {
+   "id": "file-personal-leave",
+   "title": "ครูยื่นใบลากิจและดูสถานะ",
+   "intro": "ครูทุกคนยื่นใบลาได้ที่หน้า \"ใบลาของฉัน\" ระบบนับเฉพาะวันทำการ ไม่นับวันเสาร์ อาทิตย์ และวันหยุดของโรงเรียน ลาข้ามปีงบประมาณ (30 ก.ย. - 1 ต.ค.) ไม่ได้ ต้องแยกเป็นสองใบ และต้องไม่ซ้ำกับใบลาที่รออนุมัติหรืออนุมัติแล้ว",
+   "role": "homeroom",
+   "start": "/work",
+   "core": true,
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ใบลา",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ใบลาของฉัน",
+      "exact": true
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"ใบลา\" ที่แถบเมนูด้านซ้าย หน้า \"ใบลาของฉัน\" เปิดขึ้น",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "note",
+     "say": "ส่วนบนของหน้าแสดงสิทธิ์การลาของปีงบประมาณปัจจุบัน แต่ละประเภทบอกจำนวนวันที่ใช้แล้ว วันที่รออนุมัติ และโควตาต่อปี",
+     "shot": true,
+     "crop": {
+      "css": "[data-part=quota]"
+     },
+     "highlight": {
+      "css": "[data-part=quota]"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยื่นใบลาใหม่",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=leave]"
+     },
+     "say": "กดปุ่ม \"ยื่นใบลาใหม่\" แบบฟอร์มใบลาเปิดขึ้นใต้ปุ่ม",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=leave]"
+     },
+     "highlight": {
+      "css": "form[data-form=leave]"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ประเภทการลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "label": "ลากิจส่วนตัว",
+     "say": "เลือกชนิดของการลาในช่อง \"ประเภทการลา\" ในตัวอย่างนี้เลือก \"ลากิจส่วนตัว\"",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=leave]"
+     },
+     "highlight": {
+      "label": "ประเภทการลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วันที่เริ่มลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "value": "{{next_weekday:8}}",
+     "wait_after": {
+      "css": ".ld-preview b"
+     },
+     "settle_ms": 800,
+     "say": "เลือกวันที่เริ่มลาในช่อง \"วันที่เริ่มลา\" ต้องเป็นวันทำการ ถ้าลาวันเดียวไม่ต้องแก้ช่อง \"ถึงวันที่\"",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=leave]"
+     },
+     "highlight": {
+      "label": "วันที่เริ่มลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     }
+    },
+    {
+     "do": "note",
+     "say": "ใต้แบบฟอร์มมีกล่องสรุปให้ทันที บอกจำนวนวันทำการที่ระบบนับให้ ปีงบประมาณ และโควตาที่เหลือหลังลาครั้งนี้",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=leave]"
+     },
+     "highlight": {
+      "css": ".ld-preview"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผลการลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "value": "{{marker}} ลากิจ A",
+     "say": "พิมพ์เหตุผลการลาในช่อง \"เหตุผลการลา\" ช่องนี้ต้องกรอก",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=leave]"
+     },
+     "highlight": {
+      "label": "เหตุผลการลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งใบลา",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "wait_after": [
+      {
+       "css": ".ld-msg .ld-notice"
+      },
+      {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ลากิจ A"
+      }
+     ],
+     "say": "กดปุ่ม \"ส่งใบลา\" ระบบแสดงข้อความ \"ส่งใบลาแล้ว รอการพิจารณา\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ลากิจ A"
+     }
+    },
+    {
+     "do": "note",
+     "say": "ใบลาปรากฏในรายการ \"ใบลาทั้งหมด\" สถานะ \"รออนุมัติ\" ผู้อำนวยการได้รับแจ้งทางอีเมลและเห็นใบลาในหน้า \"อนุมัติใบลา\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ลากิจ A"
+     }
+    }
+   ],
+   "expected": "ใบลาอยู่ในรายการ \"ใบลาทั้งหมด\" สถานะ \"รออนุมัติ\" และผู้อำนวยการเห็นในหน้า \"อนุมัติใบลา\"",
+   "verify": [
+    {
+     "title": "เปิดหน้าใบลาใหม่ ใบลาที่ยื่นต้องอยู่ในรายการสถานะ รออนุมัติ",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} ลากิจ A"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "visible": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} ลากิจ A"
+         }
+        },
+        {
+         "text": "รออนุมัติ",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} ลากิจ A"
+         }
+        },
+        {
+         "text": "1 วันทำการ",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} ลากิจ A"
+         }
+        }
+       ],
+       "say": "เปิดหน้า \"ใบลาของฉัน\" ใหม่ ใบลาที่ยื่นแสดงสถานะ \"รออนุมัติ\" และจำนวนวันทำการ",
+       "shot": true,
+       "crop": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} ลากิจ A"
+       },
+       "highlight": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} ลากิจ A"
+       }
+      }
+     ]
+    },
+    {
+     "title": "ผู้อำนวยการเห็นใบลานี้ในหน้า อนุมัติใบลา",
+     "as": "principal",
+     "start": "/work#leave-approve",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} ลากิจ A"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "นางสาวพิมพ์ใจ ใฝ่รู้",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} ลากิจ A"
+         }
+        },
+        {
+         "visible": {
+          "role": "button",
+          "name": "อนุมัติ",
+          "exact": true,
+          "within": {
+           "css": "article.ld-card",
+           "has_text": "{{marker}} ลากิจ A"
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "file-half-day-leave-phone",
+   "title": "ครูยื่นใบลาครึ่งวันจากโทรศัพท์",
+   "intro": "หน้าใบลาใช้ได้บนโทรศัพท์ ใช้ขั้นตอนเดียวกับคอมพิวเตอร์ ภาพในหัวข้อนี้เป็นหน้าจอขนาดโทรศัพท์ ลาครึ่งวันเลือกได้เฉพาะวันเดียว และนับเป็น 0.5 วันทำการ",
+   "role": "homeroom",
+   "start": "/work#leave",
+   "viewport": "390x844",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "ใบลาของฉัน",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยื่นใบลาใหม่",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=leave]"
+     },
+     "say": "เปิดหน้า \"ใบลาของฉัน\" แล้วกดปุ่ม \"ยื่นใบลาใหม่\"",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ประเภทการลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "label": "ลาพักผ่อน",
+     "say": "เลือก \"ลาพักผ่อน\" ในช่อง \"ประเภทการลา\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "label": "ประเภทการลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วันที่เริ่มลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "value": "{{next_weekday:9}}",
+     "say": "เลือกวันที่ลาในช่อง \"วันที่เริ่มลา\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "label": "วันที่เริ่มลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     }
+    },
+    {
+     "do": "check",
+     "target": {
+      "label": "ลาครึ่งวัน",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "say": "ติ๊ก \"ลาครึ่งวัน\" ช่อง \"ถึงวันที่\" หายไปเพราะลาครึ่งวันได้เฉพาะวันเดียว",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "label": "ลาครึ่งวัน",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "css": "form[data-form=leave] select[name=half_day]"
+     },
+     "label": "ช่วงเช้า",
+     "wait_after": {
+      "css": ".ld-preview b"
+     },
+     "settle_ms": 800,
+     "say": "เลือกช่วงของวันที่ลา ในตัวอย่างนี้เลือก \"ช่วงเช้า\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "form[data-form=leave] select[name=half_day]"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผลการลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "value": "{{marker}} พักผ่อนครึ่งวัน",
+     "say": "พิมพ์เหตุผลในช่อง \"เหตุผลการลา\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "label": "เหตุผลการลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     }
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "role": "button",
+      "name": "ส่งใบลา",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งใบลา",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "wait_after": {
+      "css": ".ld-msg .ld-notice"
+     },
+     "say": "เลื่อนลงแล้วกดปุ่ม \"ส่งใบลา\" ระบบแสดงข้อความ \"ส่งใบลาแล้ว รอการพิจารณา\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    }
+   ],
+   "expected": "ใบลาครึ่งวันเช้าอยู่ในรายการ นับ 0.5 วันทำการ สถานะ \"รออนุมัติ\"",
+   "verify": [
+    {
+     "title": "ใบลาครึ่งวันอยู่ในรายการ สถานะ รออนุมัติ นับ 0.5 วัน",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "รออนุมัติ",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+         }
+        },
+        {
+         "text": "ครึ่งวันเช้า",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+         }
+        },
+        {
+         "text": "0.5 วันทำการ",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+         }
+        }
+       ],
+       "say": "เลื่อนดูรายการใบลา ใบลาครึ่งวันแสดง \"(ครึ่งวันเช้า)\" นับเป็น 0.5 วันทำการ สถานะ \"รออนุมัติ\"",
+       "shot": true,
+       "crop": "viewport",
+       "highlight": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "save-draft-edit-delete",
+   "title": "บันทึกใบลาเป็นร่าง แก้ไข และลบร่าง",
+   "intro": "ใบลาที่ยังไม่พร้อมส่งบันทึกเป็นร่างได้ ร่างแก้ไขและลบได้ ส่วนใบลาที่ส่งแล้วแก้ไม่ได้ ให้ถอนคำขอแทน",
+   "role": "homeroom",
+   "start": "/work#leave",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "ใบลาของฉัน",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยื่นใบลาใหม่",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=leave]"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ประเภทการลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "label": "ลากิจส่วนตัว"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วันที่เริ่มลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "value": "{{next_weekday:10}}"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผลการลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "value": "{{marker}} ร่างใบลา",
+     "say": "กรอกแบบฟอร์มตามปกติ ถ้ายังไม่พร้อมส่ง ให้กดปุ่ม \"บันทึกเป็นร่าง\" แทน \"ส่งใบลา\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "button",
+      "name": "บันทึกเป็นร่าง",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกเป็นร่าง",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "wait_after": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ร่างใบลา"
+     },
+     "say": "กดปุ่ม \"บันทึกเป็นร่าง\" ระบบแสดงข้อความ \"บันทึกร่างแล้ว\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ร่างใบลา"
+     }
+    },
+    {
+     "do": "note",
+     "say": "ใบลาอยู่ในรายการสถานะ \"ร่าง\" ผู้อำนวยการยังไม่เห็นใบลานี้",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ร่างใบลา"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "แก้ไข",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ร่างใบลา"
+      }
+     },
+     "wait_after": {
+      "css": "form[data-form=leave] h3"
+     },
+     "say": "ร่างใบลามีปุ่ม \"แก้ไข\" \"ส่งใบลา\" และ \"ลบร่าง\" กดปุ่ม \"แก้ไข\" เพื่อเปิดแบบฟอร์มของร่างนี้",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ร่างใบลา"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผลการลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "value": "{{marker}} ร่างใบลา แก้แล้ว",
+     "say": "แก้ข้อความที่ต้องการ แล้วกดปุ่ม \"บันทึกเป็นร่าง\" อีกครั้ง",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "เหตุผลการลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกเป็นร่าง",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "wait_after": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ร่างใบลา แก้แล้ว"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบร่าง",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ร่างใบลา"
+      }
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "ยืนยัน",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ร่างใบลา"
+      }
+     },
+     "say": "กดปุ่ม \"ลบร่าง\" ระบบถามยืนยัน ลบได้เฉพาะใบลาที่ยังเป็นร่าง",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ร่างใบลา"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยืนยัน",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ร่างใบลา"
+      }
+     },
+     "wait_after": {
+      "css": ".ld-msg .ld-notice"
+     },
+     "say": "กดปุ่ม \"ยืนยัน\" ระบบแสดงข้อความ \"ลบร่างแล้ว\" และร่างหายจากรายการ",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    }
+   ],
+   "expected": "ร่างถูกลบและไม่อยู่ในรายการ",
+   "verify": [
+    {
+     "title": "เปิดหน้าใบลาใหม่ ต้องไม่มีร่างที่ลบ",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "ใบลาของฉัน",
+        "exact": true
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card"
+       },
+       "settle_ms": 1000
+      },
+      {
+       "do": "expect",
+       "that": {
+        "count": 0,
+        "of": {
+         "css": "article.ld-card",
+         "has_text": "{{marker}} ร่างใบลา"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "file-sick-leave-with-attachment",
+   "title": "ยื่นใบลาป่วยเกิน 3 วัน ต้องแนบไฟล์",
+   "intro": "ลาป่วยเกิน 3 วันต้องแนบไฟล์ (เช่น ใบรับรองแพทย์) ก่อนส่ง ไฟล์เก็บแบบส่วนตัว เปิดดูได้เฉพาะเจ้าของใบลาและผู้อำนวยการหรือผู้ดูแลระบบ ผู้ดูแลระบบปรับเงื่อนไขนี้ได้ที่หัวข้อ \"ประเภทการลา\"",
+   "role": "homeroom",
+   "start": "/work#leave",
+   "core": true,
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "ใบลาของฉัน",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยื่นใบลาใหม่",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=leave]"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ประเภทการลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "label": "ลาป่วย"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วันที่เริ่มลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "value": "{{next_weekday:21}}"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ถึงวันที่",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "value": "{{next_weekday:24}}"
+    },
+    {
+     "do": "press",
+     "target": {
+      "label": "ถึงวันที่",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "key": "Tab"
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "text": "4 วันทำการ",
+      "within": {
+       "css": ".ld-preview"
+      }
+     },
+     "timeout": 20000
+    },
+    {
+     "do": "note",
+     "wait_after": {
+      "text": "ต้องแนบไฟล์",
+      "within": {
+       "css": ".ld-preview"
+      }
+     },
+     "say": "เลือก \"ลาป่วย\" แล้วใส่วันที่เริ่มลาและ \"ถึงวันที่\" ที่ลาเกิน 3 วัน กล่องสรุปบอกว่า \"ต้องแนบไฟล์ (เช่น ใบรับรองแพทย์) ก่อนส่งใบลา\"",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=leave]"
+     },
+     "highlight": {
+      "css": ".ld-preview"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผลการลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "value": "{{marker}} ป่วยครั้งแรก"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งใบลา",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "wait_after": {
+      "text": "ต้องแนบไฟล์",
+      "within": {
+       "css": ".ld-msg .ld-notice"
+      }
+     },
+     "say": "ถ้ากด \"ส่งใบลา\" โดยยังไม่แนบไฟล์ ระบบไม่ส่งใบลาและแจ้งว่าต้องแนบไฟล์",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    },
+    {
+     "do": "upload",
+     "target": {
+      "css": "form[data-form=leave] input[type=file]",
+      "include_hidden": true
+     },
+     "file": "sample.pdf",
+     "say": "กดปุ่มเลือกไฟล์ในช่อง \"ไฟล์แนบ (PDF, JPG, PNG)\" แล้วเลือกใบรับรองแพทย์ ไฟล์ต้องเป็น PDF, JPG หรือ PNG",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=leave]"
+     },
+     "highlight": {
+      "css": "form[data-form=leave] input[type=file]",
+      "include_hidden": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งใบลา",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "wait_after": [
+      {
+       "text": "ส่งใบลาแล้ว",
+       "within": {
+        "css": ".ld-msg .ld-notice"
+       }
+      },
+      {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยครั้งแรก"
+      }
+     ],
+     "settle_ms": 800,
+     "say": "กดปุ่ม \"ส่งใบลา\" อีกครั้ง ระบบส่งใบลาพร้อมไฟล์แนบและแสดงข้อความ \"ส่งใบลาแล้ว รอการพิจารณา\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ป่วยครั้งแรก"
+     }
+    },
+    {
+     "do": "note",
+     "say": "ใบลาในรายการมีปุ่ม \"ไฟล์แนบ\" และสถานะ \"รออนุมัติ\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ป่วยครั้งแรก"
+     }
+    }
+   ],
+   "expected": "ใบลามีไฟล์แนบและสถานะ \"รออนุมัติ\"",
+   "verify": [
+    {
+     "title": "เปิดหน้าใบลาใหม่ ใบลามีไฟล์แนบ สถานะ รออนุมัติ",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} ป่วยครั้งแรก"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "รออนุมัติ",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} ป่วยครั้งแรก"
+         }
+        },
+        {
+         "visible": {
+          "role": "link",
+          "name": "ไฟล์แนบ",
+          "within": {
+           "css": "article.ld-card",
+           "has_text": "{{marker}} ป่วยครั้งแรก"
+          }
+         }
+        },
+        {
+         "text": "4 วันทำการ",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} ป่วยครั้งแรก"
+         }
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "title": "ผู้อำนวยการเปิดไฟล์แนบของใบลาได้",
+     "as": "principal",
+     "start": "/work#leave-approve",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} ป่วยครั้งแรก"
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ไฟล์แนบ",
+        "within": {
+         "css": "article.ld-card",
+         "has_text": "{{marker}} ป่วยครั้งแรก"
+        }
+       },
+       "expect_download": {
+        "kind": "pdf",
+        "min_bytes": 100
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "withdraw-pending-leave",
+   "title": "ครูถอนใบลาที่ยังรออนุมัติ",
+   "intro": "ถอนคำขอได้เฉพาะใบลาที่ยังรออนุมัติ ใบลาที่ถอนแล้วจะไม่นับในโควตา",
+   "role": "homeroom",
+   "start": "/work#leave",
+   "depends_on": [
+    "file-personal-leave"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ลากิจ A"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ถอนคำขอ",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ลากิจ A"
+      }
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "ยืนยัน",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ลากิจ A"
+      }
+     },
+     "say": "ใบลาที่ \"รออนุมัติ\" มีปุ่ม \"ถอนคำขอ\" กดปุ่มนี้ ระบบถามยืนยัน",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ลากิจ A"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยืนยัน",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ลากิจ A"
+      }
+     },
+     "wait_after": {
+      "text": "ถอนคำขอแล้ว",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ลากิจ A"
+      }
+     },
+     "say": "กดปุ่ม \"ยืนยัน\" ใบลาเปลี่ยนเป็นสถานะ \"ถอนคำขอแล้ว\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ลากิจ A"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "เปิดหน้าใบลาใหม่ สถานะเป็น ถอนคำขอแล้ว",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} ลากิจ A"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "ถอนคำขอแล้ว",
+        "in": {
+         "css": "article.ld-card",
+         "has_text": "{{marker}} ลากิจ A"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "title": "ผู้อำนวยการไม่เห็นใบลานี้ในรายการรออนุมัติ",
+     "as": "principal",
+     "start": "/work#leave-approve",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "อนุมัติใบลา",
+        "exact": true
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card"
+       },
+       "settle_ms": 1000
+      },
+      {
+       "do": "expect",
+       "that": {
+        "count": 0,
+        "of": {
+         "css": "article.ld-card",
+         "has_text": "{{marker}} ลากิจ A"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "view-leave-history",
+   "title": "ครูดูรายละเอียดและประวัติของใบลา",
+   "intro": "ปุ่ม \"รายละเอียด\" มีในทุกใบลา ครูเห็นประวัติของใบลาตนเอง",
+   "role": "homeroom",
+   "start": "/work#leave",
+   "depends_on": [
+    "withdraw-pending-leave"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ลากิจ A"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "รายละเอียด",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ลากิจ A"
+      }
+     },
+     "wait_after": {
+      "text": "ประวัติ",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ลากิจ A"
+      }
+     },
+     "say": "กดปุ่ม \"รายละเอียด\" ใต้ใบลา ระบบแสดงประวัติของใบลาเรียงตามเวลา ได้แก่ สร้างใบลา ส่งใบลา และถอนคำขอ",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ลากิจ A"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "ประวัติต้องมีการถอนคำขอ",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "text": "ถอนคำขอ",
+        "in": {
+         "css": ".ld-hist",
+         "within": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} ลากิจ A"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "approve-leave",
+   "title": "ผู้อำนวยการอนุมัติใบลา",
+   "intro": "ผู้อำนวยการและผู้ดูแลระบบอนุมัติใบลาได้ ระบบไม่ให้ตัดสินใบลาของตนเอง ถ้าตอนอนุมัติพบว่าครูมีใบลาอื่นที่อนุมัติทับวันเดียวกัน ระบบไม่อนุมัติ",
+   "role": "principal",
+   "start": "/work",
+   "depends_on": [
+    "file-half-day-leave-phone"
+   ],
+   "core": true,
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "อนุมัติใบลา",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": [
+      {
+       "role": "heading",
+       "name": "อนุมัติใบลา",
+       "exact": true
+      },
+      {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+      }
+     ],
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"อนุมัติใบลา\" แท็บ \"รออนุมัติ\" แสดงใบลาที่รอการพิจารณาทุกใบ",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "รายละเอียด",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+      }
+     },
+     "wait_after": {
+      "text": "ประวัติ",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+      }
+     },
+     "crop_pad": 40,
+     "say": "กดปุ่ม \"รายละเอียด\" ก่อนตัดสินใจ ผู้อนุมัติเห็นโควตาของครู ประวัติ และเวรของครูที่ตรงกับช่วงลา (ถ้ามี)",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+     },
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "อนุมัติ",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+      }
+     },
+     "wait_after": {
+      "css": ".ld-msg .ld-notice"
+     },
+     "say": "กดปุ่ม \"อนุมัติ\" ระบบแสดงข้อความ \"ดำเนินการแล้ว\" และใบลาหายจากแท็บ \"รออนุมัติ\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    }
+   ],
+   "expected": "ใบลาเปลี่ยนเป็น \"อนุมัติแล้ว\" ครูเห็นสถานะใหม่ที่หน้า \"ใบลาของฉัน\"",
+   "verify": [
+    {
+     "title": "ใบลาที่อนุมัติอยู่ในแท็บ ใบลาทั้งหมด สถานะ อนุมัติแล้ว",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "tab",
+        "name": "ใบลาทั้งหมด",
+        "exact": true
+       },
+       "wait_after": {
+        "role": "button",
+        "name": "กรอง",
+        "exact": true
+       }
+      },
+      {
+       "do": "select",
+       "target": {
+        "label": "สถานะ"
+       },
+       "label": "อนุมัติแล้ว"
+      },
+      {
+       "do": "select",
+       "target": {
+        "label": "ครู"
+       },
+       "label": "นางสาวพิมพ์ใจ ใฝ่รู้"
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "กรอง",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "อนุมัติแล้ว",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+         }
+        }
+       ],
+       "say": "เลือกแท็บ \"ใบลาทั้งหมด\" กรองสถานะ \"อนุมัติแล้ว\" และชื่อครู ใบลาที่อนุมัติแสดงในรายการ",
+       "shot": true,
+       "crop": "viewport",
+       "highlight": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+       }
+      }
+     ]
+    },
+    {
+     "title": "ครูเห็นสถานะ อนุมัติแล้ว",
+     "as": "homeroom",
+     "start": "/work#leave",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "อนุมัติแล้ว",
+        "in": {
+         "css": "article.ld-card",
+         "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "reject-leave",
+   "title": "ผู้อำนวยการไม่อนุมัติใบลาพร้อมเหตุผล",
+   "role": "principal",
+   "start": "/work#leave-approve",
+   "depends_on": [
+    "file-sick-leave-with-attachment"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ป่วยครั้งแรก"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ไม่อนุมัติ",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยครั้งแรก"
+      }
+     },
+     "wait_after": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยครั้งแรก"
+      }
+     },
+     "crop_pad": 40,
+     "say": "กดปุ่ม \"ไม่อนุมัติ\" ใต้ใบลา ช่องเหตุผลเปิดขึ้น",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ป่วยครั้งแรก"
+     },
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ป่วยครั้งแรก"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยครั้งแรก"
+      }
+     },
+     "value": "{{marker}} ขอให้เลื่อนวันลา",
+     "crop_pad": 40,
+     "say": "พิมพ์เหตุผลในช่อง \"เหตุผล (จำเป็น)\" ต้องมีอย่างน้อย 3 ตัวอักษร ครูจะเห็นเหตุผลนี้",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ป่วยครั้งแรก"
+     },
+     "highlight": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยครั้งแรก"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่ง",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยครั้งแรก"
+      }
+     },
+     "wait_after": {
+      "css": ".ld-msg .ld-notice"
+     },
+     "say": "กดปุ่ม \"ส่ง\" ใบลาหายจากแท็บ \"รออนุมัติ\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    }
+   ],
+   "expected": "ใบลาเป็น \"ไม่อนุมัติ\" และครูเห็นเหตุผล",
+   "verify": [
+    {
+     "title": "ครูเห็นสถานะ ไม่อนุมัติ พร้อมหมายเหตุ",
+     "as": "homeroom",
+     "start": "/work#leave",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} ป่วยครั้งแรก"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "ไม่อนุมัติ",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} ป่วยครั้งแรก"
+         }
+        },
+        {
+         "text": "{{marker}} ขอให้เลื่อนวันลา",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} ป่วยครั้งแรก"
+         }
+        }
+       ],
+       "say": "ครูเปิดหน้า \"ใบลาของฉัน\" ใบลาแสดงสถานะ \"ไม่อนุมัติ\" และ \"หมายเหตุผู้พิจารณา\"",
+       "shot": true,
+       "crop": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} ป่วยครั้งแรก"
+       },
+       "highlight": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} ป่วยครั้งแรก"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "resubmit-rejected-leave",
+   "title": "ครูแก้ไขและยื่นใบลาที่ไม่อนุมัติใหม่",
+   "intro": "ใบลาที่ผู้อำนวยการไม่อนุมัติยื่นซ้ำได้ครั้งเดียว ระบบสร้างใบใหม่ที่เชื่อมกับใบเดิม ไฟล์แนบเดิมถูกคัดลอกไปด้วย",
+   "role": "homeroom",
+   "start": "/work#leave",
+   "depends_on": [
+    "reject-leave"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ป่วยครั้งแรก"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "แก้ไขและยื่นใหม่",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยครั้งแรก"
+      }
+     },
+     "wait_after": {
+      "css": "form[data-form=leave]"
+     },
+     "say": "ใบลาที่ \"ไม่อนุมัติ\" มีปุ่ม \"แก้ไขและยื่นใหม่\" กดปุ่มนี้ ระบบเปิดแบบฟอร์มที่มีข้อมูลเดิม ไฟล์แนบเดิมถูกคัดลอกให้ใบใหม่",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "form[data-form=leave]"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผลการลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "value": "{{marker}} ป่วยยื่นซ้ำ",
+     "say": "แก้ข้อมูลที่ต้องการ เช่น เหตุผลหรือวันที่ แล้วกดปุ่ม \"ยื่นใหม่\"",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "เหตุผลการลา",
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยื่นใหม่",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=leave]"
+      }
+     },
+     "wait_after": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+     },
+     "settle_ms": 800,
+     "say": "กดปุ่ม \"ยื่นใหม่\" ระบบสร้างใบลาใหม่สถานะ \"รออนุมัติ\" และบอกว่า \"ยื่นซ้ำจากใบลา\" ใบเดิม",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+     }
+    }
+   ],
+   "expected": "ใบใหม่สถานะ \"รออนุมัติ\" และใบเดิมแสดงว่าถูกยื่นซ้ำแล้ว",
+   "verify": [
+    {
+     "title": "ใบใหม่เชื่อมกับใบเดิมและรออนุมัติ",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "รออนุมัติ",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+         }
+        },
+        {
+         "text": "ยื่นซ้ำจากใบลา",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+         }
+        },
+        {
+         "text": "ยื่นซ้ำเป็นใบลา",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} ป่วยครั้งแรก"
+         }
+        },
+        {
+         "visible": {
+          "role": "link",
+          "name": "ไฟล์แนบ",
+          "within": {
+           "css": "article.ld-card",
+           "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "approve-resubmitted-leave",
+   "title": "ผู้อำนวยการอนุมัติใบลาที่ยื่นซ้ำ",
+   "role": "principal",
+   "start": "/work#leave-approve",
+   "depends_on": [
+    "resubmit-rejected-leave"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "อนุมัติ",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+      }
+     },
+     "wait_after": {
+      "css": ".ld-msg .ld-notice"
+     },
+     "say": "กดปุ่ม \"อนุมัติ\" ที่ใบลาที่ยื่นซ้ำ",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "ครูเห็นว่าใบใหม่อนุมัติแล้ว",
+     "as": "homeroom",
+     "start": "/work#leave",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "อนุมัติแล้ว",
+        "in": {
+         "css": "article.ld-card",
+         "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "duty-blocked-by-leave",
+   "title": "มอบหมายเวรให้ครูที่ลาอยู่ ระบบไม่ให้ทำ",
+   "intro": "ระบบตรวจว่าครูไม่มีใบลาที่อนุมัติแล้ว และไม่มีเวรอื่นทับเวลาเดียวกัน ก่อนมอบหมายเวรทุกครั้ง",
+   "role": "principal",
+   "start": "/work#duty",
+   "depends_on": [
+    "approve-leave"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "เวร",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มเวร",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=duty]"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ครู",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "label": "นางสาวพิมพ์ใจ ใฝ่รู้"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วันที่",
+      "within": {
+       "css": "form[data-form=duty]"
+      },
+      "exact": true
+     },
+     "value": "{{next_weekday:9}}"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เริ่ม",
+      "within": {
+       "css": "form[data-form=duty]"
+      },
+      "exact": true
+     },
+     "value": "08:00"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "สิ้นสุด",
+      "within": {
+       "css": "form[data-form=duty]"
+      },
+      "exact": true
+     },
+     "value": "09:00"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จุดเวร",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "{{marker}} ลองเวรวันลา"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มเวร",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "wait_after": {
+      "text": "ครูมีใบลาที่อนุมัติแล้ว",
+      "within": {
+       "css": ".ld-msg .ld-notice"
+      }
+     },
+     "say": "มอบหมายเวรให้ครูในวันที่ครูมีใบลาที่อนุมัติแล้ว ระบบไม่บันทึกและแจ้งว่า \"ครูมีใบลาที่อนุมัติแล้วในวันนั้น\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "เวรไม่ถูกบันทึก",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ปิดฟอร์ม",
+        "exact": true
+       },
+       "optional": true
+      },
+      {
+       "do": "expect",
+       "that": {
+        "count": 0,
+        "of": {
+         "css": "article.ld-card",
+         "has_text": "{{marker}} ลองเวรวันลา"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "request-cancel-approved-leave",
+   "title": "ครูขอยกเลิกใบลาที่อนุมัติแล้ว",
+   "intro": "ใบลาที่อนุมัติแล้วยกเลิกเองไม่ได้ ต้องขอยกเลิกพร้อมเหตุผลและรอผู้อำนวยการอนุมัติ ขอได้เฉพาะใบลาที่ยังไม่ถึงวันลา ใบลาที่เริ่มลาแล้วจะไม่มีปุ่มนี้",
+   "role": "homeroom",
+   "start": "/work#leave",
+   "depends_on": [
+    "approve-leave"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ขอยกเลิก",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+      }
+     },
+     "wait_after": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+      }
+     },
+     "crop_pad": 40,
+     "say": "ใบลาที่ \"อนุมัติแล้ว\" และยังไม่ถึงวันลา มีปุ่ม \"ขอยกเลิก\" กดปุ่มนี้ ช่องเหตุผลเปิดขึ้น",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+     },
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+      }
+     },
+     "value": "{{marker}} ภารกิจเลื่อน",
+     "crop_pad": 40,
+     "say": "พิมพ์เหตุผลที่ขอยกเลิกในช่อง \"เหตุผล (จำเป็น)\"",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+     },
+     "highlight": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่ง",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+      }
+     },
+     "wait_after": {
+      "text": "ขอยกเลิก (รออนุมัติ)",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+      }
+     },
+     "say": "กดปุ่ม \"ส่ง\" ใบลาเปลี่ยนเป็น \"ขอยกเลิก (รออนุมัติ)\" รอผู้อำนวยการพิจารณา",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "เปิดหน้าใบลาใหม่ สถานะเป็น ขอยกเลิก",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "ขอยกเลิก (รออนุมัติ)",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+         }
+        },
+        {
+         "text": "เหตุผลที่ขอยกเลิก",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "approve-leave-cancellation",
+   "title": "ผู้อำนวยการอนุมัติให้ยกเลิกใบลา",
+   "role": "principal",
+   "start": "/work#leave-approve",
+   "depends_on": [
+    "request-cancel-approved-leave"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+     }
+    },
+    {
+     "do": "note",
+     "say": "ใบลาที่ขอยกเลิกอยู่ในแท็บ \"รออนุมัติ\" แสดงเหตุผลที่ครูขอยกเลิก",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "อนุมัติให้ยกเลิก",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+      }
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "ยืนยัน",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+      }
+     },
+     "crop_pad": 40,
+     "say": "กดปุ่ม \"อนุมัติให้ยกเลิก\" ระบบถามยืนยัน",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+     },
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยืนยัน",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+      }
+     },
+     "wait_after": {
+      "css": ".ld-msg .ld-notice"
+     },
+     "say": "กดปุ่ม \"ยืนยัน\" ใบลาถูกยกเลิก โควตาที่ใช้กลับคืน",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    }
+   ],
+   "expected": "ใบลาเป็น \"ยกเลิกแล้ว\"",
+   "verify": [
+    {
+     "title": "ครูเห็นสถานะ ยกเลิกแล้ว",
+     "as": "homeroom",
+     "start": "/work#leave",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "ยกเลิกแล้ว",
+        "in": {
+         "css": "article.ld-card",
+         "has_text": "{{marker}} พักผ่อนครึ่งวัน"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "request-cancel-second-leave",
+   "title": "ครูขอยกเลิกใบลาอีกใบ",
+   "role": "homeroom",
+   "start": "/work#leave",
+   "depends_on": [
+    "approve-resubmitted-leave"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ขอยกเลิก",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+      }
+     },
+     "wait_after": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+      }
+     },
+     "value": "{{marker}} ขอยกเลิกใบสอง"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่ง",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+      }
+     },
+     "wait_after": {
+      "text": "ขอยกเลิก (รออนุมัติ)",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+      }
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "ใบลาอยู่ในสถานะ ขอยกเลิก",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "ขอยกเลิก (รออนุมัติ)",
+        "in": {
+         "css": "article.ld-card",
+         "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "reject-leave-cancellation",
+   "title": "ผู้อำนวยการไม่อนุมัติการยกเลิก ใบลายังมีผลตามเดิม",
+   "role": "principal",
+   "start": "/work#leave-approve",
+   "depends_on": [
+    "request-cancel-second-leave"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ไม่อนุมัติการยกเลิก",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+      }
+     },
+     "wait_after": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+      }
+     },
+     "crop_pad": 40,
+     "say": "กดปุ่ม \"ไม่อนุมัติการยกเลิก\" ช่องเหตุผลเปิดขึ้น",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+     },
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+      }
+     },
+     "value": "{{marker}} ยังต้องใช้วันลาตามเดิม",
+     "crop_pad": 40,
+     "say": "พิมพ์เหตุผลในช่อง \"เหตุผล (จำเป็น)\"",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+     },
+     "highlight": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่ง",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+      }
+     },
+     "wait_after": {
+      "css": ".ld-msg .ld-notice"
+     },
+     "say": "กดปุ่ม \"ส่ง\" ใบลากลับเป็น \"อนุมัติแล้ว\" ตามเดิม",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "ครูเห็นใบลายังอนุมัติแล้ว พร้อมหมายเหตุ",
+     "as": "homeroom",
+     "start": "/work#leave",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "อนุมัติแล้ว",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+         }
+        },
+        {
+         "text": "ยังต้องใช้วันลาตามเดิม",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} ป่วยยื่นซ้ำ"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "filter-leave-requests",
+   "title": "ผู้อำนวยการดูใบลาทั้งหมดและกรองตามสถานะ",
+   "intro": "ตัวกรองมี 3 ช่อง ได้แก่ ปีงบประมาณ สถานะ และชื่อครู เลือกแล้วกดปุ่ม \"กรอง\"",
+   "role": "principal",
+   "start": "/work",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "อนุมัติใบลา",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "อนุมัติใบลา",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "tab",
+      "name": "ใบลาทั้งหมด",
+      "exact": true
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "กรอง",
+      "exact": true
+     },
+     "say": "เลือกแท็บ \"ใบลาทั้งหมด\" แท็บนี้แสดงใบลาของครูทุกคนในปีงบประมาณที่เลือก ยกเว้นร่างที่ยังไม่ส่ง",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "สถานะ"
+     },
+     "label": "ขอยกเลิก (รออนุมัติ)",
+     "say": "เลือกสถานะที่ต้องการในช่อง \"สถานะ\" ในตัวอย่างนี้เลือก \"ขอยกเลิก (รออนุมัติ)\"",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "สถานะ"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "กรอง",
+      "exact": true
+     },
+     "wait_after": {
+      "text": "เหตุผลที่ขอยกเลิก"
+     },
+     "settle_ms": 800,
+     "say": "กดปุ่ม \"กรอง\" ระบบแสดงเฉพาะใบลาที่ตรงกับสถานะ",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "button",
+      "name": "กรอง",
+      "exact": true
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "ทุกใบที่แสดงต้องเป็นใบที่ขอยกเลิก",
+     "steps": [
+      {
+       "do": "expect",
+       "that": [
+        {
+         "count": {
+          "min": 1
+         },
+         "of": {
+          "css": "article.ld-card",
+          "has_text": "ขอยกเลิก (รออนุมัติ)"
+         }
+        },
+        {
+         "count": 0,
+         "of": {
+          "css": "article.ld-card",
+          "has_text": "อนุมัติแล้ว"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "leave-quota-report",
+   "title": "ผู้อำนวยการดูรายงานโควตาการลาของครูทุกคน",
+   "intro": "รายงานนี้สำหรับผู้อำนวยการและผู้ดูแลระบบ เลือกปีงบประมาณ (พ.ศ.) เหนือตารางได้ ปีงบประมาณเริ่ม 1 ตุลาคม",
+   "role": "principal",
+   "start": "/work",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "อนุมัติใบลา",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "อนุมัติใบลา",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "tab",
+      "name": "โควตาและประเภทการลา",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "table.ld-table"
+     },
+     "say": "เลือกแท็บ \"โควตาและประเภทการลา\" ตารางด้านบนสรุปจำนวนวันที่ครูแต่ละคนใช้ไปในแต่ละประเภทการลา ตัวเลขในวงเล็บคือวันที่รออนุมัติ",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "table.ld-table"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "css": "select[data-fy]"
+     },
+     "label": "2570",
+     "optional": true
+    },
+    {
+     "do": "note",
+     "say": "หัวตารางแต่ละประเภทบอกโควตาต่อปีไว้ในวงเล็บ ช่องที่ใช้เกินโควตาจะเน้นสีไว้",
+     "shot": true,
+     "crop": {
+      "css": "table.ld-table"
+     },
+     "highlight": {
+      "css": "table.ld-table thead"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "ตารางมีแถวของครูที่ยื่นใบลา",
+     "steps": [
+      {
+       "do": "expect",
+       "that": [
+        {
+         "visible": {
+          "role": "rowheader",
+          "name": "นางสาวพิมพ์ใจ ใฝ่รู้"
+         }
+        },
+        {
+         "visible": {
+          "role": "columnheader",
+          "name": "ลาป่วย"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "manage-leave-types",
+   "title": "ผู้ดูแลเพิ่ม แก้ และลบประเภทการลา",
+   "intro": "ผู้อำนวยการและผู้ดูแลระบบปรับประเภทการลาให้ตรงกับระเบียบของโรงเรียน ค่าเริ่มต้นเป็นระเบียบทั่วไปของข้าราชการ ประเภทที่มีใบลาใช้อยู่ลบไม่ได้ ให้แก้ชื่อหรือโควตาแทน ประเภทที่เพิ่มในตัวอย่างนี้ถูกลบในหัวข้อ \"ลบประเภทการลาทดสอบ\"",
+   "role": "principal",
+   "start": "/work",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "อนุมัติใบลา",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "อนุมัติใบลา",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "tab",
+      "name": "โควตาและประเภทการลา",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form.ld-typeform:has(input[name=code])"
+     }
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "css": "form.ld-typeform:has(input[name=code])"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัส (ตัวพิมพ์เล็กภาษาอังกฤษ)",
+      "within": {
+       "css": "form.ld-typeform:has(input[name=code])"
+      }
+     },
+     "value": "mt_manual",
+     "say": "ท้ายหน้ามีแบบฟอร์ม \"เพิ่มประเภทการลา\" พิมพ์รหัสเป็นตัวพิมพ์เล็กภาษาอังกฤษในช่อง \"รหัส (ตัวพิมพ์เล็กภาษาอังกฤษ)\" รหัสใช้ซ้ำและแก้ภายหลังไม่ได้",
+     "shot": true,
+     "crop": {
+      "css": "form.ld-typeform:has(input[name=code])"
+     },
+     "highlight": {
+      "label": "รหัส (ตัวพิมพ์เล็กภาษาอังกฤษ)",
+      "within": {
+       "css": "form.ld-typeform:has(input[name=code])"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ชื่อ",
+      "exact": true,
+      "within": {
+       "css": "form.ld-typeform:has(input[name=code])"
+      }
+     },
+     "value": "ลาทดสอบ {{marker}}",
+     "say": "พิมพ์ชื่อประเภทที่ครูจะเห็นในช่อง \"ชื่อ\"",
+     "shot": true,
+     "crop": {
+      "css": "form.ld-typeform:has(input[name=code])"
+     },
+     "highlight": {
+      "label": "ชื่อ",
+      "exact": true,
+      "within": {
+       "css": "form.ld-typeform:has(input[name=code])"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "โควตาต่อปี (วันทำการ ว่าง = ไม่จำกัด)",
+      "within": {
+       "css": "form.ld-typeform:has(input[name=code])"
+      }
+     },
+     "value": "5",
+     "say": "พิมพ์โควตาต่อปีเป็นจำนวนวันในช่อง \"โควตาต่อปี\" เว้นว่างถ้าไม่จำกัด",
+     "shot": true,
+     "crop": {
+      "css": "form.ld-typeform:has(input[name=code])"
+     },
+     "highlight": {
+      "label": "โควตาต่อปี (วันทำการ ว่าง = ไม่จำกัด)",
+      "within": {
+       "css": "form.ld-typeform:has(input[name=code])"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ต้องแนบไฟล์เมื่อลาเกิน (วัน ว่าง = ไม่บังคับ)",
+      "within": {
+       "css": "form.ld-typeform:has(input[name=code])"
+      }
+     },
+     "value": "2",
+     "say": "พิมพ์จำนวนวันในช่อง \"ต้องแนบไฟล์เมื่อลาเกิน\" ถ้าลาเกินจำนวนนี้ครูต้องแนบไฟล์ก่อนส่ง",
+     "shot": true,
+     "crop": {
+      "css": "form.ld-typeform:has(input[name=code])"
+     },
+     "highlight": {
+      "label": "ต้องแนบไฟล์เมื่อลาเกิน (วัน ว่าง = ไม่บังคับ)",
+      "within": {
+       "css": "form.ld-typeform:has(input[name=code])"
+      }
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "วิธีนับวันลา",
+      "within": {
+       "css": "form.ld-typeform:has(input[name=code])"
+      }
+     },
+     "label": "นับต่อเนื่องทุกวัน (รวมวันหยุด เช่น ลาคลอด ลาอุปสมบท)",
+     "say": "เลือก \"วิธีนับวันลา\" ถ้าเป็นการลาที่นับต่อเนื่องรวมวันหยุด เช่น ลาคลอด ให้เลือก \"นับต่อเนื่องทุกวัน\"",
+     "shot": true,
+     "crop": {
+      "css": "form.ld-typeform:has(input[name=code])"
+     },
+     "highlight": {
+      "label": "วิธีนับวันลา",
+      "within": {
+       "css": "form.ld-typeform:has(input[name=code])"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่ม",
+      "exact": true,
+      "within": {
+       "css": "form.ld-typeform:has(input[name=code])"
+      }
+     },
+     "wait_after": {
+      "css": "form.ld-typeform:has(input[name=label][value*=\"ลาทดสอบ {{marker}}\"])"
+     },
+     "say": "กดปุ่ม \"เพิ่ม\" ระบบแสดงข้อความ \"บันทึกประเภทการลาแล้ว\" และประเภทใหม่อยู่ในรายการ",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "โควตาต่อปี (วันทำการ ว่าง = ไม่จำกัด)",
+      "within": {
+       "css": "form.ld-typeform:has(input[name=label][value*=\"ลาทดสอบ {{marker}}\"])"
+      }
+     },
+     "value": "7"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "form.ld-typeform:has(input[name=label][value*=\"ลาทดสอบ {{marker}}\"])"
+      }
+     },
+     "wait_after": {
+      "css": ".ld-msg .ld-notice"
+     },
+     "settle_ms": 800,
+     "say": "แก้ค่าของประเภทที่เพิ่ม แล้วกดปุ่ม \"บันทึก\" ในกรอบของประเภทนั้น",
+     "shot": true,
+     "crop": {
+      "css": "form.ld-typeform:has(input[name=label][value*=\"ลาทดสอบ {{marker}}\"])"
+     },
+     "highlight": {
+      "css": "form.ld-typeform:has(input[name=label][value*=\"ลาทดสอบ {{marker}}\"])"
+     }
+    }
+   ],
+   "expected": "ประเภทใหม่อยู่ในรายการ และครูเห็นประเภทนี้ในโควตาของตน",
+   "verify": [
+    {
+     "title": "ครูเห็นประเภทใหม่ในโควตาของตน",
+     "as": "homeroom",
+     "start": "/work#leave",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "ใบลาของฉัน",
+        "exact": true
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "text": "ลาทดสอบ {{marker}}",
+        "within": {
+         "css": "ul.ld-quota"
+        }
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "7 วัน",
+        "in": {
+         "css": "ul.ld-quota li",
+         "has_text": "ลาทดสอบ {{marker}}"
+        }
+       },
+       "say": "ครูเปิดหน้า \"ใบลาของฉัน\" ประเภทใหม่แสดงในรายการโควตาพร้อมโควตาที่แก้",
+       "shot": true,
+       "crop": {
+        "css": "[data-part=quota]"
+       },
+       "highlight": {
+        "css": "ul.ld-quota li",
+        "has_text": "ลาทดสอบ {{marker}}"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "delete-leave-type",
+   "title": "ลบประเภทการลาที่ไม่มีใบลาใช้",
+   "role": "principal",
+   "start": "/work",
+   "depends_on": [
+    "manage-leave-types"
+   ],
+   "cleanup": false,
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "อนุมัติใบลา",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "อนุมัติใบลา",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "tab",
+      "name": "โควตาและประเภทการลา",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form.ld-typeform:has(input[name=label][value*=\"ลาทดสอบ {{marker}}\"])"
+     }
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "css": "form.ld-typeform:has(input[name=label][value*=\"ลาทดสอบ {{marker}}\"])"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบ",
+      "exact": true,
+      "within": {
+       "css": "form.ld-typeform:has(input[name=label][value*=\"ลาทดสอบ {{marker}}\"])"
+      }
+     },
+     "wait_after": {
+      "text": "ลบประเภทการลาแล้ว",
+      "within": {
+       "css": ".ld-msg .ld-notice"
+      }
+     },
+     "say": "ที่กรอบของประเภทที่ไม่มีใบลาใช้ กดปุ่ม \"ลบ\" ระบบแสดงข้อความ \"ลบประเภทการลาแล้ว\" ถ้ามีใบลาใช้ประเภทนี้อยู่ ระบบไม่ให้ลบ",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "ประเภทที่ลบต้องไม่อยู่ในรายการของครู",
+     "as": "homeroom",
+     "start": "/work#leave",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "ใบลาของฉัน",
+        "exact": true
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "ul.ld-quota li"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "count": 0,
+        "of": {
+         "css": "ul.ld-quota li",
+         "has_text": "ลาทดสอบ {{marker}}"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "teacher-cannot-approve",
+   "title": "ครูทั่วไปไม่เห็นเมนูอนุมัติและเปิดใบลาของคนอื่นไม่ได้",
+   "intro": "ครูเห็นเฉพาะใบลาของตนเอง การเรียกดูใบลาทั้งโรงเรียนหรือรายงานโควตาโดยบัญชีครูถูกปฏิเสธ",
+   "role": "homeroom",
+   "start": "/work",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "link",
+      "name": "ใบลา",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     }
+    },
+    {
+     "do": "note",
+     "say": "ครูทั่วไปมีเมนู \"ใบลา\" และ \"เวร\" แต่ไม่มีเมนู \"อนุมัติใบลา\" ซึ่งเป็นของผู้อำนวยการและผู้ดูแลระบบ",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "ใบลา",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "hidden": {
+       "role": "link",
+       "name": "อนุมัติใบลา",
+       "exact": true,
+       "within": {
+        "role": "navigation",
+        "name": "ระบบงานโรงเรียน"
+       }
+      }
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "http_status": 403,
+      "url": "/api/leave/requests?scope=all"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "http_status": 403,
+      "url": "/api/leave/quota/report?fiscal_year=2570"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "เมนู อนุมัติใบลา ไม่มี",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "hidden": {
+         "role": "link",
+         "name": "อนุมัติใบลา",
+         "exact": true,
+         "within": {
+          "role": "navigation",
+          "name": "ระบบงานโรงเรียน"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "assign-duties",
+   "title": "ผู้อำนวยการมอบหมายเวรให้ครู",
+   "intro": "ผู้อำนวยการและผู้ดูแลระบบมอบหมายเวรได้ ครูได้รับอีเมลแจ้งเมื่อมีการมอบหมาย ระบบไม่ให้มอบหมายเวรที่เวลาทับกันหรือตรงกับวันที่ครูลา ตัวอย่างนี้สร้างเวรทดลอง 6 รายการเพื่อใช้ในหัวข้อต่อไป",
+   "role": "principal",
+   "start": "/work",
+   "core": true,
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "เวร",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": [
+      {
+       "role": "heading",
+       "name": "เวร",
+       "exact": true
+      },
+      {
+       "css": "article.ld-card",
+       "first": true
+      }
+     ],
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"เวร\" แท็บ \"ตารางเวร\" แสดงเวรทุกคนในช่วง 14 วันนับจากวันนี้ เรียงตามวัน",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มเวร",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=duty]"
+     },
+     "say": "กดปุ่ม \"เพิ่มเวร\" แบบฟอร์มมอบหมายเวรเปิดขึ้น",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=duty]"
+     },
+     "highlight": {
+      "css": "form[data-form=duty]"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "css": "form[data-form=duty] select[name=teacher_id]"
+     },
+     "label": "นางสาวพิมพ์ใจ ใฝ่รู้",
+     "say": "เลือกครูที่รับเวรในช่อง \"ครู\"",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=duty]"
+     },
+     "highlight": {
+      "css": "form[data-form=duty] select[name=teacher_id]"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วันที่",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "{{next_weekday:2}}",
+     "say": "เลือก \"วันที่\" ของเวร",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=duty]"
+     },
+     "highlight": {
+      "label": "วันที่",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เริ่ม",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "10:00",
+     "say": "พิมพ์เวลาเริ่มและเวลาสิ้นสุดในช่อง \"เริ่ม\" และ \"สิ้นสุด\" เวลาสิ้นสุดต้องหลังเวลาเริ่ม (ข้ามเที่ยงคืนได้เฉพาะเวรกลางคืน)",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=duty]"
+     },
+     "highlight": [
+      {
+       "label": "เริ่ม",
+       "within": {
+        "css": "form[data-form=duty]"
+       }
+      },
+      {
+       "label": "สิ้นสุด",
+       "within": {
+        "css": "form[data-form=duty]"
+       }
+      }
+     ]
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "สิ้นสุด",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "10:30"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จุดเวร",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "{{marker}} A",
+     "say": "พิมพ์สถานที่ในช่อง \"จุดเวร\"",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=duty]"
+     },
+     "highlight": {
+      "label": "จุดเวร",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ประเภท",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "label": "เวรกิจกรรม",
+     "say": "เลือก \"ประเภท\" ของเวร เช่น เวรเช้า เวรกลางวัน เวรกลางคืน",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=duty]"
+     },
+     "highlight": {
+      "label": "ประเภท",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มเวร",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "wait_after": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} A"
+     },
+     "say": "กดปุ่ม \"เพิ่มเวร\" ระบบแสดงข้อความ \"บันทึกเวรแล้ว\" และเวรอยู่ในตารางตามวัน",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": [
+      {
+       "css": ".ld-msg .ld-notice"
+      },
+      {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} A"
+      }
+     ]
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มเวร",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=duty]"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "css": "form[data-form=duty] select[name=teacher_id]"
+     },
+     "label": "นางสาวพิมพ์ใจ ใฝ่รู้"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วันที่",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "{{next_weekday:3}}"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เริ่ม",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "10:00"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "สิ้นสุด",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "10:30"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จุดเวร",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "{{marker}} B"
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ประเภท",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "label": "เวรกิจกรรม"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มเวร",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "wait_after": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} B"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มเวร",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=duty]"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "css": "form[data-form=duty] select[name=teacher_id]"
+     },
+     "label": "นางสาวพิมพ์ใจ ใฝ่รู้"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วันที่",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "{{next_weekday:4}}"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เริ่ม",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "10:00"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "สิ้นสุด",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "10:30"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จุดเวร",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "{{marker}} C"
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ประเภท",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "label": "เวรกิจกรรม"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มเวร",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "wait_after": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} C"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มเวร",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=duty]"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "css": "form[data-form=duty] select[name=teacher_id]"
+     },
+     "label": "นางสาวพิมพ์ใจ ใฝ่รู้"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วันที่",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "{{next_weekday:5}}"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เริ่ม",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "10:00"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "สิ้นสุด",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "10:30"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จุดเวร",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "{{marker}} D"
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ประเภท",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "label": "เวรกิจกรรม"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มเวร",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "wait_after": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} D"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มเวร",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=duty]"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "css": "form[data-form=duty] select[name=teacher_id]"
+     },
+     "label": "นางสาวพิมพ์ใจ ใฝ่รู้"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วันที่",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "{{next_weekday:6}}"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เริ่ม",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "10:00"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "สิ้นสุด",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "10:30"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จุดเวร",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "{{marker}} E"
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ประเภท",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "label": "เวรกิจกรรม"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มเวร",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "wait_after": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} E"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มเวร",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=duty]"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "css": "form[data-form=duty] select[name=teacher_id]"
+     },
+     "label": "นางสาวพิมพ์ใจ ใฝ่รู้"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วันที่",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "{{next_weekday:7}}"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เริ่ม",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "10:00"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "สิ้นสุด",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "10:30"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จุดเวร",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "{{marker}} F"
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ประเภท",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "label": "เวรกิจกรรม"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มเวร",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "wait_after": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} F"
+     }
+    }
+   ],
+   "expected": "เวรอยู่ในตารางเวรตามวันและเวลา ครูที่ได้รับมอบหมายเห็นเวรของตนที่หน้า \"เวร\"",
+   "verify": [
+    {
+     "title": "ครูเห็นเวรของตนในตารางเวร พร้อมปุ่ม ขอแลกเวร",
+     "as": "homeroom",
+     "start": "/work#duty",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "เวร",
+        "exact": true
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} A"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "(ฉัน)",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} A"
+         }
+        },
+        {
+         "visible": {
+          "role": "button",
+          "name": "ขอแลกเวร",
+          "exact": true,
+          "within": {
+           "css": "article.ld-card",
+           "has_text": "{{marker}} A"
+          }
+         }
+        }
+       ],
+       "say": "ครูเปิดเมนู \"เวร\" เวรที่ได้รับมอบหมายมีคำว่า \"(ฉัน)\" และปุ่ม \"ขอแลกเวร\"",
+       "shot": true,
+       "crop": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} A"
+       },
+       "highlight": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} A"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "view-own-duty-phone",
+   "title": "ครูดูเวรของตนเองบนโทรศัพท์",
+   "intro": "ครูดูเวรของตนเองได้จากหน้า \"เวร\" ทั้งบนคอมพิวเตอร์และโทรศัพท์ ช่อง \"ตั้งแต่\" และ \"ถึง\" เปลี่ยนช่วงวันที่ดูได้ครั้งละไม่เกิน 120 วัน",
+   "role": "homeroom",
+   "start": "/work#duty",
+   "viewport": "390x844",
+   "depends_on": [
+    "assign-duties"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "เวร",
+      "exact": true
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "css": "form[data-form=range] select[name=teacher]"
+     },
+     "label": "นางสาวพิมพ์ใจ ใฝ่รู้",
+     "wait_after": {
+      "css": "form[data-form=range]"
+     },
+     "say": "เปิดหน้า \"เวร\" ที่ช่อง \"ครู\" เลือกชื่อของท่านเอง",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "form[data-form=range] select[name=teacher]"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ดูตาราง",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} C"
+     },
+     "settle_ms": 800,
+     "say": "กดปุ่ม \"ดูตาราง\" ระบบแสดงเฉพาะเวรของท่าน เวรที่ท่านต้องทำมีคำว่า \"(ฉัน)\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "button",
+      "name": "ดูตาราง",
+      "exact": true
+     }
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} C"
+     }
+    },
+    {
+     "do": "note",
+     "say": "เลื่อนดูรายการ แต่ละเวรบอกเวลา จุดเวร และประเภทของเวร",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} C"
+     }
+    }
+   ],
+   "expected": "รายการแสดงเฉพาะเวรของครูคนนั้น",
+   "verify": [
+    {
+     "title": "รายการมีเฉพาะเวรของครูคนนี้",
+     "steps": [
+      {
+       "do": "expect",
+       "that": [
+        {
+         "visible": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} C"
+         }
+        },
+        {
+         "count": 0,
+         "of": {
+          "css": "article.ld-card .ld-who",
+          "has_text": "นายกันตภณ โจทย์ยาก"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "filter-duty-roster",
+   "title": "ผู้อำนวยการกรองตารางเวรตามช่วงวันและครู",
+   "role": "principal",
+   "start": "/work#duty",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "เวร",
+      "exact": true
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "css": "form[data-form=range] select[name=teacher]"
+     },
+     "label": "นายกันตภณ โจทย์ยาก",
+     "say": "เลือกชื่อครูในช่อง \"ครู\" ถ้าไม่เลือกจะเห็นเวรของทุกคน",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "form[data-form=range] select[name=teacher]"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ถึง",
+      "exact": true
+     },
+     "value": "{{next_weekday:14}}",
+     "say": "เปลี่ยนช่วงวันที่ในช่อง \"ตั้งแต่\" และ \"ถึง\" ได้ตามต้องการ",
+     "shot": true,
+     "crop": "panel",
+     "highlight": [
+      {
+       "label": "ตั้งแต่"
+      },
+      {
+       "label": "ถึง",
+       "exact": true
+      }
+     ]
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ดูตาราง",
+      "exact": true
+     },
+     "settle_ms": 1000,
+     "wait_after": {
+      "css": "article.ld-card",
+      "first": true
+     },
+     "say": "กดปุ่ม \"ดูตาราง\" ระบบแสดงเฉพาะเวรของครูที่เลือกในช่วงวันที่นั้น",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "button",
+      "name": "ดูตาราง",
+      "exact": true
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "ทุกเวรที่แสดงเป็นของครูที่เลือก",
+     "steps": [
+      {
+       "do": "expect",
+       "that": [
+        {
+         "count": 0,
+         "of": {
+          "css": "article.ld-card",
+          "has_text": "นางสาวพิมพ์ใจ ใฝ่รู้"
+         }
+        },
+        {
+         "count": {
+          "min": 1
+         },
+         "of": {
+          "css": "article.ld-card",
+          "has_text": "นายกันตภณ โจทย์ยาก"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "edit-duty",
+   "title": "ผู้อำนวยการแก้ไขเวร",
+   "intro": "แก้เวรได้เฉพาะเวรที่ยังมอบหมายอยู่ ถ้าเวรมีคำขอแลกเวรค้างอยู่ ต้องยกเลิกคำขอก่อนจึงแก้วัน เวลา หรือครูได้",
+   "role": "principal",
+   "start": "/work#duty",
+   "depends_on": [
+    "assign-duties"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} B"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "แก้ไข",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} B"
+      }
+     },
+     "wait_after": {
+      "css": "form[data-form=duty]"
+     },
+     "crop_pad": 40,
+     "say": "กดปุ่ม \"แก้ไข\" ที่เวรที่ต้องการ แบบฟอร์มของเวรนั้นเปิดขึ้นในกรอบเดียวกัน",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} B"
+     },
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} B"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จุดเวร",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "value": "{{marker}} B ห้องประชุม",
+     "crop_pad": 40,
+     "say": "แก้ข้อมูลที่ต้องการ เช่น จุดเวร แล้วกดปุ่ม \"บันทึก\"",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} B"
+     },
+     "highlight": {
+      "label": "จุดเวร",
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=duty]"
+      }
+     },
+     "wait_after": {
+      "css": ".ld-msg .ld-notice"
+     },
+     "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกเวรแล้ว\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "ตารางเวรแสดงจุดเวรใหม่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "เวร",
+        "exact": true
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} B ห้องประชุม"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "visible": {
+         "css": "article.ld-card",
+         "has_text": "{{marker}} B ห้องประชุม"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "delete-duty",
+   "title": "ผู้อำนวยการลบเวรที่มอบหมายผิด",
+   "role": "principal",
+   "start": "/work#duty",
+   "depends_on": [
+    "assign-duties"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} F"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบ",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} F"
+      }
+     },
+     "wait_after": {
+      "css": "form[data-form=duty-delete]"
+     },
+     "crop_pad": 40,
+     "say": "กดปุ่ม \"ลบ\" ที่เวรที่มอบหมายผิด ระบบถามยืนยัน",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} F"
+     },
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} F"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบ",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=duty-delete]"
+      }
+     },
+     "wait_after": {
+      "text": "ลบเวรแล้ว",
+      "within": {
+       "css": ".ld-msg .ld-notice"
+      }
+     },
+     "say": "กดปุ่ม \"ลบ\" อีกครั้งในกรอบยืนยัน ระบบแสดงข้อความ \"ลบเวรแล้ว\" เวรที่เคยมีการขอแลกเวรลบไม่ได้ ให้ใช้ \"ยกเลิกเวร\" แทน",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "เวรที่ลบไม่อยู่ในตาราง",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "เวร",
+        "exact": true
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "count": 0,
+        "of": {
+         "css": "article.ld-card",
+         "has_text": "{{marker}} F"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "request-duty-swaps",
+   "title": "ครูขอแลกเวรกับเพื่อนครู",
+   "intro": "ครูขอแลกได้เฉพาะเวรของตนที่ยังไม่ถึงกำหนด และเวรหนึ่งมีคำขอค้างได้ครั้งละหนึ่งคำขอ ระบบตรวจว่าเพื่อนครูว่างในเวลานั้นและไม่มีใบลา ลำดับคือ เพื่อนครูตอบรับ แล้วผู้อำนวยการอนุมัติ เวรจึงเปลี่ยนเป็นของเพื่อน",
+   "role": "homeroom",
+   "start": "/work#duty",
+   "depends_on": [
+    "assign-duties"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} A"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ขอแลกเวร",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} A"
+      }
+     },
+     "wait_after": {
+      "css": "form[data-form=swap-new]"
+     },
+     "crop_pad": 40,
+     "say": "ที่เวรของท่านมีปุ่ม \"ขอแลกเวร\" กดปุ่มนี้ ฟอร์มขอแลกเวรเปิดขึ้น",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} A"
+     },
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} A"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "แลกกับ",
+      "within": {
+       "css": "form[data-form=swap-new]"
+      }
+     },
+     "label": "นายกันตภณ โจทย์ยาก",
+     "crop_pad": 40,
+     "say": "เลือกเพื่อนครูที่จะรับเวรแทนในช่อง \"แลกกับ\"",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} A"
+     },
+     "highlight": {
+      "label": "แลกกับ",
+      "within": {
+       "css": "form[data-form=swap-new]"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หมายเหตุ (ไม่บังคับ)",
+      "within": {
+       "css": "form[data-form=swap-new]"
+      }
+     },
+     "value": "{{marker}} A",
+     "crop_pad": 40,
+     "say": "พิมพ์เหตุผลในช่อง \"หมายเหตุ (ไม่บังคับ)\" ได้ถ้าต้องการ",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} A"
+     },
+     "highlight": {
+      "label": "หมายเหตุ (ไม่บังคับ)",
+      "within": {
+       "css": "form[data-form=swap-new]"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งคำขอ",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=swap-new]"
+      }
+     },
+     "wait_after": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} A"
+     },
+     "say": "กดปุ่ม \"ส่งคำขอ\" ระบบแสดงข้อความ \"ส่งคำขอแลกเวรแล้ว รอเพื่อนครูตอบรับ\" และเปิดแท็บ \"แลกเวร\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": [
+      {
+       "css": ".ld-msg .ld-notice"
+      },
+      {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} A"
+      }
+     ]
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "tab",
+      "name": "ตารางเวร",
+      "exact": true
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "ดูตาราง",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ขอแลกเวร",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} B"
+      }
+     },
+     "wait_after": {
+      "css": "form[data-form=swap-new]"
+     },
+     "crop_pad": 40
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "แลกกับ",
+      "within": {
+       "css": "form[data-form=swap-new]"
+      }
+     },
+     "label": "นายกันตภณ โจทย์ยาก",
+     "crop_pad": 40
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หมายเหตุ (ไม่บังคับ)",
+      "within": {
+       "css": "form[data-form=swap-new]"
+      }
+     },
+     "value": "{{marker}} B",
+     "crop_pad": 40
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งคำขอ",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=swap-new]"
+      }
+     },
+     "wait_after": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} B"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "tab",
+      "name": "ตารางเวร",
+      "exact": true
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "ดูตาราง",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ขอแลกเวร",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} C"
+      }
+     },
+     "wait_after": {
+      "css": "form[data-form=swap-new]"
+     },
+     "crop_pad": 40
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "แลกกับ",
+      "within": {
+       "css": "form[data-form=swap-new]"
+      }
+     },
+     "label": "นายกันตภณ โจทย์ยาก",
+     "crop_pad": 40
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หมายเหตุ (ไม่บังคับ)",
+      "within": {
+       "css": "form[data-form=swap-new]"
+      }
+     },
+     "value": "{{marker}} C",
+     "crop_pad": 40
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งคำขอ",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=swap-new]"
+      }
+     },
+     "wait_after": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} C"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "tab",
+      "name": "ตารางเวร",
+      "exact": true
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "ดูตาราง",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ขอแลกเวร",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} D"
+      }
+     },
+     "wait_after": {
+      "css": "form[data-form=swap-new]"
+     },
+     "crop_pad": 40
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "แลกกับ",
+      "within": {
+       "css": "form[data-form=swap-new]"
+      }
+     },
+     "label": "นายกันตภณ โจทย์ยาก",
+     "crop_pad": 40
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หมายเหตุ (ไม่บังคับ)",
+      "within": {
+       "css": "form[data-form=swap-new]"
+      }
+     },
+     "value": "{{marker}} D",
+     "crop_pad": 40
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งคำขอ",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=swap-new]"
+      }
+     },
+     "wait_after": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} D"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "tab",
+      "name": "ตารางเวร",
+      "exact": true
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "ดูตาราง",
+      "exact": true
+     }
+    }
+   ],
+   "expected": "คำขอแลกเวรอยู่ในแท็บ \"แลกเวร\" สถานะ \"รอเพื่อนครูตอบรับ\"",
+   "verify": [
+    {
+     "title": "คำขอแลกเวรอยู่ในแท็บ แลกเวร สถานะ รอเพื่อนครูตอบรับ",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "tab",
+        "name": "แลกเวร",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "article.ld-card[data-card^=swap-]",
+        "has_text": "{{marker}} A"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "รอเพื่อนครูตอบรับ",
+         "in": {
+          "css": "article.ld-card[data-card^=swap-]",
+          "has_text": "{{marker}} A"
+         }
+        },
+        {
+         "text": "นายกันตภณ โจทย์ยาก",
+         "in": {
+          "css": "article.ld-card[data-card^=swap-]",
+          "has_text": "{{marker}} A"
+         }
+        },
+        {
+         "visible": {
+          "role": "button",
+          "name": "ยกเลิกคำขอ",
+          "exact": true,
+          "within": {
+           "css": "article.ld-card[data-card^=swap-]",
+           "has_text": "{{marker}} A"
+          }
+         }
+        }
+       ],
+       "say": "เปิดแท็บ \"แลกเวร\" คำขอแสดงชื่อคู่แลก วันเวลาของเวร และสถานะ \"รอเพื่อนครูตอบรับ\"",
+       "shot": true,
+       "crop": {
+        "css": "article.ld-card[data-card^=swap-]",
+        "has_text": "{{marker}} A"
+       },
+       "highlight": {
+        "css": "article.ld-card[data-card^=swap-]",
+        "has_text": "{{marker}} A"
+       }
+      }
+     ]
+    },
+    {
+     "title": "เพื่อนครูเห็นคำขอที่ส่งถึงตน",
+     "as": "subject",
+     "start": "/work#duty",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "tab",
+        "name": "แลกเวร",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "article.ld-card[data-card^=swap-]",
+        "has_text": "{{marker}} A"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "visible": {
+          "role": "button",
+          "name": "ตอบรับ",
+          "exact": true,
+          "within": {
+           "css": "article.ld-card[data-card^=swap-]",
+           "has_text": "{{marker}} A"
+          }
+         }
+        },
+        {
+         "visible": {
+          "role": "button",
+          "name": "ปฏิเสธ",
+          "exact": true,
+          "within": {
+           "css": "article.ld-card[data-card^=swap-]",
+           "has_text": "{{marker}} A"
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "answer-duty-swaps",
+   "title": "เพื่อนครูตอบรับหรือปฏิเสธคำขอแลกเวร",
+   "role": "subject",
+   "start": "/work#duty",
+   "depends_on": [
+    "request-duty-swaps"
+   ],
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "tab",
+      "name": "แลกเวร",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "article.ld-card[data-card^=swap-]",
+      "has_text": "{{marker}} A"
+     },
+     "say": "เปิดหน้า \"เวร\" แล้วเลือกแท็บ \"แลกเวร\" คำขอที่ส่งถึงท่านอยู่ในรายการ มีปุ่ม \"ตอบรับ\" และ \"ปฏิเสธ\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.ld-card[data-card^=swap-]",
+      "has_text": "{{marker}} A"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ตอบรับ",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card[data-card^=swap-]",
+       "has_text": "{{marker}} A"
+      }
+     },
+     "wait_after": {
+      "text": "รอผู้อนุมัติ",
+      "within": {
+       "css": "article.ld-card[data-card^=swap-]",
+       "has_text": "{{marker}} A"
+      }
+     },
+     "crop_pad": 40,
+     "say": "กดปุ่ม \"ตอบรับ\" ถ้ายินดีรับเวร คำขอเปลี่ยนเป็น \"รอผู้อนุมัติ\"",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card[data-card^=swap-]",
+      "has_text": "{{marker}} A"
+     },
+     "highlight": {
+      "css": "article.ld-card[data-card^=swap-]",
+      "has_text": "{{marker}} A"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปฏิเสธ",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card[data-card^=swap-]",
+       "has_text": "{{marker}} B"
+      }
+     },
+     "wait_after": {
+      "text": "เพื่อนครูปฏิเสธ",
+      "within": {
+       "css": "article.ld-card[data-card^=swap-]",
+       "has_text": "{{marker}} B"
+      }
+     },
+     "crop_pad": 40,
+     "say": "กดปุ่ม \"ปฏิเสธ\" ถ้าไม่สะดวก คำขอเปลี่ยนเป็น \"เพื่อนครูปฏิเสธ\" และปิดคำขอ",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card[data-card^=swap-]",
+      "has_text": "{{marker}} B"
+     },
+     "highlight": {
+      "css": "article.ld-card[data-card^=swap-]",
+      "has_text": "{{marker}} B"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ตอบรับ",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card[data-card^=swap-]",
+       "has_text": "{{marker}} D"
+      }
+     },
+     "wait_after": {
+      "text": "รอผู้อนุมัติ",
+      "within": {
+       "css": "article.ld-card[data-card^=swap-]",
+       "has_text": "{{marker}} D"
+      }
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "คำขอ A และ D รอผู้อนุมัติ คำขอ B ถูกปฏิเสธ",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "tab",
+        "name": "แลกเวร",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "article.ld-card[data-card^=swap-]",
+        "has_text": "{{marker}} A"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "รอผู้อนุมัติ",
+         "in": {
+          "css": "article.ld-card[data-card^=swap-]",
+          "has_text": "{{marker}} A"
+         }
+        },
+        {
+         "text": "รอผู้อนุมัติ",
+         "in": {
+          "css": "article.ld-card[data-card^=swap-]",
+          "has_text": "{{marker}} D"
+         }
+        },
+        {
+         "text": "เพื่อนครูปฏิเสธ",
+         "in": {
+          "css": "article.ld-card[data-card^=swap-]",
+          "has_text": "{{marker}} B"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cancel-own-swap-request",
+   "title": "ครูยกเลิกคำขอแลกเวรของตนเอง",
+   "role": "homeroom",
+   "start": "/work#duty",
+   "depends_on": [
+    "request-duty-swaps"
+   ],
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "tab",
+      "name": "แลกเวร",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "article.ld-card[data-card^=swap-]",
+      "has_text": "{{marker}} C"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกคำขอ",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card[data-card^=swap-]",
+       "has_text": "{{marker}} C"
+      }
+     },
+     "wait_after": {
+      "text": "ยกเลิก",
+      "within": {
+       "css": "article.ld-card[data-card^=swap-]",
+       "has_text": "{{marker}} C"
+      }
+     },
+     "crop_pad": 40,
+     "say": "คำขอที่ยังไม่ได้อนุมัติมีปุ่ม \"ยกเลิกคำขอ\" กดปุ่มนี้ คำขอเปลี่ยนเป็นสถานะ \"ยกเลิก\" และเวรกลับมาขอแลกใหม่ได้",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card[data-card^=swap-]",
+      "has_text": "{{marker}} C"
+     },
+     "highlight": {
+      "css": "article.ld-card[data-card^=swap-]",
+      "has_text": "{{marker}} C"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "คำขอเป็นสถานะ ยกเลิก",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "tab",
+        "name": "แลกเวร",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "article.ld-card[data-card^=swap-]",
+        "has_text": "{{marker}} C"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "ยกเลิก",
+        "in": {
+         "css": "article.ld-card[data-card^=swap-]",
+         "has_text": "{{marker}} C"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "approve-duty-swap",
+   "title": "ผู้อำนวยการอนุมัติการแลกเวร",
+   "intro": "ผู้อนุมัติตัดสินได้เฉพาะคำขอที่เพื่อนครูตอบรับแล้ว และต้องไม่ใช่หนึ่งในคู่แลก ที่แท็บ \"แลกเวร\" มีสามมุมมอง คือ \"รออนุมัติ\" \"ทั้งหมด\" และ \"ของฉัน\"",
+   "role": "principal",
+   "start": "/work#duty",
+   "depends_on": [
+    "answer-duty-swaps"
+   ],
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "tab",
+      "name": "แลกเวร",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "article.ld-card[data-card^=swap-]",
+      "has_text": "{{marker}} A"
+     },
+     "say": "เปิดหน้า \"เวร\" แล้วเลือกแท็บ \"แลกเวร\" ผู้อำนวยการเห็นคำขอที่เพื่อนครูตอบรับแล้วในมุมมอง \"รออนุมัติ\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.ld-card[data-card^=swap-]",
+      "has_text": "{{marker}} A"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "อนุมัติ",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card[data-card^=swap-]",
+       "has_text": "{{marker}} A"
+      }
+     },
+     "wait_after": {
+      "css": ".ld-msg .ld-notice"
+     },
+     "say": "กดปุ่ม \"อนุมัติ\" เวรเปลี่ยนเป็นของเพื่อนครูทันที ทั้งสองคนได้รับอีเมลแจ้ง",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    }
+   ],
+   "expected": "เวรเปลี่ยนเป็นของเพื่อนครู",
+   "verify": [
+    {
+     "title": "คำขออนุมัติแล้วในมุมมอง ทั้งหมด",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ทั้งหมด",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "article.ld-card[data-card^=swap-]",
+        "has_text": "{{marker}} A"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "อนุมัติแล้ว",
+        "in": {
+         "css": "article.ld-card[data-card^=swap-]",
+         "has_text": "{{marker}} A"
+        }
+       },
+       "say": "กดปุ่ม \"ทั้งหมด\" คำขอแสดงสถานะ \"อนุมัติแล้ว\"",
+       "shot": true,
+       "crop": {
+        "css": "article.ld-card[data-card^=swap-]",
+        "has_text": "{{marker}} A"
+       },
+       "highlight": {
+        "css": "article.ld-card[data-card^=swap-]",
+        "has_text": "{{marker}} A"
+       }
+      }
+     ]
+    },
+    {
+     "title": "เวรเปลี่ยนเป็นของเพื่อนครู",
+     "as": "subject",
+     "start": "/work#duty",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "เวร",
+        "exact": true
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} A"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "(ฉัน)",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} A"
+         }
+        },
+        {
+         "text": "นายกันตภณ โจทย์ยาก",
+         "in": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} A"
+         }
+        }
+       ],
+       "say": "เพื่อนครูเปิดหน้า \"เวร\" เวรนั้นเป็นของท่านแล้ว มีคำว่า \"(ฉัน)\"",
+       "shot": true,
+       "crop": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} A"
+       },
+       "highlight": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} A"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "reject-duty-swap",
+   "title": "ผู้อำนวยการไม่อนุมัติการแลกเวรพร้อมเหตุผล",
+   "role": "principal",
+   "start": "/work#duty",
+   "depends_on": [
+    "answer-duty-swaps"
+   ],
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "tab",
+      "name": "แลกเวร",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "article.ld-card[data-card^=swap-]",
+      "has_text": "{{marker}} D"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ไม่อนุมัติ",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card[data-card^=swap-]",
+       "has_text": "{{marker}} D"
+      }
+     },
+     "wait_after": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card[data-card^=swap-]",
+       "has_text": "{{marker}} D"
+      }
+     },
+     "crop_pad": 40,
+     "say": "กดปุ่ม \"ไม่อนุมัติ\" ช่องเหตุผลเปิดขึ้น",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card[data-card^=swap-]",
+      "has_text": "{{marker}} D"
+     },
+     "highlight": {
+      "css": "article.ld-card[data-card^=swap-]",
+      "has_text": "{{marker}} D"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card[data-card^=swap-]",
+       "has_text": "{{marker}} D"
+      }
+     },
+     "value": "{{marker}} ต้องการครูประจำเวรเดิม",
+     "crop_pad": 40,
+     "say": "พิมพ์เหตุผลในช่อง \"เหตุผล (จำเป็น)\"",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card[data-card^=swap-]",
+      "has_text": "{{marker}} D"
+     },
+     "highlight": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card[data-card^=swap-]",
+       "has_text": "{{marker}} D"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่ง",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card[data-card^=swap-]",
+       "has_text": "{{marker}} D"
+      }
+     },
+     "wait_after": {
+      "css": ".ld-msg .ld-notice"
+     },
+     "say": "กดปุ่ม \"ส่ง\" คำขอปิดเป็น \"ไม่อนุมัติ\" เวรยังเป็นของครูเดิม",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "คำขอเป็นสถานะ ไม่อนุมัติ พร้อมหมายเหตุ",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ทั้งหมด",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "article.ld-card[data-card^=swap-]",
+        "has_text": "{{marker}} D"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "ไม่อนุมัติ",
+         "in": {
+          "css": "article.ld-card[data-card^=swap-]",
+          "has_text": "{{marker}} D"
+         }
+        },
+        {
+         "text": "ต้องการครูประจำเวรเดิม",
+         "in": {
+          "css": "article.ld-card[data-card^=swap-]",
+          "has_text": "{{marker}} D"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "view-swap-overview",
+   "title": "ผู้อำนวยการดูคำขอแลกเวรทุกสถานะ",
+   "role": "principal",
+   "start": "/work#duty",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "tab",
+      "name": "แลกเวร",
+      "exact": true
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "ทั้งหมด",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ทั้งหมด",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "article.ld-card[data-card^=swap-]",
+      "first": true
+     },
+     "settle_ms": 800,
+     "say": "กดปุ่ม \"ทั้งหมด\" ระบบแสดงคำขอแลกเวรของทุกคน แต่ละคำขอมีสถานะ ได้แก่ \"รอเพื่อนครูตอบรับ\" \"รอผู้อนุมัติ\" \"เพื่อนครูปฏิเสธ\" \"อนุมัติแล้ว\" \"ไม่อนุมัติ\" และ \"ยกเลิก\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "button",
+      "name": "ทั้งหมด",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ของฉัน",
+      "exact": true
+     },
+     "settle_ms": 800,
+     "say": "กดปุ่ม \"ของฉัน\" เพื่อดูเฉพาะคำขอที่ท่านเป็นคู่แลก",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "button",
+      "name": "ของฉัน",
+      "exact": true
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "มุมมอง ทั้งหมด มีคำขอหลายสถานะ",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ทั้งหมด",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "article.ld-card[data-card^=swap-]",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "count": {
+          "min": 3
+         },
+         "of": {
+          "css": "article.ld-card[data-card^=swap-]"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cancel-duty-with-cover",
+   "title": "ผู้อำนวยการยกเลิกเวรและมอบครูแทน",
+   "intro": "เวรที่ยกเลิกแล้วยังอยู่ในตารางพร้อมเหตุผลเพื่อเป็นหลักฐาน ถ้าเลือกครูแทน ระบบตรวจว่าครูแทนว่างและสร้างเวรใหม่ให้ ครูทั้งสองได้รับอีเมลแจ้ง ถ้าเวรนั้นมีคำขอแลกเวรค้างอยู่ คำขอถูกยกเลิกอัตโนมัติ",
+   "role": "principal",
+   "start": "/work#duty",
+   "depends_on": [
+    "assign-duties"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} E"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกเวร",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} E"
+      }
+     },
+     "wait_after": {
+      "css": "form[data-form=duty-cancel]"
+     },
+     "crop_pad": 40,
+     "say": "กดปุ่ม \"ยกเลิกเวร\" ที่เวรที่ครูมาทำไม่ได้ ฟอร์มยกเลิกเปิดขึ้น",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} E"
+     },
+     "highlight": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} E"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผลที่ยกเลิกเวร (จำเป็น)",
+      "within": {
+       "css": "form[data-form=duty-cancel]"
+      }
+     },
+     "value": "{{marker}} ครูไปราชการ",
+     "crop_pad": 40,
+     "say": "พิมพ์เหตุผลในช่อง \"เหตุผลที่ยกเลิกเวร (จำเป็น)\"",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} E"
+     },
+     "highlight": {
+      "label": "เหตุผลที่ยกเลิกเวร (จำเป็น)",
+      "within": {
+       "css": "form[data-form=duty-cancel]"
+      }
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ครูแทน (ไม่บังคับ)",
+      "within": {
+       "css": "form[data-form=duty-cancel]"
+      }
+     },
+     "label": "นายกันตภณ โจทย์ยาก",
+     "crop_pad": 40,
+     "say": "เลือกครูแทนในช่อง \"ครูแทน (ไม่บังคับ)\" ครูแทนจะได้เวรนี้ทันที",
+     "shot": true,
+     "crop": {
+      "css": "article.ld-card",
+      "has_text": "{{marker}} E"
+     },
+     "highlight": {
+      "label": "ครูแทน (ไม่บังคับ)",
+      "within": {
+       "css": "form[data-form=duty-cancel]"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกเวร",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=duty-cancel]"
+      }
+     },
+     "wait_after": {
+      "text": "ครูแทน",
+      "within": {
+       "css": "article.ld-card.ld-dim",
+       "has_text": "{{marker}} E"
+      }
+     },
+     "say": "กดปุ่ม \"ยกเลิกเวร\" ระบบแสดงข้อความ \"ยกเลิกเวรแล้ว\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": ".ld-msg .ld-notice"
+     }
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "css": "article.ld-card.ld-dim",
+      "has_text": "{{marker}} E"
+     }
+    },
+    {
+     "do": "note",
+     "say": "เวรเดิมเป็น \"ยกเลิกแล้ว\" พร้อมเหตุผลและชื่อครูแทน ส่วนครูแทนได้เวรใหม่ในตารางตรงเวลาเดิม",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.ld-card.ld-dim",
+      "has_text": "{{marker}} E"
+     }
+    }
+   ],
+   "expected": "เวรเดิมเป็น \"ยกเลิกแล้ว\" และครูแทนมีเวรใหม่",
+   "verify": [
+    {
+     "title": "ตารางเวรมีเวรที่ยกเลิกและเวรใหม่ของครูแทน",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "เวร",
+        "exact": true
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card",
+        "has_text": "{{marker}} E"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "count": 2,
+         "of": {
+          "css": "article.ld-card",
+          "has_text": "{{marker}} E"
+         }
+        },
+        {
+         "text": "ยกเลิกแล้ว",
+         "in": {
+          "css": "article.ld-card.ld-dim",
+          "has_text": "{{marker}} E"
+         }
+        },
+        {
+         "text": "ครูแทน: นายกันตภณ โจทย์ยาก",
+         "in": {
+          "css": "article.ld-card.ld-dim",
+          "has_text": "{{marker}} E"
+         }
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "title": "ครูแทนเห็นเวรใหม่ของตน",
+     "as": "subject",
+     "start": "/work#duty",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card:not(.ld-dim)",
+        "has_text": "{{marker}} E"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "(ฉัน)",
+        "in": {
+         "css": "article.ld-card:not(.ld-dim)",
+         "has_text": "{{marker}} E"
+        }
+       },
+       "say": "ครูแทนเปิดหน้า \"เวร\" ตารางมีเวรใหม่ของท่านที่จุดเวรเดิม",
+       "shot": true,
+       "crop": {
+        "css": "article.ld-card:not(.ld-dim)",
+        "has_text": "{{marker}} E"
+       },
+       "highlight": {
+        "css": "article.ld-card:not(.ld-dim)",
+        "has_text": "{{marker}} E"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cleanup-leave-teacher",
+   "title": "ล้างข้อมูลทดสอบ: ครูขอยกเลิกใบลาที่อนุมัติค้างอยู่",
+   "role": "homeroom",
+   "start": "/work#leave",
+   "cleanup": true,
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "ใบลาของฉัน",
+      "exact": true
+     }
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.ld-card"
+     },
+     "settle_ms": 800
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ขอยกเลิก",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "ทดสอบคู่มือ"
+      },
+      "first": true
+     },
+     "wait_after": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "ทดสอบคู่มือ"
+      },
+      "first": true
+     },
+     "optional": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "ทดสอบคู่มือ"
+      },
+      "first": true
+     },
+     "value": "{{marker}} ล้างข้อมูลทดสอบ",
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่ง",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "ทดสอบคู่มือ"
+      },
+      "first": true
+     },
+     "wait_after": {
+      "css": ".ld-msg .ld-notice"
+     },
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ถอนคำขอ",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "ทดสอบคู่มือ"
+      },
+      "first": true
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "ยืนยัน",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "ทดสอบคู่มือ"
+      }
+     },
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยืนยัน",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "ทดสอบคู่มือ"
+      },
+      "first": true
+     },
+     "wait_after": {
+      "css": ".ld-msg .ld-notice"
+     },
+     "optional": true
+    }
+   ],
+   "verify": [
+    {
+     "title": "ไม่มีใบลาทดสอบที่อนุมัติค้างโดยไม่ได้ขอยกเลิก",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "ใบลาของฉัน",
+        "exact": true
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card"
+       },
+       "settle_ms": 800
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "count": 0,
+         "of": {
+          "role": "button",
+          "name": "ขอยกเลิก",
+          "exact": true,
+          "within": {
+           "css": "article.ld-card",
+           "has_text": "ทดสอบคู่มือ"
+          }
+         }
+        },
+        {
+         "count": 0,
+         "of": {
+          "role": "button",
+          "name": "ถอนคำขอ",
+          "exact": true,
+          "within": {
+           "css": "article.ld-card",
+           "has_text": "ทดสอบคู่มือ"
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cleanup-leave-approver",
+   "title": "ล้างข้อมูลทดสอบ: ผู้อำนวยการอนุมัติให้ยกเลิกใบลาทดสอบ",
+   "role": "principal",
+   "start": "/work#leave-approve",
+   "cleanup": true,
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "อนุมัติใบลา",
+      "exact": true
+     }
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.ld-card"
+     },
+     "settle_ms": 800
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "อนุมัติให้ยกเลิก",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "ทดสอบคู่มือ"
+      },
+      "first": true
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "ยืนยัน",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "ทดสอบคู่มือ"
+      }
+     },
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยืนยัน",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "ทดสอบคู่มือ"
+      },
+      "first": true
+     },
+     "wait_after": {
+      "css": ".ld-msg .ld-notice"
+     },
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ไม่อนุมัติ",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "ทดสอบคู่มือ"
+      },
+      "first": true
+     },
+     "wait_after": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "ทดสอบคู่มือ"
+      },
+      "first": true
+     },
+     "optional": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผล (จำเป็น)",
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "ทดสอบคู่มือ"
+      },
+      "first": true
+     },
+     "value": "{{marker}} ล้างข้อมูลทดสอบ",
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่ง",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "ทดสอบคู่มือ"
+      },
+      "first": true
+     },
+     "wait_after": {
+      "css": ".ld-msg .ld-notice"
+     },
+     "optional": true
+    }
+   ],
+   "verify": [
+    {
+     "title": "ไม่มีใบลาทดสอบค้างในแท็บ รออนุมัติ",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "อนุมัติใบลา",
+        "exact": true
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card"
+       },
+       "settle_ms": 800
+      },
+      {
+       "do": "expect",
+       "that": {
+        "count": 0,
+        "of": {
+         "role": "button",
+         "name": "อนุมัติ",
+         "exact": true,
+         "within": {
+          "css": "article.ld-card",
+          "has_text": "ทดสอบคู่มือ"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cleanup-leave-type",
+   "title": "ล้างข้อมูลทดสอบ: ลบประเภทการลาทดสอบที่ค้าง",
+   "role": "principal",
+   "start": "/work",
+   "cleanup": true,
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "อนุมัติใบลา",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "อนุมัติใบลา",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "tab",
+      "name": "โควตาและประเภทการลา",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form.ld-typeform:has(input[name=code])"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบ",
+      "exact": true,
+      "within": {
+       "css": "form.ld-typeform:has(input[name=label][value*=\"ลาทดสอบ ทดสอบคู่มือ\"])",
+       "first": true
+      }
+     },
+     "wait_after": {
+      "text": "ลบประเภทการลาแล้ว",
+      "within": {
+       "css": ".ld-msg .ld-notice"
+      }
+     },
+     "optional": true
+    }
+   ],
+   "verify": [
+    {
+     "title": "ไม่มีประเภทการลาทดสอบค้าง",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "count": 0,
+        "of": {
+         "css": "form.ld-typeform:has(input[name=label][value*=\"ลาทดสอบ ทดสอบคู่มือ\"])"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cleanup-duties",
+   "title": "ล้างข้อมูลทดสอบ: ยกเลิกและลบเวรทดสอบ",
+   "role": "principal",
+   "start": "/work#duty",
+   "cleanup": true,
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "เวร",
+      "exact": true
+     }
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.ld-card"
+     },
+     "settle_ms": 800
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกเวร",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} A"
+      }
+     },
+     "wait_after": {
+      "css": "form[data-form=duty-cancel]"
+     },
+     "optional": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผลที่ยกเลิกเวร (จำเป็น)",
+      "within": {
+       "css": "form[data-form=duty-cancel]"
+      }
+     },
+     "value": "{{marker}} ล้างข้อมูลทดสอบ",
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกเวร",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=duty-cancel]"
+      }
+     },
+     "optional": true
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "form[data-form=duty-cancel]"
+     },
+     "state": "hidden",
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกเวร",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} B"
+      }
+     },
+     "wait_after": {
+      "css": "form[data-form=duty-cancel]"
+     },
+     "optional": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผลที่ยกเลิกเวร (จำเป็น)",
+      "within": {
+       "css": "form[data-form=duty-cancel]"
+      }
+     },
+     "value": "{{marker}} ล้างข้อมูลทดสอบ",
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกเวร",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=duty-cancel]"
+      }
+     },
+     "optional": true
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "form[data-form=duty-cancel]"
+     },
+     "state": "hidden",
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกเวร",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} C"
+      }
+     },
+     "wait_after": {
+      "css": "form[data-form=duty-cancel]"
+     },
+     "optional": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผลที่ยกเลิกเวร (จำเป็น)",
+      "within": {
+       "css": "form[data-form=duty-cancel]"
+      }
+     },
+     "value": "{{marker}} ล้างข้อมูลทดสอบ",
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกเวร",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=duty-cancel]"
+      }
+     },
+     "optional": true
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "form[data-form=duty-cancel]"
+     },
+     "state": "hidden",
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกเวร",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} D"
+      }
+     },
+     "wait_after": {
+      "css": "form[data-form=duty-cancel]"
+     },
+     "optional": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผลที่ยกเลิกเวร (จำเป็น)",
+      "within": {
+       "css": "form[data-form=duty-cancel]"
+      }
+     },
+     "value": "{{marker}} ล้างข้อมูลทดสอบ",
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกเวร",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=duty-cancel]"
+      }
+     },
+     "optional": true
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "form[data-form=duty-cancel]"
+     },
+     "state": "hidden",
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบ",
+      "exact": true,
+      "within": {
+       "css": "article.ld-card",
+       "has_text": "{{marker}} E"
+      }
+     },
+     "wait_after": {
+      "css": "form[data-form=duty-delete]"
+     },
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบ",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=duty-delete]"
+      }
+     },
+     "optional": true
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "form[data-form=duty-delete]"
+     },
+     "state": "hidden",
+     "optional": true
+    }
+   ],
+   "verify": [
+    {
+     "title": "เวรทดสอบไม่เหลือเวรที่มอบหมายอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "เวร",
+        "exact": true
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.ld-card"
+       },
+       "settle_ms": 800
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "count": 0,
+         "of": {
+          "role": "button",
+          "name": "ยกเลิกเวร",
+          "exact": true,
+          "within": {
+           "css": "article.ld-card",
+           "has_text": "{{marker}}"
+          }
+         }
+        },
+        {
+         "count": 0,
+         "of": {
+          "role": "button",
+          "name": "ลบ",
+          "exact": true,
+          "within": {
+           "css": "article.ld-card",
+           "has_text": "{{marker}}"
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "skeleton": [],
+ "untested": [
+  "อีเมลแจ้งผลใบลา การมอบหมายเวร และการแลกเวร: ระบบส่งอีเมลผ่านผู้ให้บริการภายนอก ในเครื่องทดลองไม่มีกล่องจดหมายให้เปิดตรวจ จึงตรวจได้เฉพาะว่าการทำรายการสำเร็จ ไม่ได้ตรวจว่าอีเมลถึงผู้รับ",
+  "ใบลาและเวรมีเฉพาะหน้าจอบนเว็บ ไม่มีปุ่มพิมพ์ใบลา ส่งออกเป็นไฟล์ หรือปฏิทินเวรแบบรายเดือน ดูเวรของตนเองได้จากตารางเวรที่กรองตามชื่อครู",
+  "ใบลาที่ยื่นแล้ว เวรที่ยกเลิกแล้ว และใบลาที่ถอนหรือยกเลิกแล้วลบไม่ได้ในระบบ (ลบได้เฉพาะร่าง) การทดสอบจึงทิ้งเวรสถานะ \"ยกเลิกแล้ว\" และใบลาสถานะ \"ถอนคำขอแล้ว\" \"ไม่อนุมัติ\" \"ยกเลิกแล้ว\" ไว้ในเครื่องทดลอง ซึ่งไม่ขัดกับการทดสอบรอบถัดไป",
+  "การเปลี่ยนปีงบประมาณในรายงานโควตาและการลาข้ามปีงบประมาณ: เครื่องทดลองมีข้อมูลเฉพาะปีงบประมาณปัจจุบัน"
+ ]
+}

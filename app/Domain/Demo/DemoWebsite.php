@@ -172,10 +172,14 @@ final class DemoWebsite
             if ($reply) $c->accounts[] = ['role' => 'เลขรับเรื่องร้องเรียนตัวอย่าง (หน้าติดตามเรื่อง)', 'login' => $receipt, 'password' => $code, 'url' => DemoAcademic::publicBase($c).'/portal/complaints/status',
                 'note' => 'ไม่ใช่บัญชี: เลขรับเรื่องและรหัสติดตามของเรื่องที่โรงเรียนตอบแล้ว'];
         }
-        // the yearly summary the public page and ITA item O14 link to (figures only, frozen at this moment)
-        if (class_exists(\Saan\Modules\Complaints\Reports::class) && Schema::hasTable('cmp_reports')) {
-            \Saan\Modules\Complaints\Reports::publish($rules::currentFiscalYear(), 'publish', $c->admin);
-        }
+    }
+
+    /** The yearly summary the public page and ITA item O14 link to (figures only, frozen at this moment): runs after every case of the trial exists. */
+    public function complaintsReport(): void
+    {
+        $c = $this->c;
+        if (!$c->has('complaints', 'cmp_cases') || !class_exists(\Saan\Modules\Complaints\Reports::class) || !Schema::hasTable('cmp_reports')) return;
+        \Saan\Modules\Complaints\Reports::publish(\Saan\Modules\Complaints\Complaints::currentFiscalYear(), 'publish', $c->admin);
     }
 
     // ---------------------------------------------------------------- inbox and social
@@ -268,12 +272,15 @@ final class DemoWebsite
         $c = $this->c;
         if (!$c->has('web-ita', 'ita_years', 'ita_topics', 'ita_items')) return;
         $ita = app(\Saan\Modules\WebIta\ItaRepository::class);
-        $year = $ita->create(\App\Support\Fiscal::current(), null, true);
         $pages = ['O8' => '/portal/contact', 'O9' => '/portal/procurement', 'O11' => '/portal/downloads', 'O12' => '/portal/downloads', 'O17' => '/portal/people'];
-        $topics = array_map(fn ($t) => ['code' => $t['code'], 'title' => $t['title'], 'items' => array_map(fn ($i) => ['title' => $i['title'],
-            'url' => $i['url'] ?: (empty($i['source']) ? ($pages[$t['code']] ?? '/portal/pages') : null), 'media_id' => $i['media_id'], 'note' => $i['note'],
-            'source' => $i['source'] ?? null, 'source_opts' => $i['source_opts'] ?: null], $t['items'])], $year['topics']);
-        $year = $ita->save((int) $year['year']['id'], (int) $year['year']['version'], (string) $year['year']['title'], $topics);
-        $ita->setStatus((int) $year['year']['id'], (int) $year['year']['version'], true);
+        // this fiscal year and the two before it, all published (the older ones keep what the sources link to today); no draft year: the original trial checks "the" year's status
+        foreach ([0, 1, 2] as $back) {
+            $year = $ita->create(\App\Support\Fiscal::current() - $back, null, true);
+            $topics = array_map(fn ($t) => ['code' => $t['code'], 'title' => $t['title'], 'items' => array_map(fn ($i) => ['title' => $i['title'],
+                'url' => $i['url'] ?: (empty($i['source']) ? ($pages[$t['code']] ?? '/portal/pages') : null), 'media_id' => $i['media_id'], 'note' => $i['note'],
+                'source' => $i['source'] ?? null, 'source_opts' => $i['source_opts'] ?: null], $t['items'])], $year['topics']);
+            $year = $ita->save((int) $year['year']['id'], (int) $year['year']['version'], (string) $year['year']['title'], $topics);
+            $ita->setStatus((int) $year['year']['id'], (int) $year['year']['version'], true);
+        }
     }
 }

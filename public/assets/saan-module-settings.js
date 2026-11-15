@@ -46,10 +46,10 @@
     }
 
     function itemHtml(it, users, n) {
-        const id = 'ms-' + n;
+        const id = 'ms-' + n; // the user-list wrapper already carries aria-labelledby; adding it to the first checkbox would hide the person's name
         return `<div class="ms-item" data-key="${esc(it.key)}"><div><span class="ms-l" id="${id}-l">${esc(it.label)}</span> ${it.is_default ? '<span class="ms-badge">ค่าเริ่มต้น</span>' : ''}</div>
             ${it.help ? `<p class="ms-help">${esc(it.help)}</p>` : ''}${it.type === 'users' && it.roles_hint?.length ? `<p class="ms-help">มักมอบให้บทบาท: ${esc(it.roles_hint.map(r => ROLES[r] || r).join(', '))}</p>` : ''}
-            ${control(it, users, id).replace('<input ', `<input aria-labelledby="${id}-l" `).replace('<select ', `<select aria-labelledby="${id}-l" `).replace('<textarea ', `<textarea aria-labelledby="${id}-l" `)}
+            ${it.type === 'users' ? control(it, users, id) : control(it, users, id).replace('<input ', `<input aria-labelledby="${id}-l" `).replace('<select ', `<select aria-labelledby="${id}-l" `).replace('<textarea ', `<textarea aria-labelledby="${id}-l" `)}
             <div class="ms-row"><button type="button" class="ms-btn" data-save>บันทึก</button>${it.default !== null && it.default !== undefined && it.type !== 'users' ? '<button type="button" class="ms-btn alt" data-default>ใส่ค่าเริ่มต้น</button>' : ''}<span class="ms-state" role="status"></span></div>
             <span class="ms-key">${esc(it.key)}</span></div>`;
     }

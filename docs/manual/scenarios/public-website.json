@@ -1,0 +1,1667 @@
+{
+  "module": "public-website",
+  "title": "เว็บไซต์สาธารณะของโรงเรียน (ผู้เข้าชม)",
+  "area": "เว็บไซต์โรงเรียน",
+  "purpose": "หน้านี้อธิบายสิ่งที่ผู้เข้าชมเห็นและทำได้บนเว็บไซต์ของโรงเรียนโดยไม่ต้องเข้าสู่ระบบ ได้แก่ หน้าแรก เมนูทุกรายการ ข่าวและกิจกรรม หน้าเนื้อหา เอกสารดาวน์โหลด อัลบั้มภาพ ค้นหาข้อมูล รายการข้อมูลและบริการทั้งหมด หน้ากลุ่มงาน แบบฟอร์มติดต่อโรงเรียน หน้าร้องเรียนและแจ้งเรื่อง หน้าการเปิดเผยข้อมูลสาธารณะ (ITA) และแผนที่เว็บไซต์ (sitemap.xml) พร้อมการใช้งานบนโทรศัพท์ เนื้อหาที่ผู้ดูแลเว็บไซต์เขียนและเผยแพร่ในเมนู \"เว็บไซต์โรงเรียน\" ปรากฏที่นี่",
+  "roles": [
+    "ผู้เข้าชมทั่วไป (ผู้ปกครอง นักเรียน ประชาชน ไม่ต้องเข้าสู่ระบบ)",
+    "ผู้ดูแลเว็บไซต์ (รับข้อความที่ผู้เข้าชมส่งมาในเมนู \"ข้อความติดต่อ\")"
+  ],
+  "menu": [
+    "ที่อยู่ของเว็บไซต์โรงเรียน (หน้าแรก / หรือ /portal) แถบเมนูด้านบนของเว็บไซต์ แสดงเมนูตามที่ผู้ดูแลตั้งไว้ใน \"เมนูเว็บไซต์\"",
+    "บนโทรศัพท์ แถบเมนูซ่อนอยู่หลังปุ่มเมนูมุมบนของหน้า"
+  ],
+  "prerequisites": [],
+  "vars": {
+    "contact_subject": "{{marker}} สอบถามเรื่องการรับสมัครนักเรียน",
+    "contact_name": "ผู้ปกครองสมมติ",
+    "contact_email": "manual.test@example.invalid",
+    "contact_body": "สอบถามเรื่องกำหนดการรับสมัครนักเรียนชั้นมัธยมศึกษาปีที่ 1 ข้อความสมมติสำหรับทดสอบ {{marker}}"
+  },
+  "workflows": [
+    {
+      "id": "browse-home-and-menu",
+      "title": "เปิดหน้าแรกและเมนูของเว็บไซต์",
+      "core": true,
+      "role": "anonymous",
+      "start": "/portal",
+      "intro": "หน้าแรกประกอบด้วยภาพต้อนรับ ช่องค้นหา บริการ ข่าวและกิจกรรม ประกาศ อัลบั้มภาพ ปฏิทินกิจกรรม และช่องทางติดต่อ ลำดับและเนื้อหาขึ้นกับที่ผู้ดูแลเว็บไซต์ตั้งไว้",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "hero-search"
+          },
+          "say": "เปิดที่อยู่ของเว็บไซต์โรงเรียน ระบบแสดงหน้าแรก",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ข่าวและกิจกรรม",
+            "first": true,
+            "within": {
+              "id": "public-navigation"
+            }
+          },
+          "say": "กดเมนู \"ข่าวและกิจกรรม\" ที่แถบเมนูด้านบน",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "ข่าวและกิจกรรม",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "รู้จักโรงเรียน",
+            "first": true,
+            "within": {
+              "id": "public-navigation"
+            }
+          },
+          "say": "กดเมนู \"รู้จักโรงเรียน\" ระบบแสดงรายการหน้าเนื้อหาของโรงเรียน",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "หน้าเนื้อหา",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เอกสาร",
+            "exact": true,
+            "within": {
+              "id": "public-navigation"
+            }
+          },
+          "say": "กดเมนู \"เอกสาร\" ระบบแสดงเอกสารดาวน์โหลด",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "เอกสารดาวน์โหลด",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ติดต่อ",
+            "exact": true,
+            "within": {
+              "id": "public-navigation"
+            }
+          },
+          "say": "กดเมนู \"ติดต่อ\" ระบบแสดงข้อมูลติดต่อและแบบฟอร์ม",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "ติดต่อโรงเรียน",
+            "first": true
+          }
+        }
+      ],
+      "expected": "ทุกเมนูเปิดหน้าที่ตรงกับชื่อเมนู",
+      "verify": [
+        {
+          "title": "เมนูบนหน้าแรกมีครบทุกรายการ",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "link",
+                    "name": "หน้าหลัก",
+                    "first": true,
+                    "within": {
+                      "id": "public-navigation"
+                    }
+                  }
+                },
+                {
+                  "visible": {
+                    "role": "link",
+                    "name": "ข่าวและกิจกรรม",
+                    "first": true,
+                    "within": {
+                      "id": "public-navigation"
+                    }
+                  }
+                },
+                {
+                  "visible": {
+                    "role": "link",
+                    "name": "ติดต่อ",
+                    "first": true,
+                    "within": {
+                      "id": "public-navigation"
+                    }
+                  }
+                },
+                {
+                  "visible": {
+                    "role": "link",
+                    "name": "ข้อมูลทั้งหมด",
+                    "first": true,
+                    "within": {
+                      "id": "public-navigation"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "read-news",
+      "title": "อ่านข่าวและกิจกรรม",
+      "role": "anonymous",
+      "start": "/portal/news",
+      "intro": "หน้า \"ข่าวและกิจกรรม\" แสดงข่าวที่เผยแพร่ เรียงจากใหม่ไปเก่า เปิดข่าวเพื่ออ่านหน้าเต็ม",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "heading",
+            "name": "ข่าวและกิจกรรม",
+            "first": true
+          },
+          "say": "เปิดหน้า \"ข่าวและกิจกรรม\" ของเว็บไซต์ ระบบแสดงข่าวเป็นการ์ดพร้อมรูปปก",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ห้องศิลปะของเรา: ทดลองสีจากธรรมชาติ",
+            "first": true
+          },
+          "say": "กดหัวข้อข่าวที่ต้องการอ่าน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "role": "heading",
+            "name": "ห้องศิลปะของเรา: ทดลองสีจากธรรมชาติ",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "url": "/portal/news/mock-art-learning-88"
+          },
+          "say": "หน้าข่าวแสดงหัวข้อ วันที่ รูปปก และเนื้อหาของข่าว",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "heading",
+            "name": "ห้องศิลปะของเรา: ทดลองสีจากธรรมชาติ",
+            "first": true
+          }
+        }
+      ],
+      "expected": "ผู้เข้าชมอ่านข่าวหน้าเต็มได้",
+      "verify": [
+        {
+          "title": "หน้าข่าวมีหัวข้อและรูป",
+          "as": "anonymous",
+          "start": "/portal/news/mock-art-learning-88",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "heading",
+                    "name": "ห้องศิลปะของเรา: ทดลองสีจากธรรมชาติ",
+                    "first": true
+                  }
+                },
+                {
+                  "visible": {
+                    "css": "main img",
+                    "first": true
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "download-and-album",
+      "title": "เปิดเอกสารดาวน์โหลดและอัลบั้มภาพ",
+      "role": "anonymous",
+      "start": "/portal/downloads",
+      "intro": "เอกสารดาวน์โหลดเป็นไฟล์ที่โรงเรียนเผยแพร่ เช่น แบบฟอร์ม และปฏิทิน อัลบั้มภาพรวมภาพกิจกรรมเป็นชุด",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "heading",
+            "name": "เอกสารดาวน์โหลด",
+            "first": true
+          },
+          "say": "เปิดเมนู \"เอกสาร\" ระบบแสดงรายการเอกสารดาวน์โหลดและช่องค้นหา",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "แบบเสนอกิจกรรมการเรียนรู้",
+            "first": true
+          },
+          "say": "กดชื่อเอกสาร ระบบแสดงหน้าของเอกสารพร้อมลิงก์เปิดไฟล์",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "role": "heading",
+            "name": "แบบเสนอกิจกรรมการเรียนรู้",
+            "first": true
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal/albums",
+          "wait_after": {
+            "role": "heading",
+            "name": "อัลบั้มภาพ",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จากห้องเรียนสู่โลกกว้าง",
+            "first": true
+          },
+          "say": "เปิดหน้า \"อัลบั้มภาพ\" (/portal/albums) แล้วกดชื่ออัลบั้ม ระบบแสดงภาพทั้งชุด",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "role": "heading",
+            "name": "จากห้องเรียนสู่โลกกว้าง",
+            "first": true
+          }
+        }
+      ],
+      "expected": "หน้าเอกสารและหน้าอัลบั้มเปิดได้",
+      "verify": [
+        {
+          "title": "อัลบั้มแสดงภาพ",
+          "as": "anonymous",
+          "start": "/portal/albums/learning-album-31",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "main img",
+                  "first": true
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "search-site",
+      "title": "ค้นหาข้อมูลบนเว็บไซต์",
+      "role": "anonymous",
+      "start": "/portal",
+      "intro": "ช่องค้นหาบนหน้าแรกค้นหัวข้อและเนื้อหาของข่าว ประกาศ เอกสาร และหน้าทุกประเภทที่เผยแพร่แล้ว ฉบับร่างและเนื้อหาที่ถอนแล้วไม่ปรากฏ คำค้นยาวได้ไม่เกิน 100 ตัวอักษร",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "hero-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "hero-search"
+          },
+          "value": "ห้องสื่อ",
+          "say": "พิมพ์คำค้นในช่อง \"ค้นหาข่าว ประกาศ และข้อมูลโรงเรียน\" บนหน้าแรก",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "press",
+          "key": "Enter",
+          "target": {
+            "id": "hero-search"
+          },
+          "say": "กดปุ่ม Enter หรือปุ่มแว่นขยาย ระบบเปิดหน้า \"ค้นหาข้อมูล\" แสดงจำนวนที่พบและรายการผลลัพธ์",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "role": "heading",
+            "name": "ค้นหาข้อมูล",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "url": "/portal/search"
+            },
+            {
+              "text": "พบ"
+            }
+          ]
+        }
+      ],
+      "expected": "หน้า \"ค้นหาข้อมูล\" แสดงจำนวนรายการที่พบ และผลลัพธ์ที่ตรงคำค้น",
+      "verify": [
+        {
+          "title": "คำค้นที่ไม่มีผลแสดง พบ 0 รายการ",
+          "as": "anonymous",
+          "start": "/portal/search?q={{run_id}}ไม่มีคำนี้",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "text": "พบ 0 รายการ"
+              },
+              "say": "ถ้าไม่มีรายการตรงคำค้น หน้าแสดง \"พบ 0 รายการ\"",
+              "shot": true,
+              "crop": "viewport"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "directory-and-groups",
+      "title": "ดูรายการข้อมูลและบริการทั้งหมด และหน้ากลุ่มงาน",
+      "role": "anonymous",
+      "start": "/portal/directory",
+      "intro": "หน้า \"ข้อมูลและบริการทั้งหมด\" รวมทางเข้าทุกหมวดของเว็บไซต์ หน้า \"กลุ่มงาน กลุ่มสาระ สมาคม และรายงาน\" แสดงหน้ากลุ่มที่ผู้ดูแลเผยแพร่ พร้อมเอกสารและตัวนับดาวน์โหลด",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "heading",
+            "name": "ข้อมูลและบริการทั้งหมด",
+            "first": true
+          },
+          "say": "กดเมนู \"ข้อมูลทั้งหมด\" ระบบแสดงทางเข้าทุกหมวดของเว็บไซต์",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false
+        },
+        {
+          "do": "goto",
+          "url": "/portal/groups",
+          "say": "เปิดหน้า \"กลุ่มงาน กลุ่มสาระ สมาคม และรายงาน\" (/portal/groups) ระบบแสดงหน้ากลุ่มที่เผยแพร่",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "role": "heading",
+            "name": "กลุ่มงาน กลุ่มสาระ สมาคม และรายงาน",
+            "first": true
+          }
+        }
+      ],
+      "expected": "ทั้งสองหน้าแสดงรายการ",
+      "verify": [
+        {
+          "title": "หน้ากลุ่มงานมีหัวข้อ",
+          "as": "anonymous",
+          "start": "/portal/groups",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "heading",
+                  "name": "กลุ่มงาน กลุ่มสาระ สมาคม และรายงาน",
+                  "first": true
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "view-ita-and-complaints",
+      "title": "เปิดหน้าการเปิดเผยข้อมูลสาธารณะ (ITA) และหน้าร้องเรียน",
+      "role": "anonymous",
+      "start": "/portal/ita",
+      "intro": "หน้า ITA แสดงข้อมูลตามตัวชี้วัดของปีงบประมาณล่าสุดที่เผยแพร่ หน้า \"ร้องเรียนและแจ้งเรื่อง\" มีแบบฟอร์มให้เลือกประเภทเรื่อง ขั้นตอนนี้เปิดดูเท่านั้น ไม่ได้ส่งเรื่อง เพราะการส่งสร้างเรื่องจริงในระบบและออกเลขติดตาม",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "public-navigation",
+            "include_hidden": true
+          },
+          "say": "เปิดหน้า \"การเปิดเผยข้อมูลสาธารณะ\" (/portal/ita) ระบบแสดงหัวข้อ O1 ถึง O18 ของปีงบประมาณล่าสุด",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false
+        },
+        {
+          "do": "goto",
+          "url": "/portal/complaints",
+          "say": "เปิดหน้า \"ร้องเรียนและแจ้งเรื่อง\" (/portal/complaints) ระบบแสดงแบบฟอร์มพร้อมตัวเลือกประเภทเรื่อง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "role": "heading",
+            "name": "ร้องเรียนและแจ้งเรื่อง",
+            "first": true
+          }
+        }
+      ],
+      "expected": "ทั้งสองหน้าเปิดได้โดยไม่ต้องเข้าสู่ระบบ",
+      "verify": [
+        {
+          "title": "หน้า ITA เปิดได้ (รหัสตอบกลับ 200)",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "http_status": 200,
+                "url": "/portal/ita",
+                "anonymous": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "send-contact-message",
+      "title": "ส่งข้อความติดต่อโรงเรียน",
+      "role": "anonymous",
+      "start": "/portal/contact",
+      "intro": "แบบฟอร์มต้องกรอกชื่อ อีเมล เรื่อง รายละเอียดอย่างน้อย 10 ตัวอักษร และติ๊กยืนยันการส่งข้อมูล ระบบจำกัดการส่งไม่เกิน 5 ครั้งต่อนาทีต่อที่อยู่เครือข่าย ข้อความเก็บในเมนู \"ข้อความติดต่อ\" ของผู้ดูแลเว็บไซต์ ไม่ส่งเข้าอีเมล ใช้อีเมลสมมติเท่านั้นเมื่อทดลอง",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "label": "ชื่อผู้ติดต่อ"
+          },
+          "say": "เปิดเมนู \"ติดต่อ\" ระบบแสดงข้อมูลติดต่อและแบบฟอร์ม \"ส่งข้อความ\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อผู้ติดต่อ"
+          },
+          "value": "{{contact_name}}",
+          "say": "พิมพ์ชื่อในช่อง \"ชื่อผู้ติดต่อ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมลสำหรับติดต่อกลับ"
+          },
+          "value": "{{contact_email}}",
+          "say": "พิมพ์อีเมลในช่อง \"อีเมลสำหรับติดต่อกลับ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เรื่องที่ติดต่อ"
+          },
+          "value": "{{contact_subject}}",
+          "say": "พิมพ์หัวเรื่องในช่อง \"เรื่องที่ติดต่อ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รายละเอียด"
+          },
+          "value": "{{contact_body}}",
+          "say": "พิมพ์ข้อความในช่อง \"รายละเอียด\" อย่างน้อย 10 ตัวอักษร",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "ส่งข้อมูลนี้ให้โรงเรียนใช้ติดต่อกลับ"
+          },
+          "say": "ติ๊กช่องยืนยันการส่งข้อมูล \"ส่งข้อมูลนี้ให้โรงเรียนใช้ติดต่อกลับตามเรื่องที่สอบถาม\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ส่งข้อความ"
+          },
+          "say": "กดปุ่ม \"ส่งข้อความ\" ระบบแสดงข้อความว่า \"ได้รับข้อความแล้ว\" พร้อมเลขอ้างอิง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".form-success"
+          },
+          "wait_after": {
+            "css": ".form-success"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ได้รับข้อความแล้ว",
+            "in": {
+              "css": ".form-success"
+            }
+          }
+        }
+      ],
+      "expected": "ระบบแสดง \"ได้รับข้อความแล้ว เลขอ้างอิง ...\" และฟอร์มว่างอีกครั้ง",
+      "verify": [
+        {
+          "title": "ผู้ดูแลเว็บไซต์เห็นข้อความในเมนู \"ข้อความติดต่อ\"",
+          "as": "editor",
+          "start": "/cms#inbox",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "details.desk-message",
+                "has_text": "{{contact_subject}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "details.desk-message",
+                  "has_text": "{{contact_subject}}"
+                }
+              },
+              "say": "ผู้ดูแลเว็บไซต์เปิดเมนู \"ข้อความติดต่อ\" เห็นข้อความที่ผู้เข้าชมส่งมา ป้าย \"ข้อความใหม่\" ยังไม่อ่าน",
+              "shot": true,
+              "crop": "tight",
+              "crop_pad": 60,
+              "highlight": {
+                "css": "details.desk-message",
+                "has_text": "{{contact_subject}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contact-validation",
+      "title": "แบบฟอร์มติดต่อไม่รับข้อความที่ไม่ครบ",
+      "role": "anonymous",
+      "start": "/portal/contact",
+      "intro": "ถ้ารายละเอียดสั้นกว่า 10 ตัวอักษร เบราว์เซอร์หรือระบบไม่ยอมส่ง",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "label": "ชื่อผู้ติดต่อ"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อผู้ติดต่อ"
+          },
+          "value": "{{contact_name}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมลสำหรับติดต่อกลับ"
+          },
+          "value": "{{contact_email}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เรื่องที่ติดต่อ"
+          },
+          "value": "{{marker}} ทดสอบข้อความสั้น"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รายละเอียด"
+          },
+          "value": "สั้น"
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "ส่งข้อมูลนี้ให้โรงเรียนใช้ติดต่อกลับ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ส่งข้อความ"
+          },
+          "say": "กรอกรายละเอียดสั้นกว่า 10 ตัวอักษรแล้วกดปุ่ม \"ส่งข้อความ\" ฟอร์มไม่ส่งและเตือนที่ช่อง \"รายละเอียด\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "รายละเอียด"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "url": "/portal/contact"
+          }
+        }
+      ],
+      "expected": "ข้อความที่สั้นเกินไปไม่ถูกส่ง",
+      "verify": [
+        {
+          "title": "ผู้ดูแลเว็บไซต์ไม่พบข้อความหัวเรื่องนี้ในกล่องข้อความ",
+          "as": "editor",
+          "start": "/cms#inbox",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "details.desk-message",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "count": 0,
+                "of": {
+                  "css": "details.desk-message",
+                  "has_text": "{{marker}} ทดสอบข้อความสั้น"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "staff-reads-and-marks-message",
+      "title": "ผู้ดูแลเว็บไซต์อ่านข้อความติดต่อและเปลี่ยนสถานะ",
+      "role": "editor",
+      "start": "/cms",
+      "depends_on": [
+        "send-contact-message"
+      ],
+      "intro": "ข้อความที่ผู้เข้าชมส่งจากหน้า \"ติดต่อ\" เก็บในเมนู \"ข้อความติดต่อ\" ของผู้ดูแลเว็บไซต์ แต่ละข้อความมีสถานะ \"ข้อความใหม่\" \"อ่านแล้ว\" หรือ \"จัดเก็บแล้ว\" ผู้ดูแลเปลี่ยนสถานะได้ด้วยปุ่ม \"อ่านแล้ว\" \"ทำเครื่องหมายใหม่\" และ \"จัดเก็บ\" ระบบไม่ส่งอีเมลตอบอัตโนมัติ ผู้ดูแลตอบผู้ส่งทางอีเมลที่ผู้ส่งให้ไว้เอง และไม่มีปุ่มลบข้อความ",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "ตั้งค่าเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ข้อความติดต่อ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"ตั้งค่าเว็บไซต์\" แล้วเลือก \"ข้อความติดต่อ\" หน้านี้แสดงข้อความที่ผู้เข้าชมส่งมา ล่าสุดอยู่บนสุด",
+          "shot": true,
+          "wait_after": {
+            "css": "details.desk-message",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "within": {
+              "css": "details.desk-message",
+              "has_text": "{{contact_subject}}"
+            }
+          },
+          "say": "กดที่หัวข้อของข้อความที่ต้องการ ระบบกางอีเมลผู้ส่ง ข้อความ และปุ่มจัดการ ป้ายหน้าหัวข้อบอกสถานะ \"ข้อความใหม่\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "details.desk-message",
+            "has_text": "{{contact_subject}}"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ข้อความใหม่",
+            "in": {
+              "css": "summary",
+              "within": {
+                "css": "details.desk-message",
+                "has_text": "{{contact_subject}}"
+              }
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "อ่านแล้ว",
+            "exact": true,
+            "within": {
+              "css": "details.desk-message",
+              "has_text": "{{contact_subject}}"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/api/site/messages/",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"อ่านแล้ว\" ระบบแสดงข้อความ \"บันทึกสถานะข้อความแล้ว\" และป้ายเปลี่ยนเป็น \"อ่านแล้ว\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 80,
+          "wait_after": {
+            "text": "บันทึกสถานะข้อความแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "อ่านแล้ว",
+            "in": {
+              "css": "summary",
+              "within": {
+                "css": "details.desk-message",
+                "has_text": "{{contact_subject}}"
+              }
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "within": {
+              "css": "details.desk-message",
+              "has_text": "{{contact_subject}}"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ทำเครื่องหมายใหม่",
+            "exact": true,
+            "within": {
+              "css": "details.desk-message",
+              "has_text": "{{contact_subject}}"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/api/site/messages/",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"ทำเครื่องหมายใหม่\" เมื่ออยากให้ข้อความกลับเป็นข้อความที่ยังไม่ได้จัดการ ป้ายกลับเป็น \"ข้อความใหม่\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 80,
+          "wait_after": {
+            "text": "บันทึกสถานะข้อความแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ข้อความใหม่",
+            "in": {
+              "css": "summary",
+              "within": {
+                "css": "details.desk-message",
+                "has_text": "{{contact_subject}}"
+              }
+            }
+          }
+        }
+      ],
+      "expected": "ป้ายสถานะของข้อความเปลี่ยนตามปุ่มที่กด",
+      "verify": [
+        {
+          "title": "ข้อความยังอยู่ในกล่องข้อความเป็นข้อความใหม่",
+          "start": "/cms#inbox",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "details.desk-message",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "ข้อความใหม่",
+                "in": {
+                  "css": "summary",
+                  "within": {
+                    "css": "details.desk-message",
+                    "has_text": "{{contact_subject}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "check-sitemap",
+      "title": "ตรวจแผนที่เว็บไซต์ (sitemap.xml)",
+      "role": "anonymous",
+      "start": "/portal",
+      "intro": "แผนที่เว็บไซต์ให้เครื่องมือค้นหาอ่าน รวมเฉพาะหน้าที่เผยแพร่ ประกาศรายชื่อสาธารณะไม่อยู่ในแผนที่นี้",
+      "steps": [
+        {
+          "do": "expect",
+          "that": {
+            "http_status": 200,
+            "url": "/sitemap.xml",
+            "anonymous": true
+          }
+        }
+      ],
+      "expected": "sitemap.xml เปิดได้",
+      "verify": [
+        {
+          "title": "sitemap.xml เปิดได้อีกครั้ง",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "http_status": 200,
+                "url": "/sitemap.xml",
+                "anonymous": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phone-browse-and-search",
+      "title": "ใช้เว็บไซต์บนโทรศัพท์ (เมนู ข่าว และค้นหา)",
+      "role": "anonymous",
+      "start": "/portal",
+      "viewport": "390x844",
+      "intro": "บนโทรศัพท์ เมนูซ่อนอยู่หลังปุ่มเมนูมุมบนของหน้า กดปุ่มเพื่อเปิดรายการเมนู",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "button",
+            "name": "เปิดเมนูเว็บไซต์"
+          },
+          "say": "เปิดเว็บไซต์ของโรงเรียนบนโทรศัพท์ ระบบแสดงหน้าแรกแบบจอเล็ก",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดเมนูเว็บไซต์"
+          },
+          "say": "กดปุ่มเมนูที่มุมบนของหน้า ระบบแสดงรายการเมนู",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "link",
+            "name": "ข่าวและกิจกรรม",
+            "first": true,
+            "within": {
+              "id": "public-navigation"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ข่าวและกิจกรรม",
+            "first": true,
+            "within": {
+              "id": "public-navigation"
+            }
+          },
+          "say": "กดเมนู \"ข่าวและกิจกรรม\" ระบบแสดงข่าวเรียงเป็นแถวเดียว",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "role": "heading",
+            "name": "ข่าวและกิจกรรม",
+            "first": true
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal/search?q=ห้องสื่อ",
+          "say": "ผู้เข้าชมค้นหาข้อมูลได้เช่นเดียวกับบนคอมพิวเตอร์ ผลลัพธ์เรียงเป็นแถวเดียว",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "role": "heading",
+            "name": "ค้นหาข้อมูล",
+            "first": true
+          }
+        }
+      ],
+      "expected": "เมนู ข่าว และค้นหาใช้งานได้บนจอ 390 พิกเซล",
+      "verify": [
+        {
+          "title": "หน้าไม่เลื่อนซ้ายขวาบนจอเล็ก",
+          "as": "anonymous",
+          "start": "/portal/news",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "heading",
+                  "name": "ข่าวและกิจกรรม",
+                  "first": true
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "contact-rate-limit",
+      "title": "แบบฟอร์มติดต่อจำกัดการส่ง 5 ครั้งต่อนาที",
+      "role": "anonymous",
+      "start": "/portal/contact",
+      "intro": "เพื่อกันข้อความขยะ ระบบรับข้อความจากหน้า \"ติดต่อ\" ได้ไม่เกิน 5 ครั้งต่อนาทีจากที่อยู่เครือข่ายเดียวกัน (นับทุกครั้งที่กดส่ง) ครั้งที่ 6 ภายในนาทีเดียวกันถูกปฏิเสธด้วยรหัส 429 และต้องรอสักครู่แล้วส่งใหม่ โรงเรียนที่ใช้อินเทอร์เน็ตทางออกเดียวกันทั้งโรงเรียนจึงไม่ควรให้ผู้ใช้หลายคนส่งพร้อมกัน ขั้นตอนนี้ส่ง 5 ครั้งติดกันแล้วทดลองครั้งที่ 6 และใช้เวลาประมาณ 2 นาที ข้อความทดลองทั้ง 5 ถูกจัดเก็บเมื่อเสร็จ",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "label": "ชื่อผู้ติดต่อ"
+          },
+          "say": "เปิดเมนู \"ติดต่อ\" ของเว็บไซต์ ระบบนับทุกครั้งที่กดส่งจากที่อยู่เครือข่ายเดียวกัน ขั้นตอนนี้กรอกและส่งแบบฟอร์มซ้ำ 6 ครั้งติดกัน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อผู้ติดต่อ"
+          },
+          "value": "{{contact_name}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมลสำหรับติดต่อกลับ"
+          },
+          "value": "{{contact_email}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เรื่องที่ติดต่อ"
+          },
+          "value": "{{marker}} ทดสอบจำกัดการส่ง 1"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รายละเอียด"
+          },
+          "value": "ข้อความสมมติสำหรับทดสอบจำกัดการส่ง ครั้งที่ 1 {{marker}}"
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "ส่งข้อมูลนี้ให้โรงเรียนใช้ติดต่อกลับ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ส่งข้อความ"
+          },
+          "expect_response": {
+            "url_contains": "/portal/contact",
+            "method": "POST"
+          },
+          "say": "กดปุ่ม \"ส่งข้อความ\" ระบบรับข้อความและแสดงเลขอ้างอิง ทำซ้ำจนครบ 5 ครั้ง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".form-success"
+          },
+          "wait_after": {
+            "css": ".form-success"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal/contact",
+          "wait_after": {
+            "label": "ชื่อผู้ติดต่อ"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อผู้ติดต่อ"
+          },
+          "value": "{{contact_name}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมลสำหรับติดต่อกลับ"
+          },
+          "value": "{{contact_email}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เรื่องที่ติดต่อ"
+          },
+          "value": "{{marker}} ทดสอบจำกัดการส่ง 2"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รายละเอียด"
+          },
+          "value": "ข้อความสมมติสำหรับทดสอบจำกัดการส่ง ครั้งที่ 2 {{marker}}"
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "ส่งข้อมูลนี้ให้โรงเรียนใช้ติดต่อกลับ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ส่งข้อความ"
+          },
+          "expect_response": {
+            "url_contains": "/portal/contact",
+            "method": "POST"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal/contact",
+          "wait_after": {
+            "label": "ชื่อผู้ติดต่อ"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อผู้ติดต่อ"
+          },
+          "value": "{{contact_name}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมลสำหรับติดต่อกลับ"
+          },
+          "value": "{{contact_email}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เรื่องที่ติดต่อ"
+          },
+          "value": "{{marker}} ทดสอบจำกัดการส่ง 3"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รายละเอียด"
+          },
+          "value": "ข้อความสมมติสำหรับทดสอบจำกัดการส่ง ครั้งที่ 3 {{marker}}"
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "ส่งข้อมูลนี้ให้โรงเรียนใช้ติดต่อกลับ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ส่งข้อความ"
+          },
+          "expect_response": {
+            "url_contains": "/portal/contact",
+            "method": "POST"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal/contact",
+          "wait_after": {
+            "label": "ชื่อผู้ติดต่อ"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อผู้ติดต่อ"
+          },
+          "value": "{{contact_name}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมลสำหรับติดต่อกลับ"
+          },
+          "value": "{{contact_email}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เรื่องที่ติดต่อ"
+          },
+          "value": "{{marker}} ทดสอบจำกัดการส่ง 4"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รายละเอียด"
+          },
+          "value": "ข้อความสมมติสำหรับทดสอบจำกัดการส่ง ครั้งที่ 4 {{marker}}"
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "ส่งข้อมูลนี้ให้โรงเรียนใช้ติดต่อกลับ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ส่งข้อความ"
+          },
+          "expect_response": {
+            "url_contains": "/portal/contact",
+            "method": "POST"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal/contact",
+          "wait_after": {
+            "label": "ชื่อผู้ติดต่อ"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อผู้ติดต่อ"
+          },
+          "value": "{{contact_name}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมลสำหรับติดต่อกลับ"
+          },
+          "value": "{{contact_email}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เรื่องที่ติดต่อ"
+          },
+          "value": "{{marker}} ทดสอบจำกัดการส่ง 5"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รายละเอียด"
+          },
+          "value": "ข้อความสมมติสำหรับทดสอบจำกัดการส่ง ครั้งที่ 5 {{marker}}"
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "ส่งข้อมูลนี้ให้โรงเรียนใช้ติดต่อกลับ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ส่งข้อความ"
+          },
+          "expect_response": {
+            "url_contains": "/portal/contact",
+            "method": "POST"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal/contact",
+          "wait_after": {
+            "label": "ชื่อผู้ติดต่อ"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อผู้ติดต่อ"
+          },
+          "value": "{{contact_name}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมลสำหรับติดต่อกลับ"
+          },
+          "value": "{{contact_email}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เรื่องที่ติดต่อ"
+          },
+          "value": "{{marker}} ทดสอบจำกัดการส่ง 6"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รายละเอียด"
+          },
+          "value": "ข้อความสมมติสำหรับทดสอบจำกัดการส่ง ครั้งที่ 6 {{marker}}"
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "ส่งข้อมูลนี้ให้โรงเรียนใช้ติดต่อกลับ"
+          },
+          "say": "กรอกแบบฟอร์มให้ครบอีกครั้งเป็นครั้งที่ 6 ภายในหนึ่งนาที",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ชื่อผู้ติดต่อ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ส่งข้อความ"
+          },
+          "expect_response": {
+            "url_contains": "/portal/contact",
+            "status": 429,
+            "method": "POST"
+          },
+          "say": "กดปุ่ม \"ส่งข้อความ\" ระบบปฏิเสธการส่งครั้งที่ 6 ด้วยรหัส 429 (ส่งถี่เกินไป) ข้อความไม่ถูกเก็บ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ส่งคำขอถี่เกินไป"
+          },
+          "say": "ผู้เข้าชมเห็นหน้า \"ส่งคำขอถี่เกินไป\" ซึ่งบอกว่าข้อมูลที่ส่งครั้งล่าสุดยังไม่ถูกบันทึก ให้รอประมาณหนึ่งนาที แล้วกด \"กลับไปหน้าเดิม\" เพื่อส่งอีกครั้ง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false
+        }
+      ],
+      "expected": "ครั้งที่ 1 ถึง 5 ได้รับข้อความ ครั้งที่ 6 ถูกปฏิเสธ",
+      "verify": [
+        {
+          "title": "ผู้ดูแลเว็บไซต์เห็นข้อความทดลอง 4 ถึง 5 ข้อความ ไม่มีข้อความที่ 6",
+          "as": "editor",
+          "start": "/cms#inbox",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "details.desk-message",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "count": {
+                  "min": 4,
+                  "max": 5
+                },
+                "of": {
+                  "css": "details.desk-message",
+                  "has_text": "{{marker}} ทดสอบจำกัดการส่ง"
+                }
+              },
+              "say": "ผู้ดูแลเปิด \"ข้อความติดต่อ\" เห็นข้อความทดลอง 5 ข้อความ ข้อความที่ส่งครั้งที่ 6 ไม่ถูกเก็บ (ถ้าเพิ่งส่งข้อความอื่นไปก่อนหน้า จำนวนอาจเหลือ 4)",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "css": "details.desk-message",
+                "has_text": "{{marker}} ทดสอบจำกัดการส่ง",
+                "first": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "archive-contact-test-message",
+      "title": "จัดเก็บข้อความติดต่อทดสอบ",
+      "cleanup": true,
+      "role": "editor",
+      "start": "/cms#inbox",
+      "intro": "เมนู \"ข้อความติดต่อ\" ไม่มีปุ่มลบ มีเพียง \"อ่านแล้ว\" \"ทำเครื่องหมายใหม่\" และ \"จัดเก็บ\" ข้อความทดสอบจึงค้างอยู่ในสถานะ \"จัดเก็บแล้ว\" ข้อความทดลองจากขั้นตอนทดสอบการจำกัดการส่งถูกจัดเก็บด้วย",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "details.desk-message",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "{{contact_subject}}"
+          },
+          "say": "กดที่หัวข้อของข้อความที่ต้องการ ระบบกางรายละเอียดและปุ่มจัดการ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "จัดเก็บ",
+            "within": {
+              "css": "details.desk-message",
+              "has_text": "{{contact_subject}}"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/api/site/messages/",
+            "method": "PUT",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"จัดเก็บ\" ข้อความมีป้าย \"จัดเก็บแล้ว\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 60,
+          "wait_after": {
+            "text": "บันทึกสถานะข้อความแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "within": {
+              "css": "details.desk-message",
+              "has_text": "{{marker}} ทดสอบจำกัดการส่ง 1"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "จัดเก็บ",
+            "exact": true,
+            "within": {
+              "css": "details.desk-message",
+              "has_text": "{{marker}} ทดสอบจำกัดการส่ง 1"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/api/site/messages/",
+            "status": 200,
+            "method": "PUT"
+          },
+          "wait_after": {
+            "text": "บันทึกสถานะข้อความแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "within": {
+              "css": "details.desk-message",
+              "has_text": "{{marker}} ทดสอบจำกัดการส่ง 2"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "จัดเก็บ",
+            "exact": true,
+            "within": {
+              "css": "details.desk-message",
+              "has_text": "{{marker}} ทดสอบจำกัดการส่ง 2"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/api/site/messages/",
+            "status": 200,
+            "method": "PUT"
+          },
+          "wait_after": {
+            "text": "บันทึกสถานะข้อความแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "within": {
+              "css": "details.desk-message",
+              "has_text": "{{marker}} ทดสอบจำกัดการส่ง 3"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "จัดเก็บ",
+            "exact": true,
+            "within": {
+              "css": "details.desk-message",
+              "has_text": "{{marker}} ทดสอบจำกัดการส่ง 3"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/api/site/messages/",
+            "status": 200,
+            "method": "PUT"
+          },
+          "wait_after": {
+            "text": "บันทึกสถานะข้อความแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "within": {
+              "css": "details.desk-message",
+              "has_text": "{{marker}} ทดสอบจำกัดการส่ง 4"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "จัดเก็บ",
+            "exact": true,
+            "within": {
+              "css": "details.desk-message",
+              "has_text": "{{marker}} ทดสอบจำกัดการส่ง 4"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/api/site/messages/",
+            "status": 200,
+            "method": "PUT"
+          },
+          "wait_after": {
+            "text": "บันทึกสถานะข้อความแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "within": {
+              "css": "details.desk-message",
+              "has_text": "{{marker}} ทดสอบจำกัดการส่ง 5"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "จัดเก็บ",
+            "exact": true,
+            "within": {
+              "css": "details.desk-message",
+              "has_text": "{{marker}} ทดสอบจำกัดการส่ง 5"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/api/site/messages/",
+            "status": 200,
+            "method": "PUT"
+          },
+          "wait_after": {
+            "text": "บันทึกสถานะข้อความแล้ว"
+          }
+        }
+      ],
+      "expected": "ข้อความมีป้าย \"จัดเก็บแล้ว\"",
+      "verify": [
+        {
+          "title": "ข้อความมีป้าย \"จัดเก็บแล้ว\"",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/cms#inbox"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "จัดเก็บแล้ว",
+                "in": {
+                  "css": "details.desk-message",
+                  "has_text": "{{contact_subject}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": [
+    "การส่งแบบฟอร์ม \"ร้องเรียนและแจ้งเรื่อง\" ไม่ได้ส่ง เพราะสร้างเรื่องจริงและออกเลขติดตาม เป็นงานของโมดูลเรื่องร้องเรียน",
+    "ข้อความติดต่อทดสอบลบไม่ได้ ค้างอยู่ในกล่องข้อความเป็น \"จัดเก็บแล้ว\"",
+    "การแสดงผลเนื้อหาของเว็บไซต์หน้าบ้านแยกเครื่อง (แบบสองฝั่ง) ไม่ได้ตรวจ ระบบตรวจเป็นแบบรวม"
+  ]
+}

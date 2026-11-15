@@ -148,7 +148,11 @@ public function test_experimental_module_needs_typed_confirmation(): void
     public function test_whats_new_shows_changelog_section_for_everyone_signed_in(): void
     {
         $this->actingAs(User::where('role', 'teacher')->first());
-        $this->get('/whats-new')->assertOk()->assertSee('มีอะไรใหม่')->assertSee('ระบบโมดูล');
+        // the page shows the CHANGELOG section of the installed version: its heading and the first entry of that section, whatever release this is
+        $current = \App\Support\Modules\WhatsNew::section(base_path('CHANGELOG.md'), (string) config('saan.version'));
+        $this->assertNotNull($current); $this->assertTrue($current['exact'], 'CHANGELOG.md has no section for the version in VERSION');
+        $this->assertNotEmpty($current['groups']);
+        $this->get('/whats-new')->assertOk()->assertSee('มีอะไรใหม่')->assertSee($current['title']);
         $this->get('/whats-new')->assertDontSee('<script>alert', false);
         $s = \App\Support\Modules\WhatsNew::section(base_path('CHANGELOG.md'), '0.0.0-none');
         $this->assertNotNull($s);

@@ -88,7 +88,7 @@
                 ${field('วันเริ่มภาคเรียน', input('starts_on', edit?.starts_on ?? '', 'type="date" required'))}
                 ${field('วันสิ้นสุดภาคเรียน', input('ends_on', edit?.ends_on ?? '', 'type="date" required'))}
                 <div class="ac-actions"><button type="submit" class="ac-btn primary">บันทึก</button>${edit ? '<button type="button" class="ac-btn" data-act="cancel">ยกเลิกการแก้ไข</button>' : ''}</div></form>` : '';
-            const note = w ? '<p class="ac-lead">หมายเหตุ: ตารางสอน เวร และคะแนน ในหน้างานโรงเรียนยังใช้ภาคเรียนตามค่า SCHOOL_TERM_ID ของระบบ การกดตั้งเป็นปัจจุบันยังไม่เปลี่ยนภาคเรียนของหน้าเหล่านั้น</p>' : '';
+            const note = w ? '<p class="ac-lead">หมายเหตุ: การกดตั้งเป็นปัจจุบันจะเปลี่ยนภาคเรียนที่ตารางสอน เวร คะแนน และหน้างานโรงเรียนอื่น ๆ ใช้ทันที ส่วนค่า SCHOOL_TERM_ID ของระบบใช้เป็นค่าสำรองเฉพาะเมื่อยังไม่ได้ตั้งภาคเรียนปัจจุบัน</p>' : '';
             return `${form}${note}${st.rows.length ? `<table class="ac-table"><thead><tr><th>ปี/ภาค</th><th>เริ่ม</th><th>สิ้นสุด</th><th>สถานะ</th>${w ? '<th></th>' : ''}</tr></thead><tbody>${rows}</tbody></table>` : '<p class="ac-lead">ยังไม่มีภาคเรียน</p>'}`;
         },
         async click(act, b, h) {

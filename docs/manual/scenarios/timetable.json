@@ -1,0 +1,2169 @@
+{
+  "module": "timetable",
+  "title": "ตารางสอน",
+  "area": "งานวิชาการและงานนักเรียน",
+  "purpose": "ผู้ดูแลระบบและผู้อำนวยการจัดตารางสอนรายภาคเรียน โดยกดเพิ่มคาบลงในตารางของห้อง ระบบตรวจให้ว่าครู ห้องเรียน และสถานที่ไม่ชนกัน ดูตารางได้ตามห้อง ตามครู ตามสถานที่ และดูภาระงานของครู คัดลอกตารางจากภาคเรียนอื่นพร้อมรายงานคาบที่ชน ลบคาบแล้วเรียกคืนได้ และพิมพ์ตารางของห้องหรือของครูเป็นกระดาษ A4 ครูเห็นตารางของตนเองแบบดูอย่างเดียว ส่วนนักเรียนและผู้ปกครองดูตารางเรียนในพอร์ทัลของตน",
+  "roles": [
+    "ผู้ดูแลระบบและผู้อำนวยการ (จัดตาราง เพิ่ม แก้ไข ลบ เรียกคืน คัดลอก)",
+    "ครู (ดูตารางของตนเองและตารางห้องตามสิทธิ์ ดูอย่างเดียว)",
+    "นักเรียนและผู้ปกครอง (ดูตารางเรียนในพอร์ทัล)"
+  ],
+  "menu": [
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"ตารางสอน\" (/work#timetable)"
+  ],
+  "prerequisites": [
+    {
+      "module": "academic",
+      "text": "ต้องตั้งภาคเรียน คาบเวลา ห้องเรียน และรายชื่อครูก่อนจึงเพิ่มคาบได้"
+    }
+  ],
+  "vars": {
+    "subject": "{{marker}} วิชาตัวอย่าง",
+    "subject2": "{{marker}} วิชาตัวอย่าง (แก้ไขแล้ว)",
+    "subject3": "{{marker}} วิชาที่ชน",
+    "room_a": "ม.5/1",
+    "room_b": "ม.4/1"
+  },
+  "workflows": [
+    {
+      "id": "create-lesson",
+      "title": "เพิ่มคาบสอนลงในตารางของห้อง",
+      "intro": "เลือกห้องแล้วกดปุ่ม \"เพิ่มคาบ\" ระบบแสดงแบบฟอร์มให้เลือกวัน คาบ ห้องเรียน ครู และวิชา ช่อง \"สถานที่/ห้องเรียน\" และ \"หมายเหตุ\" ไม่บังคับ ผู้ดูแลระบบหรือผู้อำนวยการเท่านั้นที่เพิ่มคาบได้ หากครูหรือห้องมีคาบอื่นในช่วงเวลาเดียวกัน ระบบไม่บันทึกและแจ้งสาเหตุ",
+      "role": "admin",
+      "start": "/work",
+      "core": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตารางสอน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ตารางสอน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "tab",
+            "name": "ตามห้อง",
+            "exact": true
+          },
+          "say": "ตรวจว่าเลือกแท็บ \"ตามห้อง\" แท็บอื่นคือ \"ตามครู\" \"ตามสถานที่\" และ \"ภาระงานครู\"",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": ".tt-bar"
+            }
+          },
+          "label": "{{room_a}}",
+          "say": "เลือกห้องในช่อง \"ห้องเรียน\" ตารางแสดงคาบสอนของห้องนั้นตามวันและคาบ",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "text": "{{marker}}"
+            }
+          },
+          "comment": "precondition: no leftover lesson of an earlier run"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มคาบ",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"เพิ่มคาบ\" ด้านบนตาราง แบบฟอร์ม \"เพิ่มคาบ\" เปิดขึ้น (หรือกดเครื่องหมาย + ในช่องว่างของตารางเพื่อเลือกวันและคาบนั้นให้เลย)",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "form[data-form=lesson]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "weekday"
+            },
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "label": "เสาร์",
+          "say": "เลือกวันในช่อง \"วัน\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=lesson]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "period_id"
+            },
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "label": "คาบ 1 (08:30-09:20)",
+          "say": "เลือกคาบในช่อง \"คาบ\" ตัวเลือกบอกเวลาของแต่ละคาบ เวลาพักไม่มีในรายการ",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=lesson]"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "enabled": {
+              "attr": {
+                "name": "teacher_id"
+              },
+              "within": {
+                "css": "form[data-form=lesson]"
+              }
+            }
+          },
+          "comment": "the teacher list is enabled only after the period choice has been applied"
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "form[data-form=lesson] select[name=teacher_id] option",
+            "has_text": "กันตภณ",
+            "include_hidden": true
+          },
+          "var": "teacher_value",
+          "from_attr": "value",
+          "comment": "the option of the seeded maths teacher, by name"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "teacher_id"
+            },
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "say": "เลือกครูผู้สอนในช่อง \"ครู\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=lesson]"
+          },
+          "value": "{{teacher_value}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "วิชา",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "value": "{{subject}}",
+          "say": "พิมพ์ชื่อวิชาในช่อง \"วิชา\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=lesson]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกคาบแล้ว\" และวางวิชาในตาราง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".tt-note.tt-ok"
+          },
+          "wait_after": {
+            "css": ".tt-note.tt-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "button.tt-lesson",
+              "has_text": "{{marker}}"
+            }
+          },
+          "say": "ตารางแสดงคอลัมน์ \"เสาร์\" ซึ่งเกิดจากคาบที่เพิ่ม และช่อง \"คาบ 1\" มีชื่อวิชา ชื่อครู และสถานที่ (ถ้ามี)",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "button.tt-lesson",
+            "has_text": "{{marker}}"
+          }
+        }
+      ],
+      "expected": "ตารางของห้องมีคอลัมน์วันเสาร์ที่ช่อง \"คาบ 1\" แสดงวิชาที่เพิ่ม และสรุป \"รวม ... คาบต่อสัปดาห์\" เพิ่มขึ้น 1",
+      "verify": [
+        {
+          "title": "เปิดตารางสอนใหม่ คาบที่เพิ่มต้องอยู่ในตารางของห้อง",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#timetable",
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "tab",
+                "name": "ตามห้อง",
+                "exact": true
+              },
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "label": "ห้องเรียน",
+                "within": {
+                  "css": ".tt-bar"
+                }
+              },
+              "label": "{{room_a}}",
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "button.tt-lesson",
+                  "has_text": "{{subject}}"
+                }
+              },
+              "say": "เปิดหน้า \"ตารางสอน\" ใหม่และเลือกห้องเดิม คาบที่เพิ่มยังอยู่ในตาราง",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "button.tt-lesson",
+                "has_text": "{{subject}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-lesson",
+      "title": "แก้ไขคาบที่เพิ่มไว้",
+      "intro": "กดที่คาบในตารางเพื่อเปิดแบบฟอร์ม \"แก้ไขคาบ\" แก้วัน คาบ ห้อง ครู วิชา สถานที่ และหมายเหตุได้",
+      "role": "admin",
+      "start": "/work#timetable",
+      "depends_on": [
+        "create-lesson"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "tab",
+            "name": "ตามห้อง",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": ".tt-bar"
+            }
+          },
+          "label": "{{room_a}}",
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "button.tt-lesson",
+            "has_text": "{{subject}}"
+          },
+          "say": "กดที่คาบที่ต้องการแก้ไขในตาราง",
+          "wait_after": {
+            "css": "form[data-form=lesson]"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "say": "แบบฟอร์ม \"แก้ไขคาบ\" เปิดขึ้นเหนือตารางพร้อมข้อมูลเดิมของคาบ และมีปุ่ม \"ลบคาบนี้\" เพิ่มจากแบบฟอร์มเพิ่มคาบ",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=lesson]"
+          },
+          "highlight": {
+            "css": "form[data-form=lesson]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "วิชา",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "value": "{{subject2}}",
+          "say": "แก้ข้อความในช่อง \"วิชา\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=lesson]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "สถานที่/ห้องเรียน (ไม่บังคับ)",
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "value": "ห้องตัวอย่าง",
+          "say": "พิมพ์สถานที่เรียนในช่อง \"สถานที่/ห้องเรียน (ไม่บังคับ)\" ถ้ามี",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=lesson]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".tt-note.tt-ok"
+          },
+          "wait_after": {
+            "css": ".tt-note.tt-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "button.tt-lesson",
+              "has_text": "{{subject2}}"
+            }
+          }
+        }
+      ],
+      "expected": "ช่องของคาบในตารางแสดงชื่อวิชาใหม่และสถานที่ที่กรอก",
+      "verify": [
+        {
+          "title": "เปิดตารางสอนใหม่ ชื่อวิชาที่แก้ไขต้องยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#timetable",
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "tab",
+                "name": "ตามห้อง",
+                "exact": true
+              },
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "label": "ห้องเรียน",
+                "within": {
+                  "css": ".tt-bar"
+                }
+              },
+              "label": "{{room_a}}",
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "ห้องตัวอย่าง",
+                "in": {
+                  "css": "button.tt-lesson",
+                  "has_text": "{{subject2}}"
+                }
+              },
+              "say": "เปิดตารางใหม่ ช่องของคาบแสดงวิชาที่แก้ไขและสถานที่ \"ห้องตัวอย่าง\"",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "button.tt-lesson",
+                "has_text": "{{subject2}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "check-collision",
+      "title": "ตรวจตารางชนกัน (ครูคนเดียวสอนสองห้องในเวลาเดียวกัน)",
+      "intro": "ก่อนบันทึกทุกครั้ง ระบบตรวจว่าครูคนเดิมมีสอนห้องอื่นในวันและคาบเดียวกัน ห้องนั้นมีคาบอื่นอยู่แล้ว หรือสถานที่เดียวกันถูกใช้อยู่ หากชน ระบบไม่บันทึกและแสดงข้อความบอกว่าชนกับคาบใด",
+      "role": "admin",
+      "start": "/work#timetable",
+      "depends_on": [
+        "edit-lesson"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "tab",
+            "name": "ตามห้อง",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": ".tt-bar"
+            }
+          },
+          "label": "{{room_b}}",
+          "say": "เลือกห้องอื่นในช่อง \"ห้องเรียน\" เพื่อเพิ่มคาบที่ใช้ครูคนเดียวกันกับคาบที่เพิ่มไว้",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มคาบ",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "form[data-form=lesson]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "weekday"
+            },
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "label": "เสาร์"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "period_id"
+            },
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "label": "คาบ 1 (08:30-09:20)"
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "form[data-form=lesson] select[name=teacher_id] option",
+            "has_text": "กันตภณ",
+            "include_hidden": true
+          },
+          "var": "teacher_value",
+          "from_attr": "value",
+          "comment": "the option of the seeded maths teacher, by name"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "teacher_id"
+            },
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "value": "{{teacher_value}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "วิชา",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "value": "{{subject3}}",
+          "say": "เลือกวัน คาบ และครูให้ตรงกับคาบที่เพิ่มไว้ในห้องแรก แล้วพิมพ์ชื่อวิชา",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=lesson]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ระบบไม่บันทึกและแจ้งว่าครูมีสอนห้องอื่นในช่วงเวลานี้แล้ว (กรอบสีแดงในภาพ)",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".tt-note.tt-err"
+          },
+          "wait_after": {
+            "css": ".tt-note.tt-err"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "ในช่วงเวลานี้แล้ว",
+              "in": {
+                "css": ".tt-note.tt-err"
+              }
+            },
+            {
+              "hidden": {
+                "css": "button.tt-lesson",
+                "has_text": "{{subject3}}"
+              }
+            }
+          ]
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ยกเลิก",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "say": "กดปุ่ม \"ยกเลิก\" เพื่อปิดแบบฟอร์มโดยไม่บันทึก",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        }
+      ],
+      "expected": "ระบบแจ้งว่าครูมีสอนในช่วงเวลานี้แล้ว และไม่เพิ่มคาบที่ชนลงในตารางของห้องที่สอง",
+      "verify": [
+        {
+          "title": "ตารางของห้องที่สองไม่มีคาบที่ชน",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#timetable",
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "tab",
+                "name": "ตามห้อง",
+                "exact": true
+              },
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "label": "ห้องเรียน",
+                "within": {
+                  "css": ".tt-bar"
+                }
+              },
+              "label": "{{room_b}}",
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "css": "button.tt-lesson",
+                  "has_text": "{{marker}}"
+                }
+              },
+              "say": "เปิดตารางของห้องที่สองใหม่ ไม่พบคาบที่ชนในตาราง",
+              "shot": true,
+              "crop": "panel",
+              "highlight": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "views-and-load",
+      "title": "ดูตารางตามครู ตามสถานที่ และภาระงานครู",
+      "intro": "แท็บ \"ตามครู\" รวมทุกห้องที่ครูคนนั้นสอน แท็บ \"ตามสถานที่\" ใช้ตรวจการใช้ห้องพิเศษ ส่วน \"ภาระงานครู\" สรุปจำนวนคาบต่อสัปดาห์ วันที่สอน และห้องที่สอน",
+      "role": "admin",
+      "start": "/work#timetable",
+      "depends_on": [
+        "edit-lesson"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "tab",
+            "name": "ตามครู",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": ".tt-bar select[data-f=target] option",
+            "has_text": "กันตภณ",
+            "include_hidden": true
+          },
+          "var": "teacher_value",
+          "from_attr": "value",
+          "comment": "the option of the seeded maths teacher, by name"
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": ".tt-bar select[data-f=target]"
+          },
+          "say": "เลือกแท็บ \"ตามครู\" แล้วเลือกครูในช่อง \"ครู (ทุกห้องที่สอน)\" ตารางแสดงคาบของครูคนนั้นในทุกห้องที่สอน และ \"รวม ... คาบต่อสัปดาห์\" บอกจำนวนคาบ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "table.tt-grid"
+          },
+          "value": "{{teacher_value}}"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "tab",
+            "name": "ตามสถานที่",
+            "exact": true
+          },
+          "say": "เลือกแท็บ \"ตามสถานที่\" เลือกสถานที่ในช่อง \"สถานที่\" เพื่อดูว่าสถานที่นั้นถูกใช้ในคาบใดบ้าง",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "tab",
+            "name": "ภาระงานครู",
+            "exact": true
+          },
+          "say": "เลือกแท็บ \"ภาระงานครู\" ตารางสรุปจำนวนคาบต่อสัปดาห์ของครูแต่ละคน",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "table.tt-table"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ดูตาราง",
+            "nth": 1
+          },
+          "say": "กดปุ่ม \"ดูตาราง\" ท้ายแถวของครู ระบบเปิดแท็บ \"ตามครู\" ของครูคนนั้น",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "p.tt-sum"
+            }
+          }
+        }
+      ],
+      "expected": "แต่ละแท็บแสดงตารางหรือสรุปตามมุมมองที่เลือก และปุ่ม \"ดูตาราง\" พาไปยังตารางของครูคนนั้น",
+      "verify": [
+        {
+          "title": "แท็บ \"ตามครู\" แสดงสรุปจำนวนคาบต่อสัปดาห์",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "คาบต่อสัปดาห์",
+                  "in": {
+                    "css": "p.tt-sum"
+                  }
+                },
+                {
+                  "visible": {
+                    "role": "tab",
+                    "name": "ตามครู",
+                    "exact": true
+                  }
+                }
+              ],
+              "say": "ตารางของครูแสดงสรุป \"รวม ... คาบต่อสัปดาห์\" เหนือตาราง",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "p.tt-sum"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "teacher-views-own",
+      "title": "ครูดูตารางสอนของตนเอง (ดูอย่างเดียว)",
+      "intro": "ครูเห็นตารางของตนเองในแท็บ \"ตามครู\" โดยระบบเลือกชื่อครูให้ ครูไม่มีปุ่มเพิ่ม แก้ไข หรือลบคาบ และไม่มีแท็บ \"ตามสถานที่\"",
+      "role": "homeroom",
+      "start": "/work",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตารางสอน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ตารางสอน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "tab",
+            "name": "ตามครู",
+            "exact": true
+          },
+          "say": "เลือกแท็บ \"ตามครู\" ตารางแสดงคาบสอนของครูเจ้าของบัญชี",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "p.tt-sum"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "css": "div.tt-lesson",
+                "first": true
+              }
+            },
+            {
+              "hidden": {
+                "role": "button",
+                "name": "เพิ่มคาบ",
+                "exact": true
+              }
+            },
+            {
+              "hidden": {
+                "role": "tab",
+                "name": "ตามสถานที่",
+                "exact": true
+              }
+            }
+          ],
+          "say": "คาบในตารางเป็นข้อความธรรมดา กดแก้ไขไม่ได้ และไม่มีปุ่ม \"เพิ่มคาบ\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "div.tt-lesson",
+            "first": true
+          }
+        }
+      ],
+      "expected": "ครูเห็นตารางสอนของตนเองและสรุปจำนวนคาบ แต่แก้ไขไม่ได้",
+      "verify": [
+        {
+          "title": "ครูไม่เห็นปุ่ม \"เพิ่มคาบ\" และ \"คาบที่ลบ\"",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "hidden": {
+                    "role": "button",
+                    "name": "คาบที่ลบ",
+                    "exact": true
+                  }
+                },
+                {
+                  "text": "คาบต่อสัปดาห์",
+                  "in": {
+                    "css": "p.tt-sum"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "student-sees-timetable",
+      "title": "นักเรียนดูตารางเรียนในพอร์ทัลนักเรียน",
+      "intro": "นักเรียนเห็นตารางเรียนของห้องตนเองทั้งสัปดาห์ในแท็บ \"ตารางเรียน\" ปุ่มด้านล่างตารางใช้พิมพ์ตารางเรียน บนหน้าจอโทรศัพท์ตารางเปลี่ยนเป็นรายวันและมีปุ่มเลือกวัน",
+      "role": "student2",
+      "start": "/student",
+      "depends_on": [
+        "edit-lesson"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ตารางเรียน",
+            "exact": true
+          },
+          "say": "เลือกแท็บ \"ตารางเรียน\" ในพอร์ทัลนักเรียน ตารางแสดงคาบ วัน วิชา และสถานที่ของห้อง",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "table.gp-week"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "table.gp-week td",
+              "has_text": "{{subject2}}"
+            }
+          },
+          "say": "คาบที่ผู้ดูแลระบบเพิ่มในตารางสอนของห้องปรากฏในคอลัมน์ \"เสาร์\" ของนักเรียนทันที",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "table.gp-week td",
+            "has_text": "{{subject2}}"
+          }
+        }
+      ],
+      "expected": "นักเรียนเห็นคาบที่ผู้ดูแลระบบเพิ่มในตารางสอนของห้องตนเอง",
+      "verify": [
+        {
+          "title": "ตารางทั้งสัปดาห์ของนักเรียนมีวิชาที่เพิ่ม",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "text": "{{subject2}}",
+                "in": {
+                  "css": "table.gp-week"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guardian-sees-timetable",
+      "title": "ผู้ปกครองดูตารางเรียนของบุตรหลานในพอร์ทัลผู้ปกครอง",
+      "intro": "ผู้ปกครองที่มีบุตรหลานหลายคนเลือกชื่อนักเรียนก่อน ตารางเรียนแสดงของห้องที่นักเรียนอยู่",
+      "role": "guardian1",
+      "start": "/guardian",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ตารางเรียน",
+            "exact": true
+          },
+          "say": "เลือกแท็บ \"ตารางเรียน\" ในพอร์ทัลผู้ปกครอง",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "table.gp-week"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "css": "table.gp-week"
+              }
+            },
+            {
+              "visible": {
+                "css": "button[data-act=print]"
+              }
+            }
+          ],
+          "say": "ตารางแสดงคาบของห้องที่นักเรียนอยู่ทั้งสัปดาห์ ปุ่ม \"พิมพ์ตารางเรียนทั้งสัปดาห์\" อยู่ใต้ตาราง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "table.gp-week"
+          }
+        }
+      ],
+      "expected": "ผู้ปกครองเห็นตารางเรียนของบุตรหลานที่เลือก",
+      "verify": [
+        {
+          "title": "ตารางทั้งสัปดาห์มีวิชาอย่างน้อยหนึ่งคาบ",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "table.gp-week tbody tr",
+                  "first": true
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "print-timetable",
+      "title": "พิมพ์ตารางสอนของห้องเป็นกระดาษ A4",
+      "intro": "ปุ่ม \"พิมพ์ A4\" เปิดหน้าตารางของห้องหรือครูที่เลือกในแท็บใหม่ ใช้ปุ่มพิมพ์ของเบราว์เซอร์เพื่อพิมพ์หรือบันทึกเป็นไฟล์ PDF",
+      "role": "admin",
+      "start": "/work#timetable",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "tab",
+            "name": "ตามห้อง",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": ".tt-bar"
+            }
+          },
+          "label": "{{room_a}}",
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "พิมพ์ A4",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"พิมพ์ A4\" ด้านบนตาราง ระบบเปิดหน้าตารางสำหรับพิมพ์ในแท็บใหม่",
+          "shot": true,
+          "crop": "viewport",
+          "expect_popup": {
+            "url_regex": "timetable/print/classroom/"
+          },
+          "settle_ms": 800
+        }
+      ],
+      "expected": "แท็บใหม่แสดงตารางสอนของห้องในรูปแบบสำหรับพิมพ์ A4",
+      "verify": [
+        {
+          "title": "หน้าที่เปิดเป็นตารางสอนของห้อง",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "url": "timetable/print/classroom/"
+              }
+            },
+            {
+              "do": "close_tab"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "copy-preview",
+      "title": "ดูตัวอย่างการคัดลอกตารางจากภาคเรียนอื่นและรายงานคาบที่ชน",
+      "intro": "ใช้ตอนขึ้นภาคเรียนใหม่ เลือกภาคเรียนต้นทางแล้วกด \"ดูตัวอย่างและรายงานคาบที่ชน\" ระบบรายงานจำนวนคาบที่คัดลอกได้ คาบที่มีอยู่แล้ว และคาบที่ชน ยังไม่เปลี่ยนตารางจนกว่าจะกดปุ่มคัดลอก ขั้นตอนนี้แสดงเฉพาะตัวอย่าง",
+      "role": "admin",
+      "start": "/work#timetable",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "คัดลอกจากภาคอื่น",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"คัดลอกจากภาคอื่น\" ด้านบนตาราง กล่องคัดลอกเปิดขึ้น",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "button",
+            "name": "ดูตัวอย่างและรายงานชน"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ดูตัวอย่างและรายงานชน",
+            "exact": true
+          },
+          "say": "เลือกภาคเรียนต้นทางในช่อง \"คัดลอกจากภาคเรียน\" แล้วกดปุ่ม \"ดูตัวอย่างและรายงานชน\" ระบบแสดงผลรายงาน",
+          "shot": true,
+          "crop": {
+            "css": "section.tt-card",
+            "has_text": "คัดลอกตารางมายังภาคเรียนนี้"
+          },
+          "wait_after": {
+            "css": ".tt-report"
+          }
+        }
+      ],
+      "expected": "กล่องคัดลอกแสดงรายงาน \"ต้นทาง ... คาบ: คัดลอกได้ ... / มีอยู่แล้ว ... / ชน ...\" โดยตารางยังไม่เปลี่ยน",
+      "verify": [
+        {
+          "title": "รายงานตัวอย่างแสดงจำนวนคาบต้นทาง",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "text": "ต้นทาง",
+                "in": {
+                  "css": ".tt-report"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "delete-restore",
+      "title": "ลบคาบแล้วเรียกคืนจากรายการ \"คาบที่ลบ\"",
+      "intro": "คาบที่ลบไม่หายถาวรทันที ผู้ดูแลระบบเรียกคืนได้จากปุ่ม \"คาบที่ลบ\" จนกว่าจะมีคาบใหม่มาใช้ช่วงเวลาเดียวกัน ซึ่งจะลบคาบเก่าถาวร",
+      "role": "admin",
+      "start": "/work#timetable",
+      "depends_on": [
+        "check-collision"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "tab",
+            "name": "ตามห้อง",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": ".tt-bar"
+            }
+          },
+          "label": "{{room_a}}",
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "button.tt-lesson",
+            "has_text": "{{subject2}}"
+          },
+          "wait_after": {
+            "css": "form[data-form=lesson]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบคาบนี้",
+            "exact": true
+          },
+          "say": "เปิดคาบที่ต้องการลบ แล้วกดปุ่ม \"ลบคาบนี้\" ระบบถามยืนยัน ระบบแสดงข้อความว่าลบแล้วและเรียกคืนได้",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".tt-note.tt-ok"
+          },
+          "wait_after": {
+            "css": ".tt-note.tt-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "button.tt-lesson",
+              "has_text": "{{subject2}}"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "คาบที่ลบ",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"คาบที่ลบ\" ด้านบนตาราง รายการคาบที่ลบแสดงพร้อมปุ่ม \"เรียกคืน\"",
+          "shot": true,
+          "crop": {
+            "css": "section.tt-card",
+            "has_text": "คาบที่ลบ"
+          },
+          "wait_after": {
+            "css": "ul.tt-trash"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เรียกคืน",
+            "within": {
+              "css": "ul.tt-trash li",
+              "has_text": "{{subject2}}"
+            }
+          },
+          "say": "กดปุ่ม \"เรียกคืน\" ท้ายรายการของคาบที่ต้องการ ระบบแสดงข้อความ \"เรียกคืนคาบแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".tt-note.tt-ok"
+          },
+          "wait_after": {
+            "text": "เรียกคืนคาบแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "button.tt-lesson",
+              "has_text": "{{subject2}}"
+            }
+          }
+        }
+      ],
+      "expected": "คาบหายจากตารางเมื่อลบ และกลับมาที่เดิมเมื่อกดเรียกคืน",
+      "verify": [
+        {
+          "title": "เปิดตารางสอนใหม่ คาบที่เรียกคืนต้องอยู่ในตาราง",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#timetable",
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "tab",
+                "name": "ตามห้อง",
+                "exact": true
+              },
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "label": "ห้องเรียน",
+                "within": {
+                  "css": ".tt-bar"
+                }
+              },
+              "label": "{{room_a}}",
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "button.tt-lesson",
+                  "has_text": "{{subject2}}"
+                }
+              },
+              "say": "เปิดตารางใหม่ คาบที่เรียกคืนอยู่ในตารางตามเดิม",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "button.tt-lesson",
+                "has_text": "{{subject2}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "duty-clash-notice",
+      "title": "เพิ่มคาบที่ทับกับเวรที่มอบหมายแล้ว ระบบแจ้งเตือนและไม่บันทึกคาบ",
+      "intro": "เวรที่มอบหมายให้ครูคนเดียวกันในวันและช่วงเวลาเดียวกับคาบสอน ทำให้บันทึกคาบไม่ได้ ขั้นตอนนี้สร้างเวรทดสอบให้ครูคนหนึ่งในวันเสาร์ แล้วพยายามเพิ่มคาบที่ทับกัน และลบเวรทดสอบเป็นขั้นตอนสุดท้าย",
+      "role": "admin",
+      "start": "/work#duty",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "heading",
+            "name": "เวร"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มเวร",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"เพิ่มเวร\" แบบฟอร์มเวรเปิดขึ้น",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "form[data-form=duty]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "teacher_id"
+            },
+            "within": {
+              "css": "form[data-form=duty]"
+            }
+          },
+          "label": "นายกันตภณ โจทย์ยาก",
+          "say": "เลือกครูที่จะเข้าเวร"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "date"
+            },
+            "within": {
+              "css": "form[data-form=duty]"
+            }
+          },
+          "value": "2026-11-14",
+          "say": "เลือกวันที่เวรในช่อง \"วันที่\""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "starts_at"
+            },
+            "within": {
+              "css": "form[data-form=duty]"
+            }
+          },
+          "value": "09:20",
+          "say": "กำหนดเวลาเริ่มเวร"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "ends_at"
+            },
+            "within": {
+              "css": "form[data-form=duty]"
+            }
+          },
+          "value": "10:10",
+          "say": "กำหนดเวลาสิ้นสุดเวร"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "จุดเวร",
+            "within": {
+              "css": "form[data-form=duty]"
+            }
+          },
+          "value": "{{marker}} จุดเวร",
+          "say": "พิมพ์จุดเวรทดสอบ"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มเวร",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=duty]"
+            }
+          },
+          "say": "กดปุ่ม \"เพิ่มเวร\" ระบบบันทึกเวรของครูคนนั้น",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "text": "เพิ่ม"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/work#timetable",
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "tab",
+            "name": "ตามห้อง",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": ".tt-bar"
+            }
+          },
+          "label": "ม.5/1",
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มคาบ",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "form[data-form=lesson]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "weekday"
+            },
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "label": "เสาร์"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "period_id"
+            },
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "label": "คาบ 2 (09:20-10:10)"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "teacher_id"
+            },
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "label": "นายกันตภณ โจทย์ยาก"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "วิชา",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "value": "{{marker}} วิชาทับเวร"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ระบบไม่บันทึกคาบและแจ้งว่าคาบสอนทับกับเวรที่มอบหมายแล้ว",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "text": "คาบสอนทับกับเวร"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "คาบสอนทับกับเวรที่มอบหมายแล้ว"
+          },
+          "say": "ข้อความแจ้งว่าคาบสอนทับกับเวรที่มอบหมายแล้ว",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "text": "คาบสอนทับกับเวรที่มอบหมายแล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/work#duty",
+          "wait_after": {
+            "role": "heading",
+            "name": "เวร"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "input[type=date]",
+            "nth": 0
+          },
+          "value": "2026-11-14",
+          "say": "เลือกวันที่เวรทดสอบในช่องวันที่"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "input[type=date]",
+            "nth": 1
+          },
+          "value": "2026-11-14"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ดูตาราง",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "button[data-act=duty-delete]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "button[data-act=duty-delete]",
+            "first": true
+          },
+          "say": "กดปุ่ม \"ลบ\" ท้ายเวรทดสอบ"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=duty-delete]"
+            }
+          },
+          "say": "ยืนยันลบเวรทดสอบ",
+          "wait_after": {
+            "text": "ลบเวรแล้ว"
+          }
+        }
+      ],
+      "expected": "ระบบแจ้งว่าคาบสอนทับกับเวรที่มอบหมายแล้วและไม่บันทึกคาบ และเวรทดสอบถูกลบเมื่อจบขั้นตอน",
+      "verify": [
+        {
+          "title": "ไม่มีคาบทดสอบในตารางห้อง ม.5/1",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#timetable",
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "tab",
+                "name": "ตามห้อง",
+                "exact": true
+              },
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "label": "ห้องเรียน",
+                "within": {
+                  "css": ".tt-bar"
+                }
+              },
+              "label": "ม.5/1",
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "css": "button.tt-lesson",
+                  "has_text": "{{marker}} วิชาทับเวร"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-ended-term-with-confirm",
+      "title": "เพิ่มและลบคาบในภาคเรียนที่สิ้นสุดแล้ว (ต้องยืนยันซ้ำ)",
+      "intro": "ภาคเรียนที่สิ้นสุดแล้วแก้ไขได้เฉพาะผู้ดูแลระบบและต้องยืนยันซ้ำ ขั้นตอนนี้เพิ่มคาบทดสอบในภาคเรียนที่ 1 ของ 2569 ที่สิ้นสุดแล้ว แล้วลบคาบนั้น การลบคาบทำให้คาบไปอยู่ในรายการ \"คาบที่ลบ\" ซึ่งระบบไม่ให้ลบถาวรจากหน้าจอ",
+      "role": "admin",
+      "start": "/work#timetable",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ภาคเรียน",
+            "within": {
+              "css": ".tt-bar"
+            }
+          },
+          "label": "2569/1 (สิ้นสุดแล้ว)",
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "tab",
+            "name": "ตามห้อง",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": ".tt-bar"
+            }
+          },
+          "label": "ม.5/1",
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ภาคเรียนนี้สิ้นสุดแล้ว"
+          },
+          "say": "หน้าตารางแจ้งว่าภาคเรียนนี้สิ้นสุดแล้ว การแก้ไขต้องเป็นผู้ดูแลระบบและยืนยันซ้ำ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "text": "ภาคเรียนนี้สิ้นสุดแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มคาบ",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "form[data-form=lesson]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "weekday"
+            },
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "label": "เสาร์"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "period_id"
+            },
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "label": "คาบ 3 (10:20-11:10)"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "teacher_id"
+            },
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "label": "นายกันตภณ โจทย์ยาก"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "วิชา",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "value": "{{marker}} วิชาปิดภาคเรียน"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=lesson]"
+            }
+          },
+          "dialog": "accept",
+          "say": "กดปุ่ม \"บันทึก\" แล้วยืนยันซ้ำ ระบบบันทึกคาบในภาคเรียนที่สิ้นสุดแล้ว",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": ".tt-note.tt-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "button.tt-lesson",
+              "has_text": "{{marker}} วิชาปิดภาคเรียน"
+            }
+          },
+          "say": "คาบที่เพิ่มปรากฏในตารางของภาคเรียนที่สิ้นสุดแล้ว",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "button.tt-lesson",
+            "has_text": "{{marker}} วิชาปิดภาคเรียน"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "button.tt-lesson",
+            "has_text": "{{marker}} วิชาปิดภาคเรียน"
+          },
+          "say": "กดคาบที่เพิ่มเพื่อแก้ไขหรือลบ"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบคาบนี้",
+            "exact": true
+          },
+          "dialog": "accept",
+          "say": "กดปุ่ม \"ลบคาบนี้\" แล้วยืนยันซ้ำ คาบนั้นไปอยู่ในรายการคาบที่ลบ",
+          "wait_after": {
+            "css": ".tt-note.tt-ok"
+          }
+        }
+      ],
+      "expected": "คาบในภาคเรียนที่สิ้นสุดแล้วถูกเพิ่มเมื่อยืนยันซ้ำ และถูกลบไปอยู่ในรายการคาบที่ลบ",
+      "verify": [
+        {
+          "title": "คาบทดสอบอยู่ในรายการคาบที่ลบ ไม่อยู่ในตาราง",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#timetable",
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "label": "ภาคเรียน",
+                "within": {
+                  "css": ".tt-bar"
+                }
+              },
+              "label": "2569/1 (สิ้นสุดแล้ว)",
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "tab",
+                "name": "ตามห้อง",
+                "exact": true
+              },
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "label": "ห้องเรียน",
+                "within": {
+                  "css": ".tt-bar"
+                }
+              },
+              "label": "ม.5/1",
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "css": "button.tt-lesson",
+                  "has_text": "{{marker}} วิชาปิดภาคเรียน"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "copy-from-previous-term",
+      "title": "คัดลอกคาบจากภาคเรียนที่ 1 มายังภาคเรียนปัจจุบัน (ใช้ได้เฉพาะระบบทดลอง)",
+      "intro": "ปุ่ม \"คัดลอก\" ลบคาบที่ลบไว้ของภาคเรียนปัจจุบันถาวร (เรียกคืนไม่ได้) และเพิ่มคาบจากภาคเรียนต้นทาง ขั้นตอนนี้ทำได้เฉพาะระบบทดลองที่รีเซ็ตได้ และทำเป็นขั้นตอนสุดท้ายก่อนลบข้อมูลทดสอบ",
+      "role": "admin",
+      "start": "/work#timetable",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "คัดลอกจากภาคอื่น",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"คัดลอกจากภาคอื่น\" ระบบแสดงแผงคัดลอกตารางมายังภาคเรียนนี้",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "text": "คัดลอกตารางมายังภาคเรียนนี้"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "select[data-f=copy-from]"
+          },
+          "label": "2569/1 (สิ้นสุดแล้ว)",
+          "say": "เลือกภาคเรียนที่ 1 เป็นภาคเรียนต้นทาง"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ดูตัวอย่างและรายงานชน",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"ดูตัวอย่างและรายงานชน\" ระบบแสดงจำนวนคาบที่คัดลอกได้",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "text": "คัดลอกได้"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "button[data-act=copy-commit]"
+          },
+          "say": "กดปุ่ม \"คัดลอก ... คาบ\" ระบบคัดลอกคาบเข้าภาคเรียนปัจจุบัน",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "text": "คัดลอกแล้ว"
+          }
+        }
+      ],
+      "expected": "คาบจากภาคเรียนที่ 1 ถูกคัดลอกเข้าภาคเรียนปัจจุบัน และตัวอย่างครั้งต่อไปแสดงคัดลอกได้ 0 คาบ",
+      "verify": [
+        {
+          "title": "ตัวอย่างการคัดลอกแสดงว่าไม่มีคาบที่ต้องคัดลอกเพิ่ม",
+          "steps": [
+            {
+              "do": "reload",
+              "wait_after": {
+                "css": "table.tt-grid"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "คัดลอกจากภาคอื่น",
+                "exact": true
+              },
+              "wait_after": {
+                "text": "คัดลอกตารางมายังภาคเรียนนี้"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "css": "select[data-f=copy-from]"
+              },
+              "label": "2569/1 (สิ้นสุดแล้ว)"
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "ดูตัวอย่างและรายงานชน",
+                "exact": true
+              },
+              "wait_after": {
+                "text": "คัดลอกได้"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "คัดลอกได้ 0"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trash-test-data",
+      "title": "ลบคาบทดสอบ (ล้างข้อมูลทดสอบ)",
+      "intro": "ขั้นตอนนี้ใช้ล้างคาบที่เพิ่มระหว่างทดสอบ ในการใช้งานจริงลบคาบด้วยปุ่ม \"ลบคาบนี้\" ในแบบฟอร์มแก้ไขคาบ",
+      "role": "admin",
+      "start": "/work#timetable",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "tab",
+            "name": "ตามห้อง",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": ".tt-bar"
+            }
+          },
+          "label": "{{room_a}}",
+          "wait_after": {
+            "css": "table.tt-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "button.tt-lesson",
+            "has_text": "{{marker}}"
+          },
+          "optional": true,
+          "wait_after": {
+            "css": "form[data-form=lesson]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบคาบนี้",
+            "exact": true
+          },
+          "optional": true,
+          "wait_after": {
+            "css": ".tt-note.tt-ok"
+          }
+        }
+      ],
+      "verify": [
+        {
+          "title": "ตารางของห้องไม่มีคาบทดสอบเหลืออยู่",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "css": "button.tt-lesson",
+                  "has_text": "{{marker}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": [
+    "การพิมพ์ A4 ของตารางครู และการสั่งพิมพ์จริงจากหน้าต่างพิมพ์ของเบราว์เซอร์ ทดสอบเฉพาะการเปิดหน้าตารางสำหรับพิมพ์ของห้อง",
+    "คาบที่ลบเพื่อทดสอบเหลืออยู่ในรายการ \"คาบที่ลบ\" ของระบบ (ลบถาวรไม่ได้จากหน้าจอ) และจะถูกลบถาวรเองเมื่อมีคาบใหม่มาใช้ช่วงเวลาเดียวกัน",
+    "การแก้ไขซ้อนกันของผู้ใช้สองคน (ข้อความ \"โหลดข้อมูลล่าสุด\") ตัวรันใช้เบราว์เซอร์ผู้ใช้ครั้งละหนึ่งคน"
+  ]
+}

@@ -263,6 +263,9 @@ class Audit:
         self.widths = [int(x) for x in a.widths.split(',') if x.strip()]
         self.states = not a.no_states
         self.shard = tuple(int(x) for x in a.shard.split('/')) if a.shard else (0, 1)
+        self.scheme = a.scheme
+        self.scope = a.scope
+        self.state_widths = [int(x) for x in a.state_widths.split(',') if x.strip()] if a.state_widths else []
         self.report = []
         self.shots = 0
         self.net = []
@@ -273,7 +276,9 @@ class Audit:
 
     # -- browser plumbing --------------------------------------------------------------------------------------------
     def new_page(self, browser, width=1440):
-        ctx = browser.new_context(viewport={'width': width, 'height': SIZES.get(width, 900)}, locale='th-TH', color_scheme='light')
+        ctx = browser.new_context(viewport={'width': width, 'height': SIZES.get(width, 900)}, locale='th-TH', color_scheme=self.scheme)
+        # the appearance switch of the application keeps its choice in localStorage under the site base; the public site and the staff pages both read it
+        ctx.add_init_script("try{{ for (const k of ['{0}','{0}/']) localStorage.setItem('school-appearance:' + k, '{1}'); }}catch(e){{}}".format(self.base, self.scheme))
         page = ctx.new_page()
         page.on('response', lambda r: self.net.append((r.status, r.request.method, r.url)) if r.status >= 400 and r.status != 422 and r.url.startswith(self.origin) else None)
         page.on('pageerror', lambda e: self.errs.append(str(e)[:200]))
@@ -427,7 +432,7 @@ class Audit:
             print('[ERR] {} @{}: {}'.format(path, w, str(e)[:100]))
             return
         self.check(page, path, w, 'first')
-        if driver and self.states:
+        if driver and self.states and (not self.state_widths or w in self.state_widths):
             driver(page, path, w, lambda: self.goto(page, path, hashes))
 
     # -- page lists -------------------------------------------------------------------------------------------------
@@ -564,7 +569,8 @@ class Audit:
                 print('[WARN] no staff account in the accounts file: staff pages not checked')
             # public (and the sign-in pages of the portals)
             ctx, page = self.new_page(browser)
-            pub = [x for i, x in enumerate(x for x in self.public_pages(page) if want(x)) if i % self.shard[1] == self.shard[0]]
+            pub_all = ['/login', '/forgot-password'] if self.scope == 'staff' else ['/login', '/forgot-password', '/student', '/guardian'] if self.scope == 'app' else self.public_pages(page)
+            pub = [x for i, x in enumerate(x for x in pub_all if want(x)) if i % self.shard[1] == self.shard[0]]
             print('[INFO] public pages: {} x {} widths'.format(len(pub), len(self.widths)))
             for path in pub:
                 for w in self.widths:
@@ -572,7 +578,7 @@ class Audit:
             ctx.close()
             # portals
             for kind in ('student', 'guardian'):
-                if not want('/' + kind) or self.shard[0] != (0 if kind == 'student' else 1) % self.shard[1]:
+                if self.scope == 'staff' or not want('/' + kind) or self.shard[0] != (0 if kind == 'student' else 1) % self.shard[1]:
                     continue
                 if kind in accounts:
                     self.portal_walk(browser, kind, accounts[kind])
@@ -605,6 +611,8 @@ class Audit:
                 body.append('  http: ' + h)
             for j in e.get('js_errors', []):
                 body.append('  js-error: ' + j)
+            for f in e.get('contrast', []):
+                body.append('  contrast {:.2f}:1 (needs {}): {}'.format(f['ratio'], f['need'], f['what']))
             if body:
                 bad += 1
                 lines.append(head)
@@ -612,12 +620,12 @@ class Audit:
         open(os.path.join(self.out, 'findings.txt'), 'w', encoding='utf-8').write('\n'.join(lines) + ('\n' if lines else ''))
         pages = len({e['page'] for e in self.report})
         firsts = sum(1 for e in self.report if e.get('state') == 'first')
-        print('[DONE] checks={} (pages={} first-state checks={} driven-state checks={}) with findings={} blocked-writes={} time={:.0f}s out={}'.format(
-            len(self.report), pages, firsts, len(self.report) - firsts, bad, self.blocked, secs, self.out))
+        print('[DONE] scheme={} checks={} (pages={} first-state checks={} driven-state checks={}) with findings={} blocked-writes={} time={:.0f}s out={}'.format(
+            self.scheme, len(self.report), pages, firsts, len(self.report) - firsts, bad, self.blocked, secs, self.out))
         return 1 if bad else 0
 
 
-def run_jobs(a, jobs):
+def run_jobs(a, jobs, audit_cls=None, script=None):
     """Runs the audit in `jobs` browser processes (each takes every n-th page) and merges their reports; same exit code rule as a single run."""
     import subprocess
     import threading
@@ -625,7 +633,7 @@ def run_jobs(a, jobs):
     os.makedirs(a.out, exist_ok=True)
     procs = []
     for k in range(jobs):
-        cmd = [sys.executable, '-I', os.path.abspath(__file__), '--base', a.base, '--out', os.path.join(a.out, 'shard-{}'.format(k)), '--widths', a.widths, '--channel', a.channel, '--shard', '{}/{}'.format(k, jobs)]
+        cmd = [sys.executable, '-I', script or os.path.abspath(__file__), '--scheme', a.scheme, '--scope', a.scope, '--state-widths', a.state_widths, '--base', a.base, '--out', os.path.join(a.out, 'shard-{}'.format(k)), '--widths', a.widths, '--channel', a.channel, '--shard', '{}/{}'.format(k, jobs)]
         if a.accounts:
             cmd += ['--accounts', a.accounts]
         for o in a.only:
@@ -655,13 +663,13 @@ def run_jobs(a, jobs):
             if e.get('screenshot'):
                 e['screenshot'] = 'shard-{}/{}'.format(k, e['screenshot'])
         merged.extend(rep)
-    audit = Audit(a)
+    audit = (audit_cls or Audit)(a)
     audit.report = merged
     audit.blocked = blocked
     return audit.finish(time.time() - started)
 
 
-def main():
+def main(audit_cls=None, script=None):
     ap = argparse.ArgumentParser(description='Layout audit of a running Saan install in a real browser.')
     ap.add_argument('--base', default=os.environ.get('SAAN_AUDIT_BASE'), help='base URL of the install, e.g. http://localhost/saan (env SAAN_AUDIT_BASE)')
     ap.add_argument('--accounts', default=os.environ.get('SAAN_AUDIT_ACCOUNTS'), help='accounts file (env SAAN_AUDIT_ACCOUNTS)')
@@ -669,6 +677,9 @@ def main():
     ap.add_argument('--only', action='append', default=[], help='check only pages whose path contains this text (repeatable)')
     ap.add_argument('--widths', default=os.environ.get('SAAN_AUDIT_WIDTHS', '1440,1024,768,390'))
     ap.add_argument('--channel', default=os.environ.get('SAAN_AUDIT_CHANNEL', 'chrome'), help='browser channel: chrome (default), msedge or bundled')
+    ap.add_argument('--scheme', choices=['light', 'dark'], default=os.environ.get('SAAN_AUDIT_SCHEME', 'light'), help='colour scheme of the appearance switch (default light)')
+    ap.add_argument('--scope', choices=['all', 'app', 'staff'], default=os.environ.get('SAAN_AUDIT_SCOPE', 'all'), help='all (default); app: staff pages, sign-in pages and the signed-in student and guardian portals, without the public school website; staff: staff pages and the staff sign-in pages only')
+    ap.add_argument('--state-widths', default=os.environ.get('SAAN_AUDIT_STATE_WIDTHS', ''), help='drive the pages (selects, tabs, forms) only at these widths, e.g. 1440,390 (default: at every width)')
     ap.add_argument('--no-states', action='store_true', help='first state of every page only (no selects, tabs, forms, portal tabs)')
     ap.add_argument('--jobs', type=int, default=int(os.environ.get('SAAN_AUDIT_JOBS', '1')), help='number of parallel browser processes (default 1)')
     ap.add_argument('--shard', default=None, help=argparse.SUPPRESS)
@@ -676,11 +687,11 @@ def main():
     if not a.base:
         ap.error('--base (or SAAN_AUDIT_BASE) is required')
     if a.jobs > 1 and not a.shard:
-        return run_jobs(a, a.jobs)
+        return run_jobs(a, a.jobs, audit_cls, script)
     accounts = parse_accounts(a.accounts) if a.accounts else {}
     if not accounts:
         print('[WARN] no accounts: only the public pages are checked')
-    audit = Audit(a)
+    audit = (audit_cls or Audit)(a)
     code = audit.run(accounts, a.channel)
     json.dump({'blocked': audit.blocked}, open(os.path.join(a.out, 'meta.json'), 'w', encoding='utf-8'))
     return code

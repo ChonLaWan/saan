@@ -1,0 +1,1498 @@
+{
+  "module": "attendance",
+  "title": "เช็คชื่อและรายงานการมาเรียน",
+  "area": "งานวิชาการและงานนักเรียน",
+  "purpose": "ครูบันทึกการมาเรียนรายห้องรายวันบนหน้าจอเดียว โดยกดเฉพาะนักเรียนที่ขาด สาย ลา หรือป่วย นักเรียนที่เหลือถือว่ามาเรียน เมื่อกดบันทึกแล้วระบบเก็บชื่อผู้บันทึกและเวลา เก็บประวัติเมื่อมีการแก้สถานะ ผู้ปกครองและนักเรียนเห็นผลในพอร์ทัลของตน และครูหรือผู้บริหารเปิดรายงานรายเดือน สรุปรายวัน และประวัติรายบุคคล พร้อมส่งออกเป็นไฟล์ CSV ได้",
+  "roles": [
+    "ครูประจำชั้น (เช็คชื่อและดูรายงานของห้องตนเอง)",
+    "ครูผู้สอน (ห้องที่ได้รับมอบหมาย)",
+    "ผู้อำนวยการ (ดูสรุปรายวันทุกห้อง)",
+    "ผู้ปกครองและนักเรียน (ดูผลในพอร์ทัล)"
+  ],
+  "menu": [
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"เช็คชื่อ\" (/work#attendance)",
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"รายงานการมาเรียน\" (/work#attendance-report)"
+  ],
+  "prerequisites": [
+    {
+      "module": "academic",
+      "text": "ต้องตั้งค่าปีการศึกษา ภาคเรียน ห้องเรียน และมอบหมายครูประจำชั้นหรือครูผู้สอนของห้อง"
+    },
+    {
+      "module": "registry",
+      "text": "ต้องมีรายชื่อนักเรียนอยู่ในห้อง"
+    },
+    {
+      "module": "guardian-portal",
+      "text": "ผู้ปกครองต้องมีบัญชีและผูกกับนักเรียนจึงจะเห็นผลในพอร์ทัลผู้ปกครอง"
+    }
+  ],
+  "vars": {
+    "student": "เด็กชายกวิน ธารใส",
+    "student_short": "กวิน ธารใส",
+    "classroom": "ม.1/1",
+    "note_absent": "{{marker}} ขาด",
+    "note_leave": "{{marker}} ลา"
+  },
+  "workflows": [
+    {
+      "id": "take-attendance",
+      "title": "เช็คชื่อห้องเรียนของวันที่ต้องการ และบันทึกนักเรียนที่ขาด",
+      "intro": "หน้านี้ใช้ได้ทั้งการเช็คชื่อครั้งแรกของวัน และการเปิดวันที่เคยเช็คแล้วเพื่อดูหรือแก้ไข ระบบเลือกวันที่เป็นวันนี้ให้ก่อน หากวันนี้เป็นวันเสาร์-อาทิตย์หรือวันหยุด ระบบไม่เปิดให้เช็คชื่อ ให้เลือกวันทำการแทน",
+      "role": "homeroom",
+      "start": "/work",
+      "core": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เช็คชื่อ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"เช็คชื่อ\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "wait_after": {
+            "css": "section.att .att-pick"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "วันที่",
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "value": "{{last_weekday}}",
+          "say": "เลือกวันที่ที่ต้องการเช็คชื่อในช่อง \"วันที่\" ช่องนี้เลือกได้เฉพาะวันนี้และวันที่ผ่านมาแล้ว และต้องเป็นวันจันทร์ถึงวันศุกร์ที่ไม่ใช่วันหยุด",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "role": "button",
+            "name": "{{student}} สถานะ"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "label": "ม.1/1 (ประจำชั้น)",
+          "say": "ตรวจว่าช่อง \"ห้องเรียน\" เป็น \"ม.1/1 (ประจำชั้น)\" ระบบเลือกห้องประจำชั้นของครูให้เอง ครูที่สอนห้องอื่นเปลี่ยนห้องได้ที่ช่องนี้",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "role": "button",
+            "name": "{{student}} สถานะ"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "role": "button",
+              "name": "{{student}} สถานะ มา",
+              "within": {
+                "css": "section.att"
+              }
+            }
+          },
+          "comment": "precondition: the student starts as present, otherwise an earlier run left dirty data"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "{{student}} สถานะ",
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "say": "แตะที่แถวของ \"{{student}}\" 1 ครั้ง สถานะเปลี่ยนจาก \"มา\" เป็น \"ขาด\" (แตะซ้ำจะวนเป็น สาย ลา ป่วย แล้วกลับเป็น มา)",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "css": "li.att-row",
+            "has_text": "{{student}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หมายเหตุของ {{student}}",
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "value": "{{note_absent}}",
+          "say": "พิมพ์เหตุผลหรือข้อสังเกตในช่อง \"หมายเหตุ (ไม่บังคับ)\" ช่องนี้จะปรากฏเมื่อสถานะไม่ใช่ \"มา\"",
+          "shot": true,
+          "crop": "tight"
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "เช็คชื่อห้องนี้แล้ว",
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "say": "ตรวจว่าช่อง \"เช็คชื่อห้องนี้แล้ว (คนที่ไม่ได้ระบุถือว่ามาเรียน)\" มีเครื่องหมายถูก ช่องนี้เป็นการยืนยันว่าครูเช็คชื่อห้องนี้ในวันนั้นแล้ว",
+          "shot": true,
+          "crop": "tight"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกแล้ว\" ที่ด้านล่างของหน้าจอชั่วครู่ (กรอบสีแดงในภาพ)",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "toast"
+          },
+          "expect_response": {
+            "url_contains": "/api/attendance/sheet",
+            "method": "POST",
+            "status": 200
+          },
+          "wait_after": {
+            "id": "toast"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "css": ".att-chip.att-absent",
+                "within": {
+                  "css": "li.att-row",
+                  "has_text": "{{student}}"
+                }
+              }
+            },
+            {
+              "value": "{{note_absent}}",
+              "of": {
+                "label": "หมายเหตุของ {{student}}"
+              }
+            }
+          ]
+        }
+      ],
+      "expected": "แถวของนักเรียนแสดงสถานะ \"ขาด\" พร้อมหมายเหตุ และมีข้อความ \"บันทึกโดย\" ตามด้วยชื่อครูและเวลาที่บันทึก",
+      "verify": [
+        {
+          "title": "เปิดหน้าเช็คชื่อใหม่ แล้วข้อมูลที่บันทึกต้องยังอยู่",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "fill",
+              "target": {
+                "label": "วันที่",
+                "within": {
+                  "css": "section.att"
+                }
+              },
+              "value": "{{last_weekday}}",
+              "wait_after": {
+                "role": "button",
+                "name": "{{student}} สถานะ"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": ".att-chip.att-absent",
+                    "within": {
+                      "css": "li.att-row",
+                      "has_text": "{{student}}"
+                    }
+                  }
+                },
+                {
+                  "value": "{{note_absent}}",
+                  "of": {
+                    "label": "หมายเหตุของ {{student}}"
+                  }
+                },
+                {
+                  "text": "บันทึกโดย",
+                  "in": {
+                    "css": "li.att-row",
+                    "has_text": "{{student}}"
+                  }
+                }
+              ],
+              "say": "เปิดหน้า \"เช็คชื่อ\" ใหม่และเลือกวันที่เดิม ระบบแสดงสถานะ \"ขาด\" และหมายเหตุที่บันทึกไว้ พร้อมชื่อผู้บันทึก",
+              "shot": true,
+              "crop": "tight",
+              "highlight": {
+                "css": "li.att-row",
+                "has_text": "{{student}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "correct-entry",
+      "title": "แก้สถานะที่บันทึกไว้แล้ว (ขาดเป็นลา)",
+      "intro": "ครูแก้สถานะของวันที่เคยบันทึกได้ภายในจำนวนวันที่ผู้ดูแลระบบกำหนด (ค่าเริ่มต้น 3 วัน) เกินกำหนดนี้ระบบให้กรอกเหตุผลการบันทึกย้อนหลัง ระบบเก็บประวัติการแก้ไขทุกครั้ง",
+      "role": "homeroom",
+      "start": "/work",
+      "depends_on": [
+        "take-attendance"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เช็คชื่อ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"เช็คชื่อ\" ที่แถบเมนูด้านซ้าย",
+          "wait_after": {
+            "css": "section.att .att-pick"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "วันที่",
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "value": "{{last_weekday}}",
+          "say": "เลือกวันที่ที่ต้องการแก้ไขในช่อง \"วันที่\"",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "role": "button",
+            "name": "{{student}} สถานะ"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": ".att-chip.att-absent",
+              "within": {
+                "css": "li.att-row",
+                "has_text": "{{student}}"
+              }
+            }
+          },
+          "say": "แถวของ \"{{student}}\" แสดงสถานะ \"ขาด\" ที่บันทึกไว้ก่อนหน้า",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "css": "li.att-row",
+            "has_text": "{{student}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "{{student}} สถานะ",
+            "within": {
+              "css": "section.att"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "{{student}} สถานะ",
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "say": "แตะที่แถวของ \"{{student}}\" อีก 2 ครั้ง สถานะเปลี่ยนจาก \"ขาด\" เป็น \"สาย\" แล้วเป็น \"ลา\"",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "css": "li.att-row",
+            "has_text": "{{student}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หมายเหตุของ {{student}}",
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "value": "{{note_leave}}",
+          "say": "แก้ข้อความในช่อง \"หมายเหตุ (ไม่บังคับ)\" ให้ตรงกับเหตุผลใหม่",
+          "shot": true,
+          "crop": "tight"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "toast"
+          },
+          "expect_response": {
+            "url_contains": "/api/attendance/sheet",
+            "method": "POST",
+            "status": 200
+          },
+          "wait_after": {
+            "id": "toast"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": ".att-chip.att-leave",
+              "within": {
+                "css": "li.att-row",
+                "has_text": "{{student}}"
+              }
+            }
+          }
+        }
+      ],
+      "expected": "แถวของนักเรียนแสดงสถานะ \"ลา\" และหมายเหตุใหม่ ส่วนประวัติการแก้ไขดูได้ที่หน้าประวัติรายบุคคล",
+      "verify": [
+        {
+          "title": "เปิดหน้าเช็คชื่อใหม่ สถานะ \"ลา\" และหมายเหตุใหม่ต้องยังอยู่",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "fill",
+              "target": {
+                "label": "วันที่",
+                "within": {
+                  "css": "section.att"
+                }
+              },
+              "value": "{{last_weekday}}",
+              "wait_after": {
+                "role": "button",
+                "name": "{{student}} สถานะ"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": ".att-chip.att-leave",
+                    "within": {
+                      "css": "li.att-row",
+                      "has_text": "{{student}}"
+                    }
+                  }
+                },
+                {
+                  "value": "{{note_leave}}",
+                  "of": {
+                    "label": "หมายเหตุของ {{student}}"
+                  }
+                }
+              ],
+              "say": "เปิดหน้า \"เช็คชื่อ\" ใหม่และเลือกวันที่เดิม แถวของนักเรียนแสดงสถานะ \"ลา\" และหมายเหตุที่แก้ไว้",
+              "shot": true,
+              "crop": "tight",
+              "highlight": {
+                "css": "li.att-row",
+                "has_text": "{{student}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guardian-sees-absence",
+      "title": "ผู้ปกครองดูวันที่บุตรหลานไม่ได้มาเรียนในพอร์ทัลผู้ปกครอง",
+      "intro": "ผู้ปกครองเข้าระบบที่หน้า \"พอร์ทัลผู้ปกครอง\" ของโรงเรียน (ที่อยู่ลงท้ายด้วย /guardian) แท็บ \"การมาเรียน\" แสดงเฉพาะวันที่ไม่ได้มาเรียนตามปกติ คือ ขาด สาย ลา ป่วย ของเดือนที่เลือก",
+      "role": "anonymous",
+      "start": "/guardian",
+      "depends_on": [
+        "correct-entry"
+      ],
+      "steps": [
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมลหรือชื่อผู้ใช้"
+          },
+          "value": "{{secret:guardian1.login}}",
+          "say": "พิมพ์อีเมลหรือชื่อผู้ใช้ของผู้ปกครองในช่อง \"อีเมลหรือชื่อผู้ใช้\"",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสผ่าน"
+          },
+          "value": "{{secret:guardian1.password}}",
+          "secret": true,
+          "say": "พิมพ์รหัสผ่านในช่อง \"รหัสผ่าน\" (ภาพนี้ปิดรหัสผ่านไว้)",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เข้าสู่ระบบ"
+          },
+          "say": "กดปุ่ม \"เข้าสู่ระบบ\"",
+          "shot": true,
+          "wait_after": {
+            "role": "heading",
+            "name": "{{student_short}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "การมาเรียน",
+            "exact": true
+          },
+          "say": "เลือกแท็บ \"การมาเรียน\" (ระบบเลือกให้เองเมื่อเปิดหน้านี้)",
+          "shot": true,
+          "crop": "tight"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เดือนก่อน"
+          },
+          "when": {
+            "equals": [
+              "{{month_differs}}",
+              "1"
+            ]
+          },
+          "say": "วันที่ทดสอบอยู่คนละเดือนกับเดือนปัจจุบัน กดปุ่ม \"เดือนก่อน\" เพื่อไปเดือนนั้น",
+          "shot": true,
+          "crop": "tight"
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "css": "li.gp-item",
+                "has_text": "{{last_weekday|th_short}}"
+              }
+            },
+            {
+              "text": "ลา",
+              "in": {
+                "css": "li.gp-item",
+                "has_text": "{{last_weekday|th_short}}"
+              }
+            }
+          ],
+          "say": "วันที่ \"{{last_weekday|th_short}}\" ปรากฏในรายการพร้อมสถานะ \"ลา\" ตามที่ครูบันทึก",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "li.gp-item",
+            "has_text": "{{last_weekday|th_short}}"
+          }
+        }
+      ],
+      "expected": "รายการของเดือนนั้นมีวันที่ที่ครูบันทึกพร้อมสถานะที่ถูกต้อง วันที่นักเรียนมาเรียนตามปกติไม่แสดง",
+      "verify": [
+        {
+          "title": "ผู้ปกครองเปิดหน้าใหม่ ข้อมูลต้องยังอยู่",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "เดือนก่อน"
+              },
+              "when": {
+                "equals": [
+                  "{{month_differs}}",
+                  "1"
+                ]
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "ลา",
+                "in": {
+                  "css": "li.gp-item",
+                  "has_text": "{{last_weekday|th_short}}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "นักเรียนเจ้าของรายการเห็นผลเดียวกันในพอร์ทัลนักเรียน",
+          "as": "student1",
+          "start": "/student",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "การมาเรียน",
+                "exact": true
+              },
+              "wait_after": {
+                "css": "main nav.gp-tabs"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "เดือนก่อน"
+              },
+              "when": {
+                "equals": [
+                  "{{month_differs}}",
+                  "1"
+                ]
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "li.gp-item",
+                    "has_text": "{{last_weekday|th_short}}"
+                  }
+                },
+                {
+                  "text": "ลา",
+                  "in": {
+                    "css": "li.gp-item",
+                    "has_text": "{{last_weekday|th_short}}"
+                  }
+                }
+              ],
+              "say": "นักเรียนเจ้าของรายการเข้าพอร์ทัลนักเรียน เลือกแท็บ \"การมาเรียน\" จะเห็นวันที่และสถานะ \"ลา\" เช่นเดียวกัน",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "li.gp-item",
+                "has_text": "{{last_weekday|th_short}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "month-report",
+      "title": "ดูรายงานการมาเรียนรายเดือนของห้อง",
+      "intro": "รายงานรายเดือนเป็นตารางนักเรียนคูณวันที่ วันเสาร์-อาทิตย์และวันหยุดเป็นช่องสีจาง วันที่ครูเช็คชื่อแล้วแต่ไม่ได้ระบุสถานะ นับเป็นมาเรียน ท้ายแถวมีผลรวมของแต่ละสถานะ",
+      "role": "homeroom",
+      "start": "/work",
+      "depends_on": [
+        "correct-entry"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "รายงานการมาเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"รายงานการมาเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "wait_after": {
+            "css": "section.att .att-tabs"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "label": "ม.1/1 (ประจำชั้น)",
+          "say": "เลือกห้องเรียนในช่อง \"ห้องเรียน\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เดือน",
+            "exact": true,
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "value": "{{last_weekday|month}}",
+          "say": "เลือกเดือนในช่อง \"เดือน\" แท็บ \"รายเดือน\" เป็นแท็บเริ่มต้น",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "table.att-grid"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": ".att-chip.att-leave",
+              "within": {
+                "css": "table.att-grid tbody tr",
+                "has_text": "{{student}}"
+              }
+            }
+          },
+          "say": "ในแถวของ \"{{student}}\" ช่องวันที่ {{last_weekday|day}} แสดงป้ายสถานะ \"ลา\" ตามที่ครูบันทึก (ตารางเลื่อนไปทางขวาได้ ผลรวมของแต่ละสถานะอยู่ท้ายแถว)",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".att-chip.att-leave",
+            "within": {
+              "css": "table.att-grid tbody tr",
+              "has_text": "{{student}}"
+            }
+          }
+        }
+      ],
+      "expected": "ตารางแสดงทุกคนในห้อง ช่องของวันที่ครูบันทึกแสดงป้ายสถานะ และคอลัมน์ท้ายตารางรวมจำนวนครั้งของแต่ละสถานะ",
+      "verify": [
+        {
+          "title": "เปิดรายงานใหม่ แถวของนักเรียนต้องมีสถานะ \"ลา\"",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "fill",
+              "target": {
+                "label": "เดือน",
+                "exact": true,
+                "within": {
+                  "css": "section.att"
+                }
+              },
+              "value": "{{last_weekday|month}}",
+              "wait_after": {
+                "css": "table.att-grid"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": ".att-chip.att-leave",
+                  "within": {
+                    "css": "table.att-grid tbody tr",
+                    "has_text": "{{student}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "student-history",
+      "title": "ดูประวัติการมาเรียนรายบุคคลและประวัติการแก้ไข",
+      "role": "homeroom",
+      "start": "/work",
+      "depends_on": [
+        "correct-entry"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "รายงานการมาเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"รายงานการมาเรียน\" ที่แถบเมนูด้านซ้าย",
+          "wait_after": {
+            "css": "section.att .att-tabs"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เดือน",
+            "exact": true,
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "value": "{{last_weekday|month}}",
+          "wait_after": {
+            "css": "table.att-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{student}}",
+            "within": {
+              "css": "table.att-grid"
+            }
+          },
+          "say": "กดที่ชื่อนักเรียนในตาราง",
+          "shot": true,
+          "crop": "tight",
+          "wait_after": {
+            "css": "ul.att-history"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "{{note_leave}}",
+              "in": {
+                "css": "ul.att-history"
+              }
+            },
+            {
+              "text": "แก้ ขาด เป็น ลา",
+              "in": {
+                "css": "ul.att-history"
+              }
+            }
+          ],
+          "say": "หน้าประวัติแสดงทุกวันที่นักเรียนขาด สาย ลา หรือป่วย พร้อมหมายเหตุ ชื่อผู้บันทึก และบรรทัด \"แก้ ... เป็น ...\" ที่บอกว่าใครแก้สถานะเมื่อใด",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "ul.att-history li",
+            "has_text": "{{note_leave}}"
+          }
+        }
+      ],
+      "expected": "รายการของวันที่ทดสอบแสดงสถานะ \"ลา\" หมายเหตุ และบรรทัดประวัติการแก้ไขจาก \"ขาด\" เป็น \"ลา\" พร้อมชื่อครู",
+      "verify": [
+        {
+          "title": "ประวัติรายบุคคลมีหมายเหตุและประวัติการแก้ไข",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "{{note_leave}}",
+                  "in": {
+                    "css": "ul.att-history"
+                  }
+                },
+                {
+                  "text": "แก้ ขาด เป็น ลา",
+                  "in": {
+                    "css": "ul.att-history"
+                  }
+                },
+                {
+                  "text": "โดย",
+                  "in": {
+                    "css": ".att-corr",
+                    "first": true
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "export-csv",
+      "title": "ส่งออกรายงานรายเดือนเป็นไฟล์ CSV",
+      "intro": "ทุกรายงานมีลิงก์ \"ดาวน์โหลด CSV\" ไฟล์เป็น UTF-8 เปิดด้วย Excel ได้ ระบบบันทึกการส่งออกทุกครั้งเพราะมีข้อมูลสุขภาพและการลาของเด็ก",
+      "role": "homeroom",
+      "start": "/work",
+      "depends_on": [
+        "correct-entry"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "รายงานการมาเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"รายงานการมาเรียน\" ที่แถบเมนูด้านซ้าย",
+          "wait_after": {
+            "css": "section.att .att-tabs"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เดือน",
+            "exact": true,
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "value": "{{last_weekday|month}}",
+          "say": "เลือกห้องและเดือนที่ต้องการ",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "table.att-grid"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ดาวน์โหลด CSV"
+          },
+          "say": "กดลิงก์ \"ดาวน์โหลด CSV\" เหนือตาราง เบราว์เซอร์จะบันทึกไฟล์ชื่อ attendance-month-เดือน-class รหัสห้อง.csv",
+          "shot": true,
+          "crop": "panel",
+          "expect_download": {
+            "ext": ".csv",
+            "name_regex": "^attendance-month-",
+            "min_bytes": 50
+          }
+        }
+      ],
+      "expected": "ได้ไฟล์ CSV ที่มีหัวตาราง เลขที่ รหัส ชื่อ-สกุล วันที่ 1 ถึงวันสิ้นเดือน และผลรวม มา ขาด สาย ลา ป่วย",
+      "verify": [
+        {
+          "title": "ไฟล์ที่ดาวน์โหลดเป็น CSV จริง ไม่ว่าง และมีแถวของนักเรียน",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "ดาวน์โหลด CSV"
+              },
+              "expect_download": {
+                "kind": "csv",
+                "ext": ".csv",
+                "min_bytes": 200,
+                "contains": "{{student}}"
+              }
+            }
+          ]
+        },
+        {
+          "title": "ไฟล์ CSV รายบุคคลมีหมายเหตุที่บันทึกไว้",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{student}}",
+                "within": {
+                  "css": "table.att-grid"
+                }
+              },
+              "wait_after": {
+                "css": "ul.att-history"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "ดาวน์โหลด CSV"
+              },
+              "expect_download": {
+                "kind": "csv",
+                "ext": ".csv",
+                "name_regex": "^attendance-student-",
+                "contains": "{{note_leave}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "daily-report",
+      "title": "ผู้อำนวยการดูสรุปการเช็คชื่อรายวันของทุกห้อง",
+      "role": "principal",
+      "start": "/work",
+      "depends_on": [
+        "correct-entry"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "รายงานการมาเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"รายงานการมาเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "wait_after": {
+            "css": "section.att .att-tabs"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สรุปรายวัน",
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "say": "เลือกแท็บ \"สรุปรายวัน\"",
+          "shot": true,
+          "crop": "tight",
+          "wait_after": {
+            "label": "วันที่"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "วันที่",
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "value": "{{last_weekday}}",
+          "say": "เลือกวันที่ในช่อง \"วันที่\" ตารางแสดงจำนวนมา ขาด สาย ลา ป่วย และสถานะการเช็คของแต่ละห้อง",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "table.att-stack"
+          }
+        }
+      ],
+      "expected": "ตารางมีหนึ่งแถวต่อห้อง และแถวสุดท้าย \"รวม\" บอกจำนวนห้องที่เช็คแล้ว",
+      "verify": [
+        {
+          "title": "แถวของห้อง ม.1/1 แสดง \"เช็คแล้ว\" และจำนวนลา 1 คน",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "เช็คแล้ว",
+                  "in": {
+                    "css": "table.att-stack tbody tr",
+                    "has_text": "{{classroom}}"
+                  }
+                },
+                {
+                  "text": "1",
+                  "in": {
+                    "css": "table.att-stack tbody tr td[data-label=\"ลา\"]",
+                    "first": true
+                  }
+                }
+              ],
+              "say": "แถวของห้อง \"{{classroom}}\" แสดง \"เช็คแล้ว\" และช่อง \"ลา\" เป็น 1 ตามที่ครูบันทึก",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "table.att-stack tbody tr",
+                "has_text": "{{classroom}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phone-view",
+      "title": "ใช้เช็คชื่อและดูรายงานบนโทรศัพท์มือถือ",
+      "role": "homeroom",
+      "start": "/work#attendance",
+      "viewport": "390x844",
+      "intro": "หน้าเช็คชื่อและรายงานออกแบบให้ใช้บนมือถือ แถวนักเรียนเป็นปุ่มขนาดใหญ่กดได้ด้วยนิ้ว และรายงานรายเดือนเปลี่ยนเป็นการ์ดรายคนแทนตารางกว้าง",
+      "steps": [
+        {
+          "do": "fill",
+          "target": {
+            "label": "วันที่",
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "value": "{{last_weekday}}",
+          "say": "เปิดหน้า \"เช็คชื่อ\" บนมือถือ แล้วเลือกวันที่ในช่อง \"วันที่\" รายชื่อนักเรียนเรียงเป็นแถวเดียว",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "button",
+            "name": "{{student}} สถานะ"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "role": "button",
+              "name": "{{student}} สถานะ",
+              "within": {
+                "css": "section.att"
+              }
+            }
+          },
+          "say": "แตะที่แถวของนักเรียนเพื่อเปลี่ยนสถานะ ปุ่ม \"บันทึก\" อยู่ใต้รายชื่อที่แสดงอยู่บนจอ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "{{student}} สถานะ",
+            "within": {
+              "css": "section.att"
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/work#attendance-report",
+          "wait_after": {
+            "css": "section.att .att-tabs"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เดือน",
+            "exact": true,
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "value": "{{last_weekday|month}}"
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "article.att-card",
+              "first": true
+            }
+          },
+          "say": "เปิดรายงาน \"รายงานการมาเรียน\" รายเดือนบนมือถือจะแสดงเป็นการ์ดของนักเรียนแต่ละคน พร้อมจำนวนมา ขาด สาย ลา ป่วย",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "article.att-card",
+            "first": true
+          }
+        }
+      ],
+      "expected": "หน้าเช็คชื่อแสดงแถวนักเรียนที่แตะได้ และรายงานรายเดือนแสดงเป็นการ์ดรายคนแทนตาราง (ดูรูปของขั้นที่ 1 ถึง 3 เทียบกับขนาดหน้าจอ 390 x 844)",
+      "verify": [
+        {
+          "title": "รายงานรายเดือนบนมือถือแสดงการ์ดของนักเรียน",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "article.att-card",
+                  "has_text": "{{student}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "change-edit-window-setting",
+      "title": "ตั้งจำนวนวันที่ครูแก้ไขการเช็คชื่อย้อนหลัง แล้วคืนค่าเดิม",
+      "intro": "ผู้ดูแลระบบกำหนดในหน้า \"ตั้งค่าโมดูล\" ว่าครูแก้ไขการเช็คชื่อย้อนหลังได้กี่วัน ขั้นตอนนี้ตั้งเป็น 5 วันแล้วอ่านกลับจากหน้าใหม่ จากนั้นคืนเป็น 3 วัน (ค่าเริ่มต้น) ซึ่งเป็นขั้นตอนสุดท้าย",
+      "role": "admin",
+      "start": "/work#module-settings",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": ".ms-item"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "input[type=number]",
+            "within": {
+              "attr": {
+                "data-key": "attendance.edit_window_days"
+              }
+            }
+          },
+          "value": "5",
+          "say": "ในหัวข้อ \"จำนวนวันที่ครูแก้ไขการเช็คชื่อย้อนหลังได้\" พิมพ์ 5 ในช่องตัวเลข",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "attr": {
+              "data-key": "attendance.edit_window_days"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "attr": {
+                "data-key": "attendance.edit_window_days"
+              }
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ใต้หัวข้อนั้น ระบบแสดงข้อความ \"บันทึกการตั้งค่าแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "id": "toast"
+          }
+        },
+        {
+          "do": "reload",
+          "wait_after": {
+            "css": ".ms-item"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "5",
+            "of": {
+              "css": "input[type=number]",
+              "within": {
+                "attr": {
+                  "data-key": "attendance.edit_window_days"
+                }
+              }
+            }
+          },
+          "say": "เปิดหน้าตั้งค่าโมดูลใหม่ ช่องนั้นยังเป็น 5 วัน",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "attr": {
+              "data-key": "attendance.edit_window_days"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "input[type=number]",
+            "within": {
+              "attr": {
+                "data-key": "attendance.edit_window_days"
+              }
+            }
+          },
+          "value": "3"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "attr": {
+                "data-key": "attendance.edit_window_days"
+              }
+            }
+          },
+          "wait_after": {
+            "id": "toast"
+          }
+        }
+      ],
+      "expected": "ค่าที่บันทึกยังอยู่หลังเปิดหน้าใหม่ และค่าถูกคืนเป็น 3 วันเมื่อจบขั้นตอน",
+      "verify": [
+        {
+          "title": "หลังคืนค่า ช่องจำนวนวันเป็น 3 (ค่าเริ่มต้น)",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#module-settings",
+              "wait_after": {
+                "css": ".ms-item"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "value": "3",
+                "of": {
+                  "css": "input[type=number]",
+                  "within": {
+                    "attr": {
+                      "data-key": "attendance.edit_window_days"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "restore-clean",
+      "title": "คืนสถานะของนักเรียนทดสอบเป็น \"มา\" (ล้างข้อมูลทดสอบ)",
+      "intro": "ขั้นตอนนี้ใช้ตอนทดสอบเท่านั้น ในการใช้งานจริงครูแก้สถานะกลับเป็น \"มา\" ด้วยวิธีเดียวกับการแก้ไขสถานะ",
+      "role": "homeroom",
+      "start": "/work",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เช็คชื่อ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"เช็คชื่อ\"",
+          "wait_after": {
+            "css": "section.att .att-pick"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "วันที่",
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "value": "{{last_weekday}}",
+          "say": "เลือกวันที่ที่ทดสอบ",
+          "wait_after": {
+            "role": "button",
+            "name": "{{student}} สถานะ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "{{student}} สถานะ",
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "repeat_until": {
+            "visible": {
+              "css": ".att-chip.att-present",
+              "within": {
+                "css": "li.att-row",
+                "has_text": "{{student}}"
+              }
+            },
+            "max": 6
+          },
+          "say": "แตะที่แถวของนักเรียนจนสถานะกลับเป็น \"มา\" หมายเหตุจะหายไปเอง",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "css": "li.att-row",
+            "has_text": "{{student}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "within": {
+              "css": "section.att"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\"",
+          "expect_response": {
+            "url_contains": "/api/attendance/sheet",
+            "method": "POST",
+            "status": 200
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": ".att-chip.att-present",
+              "within": {
+                "css": "li.att-row",
+                "has_text": "{{student}}"
+              }
+            }
+          }
+        }
+      ],
+      "verify": [
+        {
+          "title": "หน้าเช็คชื่อแสดงนักเรียนเป็น \"มา\" หลังเปิดใหม่",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "fill",
+              "target": {
+                "label": "วันที่",
+                "within": {
+                  "css": "section.att"
+                }
+              },
+              "value": "{{last_weekday}}",
+              "wait_after": {
+                "role": "button",
+                "name": "{{student}} สถานะ"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": ".att-chip.att-present",
+                    "within": {
+                      "css": "li.att-row",
+                      "has_text": "{{student}}"
+                    }
+                  }
+                },
+                {
+                  "hidden": {
+                    "label": "หมายเหตุของ {{student}}"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "ผู้ปกครองไม่เห็นวันที่ทดสอบในรายการอีก",
+          "as": "guardian1",
+          "start": "/guardian",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "เดือนก่อน"
+              },
+              "when": {
+                "equals": [
+                  "{{month_differs}}",
+                  "1"
+                ]
+              },
+              "comment": "the page opens on the current month"
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "heading",
+                    "name": "{{student_short}}"
+                  }
+                },
+                {
+                  "hidden": {
+                    "css": "li.gp-item",
+                    "has_text": "{{last_weekday|th_short}}"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": [
+    "การแก้ไขซ้อนกันของครูสองคนในห้องและวันเดียวกัน (หน้า \"มีการแก้ไขซ้อนกัน\" ที่ตอบด้วยรหัส 409) มีโค้ดรองรับใน modules/attendance/src/Attendance.php และ attendance.js แต่ตัวรันทดสอบใช้เบราว์เซอร์ผู้ใช้ครั้งละหนึ่งคน จึงยังไม่ได้ทดสอบ",
+    "การเช็คชื่อวันที่ย้อนหลังเกินจำนวนวันที่กำหนดพร้อมช่อง \"เหตุผลการบันทึกย้อนหลัง\" และการบันทึกแบบบังคับของผู้ดูแลระบบในวันหยุด ยังไม่ได้ทดสอบ",
+    "การเช็คชื่อครั้งแรกของวันที่ยังไม่มีข้อมูล ข้อมูลทดลองมีการเช็คชื่อครบทุกวันทำการถึงวันศุกร์ที่ 13 พ.ย. 2569 จึงทดสอบเฉพาะการเปิดวันที่เช็คแล้วและบันทึกซ้ำ",
+    "การตั้งค่า attendance.edit_window_days (จำนวนวันที่ครูแก้ไขย้อนหลังได้) ในหน้าตั้งค่าโมดูลของผู้ดูแลระบบ มีโค้ดอ่านค่าจริงที่ modules/attendance/src/Attendance.php:39 แต่ยังไม่ได้เปลี่ยนค่าในหน้าตั้งค่าแล้วดูผล"
+  ]
+}

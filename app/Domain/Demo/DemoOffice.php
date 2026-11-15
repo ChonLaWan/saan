@@ -116,6 +116,15 @@ final class DemoOffice
 
     // ---------------------------------------------------------------- payslip
 
+    /** [account key, salary in satang, standing allowance in satang] of every payee, in payee order (staff, then the web editor). */
+    public static function payroll(): array
+    {
+        $people = [];
+        foreach (DemoNames::STAFF as $i => $s) $people[] = [$s[7] ?? 't'.$i, $i === 0 ? 5555500 : (str_contains($s[5], 'ชำนาญการ') ? 3333300 : 2222200), str_contains($s[5], 'ชำนาญการ') ? 350000 : 0];
+        $people[] = ['editor', 1111100, 0];
+        return $people;
+    }
+
     /** One published period (last month) and one draft (this month) for all staff. The amounts are repeated digits so nobody takes them for real pay. */
     public function payslip(): void
     {
@@ -128,9 +137,7 @@ final class DemoOffice
         $payees = \Saan\Modules\Payslip\Payees::class;
         $slips = \Saan\Modules\Payslip\Slips::class;
         $periods = \Saan\Modules\Payslip\Periods::class;
-        $people = [];
-        foreach (DemoNames::STAFF as $i => $s) $people[] = [$s[7] ?? 't'.$i, $i === 0 ? 5555500 : (str_contains($s[5], 'ชำนาญการ') ? 3333300 : 2222200), str_contains($s[5], 'ชำนาญการ') ? 350000 : 0];
-        $people[] = ['editor', 1111100, 0];
+        $people = self::payroll();
         $made = [];
         foreach ($people as $n => [$key, $salary, $standing]) {
             $user = $c->user($key);

@@ -1,0 +1,2583 @@
+{
+ "areas": [
+  {
+   "id": "account-signin",
+   "name": "เข้าสู่ระบบ ลืมรหัสผ่าน และบัญชีของฉัน",
+   "group": "G3",
+   "roles": [
+    "ทุกบทบาทของเจ้าหน้าที่"
+   ],
+   "pages": [
+    "/login",
+    "/forgot-password",
+    "/reset-password/{token}",
+    "/account",
+    "POST /logout"
+   ],
+   "tasks": [
+    "เข้าสู่ระบบและออกจากระบบ",
+    "ขอลิงก์ตั้งรหัสผ่านใหม่และตั้งรหัสใหม่",
+    "เปลี่ยนรหัสผ่านที่หน้าบัญชีของฉัน",
+    "ดูและเพิกถอนการเข้าระบบอื่น (account/sessions/revoke)"
+   ],
+   "notes": "อีเมลลิงก์ตั้งรหัสผ่านต้องมีตัวส่งเมลในเครื่องทดลอง ถ้าไม่มีให้ระบุใน untested"
+  },
+  {
+   "id": "account-2fa",
+   "name": "ยืนยันตัวตนสองขั้นตอน (2FA)",
+   "group": "G3",
+   "roles": [
+    "ผู้ดูแลระบบและเจ้าหน้าที่ที่เปิดใช้"
+   ],
+   "pages": [
+    "/account (ส่วนความปลอดภัย)",
+    "/login/mfa",
+    "POST /account/mfa/start|confirm|disable"
+   ],
+   "tasks": [
+    "เปิดใช้ 2FA และยืนยันรหัส",
+    "เข้าสู่ระบบด้วยรหัส 2FA",
+    "ปิด 2FA"
+   ],
+   "notes": "รหัสแบบครั้งเดียวต้องซ่อนในภาพ (ใช้ mask) ห้ามเปิดใช้ 2FA กับบัญชีที่ใช้ร่วมกัน ให้สร้างผู้ใช้ทดสอบใหม่ใน admin-users"
+  },
+  {
+   "id": "admin-users",
+   "name": "จัดการผู้ใช้งาน",
+   "group": "G1",
+   "roles": [
+    "ผู้ดูแลระบบ"
+   ],
+   "pages": [
+    "/admin/users",
+    "POST /admin/users",
+    "PUT /admin/users/{id}",
+    "POST /admin/users/{id}/password-link"
+   ],
+   "tasks": [
+    "เพิ่มผู้ใช้และกำหนดบทบาท",
+    "แก้ข้อมูล ปิดการใช้งาน",
+    "ส่งลิงก์ตั้งรหัสผ่านให้ผู้ใช้"
+   ],
+   "notes": "ใช้ผู้ใช้ที่สร้างเองด้วย {{marker}} ห้ามแก้บัญชีในไฟล์ accounts"
+  },
+  {
+   "id": "admin-modules",
+   "name": "จัดการโมดูลและตั้งค่าโมดูล",
+   "group": "G4",
+   "roles": [
+    "ผู้ดูแลระบบ"
+   ],
+   "pages": [
+    "/admin/modules",
+    "/whats-new",
+    "GET|PUT /api/module-settings",
+    "POST /api/site/modules/{id}/state|export"
+   ],
+   "tasks": [
+    "ดูรายการโมดูลและระดับความพร้อม",
+    "เปิดและปิดโมดูล (นโยบาย keep-data)",
+    "ตั้งค่าโมดูลตาม settings_schema",
+    "ส่งออกโมดูล",
+    "ดูหน้า มีอะไรใหม่"
+   ],
+   "notes": "ปิดโมดูลแล้วต้องเปิดคืนในขั้นตอน cleanup เสมอ ห้ามปิด academic หรือ web-cms (core-required)"
+  },
+  {
+   "id": "admin-updates",
+   "name": "อัปเดตระบบ",
+   "group": "G4",
+   "roles": [
+    "ผู้ดูแลระบบ"
+   ],
+   "pages": [
+    "/admin/updates (หน้าอัปเดตตัวเอง ที่เอเจนต์อื่นกำลังสร้าง)",
+    "GET /api/site/updates",
+    "PUT /api/site/updates/feed",
+    "POST /api/site/updates/apply",
+    "artisan saan:update"
+   ],
+   "tasks": [
+    "ตรวจรุ่นใหม่จากฟีด",
+    "ดาวน์โหลดและติดตั้งแพ็กเกจที่ลงนาม",
+    "ล้างไฟล์สำรองเก่า"
+   ],
+   "notes": "ห้ามกดติดตั้งจริงบนระบบตรวจ (เปลี่ยนรุ่นของตัวเครื่อง) ตรวจเฉพาะการแสดงสถานะ การตรวจรุ่น และข้อความเมื่อไม่มีฟีด ที่เหลือใส่ untested"
+  },
+  {
+   "id": "backup-restore",
+   "name": "สำรองและกู้คืนข้อมูล",
+   "group": "G4",
+   "roles": [
+    "ผู้ดูแลระบบ (บรรทัดคำสั่ง)"
+   ],
+   "pages": [
+    "ไม่มีหน้าเว็บ: การสำรองอยู่ในขั้นตอนของ artisan saan:update และคู่มือ docs/installation.th.html",
+    "wiki install/backup (saan-site/content/wiki/install/backup.md)"
+   ],
+   "tasks": [
+    "ตรวจว่าคู่มือบอกขั้นตอนสำรองตรงกับสิ่งที่ saan:update ทำจริง",
+    "ตรวจว่าไม่มีปุ่มหรือเมนูสำรองที่สัญญาไว้แต่ไม่ทำงาน"
+   ],
+   "notes": "ส่วนใหญ่เป็นงานตรวจ skeleton จากการอ่านโค้ด/คู่มือ ไม่มี workflow ในเบราว์เซอร์ ให้ระบุเหตุผลใน scenario"
+  },
+  {
+   "id": "installer-pointers",
+   "name": "ตัวติดตั้ง ตัวอัปเดต และคู่มือติดตั้ง (ทางไปหา)",
+   "group": "G5",
+   "roles": [
+    "ผู้ติดตั้งระบบ"
+   ],
+   "pages": [
+    "install.php และโฟลเดอร์ installer/",
+    "docs/installation.th.html (คู่มือติดตั้ง)",
+    "wiki install/install, install/update, install/health-check"
+   ],
+   "tasks": [
+    "ชี้ไปยังคู่มือติดตั้ง ไม่ต้องรันตัวติดตั้งซ้ำบนระบบตรวจ",
+    "ตรวจว่าลิงก์และภาพในคู่มือติดตั้งเปิดได้ (http_status)"
+   ],
+   "notes": "ห้ามรัน install.php บน audit-070 เพราะทับระบบตรวจ"
+  },
+  {
+   "id": "admin-publish-pairing",
+   "name": "เผยแพร่เต็มรูปแบบและจับคู่เว็บสาธารณะ",
+   "group": "G5",
+   "roles": [
+    "ผู้ดูแลระบบ"
+   ],
+   "pages": [
+    "/admin/publish",
+    "/admin/pairing",
+    "POST /admin/publish/full",
+    "POST /admin/pairing/code"
+   ],
+   "tasks": [
+    "ดูสถานะการส่งเนื้อหาไปเว็บสาธารณะ",
+    "ออกรหัสจับคู่ (ใช้ครั้งเดียว ต้อง mask)"
+   ],
+   "notes": "ทำงานจริงเฉพาะรุ่นที่แยกเว็บสาธารณะ ในระบบตรวจแบบรวม (combined) อาจแสดงเพียงสถานะ ให้บันทึกเป็นผลสังเกต"
+  },
+  {
+   "id": "public-website",
+   "name": "เว็บไซต์สาธารณะของโรงเรียน (ผู้เข้าชม)",
+   "group": "G5",
+   "roles": [
+    "ผู้เข้าชมทั่วไป"
+   ],
+   "pages": [
+    "/",
+    "/portal",
+    "/portal/news",
+    "/portal/{section}",
+    "/portal/{section}/{slug}",
+    "/portal/search",
+    "/portal/directory",
+    "/portal/contact",
+    "/portal/groups",
+    "/portal/ita",
+    "/portal/complaints",
+    "/sitemap.xml"
+   ],
+   "tasks": [
+    "เปิดหน้าแรกและเมนูทุกรายการ",
+    "อ่านข่าว ดาวน์โหลดเอกสาร ดูอัลบั้ม",
+    "ค้นหา",
+    "ส่งแบบฟอร์มติดต่อ (ต้องระวังอีเมลและ throttle)",
+    "ดูหน้ากลุ่มงาน"
+   ],
+   "notes": "งานข่าวฝั่งผู้ดูแลเป็นของ web-cms (นำร่องแล้ว) ที่นี่ตรวจด้านผู้เข้าชม ใช้ role anonymous"
+  },
+  {
+   "id": "web-site-settings",
+   "name": "ตั้งค่าหน้าตาและข้อมูลของเว็บไซต์โรงเรียน",
+   "group": "G5",
+   "roles": [
+    "ผู้ดูแลเว็บไซต์",
+    "ผู้ดูแลระบบ"
+   ],
+   "pages": [
+    "/cms#branding",
+    "/cms#header",
+    "/cms#hero-design",
+    "/cms#slides",
+    "/cms#observance",
+    "/cms#identity",
+    "/cms#profile",
+    "/cms#homepage",
+    "/cms#categories",
+    "/cms#audit",
+    "/cms#redirects",
+    "/cms#mail",
+    "/cms#deployment"
+   ],
+   "tasks": [
+    "ชื่อ โลโก้ และสีประจำโรงเรียน",
+    "ส่วนหัวและเมนู",
+    "ออกแบบ hero และสไลด์หน้าแรก",
+    "ไว้ทุกข์ / เฉลิมฉลอง",
+    "favicon และโหมดสี",
+    "จัดหน้าแรก",
+    "ข้อมูลโรงเรียน",
+    "หมวดเนื้อหา",
+    "ประวัติการจัดการ",
+    "Redirect URL เดิม",
+    "ตั้งค่าการส่งอีเมล",
+    "ตรวจความพร้อมระบบ"
+   ],
+   "notes": "ค่าของทั้งเว็บไซต์: ทุก workflow เปลี่ยนค่า ตรวจผลบนหน้าเว็บสาธารณะ แล้วคืนค่าเดิม จึงต้องรันบนระบบทดสอบส่วนตัวที่ล้างได้"
+  }
+ ],
+ "generated_from": {
+  "install": "D:\\AI-Project\\School\\install-trials\\manual-m5",
+  "route_count": 706,
+  "note": "routes attributed by PHP namespace, else by module.json routes patterns; \"core\" = everything else (login, portals, admin pages)"
+ },
+ "modules": [
+  {
+   "id": "academic",
+   "name": "ตั้งค่าโรงเรียน (ปีการศึกษา คาบเวลา ห้องเรียน ครู ปฏิทิน)",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "ขั้นตอนตั้งข้อมูลพื้นฐานของโรงเรียนใหม่: ปีการศึกษา/ภาคเรียน คาบเวลา ห้องเรียน ครู ครูประจำชั้น บัญชีครู และปฏิทินโรงเรียน ใช้ได้กับฐานข้อมูลว่าง",
+   "staff_menu": [
+    {
+     "label": "ตั้งค่าโรงเรียน",
+     "path": "/work#setup",
+     "roles": [
+      "admin",
+      "principal"
+     ],
+     "where": "work_menu"
+    },
+    {
+     "label": "ปฏิทินโรงเรียน",
+     "path": "/work#calendar",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 6,
+    "POST": 8,
+    "PUT": 6,
+    "DELETE": 4,
+    "total": 24
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/academic/academic.css",
+    "assets/modules/academic/academic.js"
+   ],
+   "assets_on_disk": [
+    "academic.css",
+    "academic.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "ตั้งปีการศึกษาและภาคเรียน",
+    "เพิ่มห้องเรียนและกำหนดครูประจำชั้น",
+    "ตั้งคาบเวลาและปฏิทินโรงเรียน (วันหยุด)",
+    "เพิ่มครูและมอบหมายวิชา"
+   ],
+   "group": "G1",
+   "scenario": true
+  },
+  {
+   "id": "activities",
+   "name": "ชุมนุม เลือกตั้งสภานักเรียน และเกียรติบัตรกิจกรรม",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "ชุมนุมประจำภาคเรียน (ลงทะเบียนทั้งห้อง จำกัดจำนวน รายชื่อสำรอง เช็คชื่อ ผลผ่าน/ไม่ผ่านจากเวลาเรียน) เลือกตั้งสภานักเรียนแบบลงคะแนนลับด้วยหน้าคูหาที่ครูปลดล็อกทีละคน และเกียรติบัตรกิจกรรมพร้อมเลขที่เฉพาะของแต่ละใบ",
+   "staff_menu": [
+    {
+     "label": "ชุมนุม",
+     "path": "/work#clubs",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "work_menu"
+    },
+    {
+     "label": "เลือกตั้งสภานักเรียน",
+     "path": "/work#elections",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 14,
+    "POST": 11,
+    "PUT": 6,
+    "DELETE": 4,
+    "total": 35
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/activities/activities.css",
+    "assets/modules/activities/activities.js"
+   ],
+   "assets_on_disk": [
+    "activities.css",
+    "activities.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "เปิดชุมนุมและให้นักเรียนลงทะเบียน",
+    "เปิดและดำเนินการเลือกตั้งสภานักเรียน",
+    "ออกเกียรติบัตรกิจกรรม",
+    "ออก PIN เข้าแอปนักเรียน"
+   ],
+   "group": "G2",
+   "scenario": true
+  },
+  {
+   "id": "api-gateway",
+   "name": "เกตเวย์ API สำหรับแอปภายนอก",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "ให้แอปการเรียนภายนอกอ่านข้อมูลโรงเรียนอย่างปลอดภัย ด้วย OAuth2 client_credentials, scope ระดับ field, rate limit และ IP allowlist พร้อมเข้าสู่ระบบนักเรียนแบบ authorization code + PKCE ด้วยรหัสนักเรียนและ PIN แทน SQL proxy เดิม",
+   "staff_menu": [
+    {
+     "label": "เชื่อมต่อแอปภายนอก (API)",
+     "path": "/work#api",
+     "roles": [
+      "admin"
+     ],
+     "where": "work_menu"
+    },
+    {
+     "label": "PIN เข้าแอปเรียนของนักเรียน",
+     "path": "/work#student-pins",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 12,
+    "POST": 8,
+    "PUT": 1,
+    "DELETE": 0,
+    "total": 21
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/api-gateway/api-gateway.css",
+    "assets/modules/api-gateway/api-gateway.js"
+   ],
+   "assets_on_disk": [
+    "api-gateway.css",
+    "api-gateway.js",
+    "authorize.css"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "สร้างคีย์ API สำหรับแอปภายนอก",
+    "เรียกใช้ API ด้วยคีย์ และเพิกถอนคีย์"
+   ],
+   "group": "G4",
+   "scenario": true
+  },
+  {
+   "id": "assessment",
+   "name": "หลักสูตรรายวิชาและบันทึกคะแนน",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "ตั้งรายวิชา มอบหมายครูผู้สอนต่อภาคเรียนและห้อง บันทึกคะแนนเป็นตารางต่อรายวิชา คำนวณเกรด 8 ระดับ เก็บประวัติการแก้คะแนน และคุณลักษณะ/สมรรถนะ",
+   "staff_menu": [
+    {
+     "label": "บันทึกคะแนน",
+     "path": "/work#scores",
+     "roles": [
+      "teacher",
+      "admin",
+      "principal"
+     ],
+     "where": "work_menu"
+    },
+    {
+     "label": "รายวิชาและครูผู้สอน",
+     "path": "/work#courses",
+     "roles": [
+      "admin",
+      "principal"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 9,
+    "POST": 4,
+    "PUT": 5,
+    "DELETE": 4,
+    "total": 22
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/assessment/assessment.css",
+    "assets/modules/assessment/assessment.js"
+   ],
+   "assets_on_disk": [
+    "assessment.css",
+    "assessment.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "สร้างรายวิชาและหลักสูตร",
+    "กรอกคะแนนรายวิชาของห้อง",
+    "ปิดคะแนนและตัดเกรด",
+    "ครูผู้สอนเห็นเฉพาะรายวิชาที่ตนสอน"
+   ],
+   "group": "G1",
+   "scenario": true
+  },
+  {
+   "id": "attendance",
+   "name": "เช็คชื่อและรายงานการมาเรียน",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "ครูบันทึกเฉพาะผู้ขาด ลา สาย ป่วยรายห้องรายวันบนมือถือ ที่เหลือถือว่ามาเรียน กันเขียนทับจากหน้าจอเก่า มีบันทึกการแก้ไข และรายงานรายเดือน รายวัน รายบุคคล ส่งออก CSV",
+   "staff_menu": [
+    {
+     "label": "เช็คชื่อ",
+     "path": "/work#attendance",
+     "roles": [
+      "teacher",
+      "admin",
+      "principal"
+     ],
+     "where": "work_menu"
+    },
+    {
+     "label": "รายงานการมาเรียน",
+     "path": "/work#attendance-report",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 6,
+    "POST": 1,
+    "PUT": 0,
+    "DELETE": 0,
+    "total": 7
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/attendance/attendance.css",
+    "assets/modules/attendance/attendance.js"
+   ],
+   "assets_on_disk": [
+    "attendance.css",
+    "attendance.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "(นำร่องแล้ว) เช็คชื่อ แก้ไข รายงานรายเดือน/รายวัน/รายบุคคล ส่งออก CSV"
+   ],
+   "group": "pilot",
+   "scenario": true
+  },
+  {
+   "id": "behavior",
+   "name": "พฤติกรรมนักเรียน (บันทึกคะแนนความดี/ควรปรับปรุง)",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "ครูบันทึกคะแนนพฤติกรรมรายคนหรือทั้งกลุ่ม ยกเลิกพร้อมเหตุผล ดูประวัติและคะแนนรวมรายภาคเรียน สรุปรายห้อง รายงานโรงเรียน ส่งออก CSV และมีชั้นอ่านข้อมูลสำหรับโมดูลผู้ปกครอง",
+   "staff_menu": [
+    {
+     "label": "พฤติกรรมนักเรียน",
+     "path": "/work#behavior",
+     "roles": [
+      "teacher",
+      "admin",
+      "principal"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 6,
+    "POST": 3,
+    "PUT": 1,
+    "DELETE": 0,
+    "total": 10
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/behavior/behavior.css",
+    "assets/modules/behavior/behavior.js"
+   ],
+   "assets_on_disk": [
+    "behavior.css",
+    "behavior.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "บันทึกความดีและความควรปรับปรุงของนักเรียน",
+    "ดูสรุปคะแนนพฤติกรรมของห้อง",
+    "ผู้ปกครองและนักเรียนเห็นผลในพอร์ทัล"
+   ],
+   "group": "G2",
+   "scenario": true
+  },
+  {
+   "id": "complaints",
+   "name": "ร้องเรียนและรับเรื่อง",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "ช่องทางร้องเรียนและรับเรื่องสำหรับ ITA (O13/O14): ฟอร์มสาธารณะแบบไม่ระบุชื่อได้ ออกเลขรับเรื่องและรหัสติดตาม ตรวจสถานะด้วยเลขและรหัส ฝั่งภายในมอบหมาย กำหนดเวลา ตอบ ปิดเรื่อง เรื่องทุจริตเห็นเฉพาะผู้บริหารที่กำหนด ผู้ถูกร้องมองไม่เห็นเรื่องของตัวเอง และรายงานสรุปรายปีงบประมาณ",
+   "staff_menu": [
+    {
+     "label": "ร้องเรียนและรับเรื่อง",
+     "path": "/work#complaints",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher",
+      "editor"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 12,
+    "POST": 11,
+    "PUT": 0,
+    "DELETE": 0,
+    "total": 23
+   },
+   "public_route_count": 6,
+   "route_files": [
+    "public.php",
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/complaints/complaints.css",
+    "assets/modules/complaints/complaints.js"
+   ],
+   "assets_on_disk": [
+    "complaints.css",
+    "complaints.js"
+   ],
+   "roles": [
+    "admin",
+    "editor",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "ผู้ใช้ทั่วไปส่งเรื่องร้องเรียนจากหน้าเว็บ",
+    "เจ้าหน้าที่รับเรื่องและตอบกลับ",
+    "ผู้ร้องติดตามเรื่องด้วยเลขรับเรื่อง",
+    "ผู้อำนวยการเห็นเรื่องร้องเรียนทุจริต"
+   ],
+   "group": "G4",
+   "scenario": true
+  },
+  {
+   "id": "connectors",
+   "name": "ข้อมูลปีเก่าและตัวนำเข้าจากระบบเดิม",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "ค้นข้อมูลปีการศึกษาเก่าแบบอ่านอย่างเดียว (แยกจากข้อมูลปัจจุบัน) ส่งออกประวัตินักเรียนรายคน และแปลงไฟล์ CSV จากระบบเดิมเข้าสู่การนำเข้าของทะเบียนนักเรียน",
+   "staff_menu": [
+    {
+     "label": "ข้อมูลปีเก่า",
+     "path": "/work#archives",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 9,
+    "POST": 6,
+    "PUT": 2,
+    "DELETE": 1,
+    "total": 18
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/connectors/connectors.css",
+    "assets/modules/connectors/connectors.js"
+   ],
+   "assets_on_disk": [
+    "connectors.css",
+    "connectors.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "นำเข้าข้อมูลปีเก่าจากไฟล์",
+    "ตรวจผลนำเข้าและย้อนกลับ"
+   ],
+   "group": "G4",
+   "scenario": true
+  },
+  {
+   "id": "constructionism",
+   "name": "โครงงาน Constructionism",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "สำหรับโรงเรียนที่ใช้โครงการ Constructionism (การเรียนรู้โดยการสร้างชิ้นงาน): ทีมโครงงานรายห้อง คำถามนำ สมาชิกและบทบาท สมุดบันทึกความก้าวหน้า ชิ้นงานและไฟล์ส่วนตัว การสะท้อนคิดพร้อมรูบริกที่โรงเรียนแก้ได้ และใบสรุปโครงงานสำหรับพิมพ์ ครูเป็นผู้บันทึกเท่านั้น นักเรียนไม่ต้องมีบัญชี",
+   "staff_menu": [
+    {
+     "label": "โครงงาน Constructionism",
+     "path": "/work#pbl",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 6,
+    "POST": 5,
+    "PUT": 6,
+    "DELETE": 5,
+    "total": 22
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/constructionism/pbl.css",
+    "assets/modules/constructionism/pbl.js"
+   ],
+   "assets_on_disk": [
+    "pbl.css",
+    "pbl.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "สร้างโครงงาน",
+    "บันทึกความก้าวหน้าและแนบผลงาน",
+    "ครูให้ข้อสังเกตและประเมิน"
+   ],
+   "group": "G2",
+   "scenario": true
+  },
+  {
+   "id": "demo-library",
+   "name": "คลังภาพและข้อมูลสมมติ",
+   "readiness": "beta",
+   "version": "2026.11.5-2",
+   "description": "ชุดข้อมูลสาธิตแบบเสริม ใช้เฉพาะการติดตั้งแบบสาธิตหรือเครื่องทดลอง",
+   "staff_menu": [],
+   "routes": {
+    "GET": 2,
+    "POST": 0,
+    "PUT": 0,
+    "DELETE": 0,
+    "total": 2
+   },
+   "public_route_count": 0,
+   "route_files": [],
+   "assets_declared": [],
+   "assets_on_disk": [],
+   "roles": [],
+   "has_menu_entry": false,
+   "has_ui_asset": false,
+   "flags": [
+    "ไม่มีรายการเมนูของเจ้าหน้าที่",
+    "ไม่มีไฟล์ JS/CSS ของหน้าจอ"
+   ],
+   "first_look_workflows": [
+    "เปิดคลังภาพและข้อมูลสมมติ",
+    "นำภาพจากคลังไปใช้กับเนื้อหาเว็บไซต์"
+   ],
+   "group": "G5",
+   "scenario": true
+  },
+  {
+   "id": "documents",
+   "name": "สารบรรณและทะเบียนหนังสือ",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "ทะเบียนหนังสือรับ หนังสือส่ง คำสั่ง ประกาศ และบันทึกข้อความ เลขทะเบียนรันต่อเล่มต่อปี พ.ศ. ส่งต่อให้บุคลากรรับทราบ แนบไฟล์แบบส่วนตัว ค้นหา และพิมพ์ทะเบียนรายเดือน",
+   "staff_menu": [
+    {
+     "label": "หนังสือเข้าถึงฉัน",
+     "path": "/work#inbox",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher",
+      "editor"
+     ],
+     "where": "work_menu"
+    },
+    {
+     "label": "ทะเบียนหนังสือ",
+     "path": "/work#documents",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 9,
+    "POST": 6,
+    "PUT": 3,
+    "DELETE": 2,
+    "total": 20
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/documents/documents.css",
+    "assets/modules/documents/documents.js"
+   ],
+   "assets_on_disk": [
+    "documents-print.css",
+    "documents-print.js",
+    "documents.css",
+    "documents.js"
+   ],
+   "roles": [
+    "admin",
+    "editor",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "ลงทะเบียนหนังสือรับ",
+    "ลงทะเบียนหนังสือส่ง",
+    "ค้นหาและแนบไฟล์หนังสือ",
+    "เสนอและสั่งการหนังสือ"
+   ],
+   "group": "G3",
+   "scenario": true
+  },
+  {
+   "id": "exam-checker",
+   "name": "ตรวจข้อสอบและวิเคราะห์ข้อสอบ",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "ตั้งเฉลยข้อสอบ กรอกคำตอบทั้งห้องแบบพิมพ์เร็ว นำเข้า CSV และไฟล์จากเครื่องสแกน OMR ตรวจให้คะแนนอัตโนมัติ ตรวจใหม่เมื่อเฉลยเปลี่ยน วิเคราะห์ข้อสอบรายข้อ สรุปรายห้อง และใบแจ้งผลรายคน",
+   "staff_menu": [
+    {
+     "label": "ตรวจข้อสอบ",
+     "path": "/work#exams",
+     "roles": [
+      "teacher",
+      "admin",
+      "principal"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 10,
+    "POST": 4,
+    "PUT": 2,
+    "DELETE": 2,
+    "total": 18
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/exam-checker/exams.css",
+    "assets/modules/exam-checker/exams.js"
+   ],
+   "assets_on_disk": [
+    "exams.css",
+    "exams.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "สร้างชุดข้อสอบและเฉลย",
+    "ตรวจกระดาษคำตอบและบันทึกคะแนน",
+    "วิเคราะห์ข้อสอบ"
+   ],
+   "group": "G1",
+   "scenario": true
+  },
+  {
+   "id": "finance",
+   "name": "การเงินนักเรียน",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "ค่าบำรุงการศึกษาและค่าธรรมเนียมนักเรียน ใบแจ้งหนี้ ใบเสร็จรับเงิน สมุดเงินสดอย่างง่าย สรุปรับเงินรายวัน และปิดงวดรายเดือน ไม่ใช่ระบบบัญชีภาครัฐเต็มรูปแบบ",
+   "staff_menu": [
+    {
+     "label": "การเงิน",
+     "path": "/work#finance",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 21,
+    "POST": 15,
+    "PUT": 3,
+    "DELETE": 2,
+    "total": 41
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/finance/finance.css",
+    "assets/modules/finance/finance.js",
+    "assets/modules/finance/finance-fees.js"
+   ],
+   "assets_on_disk": [
+    "finance-fees.js",
+    "finance.css",
+    "finance.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "ออกใบแจ้งค่าธรรมเนียมให้ห้องหรือนักเรียน",
+    "รับชำระและออกใบเสร็จ",
+    "ผู้ปกครองแจ้งชำระพร้อมสลิป",
+    "ตรวจสลิปและยืนยัน",
+    "รายงานการเงินและค้างชำระ"
+   ],
+   "group": "G4",
+   "scenario": true
+  },
+  {
+   "id": "guardian-portal",
+   "name": "พอร์ทัลผู้ปกครอง",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "ผู้ปกครองดูค่าธรรมเนียม ใบแจ้งหนี้ บัญชีโอนและ QR แนบสลิป รับใบเสร็จ (เมื่อเปิดโมดูลการเงิน) ดูการมาเรียน พฤติกรรม ผลการเรียนที่ปิดผลแล้ว และน้ำหนักส่วนสูง แล้วกดรับทราบ ผ่านลิงก์ใช้ครั้งเดียวที่ครูประจำชั้นออกให้หรือบัญชีที่ตั้งรหัสเอง จำกัดเฉพาะบุตรหลานที่ผูกไว้ ไม่ใช้รหัสนักเรียนเปิดดู บัญชีเห็นเฉพาะบุตรหลานที่ครูออกลิงก์ตั้งบัญชีให้และยังไม่ยกเลิก ครูปิดบัญชีและยกเลิกสิทธิ์ได้จากหน้าจอ",
+   "staff_menu": [
+    {
+     "label": "ลิงก์ผู้ปกครอง",
+     "path": "/work#guardians",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 20,
+    "POST": 13,
+    "PUT": 3,
+    "DELETE": 1,
+    "total": 37
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/guardian-portal/staff.css",
+    "assets/modules/guardian-portal/staff.js"
+   ],
+   "assets_on_disk": [
+    "guardian.css",
+    "guardian.js",
+    "portal-views.js",
+    "staff.css",
+    "staff.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "ครูออกลิงก์หรือบัญชีให้ผู้ปกครอง",
+    "ผู้ปกครองเข้าระบบและดูข้อมูลบุตรหลานทุกแท็บ",
+    "ผู้ปกครองรับทราบและส่งความเห็น",
+    "ลืมรหัสผ่าน"
+   ],
+   "group": "G2",
+   "scenario": true
+  },
+  {
+   "id": "health",
+   "name": "น้ำหนัก ส่วนสูง และข้อมูลสุขภาพนักเรียน",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "ครูประจำชั้นกรอกน้ำหนักและส่วนสูงทั้งห้องเป็นตารางเดียวต่อรอบ ตรวจช่วงค่าและแจ้งเตือนค่าที่เปลี่ยนมาก คำนวณ BMI สรุปรายห้อง ส่งออก CSV และแฟ้มสุขภาพรายคนที่เห็นเฉพาะครูประจำชั้นกับผู้บริหาร (ตัดสินใจแล้ว: ครูกรอกได้เฉพาะห้องที่เป็นครูประจำชั้น ครูพละที่ต้องกรอกข้ามห้องให้ผู้ดูแลระบบกรอกแทนหรือกำหนดเป็นครูประจำชั้นชั่วคราว) ภาคเรียนแรกของปีเทียบกับรอบล่าสุดของภาคเรียนก่อนหน้า ยังไม่มีหน้าจอแฟ้มสุขภาพรายคนและภาพรวมทั้งโรงเรียน (มีเฉพาะ API)",
+   "staff_menu": [
+    {
+     "label": "น้ำหนัก ส่วนสูง",
+     "path": "/work#health",
+     "roles": [
+      "teacher",
+      "admin",
+      "principal"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 6,
+    "POST": 0,
+    "PUT": 2,
+    "DELETE": 0,
+    "total": 8
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/health/health.css",
+    "assets/modules/health/health.js"
+   ],
+   "assets_on_disk": [
+    "health.css",
+    "health.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "บันทึกน้ำหนักส่วนสูงของห้อง",
+    "ดูกราฟและสรุปภาวะโภชนาการ",
+    "ผู้ปกครองดูข้อมูลสุขภาพ"
+   ],
+   "group": "G2",
+   "scenario": true
+  },
+  {
+   "id": "learning-links",
+   "name": "ลิงก์การเรียนรู้",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "รวมลิงก์ระบบและแอปการเรียนรู้ภายนอก (LMS, Google Classroom, วิดีโอ เอกสาร เว็บที่โรงเรียนทำเอง) แยกตามห้องเรียนหรือรายวิชา นักเรียนเปิดดูได้จากหน้าสาธารณะด้วยรหัสห้องเรียนสั้น ๆ โดยไม่แสดงข้อมูลนักเรียน",
+   "staff_menu": [
+    {
+     "label": "ลิงก์การเรียนรู้",
+     "path": "/work#learning",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 4,
+    "POST": 3,
+    "PUT": 1,
+    "DELETE": 2,
+    "total": 10
+   },
+   "public_route_count": 2,
+   "route_files": [
+    "public.php",
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/learning-links/learning.css",
+    "assets/modules/learning-links/learning.js"
+   ],
+   "assets_on_disk": [
+    "learning.css",
+    "learning.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "ครูเพิ่มลิงก์การเรียนรู้ของห้อง",
+    "ออกรหัสเปิดหน้าลิงก์ของห้อง",
+    "นักเรียนเปิดหน้าลิงก์ด้วยรหัสห้อง"
+   ],
+   "group": "G2",
+   "scenario": true
+  },
+  {
+   "id": "leave-duty",
+   "name": "ใบลาและเวรครู",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "ใบลาครูบนมือถือ (ยื่น ถอน ขอยกเลิก ยื่นซ้ำ อนุมัติ โควตาปีงบประมาณ ไฟล์แนบส่วนตัว) และตารางเวร (มอบหมาย ยกเลิก ขอแลกเวร อนุมัติ) พร้อมแจ้งผลทางอีเมล",
+   "staff_menu": [
+    {
+     "label": "ใบลา",
+     "path": "/work#leave",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "work_menu"
+    },
+    {
+     "label": "อนุมัติใบลา",
+     "path": "/work#leave-approve",
+     "roles": [
+      "admin",
+      "principal"
+     ],
+     "where": "work_menu"
+    },
+    {
+     "label": "เวร",
+     "path": "/work#duty",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 10,
+    "POST": 9,
+    "PUT": 3,
+    "DELETE": 4,
+    "total": 26
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/leave-duty/leave-duty.css",
+    "assets/modules/leave-duty/leave-duty.js"
+   ],
+   "assets_on_disk": [
+    "leave-duty.css",
+    "leave-duty.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "ครูยื่นใบลา",
+    "ผู้อำนวยการอนุมัติหรือไม่อนุมัติ",
+    "จัดเวรครูและแลกเวร",
+    "ดูปฏิทินเวรของตนเอง"
+   ],
+   "group": "G3",
+   "scenario": true
+  },
+  {
+   "id": "maintenance",
+   "name": "แจ้งซ่อมและครุภัณฑ์",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "แจ้งซ่อมจากมือถือพร้อมรูป ติดตามสถานะโดยช่าง ทะเบียนครุภัณฑ์ ประวัติซ่อมรายชิ้น พัสดุสิ้นเปลืองและจุดสั่งซื้อ รายงาน CSV และแผ่นป้ายรหัสครุภัณฑ์สำหรับพิมพ์",
+   "staff_menu": [
+    {
+     "label": "แจ้งซ่อม",
+     "path": "/work#repairs",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher",
+      "editor"
+     ],
+     "where": "work_menu"
+    },
+    {
+     "label": "ครุภัณฑ์และพัสดุ",
+     "path": "/work#assets",
+     "roles": [
+      "admin",
+      "principal"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 16,
+    "POST": 6,
+    "PUT": 4,
+    "DELETE": 1,
+    "total": 27
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/maintenance/maintenance.css",
+    "assets/modules/maintenance/maintenance.js"
+   ],
+   "assets_on_disk": [
+    "maintenance-print.css",
+    "maintenance-print.js",
+    "maintenance.css",
+    "maintenance.js"
+   ],
+   "roles": [
+    "admin",
+    "editor",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "ครูแจ้งซ่อม",
+    "ช่างรับงานและปิดงานซ่อม",
+    "ลงทะเบียนครุภัณฑ์",
+    "ตรวจสอบประวัติการซ่อมของครุภัณฑ์"
+   ],
+   "group": "G3",
+   "scenario": true
+  },
+  {
+   "id": "operations",
+   "name": "ภาพรวมงานโรงเรียน (ดูอย่างเดียว)",
+   "readiness": "experimental",
+   "version": "0.6.0",
+   "description": "หน้าภาพรวมแบบดูอย่างเดียวของต้นแบบเดิม (/operations, GET /api/state) งานแก้ไขตารางสอน เวร ลา เช็คชื่อ และคะแนนย้ายไปโมดูลใน /work แล้ว เส้นทางเขียนเดิม (/api/lessons, /api/duties, /api/leaves, /api/attendance, /api/grades) ตอบ 410 Gone",
+   "staff_menu": [
+    {
+     "key": "overview",
+     "label": "ภาพรวมโรงเรียน",
+     "path": "/operations#overview",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "timetable",
+     "label": "ตารางสอน (ดูอย่างเดียว)",
+     "path": "/operations#timetable",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "duty",
+     "label": "ตารางครูเวร (ดูอย่างเดียว)",
+     "path": "/operations#duty",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "workload",
+     "label": "ครูและภาระงาน",
+     "path": "/operations#workload",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "requests",
+     "label": "คำขอลาของฉัน (ดูอย่างเดียว)",
+     "path": "/operations#people",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "approvals",
+     "label": "งานรออนุมัติ (ดูอย่างเดียว)",
+     "path": "/operations#approvals",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "care",
+     "label": "นักเรียนและเวลาเรียน (ดูอย่างเดียว)",
+     "path": "/operations#care",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "assessment",
+     "label": "วัดผลและคะแนนตัวอย่าง (ดูอย่างเดียว)",
+     "path": "/operations#assessment",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "people",
+     "label": "ครูและการลา (ดูอย่างเดียว)",
+     "path": "/operations#people",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    }
+   ],
+   "routes": {
+    "GET": 4,
+    "POST": 8,
+    "PUT": 2,
+    "DELETE": 1,
+    "total": 15
+   },
+   "public_route_count": 0,
+   "route_files": [],
+   "assets_declared": [],
+   "assets_on_disk": [],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": false,
+   "flags": [
+    "ไม่มีไฟล์ JS/CSS ของหน้าจอ"
+   ],
+   "first_look_workflows": [
+    "เปิดภาพรวมโรงเรียนแบบดูอย่างเดียว",
+    "ตรวจว่าแต่ละหน้าดูอย่างเดียวจริง (ไม่มีปุ่มแก้ไข)"
+   ],
+   "group": "G5",
+   "scenario": true
+  },
+  {
+   "id": "payslip",
+   "name": "สลิปเงินเดือนและหนังสือรับรอง 50 ทวิ",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "สลิปเงินเดือนของเงินที่โรงเรียนจ่ายเอง (ลูกจ้าง อัตราจ้าง ค่าตอบแทนจากเงินโรงเรียน และสลิปข้าราชการที่โรงเรียนแจกเอง): นำเข้ารายเดือนจาก CSV/XLSX หรืออัปโหลด PDF รายคน ตรวจยอดก่อนยืนยัน เผยแพร่ ยกเลิกงวด ยกเลิกและแทนที่สลิปรายคน ผู้รับเปิดดูและพิมพ์ได้เฉพาะของตัวเอง หนังสือรับรองการหักภาษี ณ ที่จ่าย (50 ทวิ) รายปี และบล็อก บริการบุคลากร ที่ลิงก์ไปบริการส่วนกลาง (บำนาญ เงินเดือนข้าราชการ) ยอดเงิน เลขบัญชี และเลขประจำตัวเก็บแบบเข้ารหัส ใช้เฉพาะระบบภายใน",
+   "staff_menu": [
+    {
+     "label": "สลิปเงินเดือน",
+     "path": "/work#payslip",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher",
+      "editor"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 16,
+    "POST": 11,
+    "PUT": 2,
+    "DELETE": 0,
+    "total": 29
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/payslip/payslip.css",
+    "assets/modules/payslip/payslip.js"
+   ],
+   "assets_on_disk": [
+    "payslip.css",
+    "payslip.js"
+   ],
+   "roles": [
+    "admin",
+    "editor",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "เจ้าหน้าที่สร้างงวดเงินเดือนและนำเข้าสลิป",
+    "ครูดูสลิปของตนเอง",
+    "ออกหนังสือรับรอง 50 ทวิ",
+    "ครูอื่นดูสลิปของคนอื่นไม่ได้"
+   ],
+   "group": "G3",
+   "scenario": true
+  },
+  {
+   "id": "personnel",
+   "name": "แฟ้มสะสมงานและทะเบียนบุคลากร",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "แฟ้มสะสมงานครู (อัปโหลดเข้าแฟ้มของตนเอง โควตา ตรวจสอบ PA ดาวน์โหลดเป็น zip) ทะเบียนบุคลากร ข้อมูลทำเนียบบุคลากรสำหรับเว็บไซต์ และนโยบายเก็บรักษาไฟล์",
+   "staff_menu": [
+    {
+     "label": "แฟ้มสะสมงาน",
+     "path": "/work#portfolio",
+     "roles": [
+      "teacher",
+      "admin",
+      "principal"
+     ],
+     "where": "work_menu"
+    },
+    {
+     "label": "ทะเบียนบุคลากร",
+     "path": "/work#personnel",
+     "roles": [
+      "admin",
+      "principal"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 10,
+    "POST": 3,
+    "PUT": 4,
+    "DELETE": 3,
+    "total": 20
+   },
+   "public_route_count": 1,
+   "route_files": [
+    "public.php",
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/personnel/personnel.css",
+    "assets/modules/personnel/personnel.js"
+   ],
+   "assets_on_disk": [
+    "personnel.css",
+    "personnel.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "กรอกทะเบียนบุคลากรและแฟ้มสะสมงาน",
+    "เผยแพร่รายชื่อบุคลากรบนเว็บไซต์",
+    "แนบเอกสารแฟ้มสะสมงาน"
+   ],
+   "group": "G3",
+   "scenario": true
+  },
+  {
+   "id": "projects",
+   "name": "โครงการและแผนปฏิบัติการ",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "แผนปฏิบัติการประจำปี โครงการ กิจกรรม งบประมาณและการใช้จ่าย (หน่วยสตางค์) อนุมัติโดยผู้บริหาร รายงานผลพร้อมหลักฐาน สรุปรายแผนและรายแหล่งงบ พิมพ์แบบฟอร์มโครงการ A4 และส่งออก CSV",
+   "staff_menu": [
+    {
+     "label": "โครงการ/แผนปฏิบัติการ",
+     "path": "/work#projects",
+     "roles": [
+      "teacher",
+      "admin",
+      "principal"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 8,
+    "POST": 6,
+    "PUT": 4,
+    "DELETE": 4,
+    "total": 22
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/projects/projects.css",
+    "assets/modules/projects/projects.js"
+   ],
+   "assets_on_disk": [
+    "projects.css",
+    "projects.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "เสนอโครงการและแผนปฏิบัติการ",
+    "ผู้อำนวยการอนุมัติโครงการ",
+    "ติดตามงบประมาณและรายงานผล"
+   ],
+   "group": "G3",
+   "scenario": true
+  },
+  {
+   "id": "registry",
+   "name": "ทะเบียนนักเรียนและผู้ปกครอง",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "ทะเบียนนักเรียนและผู้ปกครอง รองรับนักเรียนไทย ต่างชาติ ไร้สัญชาติ และรอเอกสาร พร้อมที่เก็บเอกสารยืนยันตัวตนแบบส่วนตัว นำเข้า CSV ย้อนกลับได้ และส่งออกรายชื่อห้อง",
+   "staff_menu": [
+    {
+     "label": "ทะเบียนนักเรียน",
+     "path": "/work#students",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "work_menu"
+    },
+    {
+     "label": "นำเข้าข้อมูลนักเรียน",
+     "path": "/work#import",
+     "roles": [
+      "admin",
+      "principal"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 8,
+    "POST": 8,
+    "PUT": 5,
+    "DELETE": 4,
+    "total": 25
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/registry/registry.css",
+    "assets/modules/registry/registry.js"
+   ],
+   "assets_on_disk": [
+    "registry.css",
+    "registry.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "เพิ่มนักเรียนใหม่และผูกผู้ปกครอง",
+    "แก้ข้อมูลและย้ายห้อง",
+    "นำเข้านักเรียนจากไฟล์ CSV",
+    "ส่งออกทะเบียน",
+    "จำหน่ายนักเรียน"
+   ],
+   "group": "G1",
+   "scenario": true
+  },
+  {
+   "id": "reports-pp",
+   "name": "ปพ. และรายงานผลการเรียน",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "พิมพ์แบบบันทึกผลการเรียนรายวิชา (ปพ.5) รายงานผลการเรียนรายบุคคล (ปพ.6) และสรุปผลรายห้อง พร้อมผลพิเศษ ร/มผ/มส หมายเหตุครูประจำชั้น เทมเพลตแยกตามปีการศึกษา และส่งออก CSV",
+   "staff_menu": [
+    {
+     "label": "ปพ. และรายงานผลการเรียน",
+     "path": "/work#reports",
+     "roles": [
+      "teacher",
+      "admin",
+      "principal"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 10,
+    "POST": 0,
+    "PUT": 4,
+    "DELETE": 0,
+    "total": 14
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/reports-pp/reports.css",
+    "assets/modules/reports-pp/reports.js"
+   ],
+   "assets_on_disk": [
+    "print.js",
+    "reports.css",
+    "reports.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "พิมพ์ ปพ.5 / ปพ.6 ของห้อง",
+    "ออกรายงานผลการเรียนรายบุคคล",
+    "ส่งออกไฟล์รายงาน"
+   ],
+   "group": "G1",
+   "scenario": true
+  },
+  {
+   "id": "student-portal",
+   "name": "พอร์ทัลนักเรียน",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "นักเรียนเข้าดูผลการเรียน (เกรด หน่วยกิต GPA GPAX ร/มผ/มส ลำดับที่เมื่อเปิดใช้) และตารางเรียนของตนเองด้วยรหัสนักเรียนกับรหัสตัวเลขหรือรหัสผ่านสั้นที่ครูประจำชั้นออกให้ ไม่ต้องมีอีเมล ล็อกบัญชีเมื่อใส่ผิดซ้ำ จำกัดอัตราตามเครือข่ายและโรงเรียน ครูประจำชั้นออกรหัส รีเซ็ต ปลดล็อก และพิมพ์ใบรหัสทั้งห้องได้ (แสดงครั้งเดียว) รวมถึงบัญชีผู้ปกครองที่ไม่มีอีเมล ลืมรหัสผ่านทางอีเมลที่ยืนยันแล้วเท่านั้น ผลการเรียนแสดงหลังโรงเรียนกดประกาศผลของภาคเรียนนั้น",
+   "staff_menu": [
+    {
+     "label": "รหัสเข้าระบบนักเรียน",
+     "path": "/work#student-accounts",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 11,
+    "POST": 12,
+    "PUT": 0,
+    "DELETE": 0,
+    "total": 23
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/student-portal/staff.css",
+    "assets/modules/student-portal/staff.js"
+   ],
+   "assets_on_disk": [
+    "staff.css",
+    "staff.js",
+    "student.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "นักเรียนเข้าระบบด้วยรหัสนักเรียน",
+    "ดูผลการเรียน ตารางเรียน การมาเรียน ความประพฤติ",
+    "เปลี่ยนรหัสผ่านและลืมรหัสผ่าน"
+   ],
+   "group": "G2",
+   "scenario": true
+  },
+  {
+   "id": "surveys",
+   "name": "แบบสอบถามและเกียรติบัตร",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "แบบสอบถาม/แบบประเมินสาธารณะแบบไม่ต้องเข้าระบบ หนึ่งคนหนึ่งคำตอบ (ยืนยันอีเมลหรือรหัสรายชื่อ) พร้อมเกียรติบัตรที่ตรวจสอบเลขที่ได้",
+   "staff_menu": [
+    {
+     "label": "แบบสอบถามและเกียรติบัตร",
+     "path": "/cms#surveys",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "admin_menu"
+    }
+   ],
+   "routes": {
+    "GET": 10,
+    "POST": 7,
+    "PUT": 1,
+    "DELETE": 2,
+    "total": 20
+   },
+   "public_route_count": 6,
+   "route_files": [
+    "public.php",
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/surveys/surveys-admin.css",
+    "assets/modules/surveys/surveys-admin.js"
+   ],
+   "assets_on_disk": [
+    "surveys-admin.css",
+    "surveys-admin.js"
+   ],
+   "roles": [
+    "admin",
+    "editor",
+    "principal"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "ผู้ดูแลเว็บไซต์สร้างแบบสอบถาม",
+    "ผู้ตอบเปิดลิงก์สาธารณะและส่งคำตอบ",
+    "ดูผลสรุปและส่งออก",
+    "ออกเกียรติบัตรผู้ตอบ"
+   ],
+   "group": "G4",
+   "scenario": true
+  },
+  {
+   "id": "timetable",
+   "name": "ตารางสอน",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "จัดตารางสอนรายภาคเรียน ดูตามห้อง ตามครู ตามสถานที่ ตรวจคาบชน คัดลอกจากภาคก่อนพร้อมรายงาน ลบแล้วเรียกคืนได้ และพิมพ์ A4 ราย ห้อง/ครู. โมดูลอื่นที่อ่านตาราง lessons ต้องใช้ Timetable::liveLessons() (กรองคาบที่ลบแล้ว) และ Timetable::roomLabel() (ห้องที่ไม่ระบุเก็บเป็นค่าภายใน ~none~); TeacherScope::classroomIds และ dutyAvailable ของโค้ดเก่าต้องเพิ่มเงื่อนไข deleted_at ตอน cutover",
+   "staff_menu": [
+    {
+     "label": "ตารางสอน",
+     "path": "/work#timetable",
+     "roles": [
+      "admin",
+      "principal",
+      "teacher"
+     ],
+     "where": "work_menu"
+    }
+   ],
+   "routes": {
+    "GET": 5,
+    "POST": 4,
+    "PUT": 1,
+    "DELETE": 1,
+    "total": 11
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/timetable/timetable.css",
+    "assets/modules/timetable/timetable.js"
+   ],
+   "assets_on_disk": [
+    "timetable-print.css",
+    "timetable-print.js",
+    "timetable.css",
+    "timetable.js"
+   ],
+   "roles": [
+    "admin",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "สร้างตารางสอนของห้อง",
+    "ตรวจตารางชนกัน",
+    "ครูดูตารางสอนของตนเอง",
+    "นักเรียนและผู้ปกครองดูตารางเรียน"
+   ],
+   "group": "G1",
+   "scenario": true
+  },
+  {
+   "id": "web-cms",
+   "name": "เว็บไซต์โรงเรียน",
+   "readiness": "beta",
+   "version": "0.6.0",
+   "description": "ข่าว หน้าเนื้อหา 12 ประเภท ธีม เมนู hero คลังสื่อ เครื่องมือเว็บไซต์ และหน้ากลุ่มงาน/กลุ่มสาระพร้อมกล่องเอกสารและตัวนับดาวน์โหลด",
+   "staff_menu": [
+    {
+     "label": "หน้ากลุ่มงาน/กลุ่มสาระ",
+     "path": "/work#hubs",
+     "roles": [
+      "admin",
+      "principal",
+      "editor",
+      "teacher"
+     ],
+     "where": "work_menu"
+    },
+    {
+     "key": "cms-home",
+     "label": "ภาพรวมเว็บไซต์",
+     "path": "/cms#home",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "compose",
+     "label": "เขียนข่าวใหม่",
+     "path": "/cms#compose",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "posts",
+     "label": "ข่าวทั้งหมด",
+     "path": "/cms#posts",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "theme",
+     "label": "ปรับธีมหน้าบ้าน",
+     "path": "/cms#theme",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "branding",
+     "label": "โลโก้และชื่อโรงเรียน",
+     "path": "/cms#branding",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "header",
+     "label": "ส่วนหัวและเมนู",
+     "path": "/cms#header",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "hero-design",
+     "label": "ออกแบบ hero",
+     "path": "/cms#hero-design",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "slides",
+     "label": "สไลด์หน้าแรก",
+     "path": "/cms#slides",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "observance",
+     "label": "ไว้ทุกข์ / เฉลิมฉลอง",
+     "path": "/cms#observance",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "pages",
+     "label": "หน้าเนื้อหาโรงเรียน",
+     "path": "/cms#pages",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "jobs",
+     "label": "ประกาศรับสมัครงาน",
+     "path": "/cms#jobs",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "procurement",
+     "label": "จัดซื้อจัดจ้าง",
+     "path": "/cms#procurement",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "albums",
+     "label": "อัลบั้มภาพ",
+     "path": "/cms#albums",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "downloads",
+     "label": "เอกสารดาวน์โหลด",
+     "path": "/cms#downloads",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "videos",
+     "label": "วิดีโอโรงเรียน",
+     "path": "/cms#videos",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "newsletters",
+     "label": "จดหมายข่าว",
+     "path": "/cms#newsletters",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "website-people",
+     "label": "บุคลากรบนเว็บไซต์",
+     "path": "/cms#people",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "events",
+     "label": "ปฏิทินกิจกรรม",
+     "path": "/cms#events",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "banners",
+     "label": "แบนเนอร์และประกาศด่วน",
+     "path": "/cms#banners",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "services",
+     "label": "ลิงก์และบริการ",
+     "path": "/cms#services",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "profile",
+     "label": "ข้อมูลโรงเรียน",
+     "path": "/cms#profile",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "identity",
+     "label": "favicon และโหมดสี",
+     "path": "/cms#identity",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "mail",
+     "label": "ตั้งค่าการส่งอีเมล",
+     "path": "/cms#mail",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "redirects",
+     "label": "Redirect URL เดิม",
+     "path": "/cms#redirects",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "homepage",
+     "label": "จัดหน้าแรก",
+     "path": "/cms#homepage",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "menus",
+     "label": "เมนูเว็บไซต์",
+     "path": "/cms#menus",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "media",
+     "label": "คลังสื่อและเอกสาร",
+     "path": "/cms#media",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "categories",
+     "label": "หมวดเนื้อหา",
+     "path": "/cms#categories",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "inbox",
+     "label": "ข้อความติดต่อ",
+     "path": "/cms#inbox",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "audit",
+     "label": "ประวัติการจัดการ",
+     "path": "/cms#audit",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "trash",
+     "label": "ถังขยะ",
+     "path": "/cms#trash",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    },
+    {
+     "key": "deployment",
+     "label": "ตรวจความพร้อมระบบ",
+     "path": "/cms#deployment",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "core navigation (SchoolNavigation.php)"
+    }
+   ],
+   "routes": {
+    "GET": 35,
+    "POST": 27,
+    "PUT": 17,
+    "DELETE": 5,
+    "total": 84
+   },
+   "public_route_count": 11,
+   "route_files": [
+    "public.php",
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/web-cms/hubs.css",
+    "assets/modules/web-cms/hubs.js"
+   ],
+   "assets_on_disk": [
+    "hubs.css",
+    "hubs.js"
+   ],
+   "roles": [
+    "admin",
+    "editor",
+    "principal",
+    "teacher"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "(นำร่องแล้ว) เขียนข่าว ร่าง ตัวอย่าง เผยแพร่ แก้ไข ยกเลิกเผยแพร่",
+    "หน้าเนื้อหา อัลบั้ม ดาวน์โหลด บุคลากร กิจกรรม",
+    "ธีม เมนู hero สไลด์",
+    "คลังสื่อ",
+    "ข้อความติดต่อ",
+    "หน้ากลุ่มงาน/กลุ่มสาระ"
+   ],
+   "group": "pilot",
+   "scenario": true
+  },
+  {
+   "id": "web-ita",
+   "name": "ITA การเปิดเผยข้อมูลสาธารณะ",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "เผยแพร่ข้อมูลตามตัวชี้วัด ITA/OIT แยกปีงบประมาณ: หัวข้อ รายการ ลิงก์และไฟล์ คัดลอกโครงจากปีก่อนได้",
+   "staff_menu": [
+    {
+     "label": "ITA เปิดเผยข้อมูลสาธารณะ",
+     "path": "/cms#ita",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "admin_menu"
+    }
+   ],
+   "routes": {
+    "GET": 5,
+    "POST": 2,
+    "PUT": 1,
+    "DELETE": 0,
+    "total": 8
+   },
+   "public_route_count": 2,
+   "route_files": [
+    "public.php",
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/web-ita/ita-admin.css",
+    "assets/modules/web-ita/ita-admin.js"
+   ],
+   "assets_on_disk": [
+    "ita-admin.css",
+    "ita-admin.js"
+   ],
+   "roles": [
+    "admin",
+    "editor",
+    "principal"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "กรอกและเผยแพร่ข้อมูล ITA ตามข้อ",
+    "เปิดหน้า ITA สาธารณะและตรวจลิงก์"
+   ],
+   "group": "G5",
+   "scenario": true
+  },
+  {
+   "id": "web-notices",
+   "name": "ประกาศรายชื่อสาธารณะ",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "ประกาศรายชื่อ (จัดห้อง ผลรับสมัคร ผลศึกษาต่อ) แบบเปิดเผยข้อมูลน้อยที่สุด ปิดบังชื่อฝั่งเซิร์ฟเวอร์ มีวันหมดอายุ ไม่ถูกจัดทำดัชนี และลบรายชื่ออัตโนมัติหลังหมดอายุ",
+   "staff_menu": [
+    {
+     "label": "ประกาศรายชื่อ",
+     "path": "/cms#notices",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "admin_menu"
+    }
+   ],
+   "routes": {
+    "GET": 3,
+    "POST": 6,
+    "PUT": 2,
+    "DELETE": 1,
+    "total": 12
+   },
+   "public_route_count": 5,
+   "route_files": [
+    "public.php",
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/web-notices/notices-admin.css",
+    "assets/modules/web-notices/notices-admin.js"
+   ],
+   "assets_on_disk": [
+    "notices-admin.css",
+    "notices-admin.js",
+    "notices-public.js"
+   ],
+   "roles": [
+    "admin",
+    "editor",
+    "principal"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "เผยแพร่ประกาศรายชื่อ",
+    "ผู้เข้าชมค้นหาชื่อในประกาศ"
+   ],
+   "group": "G5",
+   "scenario": true
+  },
+  {
+   "id": "web-social",
+   "name": "ข่าวจากเพจ Facebook",
+   "readiness": "beta",
+   "version": "0.1.0",
+   "description": "แสดงโพสต์ล่าสุดจากเพจ Facebook ของโรงเรียนบนหน้าแรก แบบกดเพื่อโหลด ไม่ต้องใช้ access token และไม่ส่งข้อมูลผู้ชมให้ Facebook จนกว่าจะกด",
+   "staff_menu": [
+    {
+     "label": "ข่าวจากเพจ Facebook",
+     "path": "/cms#social",
+     "roles": [
+      "admin",
+      "principal",
+      "editor"
+     ],
+     "where": "admin_menu"
+    }
+   ],
+   "routes": {
+    "GET": 1,
+    "POST": 0,
+    "PUT": 1,
+    "DELETE": 0,
+    "total": 2
+   },
+   "public_route_count": 0,
+   "route_files": [
+    "web.php"
+   ],
+   "assets_declared": [
+    "assets/modules/web-social/social-admin.js"
+   ],
+   "assets_on_disk": [
+    "social-admin.js"
+   ],
+   "roles": [
+    "admin",
+    "editor",
+    "principal"
+   ],
+   "has_menu_entry": true,
+   "has_ui_asset": true,
+   "flags": [],
+   "first_look_workflows": [
+    "เชื่อมต่อเพจ Facebook",
+    "ดึงโพสต์มาแสดงเป็นข่าว",
+    "ซ่อนหรือลบโพสต์ที่ไม่ต้องการ"
+   ],
+   "group": "G5",
+   "scenario": true
+  }
+ ],
+ "core": {
+  "routes": {
+   "GET": 28,
+   "POST": 19,
+   "PUT": 3,
+   "DELETE": 0
+  },
+  "navigation": [
+   {
+    "key": "work",
+    "label": "งานโรงเรียน",
+    "path": "/work"
+   },
+   {
+    "key": "plan",
+    "label": "แผนระบบหลังบ้าน",
+    "path": "/development-plan"
+   },
+   {
+    "key": "coverage",
+    "label": "ตรวจหน้าบ้านและเมนู",
+    "path": "/website-coverage"
+   },
+   {
+    "key": "demo-library",
+    "label": "คลังภาพและข้อมูลสมมติ",
+    "path": "/demo-library"
+   },
+   {
+    "key": "account",
+    "label": "บัญชีของฉัน",
+    "path": "/account"
+   },
+   {
+    "key": "users",
+    "label": "จัดการผู้ใช้งาน",
+    "path": "/admin/users"
+   },
+   {
+    "key": "updates",
+    "label": "อัปเดตระบบ",
+    "path": "/admin/updates"
+   },
+   {
+    "key": "plan",
+    "label": "แผนระบบหลังบ้าน",
+    "path": "/development-plan"
+   }
+  ]
+ },
+ "groups": [
+  {
+   "id": "G1",
+   "name": "ข้อมูลหลักและผลการเรียน",
+   "modules": [
+    "academic",
+    "registry",
+    "timetable",
+    "assessment",
+    "reports-pp",
+    "exam-checker"
+   ],
+   "shared_records": "ปีการศึกษา ห้องเรียน นักเรียน รายวิชา ตารางสอน คะแนน (ตั้งค่าโรงเรียนอยู่ใน academic โมดูลของกลุ่มอื่นอ่านอย่างเดียว)",
+   "safe_data": "ใช้นักเรียน ม.4/1 และ ม.5/1 (ผู้ใช้ student2) และห้อง ม.4/1 ถึง ม.6/1 สำหรับข้อมูลที่สร้างเอง",
+   "areas": [
+    "admin-users"
+   ],
+   "units": 7
+  },
+  {
+   "id": "G2",
+   "name": "ชีวิตนักเรียนและพอร์ทัล",
+   "modules": [
+    "student-portal",
+    "guardian-portal",
+    "behavior",
+    "health",
+    "activities",
+    "learning-links",
+    "constructionism"
+   ],
+   "shared_records": "บันทึกพฤติกรรม สุขภาพ ชุมนุม ลิงก์ห้องเรียน บัญชีพอร์ทัล (อ่านรายชื่อนักเรียนจาก registry)",
+   "safe_data": "ใช้นักเรียน ม.1/1 เลขที่ 2 ถึง 10 และ ม.2/1 (ห้ามแตะเลขที่ 1 กวิน ธารใส ที่ attendance ใช้) ผู้ปกครอง guardian2 (ทอฝัน ม.2/1)",
+   "areas": [],
+   "units": 7
+  },
+  {
+   "id": "G3",
+   "name": "บุคลากรและงานธุรการ",
+   "modules": [
+    "leave-duty",
+    "personnel",
+    "payslip",
+    "documents",
+    "maintenance",
+    "projects"
+   ],
+   "shared_records": "บัญชีครู ใบลา เวร สลิปเงินเดือน ทะเบียนหนังสือ แจ้งซ่อม โครงการ (ไม่ใช้ข้อมูลนักเรียน)",
+   "safe_data": "ใช้บัญชี subject, payroll, clerk, principal ข้อมูลที่สร้างใส่เครื่องหมาย {{marker}}",
+   "areas": [
+    "account-signin",
+    "account-2fa"
+   ],
+   "units": 8
+  },
+  {
+   "id": "G4",
+   "name": "การเงิน เรื่องร้องเรียน แบบสอบถาม และการเชื่อมต่อ",
+   "modules": [
+    "finance",
+    "complaints",
+    "surveys",
+    "connectors",
+    "api-gateway"
+   ],
+   "shared_records": "ใบแจ้งค่าธรรมเนียม การชำระ เรื่องร้องเรียน แบบสอบถาม ไฟล์นำเข้า คีย์ API",
+   "safe_data": "การเงินใช้นักเรียน ม.5/1 (student2) และบุตร \"อคิน\" (ม.4/1) ของ guardian1 ไม่ใช่ กวิน แบบสอบถามและเรื่องร้องเรียนสร้างใหม่ทุกครั้งพร้อมเครื่องหมาย",
+   "areas": [
+    "admin-modules",
+    "admin-updates",
+    "backup-restore"
+   ],
+   "units": 8
+  },
+  {
+   "id": "G5",
+   "name": "เว็บไซต์สาธารณะและภาพรวม",
+   "modules": [
+    "web-ita",
+    "web-notices",
+    "web-social",
+    "demo-library",
+    "operations"
+   ],
+   "shared_records": "เนื้อหาเว็บไซต์ (web-cms เป็นของนำร่อง ข่าวที่ผู้ตรวจสร้างมีเครื่องหมายเฉพาะ) ประกาศรายชื่อ ITA โพสต์โซเชียล",
+   "safe_data": "ใช้บัญชี editor เหมือนนำร่อง web-cms แต่สร้างเนื้อหาของโมดูลตนเอง และลบเมื่อจบ",
+   "areas": [
+    "installer-pointers",
+    "admin-publish-pairing",
+    "public-website",
+    "web-site-settings"
+   ],
+   "units": 9
+  }
+ ]
+}

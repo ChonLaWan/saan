@@ -1,0 +1,1168 @@
+{
+  "module": "health",
+  "title": "น้ำหนัก ส่วนสูง และข้อมูลสุขภาพนักเรียน",
+  "area": "งานวิชาการและงานนักเรียน",
+  "purpose": "ครูประจำชั้นกรอกน้ำหนักและส่วนสูงของนักเรียนทั้งห้องในตารางเดียวต่อรอบ (1 ภาคเรียนมีได้ 4 รอบ) ระบบตรวจช่วงค่าที่เป็นไปได้ คำนวณ BMI ให้ทันที แสดงค่าของรอบก่อนไว้เทียบ และเตือนเมื่อค่าเปลี่ยนจากรอบก่อนมากผิดปกติ ครูส่งออกตารางเป็นไฟล์ CSV ได้ ผู้ปกครองดูน้ำหนักและส่วนสูงของบุตรหลานในพอร์ทัลผู้ปกครอง",
+  "roles": [
+    "ครูประจำชั้น (กรอกและดูเฉพาะห้องที่เป็นครูประจำชั้น)",
+    "ผู้อำนวยการและผู้ดูแลระบบ (ดูและกรอกแทนได้ทุกห้อง)",
+    "ผู้ปกครอง (ดูในพอร์ทัลผู้ปกครอง)"
+  ],
+  "menu": [
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"น้ำหนัก ส่วนสูง\" (/work#health)"
+  ],
+  "prerequisites": [
+    {
+      "module": "academic",
+      "text": "ต้องตั้งค่าภาคเรียนปัจจุบัน และกำหนดครูประจำชั้นของห้อง ครูพละหรือครูที่ต้องกรอกข้ามห้องให้ผู้ดูแลระบบกรอกแทน หรือกำหนดเป็นครูประจำชั้นชั่วคราว"
+    },
+    {
+      "module": "registry",
+      "text": "ต้องมีรายชื่อนักเรียนอยู่ในห้อง"
+    },
+    {
+      "module": "guardian-portal",
+      "text": "ผู้ปกครองต้องมีบัญชีหรือลิงก์ที่ผูกกับนักเรียนจึงจะเห็นข้อมูลในพอร์ทัล"
+    }
+  ],
+  "vars": {
+    "stu": "เด็กชายชนก ลานข้าวหอม",
+    "stu2": "เด็กหญิงชนิดา ปลายฟ้าคราม",
+    "gstu": "เด็กหญิงทอฝัน"
+  },
+  "workflows": [
+    {
+      "id": "record-measurements",
+      "title": "กรอกน้ำหนักและส่วนสูงของนักเรียนทั้งห้องในรอบที่เลือก",
+      "intro": "หน้านี้เป็นตารางเดียวต่อรอบ ครูกรอกเฉพาะแถวที่วัดแล้ว ช่องที่เว้นว่างถือว่ายังไม่ได้วัด ใต้ชื่อนักเรียนแสดงค่าของรอบก่อนหรือภาคเรียนก่อนเพื่อเทียบ ช่อง BMI คำนวณให้เอง น้ำหนักต้องอยู่ระหว่าง 8 ถึง 150 กก. และส่วนสูงต้องอยู่ระหว่าง 70 ถึง 210 ซม. กด Enter หรือลูกศรลงเพื่อไปช่องถัดไป และวางคอลัมน์ที่คัดลอกจาก Excel ได้",
+      "role": "homeroom",
+      "start": "/work",
+      "core": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "น้ำหนัก ส่วนสูง",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"น้ำหนัก ส่วนสูง\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "table.hl-table tbody tr",
+            "first": true
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "data-role": "round"
+            }
+          },
+          "label": "รอบที่ 3",
+          "say": "เลือกรอบที่ต้องการกรอกในช่อง \"รอบ\" ห้องเรียนและรอบที่เลือกแสดงที่ด้านบนของตาราง",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "attr": {
+              "data-role": "round"
+            }
+          },
+          "wait_after": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu}}"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "",
+            "of": {
+              "role": "textbox",
+              "name": "น้ำหนัก {{stu}}"
+            }
+          },
+          "comment": "precondition: round 3 starts empty for this student, otherwise an earlier run left dirty data"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "data-role": "date"
+            }
+          },
+          "value": "{{last_weekday}}",
+          "say": "ตรวจวันที่วัดในช่อง \"วันที่วัด\" ระบบใส่วันที่ล่าสุดให้ เลือกได้เฉพาะวันนี้หรือวันที่ผ่านมาแล้ว",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "attr": {
+              "data-role": "date"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu}}"
+          },
+          "value": "45.1",
+          "say": "พิมพ์น้ำหนักเป็นกิโลกรัมในช่อง \"น้ำหนัก (กก.)\" ของนักเรียน",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "ส่วนสูง {{stu}}"
+          },
+          "value": "154.2",
+          "say": "พิมพ์ส่วนสูงเป็นเซนติเมตรในช่อง \"ส่วนสูง (ซม.)\" ช่อง \"BMI\" แสดงค่าที่คำนวณให้ทันที",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "css": "tr",
+            "has_text": "{{stu}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu2}}"
+          },
+          "value": "36.4"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "ส่วนสูง {{stu2}}"
+          },
+          "value": "148.6"
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "แก้ไขที่ยังไม่บันทึก 2",
+            "in": {
+              "css": "[data-role=count]"
+            }
+          },
+          "say": "ข้อความใต้หัวตารางสรุปจำนวนคนที่วัดครบและจำนวนแถวที่แก้ไขแล้วแต่ยังไม่บันทึก",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "[data-role=count]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกทั้งห้อง"
+          },
+          "say": "กดปุ่ม \"บันทึกทั้งห้อง\" ระบบแสดงข้อความ \"บันทึกแล้ว\" พร้อมจำนวนแถวที่บันทึก",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "[data-role=msg]"
+          },
+          "expect_response": {
+            "url_contains": "/api/health/classrooms/",
+            "method": "PUT",
+            "status": 200
+          },
+          "wait_after": {
+            "css": "[data-role=msg].ok, [data-role=msg].warn"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "บันทึกแล้ว 2 แถว",
+            "in": {
+              "css": "[data-role=msg]"
+            }
+          }
+        }
+      ],
+      "expected": "ระบบแจ้งว่าบันทึกแล้ว 2 แถว ช่องที่กรอกยังคงค่าไว้และ BMI แสดงในแถว ถ้าค่าเปลี่ยนจากรอบก่อนมากผิดปกติ ระบบบันทึกให้และแสดงรายการเตือนให้ตรวจอีกครั้ง",
+      "verify": [
+        {
+          "title": "เปิดหน้ารอบที่ 3 ใหม่ ค่าที่กรอกต้องยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#health/1/3",
+              "wait_after": {
+                "role": "textbox",
+                "name": "น้ำหนัก {{stu}}"
+              }
+            },
+            {
+              "do": "reload"
+            },
+            {
+              "do": "goto",
+              "url": "/work#health/1/3",
+              "wait_after": {
+                "role": "textbox",
+                "name": "น้ำหนัก {{stu}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "value": "45.1",
+                  "of": {
+                    "role": "textbox",
+                    "name": "น้ำหนัก {{stu}}"
+                  }
+                },
+                {
+                  "value": "154.2",
+                  "of": {
+                    "role": "textbox",
+                    "name": "ส่วนสูง {{stu}}"
+                  }
+                },
+                {
+                  "text": "19",
+                  "in": {
+                    "css": "tr",
+                    "has_text": "{{stu}}"
+                  }
+                }
+              ],
+              "say": "เปิดรอบที่ 3 ใหม่ น้ำหนัก ส่วนสูง และ BMI ที่บันทึกยังอยู่ในแถวของนักเรียน",
+              "shot": true,
+              "crop": "tight",
+              "highlight": {
+                "css": "tr",
+                "has_text": "{{stu}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "validation-warning",
+      "title": "ระบบตรวจค่าที่กรอกผิดช่วงก่อนบันทึก",
+      "intro": "ช่องที่กรอกค่านอกช่วงหรือไม่ใช่ตัวเลขจะมีกรอบสีแดงและข้อความใต้ชื่อนักเรียน ปุ่ม \"บันทึกทั้งห้อง\" ใช้ไม่ได้จนกว่าจะแก้ครบ ระบบรับเลขไทยและเครื่องหมายจุลภาค เช่น ๔๒,๕ เป็น 42.5",
+      "role": "homeroom",
+      "start": "/work#health/1/4",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu2}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu2}}"
+          },
+          "value": "5",
+          "say": "พิมพ์น้ำหนักที่ต่ำเกินไป เช่น 5 ลงในช่อง \"น้ำหนัก (กก.)\" ของนักเรียน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu2}}"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "น้ำหนักต้องเป็นตัวเลข 8-150 กก.",
+              "in": {
+                "css": "tr",
+                "has_text": "{{stu2}}"
+              }
+            },
+            {
+              "disabled": {
+                "role": "button",
+                "name": "บันทึกทั้งห้อง"
+              }
+            }
+          ],
+          "say": "ระบบแสดงข้อความ \"น้ำหนักต้องเป็นตัวเลข 8-150 กก.\" ใต้ชื่อนักเรียน และปุ่ม \"บันทึกทั้งห้อง\" กดไม่ได้",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": [
+            {
+              "css": "tr",
+              "has_text": "{{stu2}}"
+            },
+            {
+              "role": "button",
+              "name": "บันทึกทั้งห้อง"
+            }
+          ]
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu2}}"
+          },
+          "value": "๓๖,๕"
+        },
+        {
+          "do": "expect",
+          "that": {
+            "not_text": "น้ำหนักต้องเป็นตัวเลข",
+            "in": {
+              "css": "tr",
+              "has_text": "{{stu2}}"
+            }
+          },
+          "comment": "Thai digits and a decimal comma are normalised by the page",
+          "say": "ถ้าพิมพ์เลขไทยหรือใช้เครื่องหมายจุลภาค เช่น ๓๖,๕ ระบบรับเป็น 36.5 และข้อความเตือนหายไป",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu2}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu2}}"
+          },
+          "value": ""
+        }
+      ],
+      "expected": "ช่องที่ผิดช่วงมีข้อความเตือนและปุ่มบันทึกถูกปิด เมื่อแก้เป็นค่าที่ถูกต้องหรือเว้นว่าง ข้อความเตือนหายไป",
+      "verify": [
+        {
+          "title": "เมื่อล้างช่องที่ผิด ข้อความเตือนหายไป และไม่มีข้อมูลถูกบันทึก",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "not_text": "น้ำหนักต้องเป็นตัวเลข",
+                  "in": {
+                    "css": "tr",
+                    "has_text": "{{stu2}}"
+                  }
+                },
+                {
+                  "disabled": {
+                    "role": "button",
+                    "name": "บันทึกทั้งห้อง"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "export-csv",
+      "title": "ส่งออกน้ำหนักส่วนสูงของห้องเป็นไฟล์ CSV",
+      "intro": "ไฟล์เป็น UTF-8 เปิดด้วย Excel ได้ มีข้อมูลสุขภาพของเด็ก จึงควรเก็บรักษาและไม่ส่งต่อให้ผู้ที่ไม่เกี่ยวข้อง",
+      "role": "homeroom",
+      "start": "/work#health/1/3",
+      "depends_on": [
+        "record-measurements"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ส่งออก CSV"
+          },
+          "say": "กดปุ่ม \"ส่งออก CSV\" ใต้ตาราง เบราว์เซอร์จะบันทึกไฟล์ของรอบที่เลือก",
+          "shot": true,
+          "crop": "tight",
+          "expect_download": {
+            "ext": ".csv",
+            "min_bytes": 50
+          }
+        }
+      ],
+      "expected": "ได้ไฟล์ CSV ที่มีรายชื่อนักเรียน น้ำหนัก ส่วนสูง และ BMI ของรอบที่เลือก",
+      "verify": [
+        {
+          "title": "ไฟล์ที่ดาวน์โหลดเป็น CSV จริงและมีค่าของนักเรียน",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "ส่งออก CSV"
+              },
+              "expect_download": {
+                "kind": "csv",
+                "ext": ".csv",
+                "min_bytes": 100,
+                "contains": "45.10"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "principal-views-other-room",
+      "title": "ผู้อำนวยการเปิดดูน้ำหนักส่วนสูงของห้องอื่น",
+      "intro": "ผู้อำนวยการและผู้ดูแลระบบเลือกได้ทุกห้องในช่อง \"ห้อง\" ส่วนครูประจำชั้นเห็นเฉพาะห้องของตน",
+      "role": "principal",
+      "start": "/work",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "น้ำหนัก ส่วนสูง",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"น้ำหนัก ส่วนสูง\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "table.hl-table tbody tr",
+            "first": true
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "data-role": "class"
+            }
+          },
+          "label": "ม.2/1",
+          "say": "เลือกห้องที่ต้องการดูในช่อง \"ห้อง\" ตารางเปลี่ยนเป็นรายชื่อของห้องนั้น",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "attr": {
+              "data-role": "class"
+            }
+          },
+          "wait_after": {
+            "role": "textbox",
+            "name": "{{gstu}}"
+          }
+        }
+      ],
+      "expected": "ตารางแสดงรายชื่อและค่าของห้องที่เลือก",
+      "verify": [
+        {
+          "title": "ตารางของห้อง ม.2/1 แสดงนักเรียนของห้องนั้น",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "textbox",
+                  "name": "น้ำหนัก {{gstu}}"
+                }
+              },
+              "say": "ตารางของห้อง ม.2/1 แสดงนักเรียนของห้องนั้นพร้อมช่องกรอกน้ำหนักและส่วนสูง",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "css": "tr",
+                "has_text": "{{gstu}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guardian-sees-health",
+      "title": "ผู้ปกครองดูน้ำหนักและส่วนสูงของบุตรหลานในพอร์ทัลผู้ปกครอง",
+      "intro": "ผู้ดูแลระบบกรอกน้ำหนักส่วนสูงของนักเรียน ม.2/1 แล้วผู้ปกครองเห็นในแท็บ \"น้ำหนักส่วนสูง\" เป็นตารางวันที่วัด น้ำหนัก และส่วนสูง",
+      "role": "admin",
+      "start": "/work#health/2/3",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{gstu}}"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "",
+            "of": {
+              "role": "textbox",
+              "name": "น้ำหนัก {{gstu}}"
+            }
+          },
+          "comment": "precondition: round 3 of the guardian student starts empty, otherwise an earlier run left dirty data (run health.restore-clean)"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "data-role": "date"
+            }
+          },
+          "value": "{{last_weekday}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{gstu}}"
+          },
+          "value": "40.6",
+          "say": "ผู้ดูแลระบบเลือกห้อง ม.2/1 และรอบที่ 3 แล้วพิมพ์น้ำหนักของนักเรียนในช่อง \"น้ำหนัก (กก.)\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{gstu}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "ส่วนสูง {{gstu}}"
+          },
+          "value": "150.3"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกทั้งห้อง"
+          },
+          "say": "พิมพ์ส่วนสูงแล้วกดปุ่ม \"บันทึกทั้งห้อง\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "[data-role=msg]"
+          },
+          "expect_response": {
+            "url_contains": "/api/health/classrooms/",
+            "method": "PUT",
+            "status": 200
+          },
+          "wait_after": {
+            "css": "[data-role=msg].ok, [data-role=msg].warn"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "บันทึกแล้ว 1 แถว",
+            "in": {
+              "css": "[data-role=msg]"
+            }
+          }
+        }
+      ],
+      "expected": "ระบบแจ้งว่าบันทึกแล้ว 1 แถว และผู้ปกครองเห็นค่าเดียวกันในพอร์ทัล",
+      "verify": [
+        {
+          "title": "ผู้ปกครองเปิดแท็บ \"น้ำหนักส่วนสูง\" ต้องเห็นค่าที่บันทึก",
+          "as": "guardian2",
+          "start": "/guardian",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "น้ำหนักส่วนสูง",
+                "exact": true
+              },
+              "wait_after": {
+                "css": "table.gp-table"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "table.gp-table tbody tr",
+                    "has_text": "40.6"
+                  }
+                },
+                {
+                  "text": "150.3",
+                  "in": {
+                    "css": "table.gp-table tbody tr",
+                    "has_text": "40.6"
+                  }
+                }
+              ],
+              "say": "ผู้ปกครองเปิดแท็บ \"น้ำหนักส่วนสูง\" ตารางแสดงวันที่วัด น้ำหนัก 40.6 กก. และส่วนสูง 150.3 ซม. ที่ครูบันทึก",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "table.gp-table tbody tr",
+                "has_text": "40.6"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phone-view",
+      "title": "กรอกน้ำหนักและส่วนสูงบนโทรศัพท์มือถือ",
+      "role": "homeroom",
+      "start": "/work#health/1/3",
+      "viewport": "390x844",
+      "intro": "ตารางกรอกใช้บนมือถือได้ ชื่อนักเรียนและช่องกรอกเรียงต่อกันในแถวเดียว",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu}}"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "role": "textbox",
+              "name": "น้ำหนัก {{stu}}"
+            }
+          },
+          "say": "เปิดหน้า \"น้ำหนัก ส่วนสูง\" บนมือถือ ตารางแสดงชื่อนักเรียน ช่องน้ำหนัก และช่องส่วนสูงของนักเรียนในแถวเดียวกัน กรอกได้โดยไม่ต้องเลื่อนไปทางขวา",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "tr",
+            "has_text": "{{stu}}"
+          }
+        }
+      ],
+      "expected": "ตารางแสดงชื่อนักเรียน ช่องน้ำหนัก ช่องส่วนสูง และ BMI ของแต่ละคนบนมือถือโดยไม่ต้องเลื่อนไปทางขวา",
+      "verify": [
+        {
+          "title": "ช่องกรอกของนักเรียนแสดงบนมือถือ",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "textbox",
+                  "name": "ส่วนสูง {{stu}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "warning-on-big-change",
+      "title": "ระบบเตือนเมื่อน้ำหนักหรือส่วนสูงเปลี่ยนจากรอบก่อนมาก",
+      "role": "homeroom",
+      "start": "/work#health/1/4",
+      "core": false,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu}}"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "",
+            "of": {
+              "role": "textbox",
+              "name": "น้ำหนัก {{stu}}"
+            }
+          },
+          "comment": "precondition: round 4 of this student is empty, otherwise an earlier run left dirty data"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu}}"
+          },
+          "value": "52",
+          "say": "พิมพ์น้ำหนัก 52 กก. และส่วนสูง 170 ซม. ให้นักเรียนที่ค่าต่างจากภาคเรียนก่อนมาก ระบบจะเตือนก่อนหรือหลังบันทึก",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "ส่วนสูง {{stu}}"
+          },
+          "value": "170"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกทั้งห้อง"
+          },
+          "say": "กดปุ่ม \"บันทึกทั้งห้อง\" ระบบบันทึกค่าและแสดงรายการเตือนว่าน้ำหนักและส่วนสูงเพิ่มขึ้นจากรอบก่อนมาก",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "[data-role=msg]"
+          },
+          "expect_response": {
+            "url_contains": "/api/health/classrooms/",
+            "method": "PUT",
+            "status": 200
+          },
+          "wait_after": {
+            "css": "[data-role=msg].ok, [data-role=msg].warn"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "น้ำหนักเพิ่มขึ้น",
+              "in": {
+                "css": "[data-role=msg]"
+              }
+            },
+            {
+              "text": "ส่วนสูงเพิ่มขึ้น",
+              "in": {
+                "css": "[data-role=msg]"
+              }
+            }
+          ]
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu}}"
+          },
+          "value": "40"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "ส่วนสูง {{stu}}"
+          },
+          "value": "150"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกทั้งห้อง"
+          },
+          "say": "แก้ค่าเป็นน้ำหนัก 40 กก. และส่วนสูง 150 ซม. แล้วกดบันทึกอีกครั้ง ระบบเตือนว่าน้ำหนักและส่วนสูงลดลงจากรอบก่อน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "[data-role=msg]"
+          },
+          "expect_response": {
+            "url_contains": "/api/health/classrooms/",
+            "method": "PUT",
+            "status": 200
+          },
+          "wait_after": {
+            "css": "[data-role=msg].ok, [data-role=msg].warn"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "น้ำหนักลดลง",
+              "in": {
+                "css": "[data-role=msg]"
+              }
+            },
+            {
+              "text": "ส่วนสูงลดลง",
+              "in": {
+                "css": "[data-role=msg]"
+              }
+            }
+          ]
+        }
+      ],
+      "expected": "ระบบบันทึกค่าทั้งสองครั้งและแสดงรายการเตือนตามการเปลี่ยนแปลงจากรอบก่อน ค่าที่เตือนยังถูกบันทึกไว้",
+      "verify": [
+        {
+          "title": "เปิดรอบที่ 4 ใหม่ ค่าที่บันทึกล่าสุดยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#health/1/4",
+              "wait_after": {
+                "role": "textbox",
+                "name": "น้ำหนัก {{stu}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "value": "40",
+                  "of": {
+                    "role": "textbox",
+                    "name": "น้ำหนัก {{stu}}"
+                  }
+                },
+                {
+                  "value": "150",
+                  "of": {
+                    "role": "textbox",
+                    "name": "ส่วนสูง {{stu}}"
+                  }
+                }
+              ],
+              "say": "เปิดรอบที่ 4 ใหม่ น้ำหนัก 40 กก. และส่วนสูง 150 ซม. ที่บันทึกล่าสุดยังอยู่ ระบบยังแสดงค่าที่เทียบกับรอบก่อน",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "tr",
+                "has_text": "{{stu}}"
+              }
+            }
+          ]
+        },
+        {
+          "title": "ล้างค่าของรอบที่ 4 กลับเป็นว่าง (คืนค่าเดิมของนักเรียนทดสอบ)",
+          "steps": [
+            {
+              "do": "fill",
+              "target": {
+                "role": "textbox",
+                "name": "น้ำหนัก {{stu}}"
+              },
+              "value": ""
+            },
+            {
+              "do": "fill",
+              "target": {
+                "role": "textbox",
+                "name": "ส่วนสูง {{stu}}"
+              },
+              "value": ""
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "บันทึกทั้งห้อง"
+              },
+              "expect_response": {
+                "url_contains": "/api/health/classrooms/",
+                "method": "PUT",
+                "status": 200
+              },
+              "wait_after": {
+                "css": "[data-role=msg].ok, [data-role=msg].warn"
+              }
+            },
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "role": "textbox",
+                "name": "น้ำหนัก {{stu}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "value": "",
+                  "of": {
+                    "role": "textbox",
+                    "name": "น้ำหนัก {{stu}}"
+                  }
+                },
+                {
+                  "value": "",
+                  "of": {
+                    "role": "textbox",
+                    "name": "ส่วนสูง {{stu}}"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "teacher-without-class",
+      "title": "ครูผู้สอนที่ไม่ได้เป็นครูประจำชั้นเปิดหน้าน้ำหนักส่วนสูง",
+      "role": "subject",
+      "start": "/work#health",
+      "steps": [
+        {
+          "do": "goto",
+          "url": "/work#health",
+          "wait_after": {
+            "css": "section.hl"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "บัญชีนี้ยังไม่ได้เป็นครูประจำชั้นของห้องใด",
+            "in": {
+              "css": "section.hl"
+            }
+          },
+          "say": "ครูผู้สอนที่ไม่ได้เป็นครูประจำชั้นเปิดหน้า \"น้ำหนัก ส่วนสูง\" ระบบแจ้งว่าบัญชีนี้ยังไม่ได้เป็นครูประจำชั้นของห้องใด จึงไม่มีตารางให้กรอก",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "section.hl"
+          }
+        }
+      ],
+      "expected": "หน้าแจ้งว่าบัญชีนี้ยังไม่ได้เป็นครูประจำชั้นของห้องใด จึงไม่มีตารางให้กรอก",
+      "verify": [
+        {
+          "title": "ไม่มีตารางกรอกน้ำหนักของห้องใดให้ครูผู้สอนนี้",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "css": "table.hl-table"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "restore-clean",
+      "title": "ล้างข้อมูลทดสอบ (ลบค่าที่กรอกไว้ในรอบที่ 3)",
+      "intro": "ขั้นตอนนี้ใช้ตอนทดสอบเท่านั้น ในการใช้งานจริงครูแก้ค่าที่กรอกผิดด้วยการพิมพ์ทับหรือลบค่าในช่องแล้วกด \"บันทึกทั้งห้อง\"",
+      "role": "admin",
+      "start": "/work#health/1/3",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu}}"
+          },
+          "value": ""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "ส่วนสูง {{stu}}"
+          },
+          "value": ""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{stu2}}"
+          },
+          "value": ""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "ส่วนสูง {{stu2}}"
+          },
+          "value": ""
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกทั้งห้อง"
+          },
+          "optional": true,
+          "timeout": 5000,
+          "say": "ลบค่าในช่องที่กรอกไว้แล้วกดปุ่ม \"บันทึกทั้งห้อง\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "[data-role=msg]"
+          },
+          "expect_response": {
+            "url_contains": "/api/health/classrooms/",
+            "method": "PUT",
+            "status": 200
+          },
+          "wait_after": {
+            "css": "[data-role=msg].ok, [data-role=msg].warn"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/work#health/2/3",
+          "wait_after": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{gstu}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "น้ำหนัก {{gstu}}"
+          },
+          "value": ""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "ส่วนสูง {{gstu}}"
+          },
+          "value": ""
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกทั้งห้อง"
+          },
+          "optional": true,
+          "timeout": 5000
+        }
+      ],
+      "verify": [
+        {
+          "title": "ช่องของนักเรียนว่างหลังเปิดใหม่",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "value": "",
+                "of": {
+                  "role": "textbox",
+                  "name": "น้ำหนัก {{gstu}}"
+                }
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#health/1/3",
+              "wait_after": {
+                "role": "textbox",
+                "name": "น้ำหนัก {{stu}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "value": "",
+                  "of": {
+                    "role": "textbox",
+                    "name": "น้ำหนัก {{stu}}"
+                  }
+                },
+                {
+                  "value": "",
+                  "of": {
+                    "role": "textbox",
+                    "name": "ส่วนสูง {{stu2}}"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [
+    {
+      "id": "S1",
+      "promised": "คำอธิบายโมดูล: แฟ้มสุขภาพรายคน (ข้อมูลสุขภาพที่เห็นเฉพาะครูประจำชั้นกับผู้บริหาร)",
+      "where": "modules/health/routes/web.php:14-15 (GET/PUT /api/health/students/{id}/profile) และ modules/health/module.json description",
+      "observed": "มีเฉพาะ API ไม่มีหน้าจอหรือเมนูให้ครูเปิดดูหรือกรอกแฟ้มสุขภาพรายคน ที่หน้า \"น้ำหนัก ส่วนสูง\" ไม่มีปุ่มหรือลิงก์ไปแฟ้มรายคน",
+      "evidence": "public/assets/modules/health/health.js ไม่เรียก /api/health/students/*/profile เลย และ module.json ระบุเองว่ายังไม่มีหน้าจอ",
+      "confirmed": true
+    },
+    {
+      "id": "S2",
+      "promised": "สรุปรายห้องและภาพรวมทั้งโรงเรียน (สัดส่วนภาวะโภชนาการ กราฟ)",
+      "where": "modules/health/routes/web.php:11 และ :16 (GET /api/health/summary, GET /api/health/classrooms/{id}/summary)",
+      "observed": "มีเฉพาะ API ไม่มีหน้าจอหรือกราฟ หน้า \"น้ำหนัก ส่วนสูง\" มีเพียงตารางกรอกและคอลัมน์ BMI ไม่มีการแปลผลภาวะโภชนาการ",
+      "evidence": "health.js ไม่เรียก endpoint summary ทั้งสองและไม่มีองค์ประกอบกราฟ",
+      "confirmed": true
+    }
+  ],
+  "untested": [
+    "หน้าจอ \"มีผู้อื่นแก้ไขพร้อมกัน\" (409 พร้อมปุ่ม \"ใช้ค่าของฉันทับ\") ยังไม่ได้ทดสอบ เพราะตัวรันทดสอบเปิดหน้าเบราว์เซอร์ได้หนึ่งหน้าต่อขั้นตอน จึงเปิดฟอร์มสองชุดแก้ไขพร้อมกันไม่ได้",
+    "การวางข้อมูลหลายแถวจาก Excel ยังไม่ได้ทดสอบ เพราะตัวรันทดสอบวางข้อความจากคลิปบอร์ดไม่ได้",
+    "การลบแถวที่บันทึกแล้วไม่มีในระบบ (ไม่มีปุ่มลบ ค่าว่างแสดงเป็น \"ยังไม่ได้วัด\") จึงเหลือแถวของนักเรียนทดสอบในรอบที่ 3 และ 4 ไว้ในข้อมูลทดลอง"
+  ]
+}

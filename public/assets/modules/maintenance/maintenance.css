@@ -55,5 +55,5 @@
 @media (min-width:40rem){
   .mnt-filters{grid-template-columns:repeat(3,1fr)}
   .mnt-form{max-width:36rem}
-  .mnt-move{grid-template-columns:11rem 7rem 1fr auto}
+  .mnt-move{grid-template-columns:16rem 7rem 1fr auto}
 }

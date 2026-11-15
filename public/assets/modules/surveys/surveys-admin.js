@@ -58,18 +58,22 @@
             return {version: s.version, title: f.title.value.trim(), slug: f.slug.value.trim() || null, intro: f.intro.value, identity_mode: f.identity_mode.value, opens_at: f.opens_at.value || null, closes_at: f.closes_at.value || null,
                 max_responses: f.max_responses.value === '' ? null : Number(f.max_responses.value), anon_ip_hour: f.anon_ip_hour.value === '' ? null : Number(f.anon_ip_hour.value), questions: collectQuestions(), certificate: cert};
         };
+        // A redraw rebuilds the form from saved state; keepDraft copies the typed general/certificate fields so draw() can show them again (one use).
+        let draft = null;
+        const keepDraft = () => { const f = root.querySelector('#srv-form')?.elements; if (!f) return; draft = {title: f.title.value, slug: f.slug.value, intro: f.intro.value, identity_mode: f.identity_mode.value, opens_at: f.opens_at.value, closes_at: f.closes_at.value, max_responses: f.max_responses.value, anon_ip_hour: f.anon_ip_hour.value, certificate: {enabled: f.cert_enabled.checked, title: f.cert_title.value, body_template: f.cert_body.value, signer_name: f.cert_signer.value, signer_title: f.cert_signer_title.value, min_score: f.cert_min.value}}; };
         const draw = () => {
-            const c = s.certificate || {}, lock = locked(), st = STATUS[s.status];
+            const d = {...s, ...(draft || {})}; draft = null;
+            const c = d.certificate || {}, lock = locked(), st = STATUS[s.status];
             root.innerHTML = `<div class="cms-heading"><div><h1>${esc(s.title)}</h1><p><span class="tag ${st[1]}">${st[0]}</span> ${s.responses} คำตอบ · <span class="srv-link">${esc(pubUrl(s.slug))}</span></p></div><div class="cms-heading-actions"><a class="quiet-button" href="#surveys">กลับรายการ</a><a class="quiet-button" href="${esc(pubUrl(s.slug))}" target="_blank" rel="noopener">เปิดหน้าสาธารณะ</a></div></div>
             <p id="srv-error" class="desk-error" role="alert"></p>
             <form id="srv-form"><section class="desk-editor-card glass"><h2>ข้อมูลทั่วไป</h2>
-                <label class="desk-field"><span>ชื่อแบบสอบถาม</span><input name="title" value="${esc(s.title)}" maxlength="200" required></label>
-                <label class="desk-field"><span>ที่อยู่ในลิงก์ (a-z 0-9 และ - แก้ได้เฉพาะฉบับร่าง)</span><input name="slug" value="${esc(s.slug)}" maxlength="80" pattern="[a-z0-9][a-z0-9-]{1,78}[a-z0-9]" ${s.status === 'draft' ? '' : 'readonly'}></label>
-                <label class="desk-field"><span>คำชี้แจง</span><textarea name="intro" rows="3" maxlength="4000">${esc(s.intro)}</textarea></label>
-                <label class="desk-field"><span>การระบุตัวตน${lock ? ' (ล็อกเพราะมีผู้ตอบหรือมีลิงก์ยืนยันค้างอยู่)' : ''}</span><select name="identity_mode" ${lock ? 'disabled' : ''}>${Object.entries(MODES).map(([k, v]) => `<option value="${k}" ${s.identity_mode === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
-                <div class="srv-grid2"><label class="desk-field"><span>เปิดรับตั้งแต่ (เวลาไทย)</span><input type="datetime-local" name="opens_at" value="${esc(s.opens_at || '')}"></label><label class="desk-field"><span>ปิดรับเมื่อ (เวลาไทย)</span><input type="datetime-local" name="closes_at" value="${esc(s.closes_at || '')}"></label></div>
-                <label class="desk-field"><span>จำนวนคำตอบสูงสุด (เว้นว่าง = ไม่จำกัด)</span><input type="number" name="max_responses" min="1" max="1000000" value="${s.max_responses ?? ''}"></label>
-                <label class="desk-field"><span>โหมดไม่ระบุตัวตน: จำนวนคำตอบสูงสุดต่อ IP ต่อชั่วโมง (มือถือและห้องคอมพิวเตอร์มักใช้ IP ร่วมกัน จึงตั้งไว้สูง)</span><input type="number" name="anon_ip_hour" min="1" max="100000" value="${s.anon_ip_hour ?? 300}"></label></section>
+                <label class="desk-field"><span>ชื่อแบบสอบถาม</span><input name="title" value="${esc(d.title)}" maxlength="200" required></label>
+                <label class="desk-field"><span>ที่อยู่ในลิงก์ (a-z 0-9 และ - แก้ได้เฉพาะฉบับร่าง)</span><input name="slug" value="${esc(d.slug)}" maxlength="80" pattern="[a-z0-9][a-z0-9-]{1,78}[a-z0-9]" ${s.status === 'draft' ? '' : 'readonly'}></label>
+                <label class="desk-field"><span>คำชี้แจง</span><textarea name="intro" rows="3" maxlength="4000">${esc(d.intro)}</textarea></label>
+                <label class="desk-field"><span>การระบุตัวตน${lock ? ' (ล็อกเพราะมีผู้ตอบหรือมีลิงก์ยืนยันค้างอยู่)' : ''}</span><select name="identity_mode" ${lock ? 'disabled' : ''}>${Object.entries(MODES).map(([k, v]) => `<option value="${k}" ${d.identity_mode === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label>
+                <div class="srv-grid2"><label class="desk-field"><span>เปิดรับตั้งแต่ (เวลาไทย)</span><input type="datetime-local" name="opens_at" value="${esc(d.opens_at || '')}"></label><label class="desk-field"><span>ปิดรับเมื่อ (เวลาไทย)</span><input type="datetime-local" name="closes_at" value="${esc(d.closes_at || '')}"></label></div>
+                <label class="desk-field"><span>จำนวนคำตอบสูงสุด (เว้นว่าง = ไม่จำกัด)</span><input type="number" name="max_responses" min="1" max="1000000" value="${d.max_responses ?? ''}"></label>
+                <label class="desk-field"><span>โหมดไม่ระบุตัวตน: จำนวนคำตอบสูงสุดต่อ IP ต่อชั่วโมง (มือถือและห้องคอมพิวเตอร์มักใช้ IP ร่วมกัน จึงตั้งไว้สูง)</span><input type="number" name="anon_ip_hour" min="1" max="100000" value="${d.anon_ip_hour ?? 300}"></label></section>
             <section class="desk-editor-card glass"><h2>คำถาม</h2>${lock ? '<p class="desk-help">มีผู้ตอบหรือมีลิงก์ยืนยันที่ยังไม่หมดอายุ แก้ได้เฉพาะข้อความคำถาม ไม่สามารถเพิ่ม ลบ หรือเปลี่ยนชนิด/ตัวเลือก</p>' : ''}<div id="srv-questions">${questions.map((q, i) => questionBlock(q, i, lock)).join('') || '<p class="desk-help">ยังไม่มีคำถาม</p>'}</div>
                 <div class="srv-qactions">${['single', 'multi', 'scale', 'text'].map(t => `<button type="button" data-add="${t}" ${lock ? 'disabled' : ''}>เพิ่มข้อ: ${TYPES[t]}</button>`).join('')}</div></section>
             <section class="desk-editor-card glass"><h2>เกียรติบัตร</h2><label class="desk-field"><span><input type="checkbox" name="cert_enabled" ${c.enabled ? 'checked' : ''}> ออกเกียรติบัตรให้ผู้ตอบ (ต้องใช้โหมดกรอกชื่อ+อีเมล หรือรหัสรายชื่อ)</span></label>
@@ -94,11 +98,11 @@
             const err = m => { root.querySelector('#srv-error').textContent = m || ''; };
             const form = root.querySelector('#srv-form');
             const redraw = () => { questions = collectQuestions(); draw(); };
-            root.querySelectorAll('[data-add]').forEach(b => b.onclick = () => { questions = collectQuestions(); const t = b.dataset.add; questions.push({key: nextKey(questions), type: t, label: '', required: false, ...(t === 'single' || t === 'multi' ? {options: ['ตัวเลือก 1', 'ตัวเลือก 2']} : {}), ...(t === 'scale' ? {max: 5} : {})}); draw(); });
+            root.querySelectorAll('[data-add]').forEach(b => b.onclick = () => { keepDraft(); questions = collectQuestions(); const t = b.dataset.add; questions.push({key: nextKey(questions), type: t, label: '', required: false, ...(t === 'single' || t === 'multi' ? {options: ['ตัวเลือก 1', 'ตัวเลือก 2']} : {}), ...(t === 'scale' ? {max: 5} : {})}); draw(); });
             root.querySelectorAll('[data-q]').forEach(r => { const i = Number(r.dataset.q);
-                r.querySelector('[data-remove]').onclick = () => { questions = collectQuestions(); questions.splice(i, 1); draw(); };
-                r.querySelectorAll('[data-move]').forEach(b => b.onclick = () => { questions = collectQuestions(); const j = i + Number(b.dataset.move); if (j < 0 || j >= questions.length) return; [questions[i], questions[j]] = [questions[j], questions[i]]; draw(); });
-                r.querySelector('[data-f=type]').onchange = () => { const q = collectQuestions(); if ((q[i].type === 'single' || q[i].type === 'multi') && !q[i].options?.length) q[i].options = ['ตัวเลือก 1', 'ตัวเลือก 2']; questions = q; draw(); };
+                r.querySelector('[data-remove]').onclick = () => { keepDraft(); questions = collectQuestions(); questions.splice(i, 1); draw(); };
+                r.querySelectorAll('[data-move]').forEach(b => b.onclick = () => { keepDraft(); questions = collectQuestions(); const j = i + Number(b.dataset.move); if (j < 0 || j >= questions.length) return; [questions[i], questions[j]] = [questions[j], questions[i]]; draw(); });
+                r.querySelector('[data-f=type]').onchange = () => { keepDraft(); const q = collectQuestions(); if ((q[i].type === 'single' || q[i].type === 'multi') && !q[i].options?.length) q[i].options = ['ตัวเลือก 1', 'ตัวเลือก 2']; questions = q; draw(); };
             });
             const save = async quiet => {
                 if (!form.reportValidity()) return false; err('');
@@ -113,7 +117,7 @@
             });
             const del = root.querySelector('#srv-delete');
             if (del) del.onclick = async () => { if (!confirm('ลบแบบสอบถามนี้ถาวร?')) return; try { await request('/api/surveys/' + id, 'DELETE', {version: s.version}); if (location.hash === route) location.hash = 'surveys'; } catch (e) { err(errText(e)); } };
-            const refetch = async () => { s = await request('/api/surveys/' + id); if (location.hash !== route) return false; questions = s.questions.map(q => ({...q})); draw(); return true; };
+            const refetch = async () => { keepDraft(); const kept = draft; draft = null; s = await request('/api/surveys/' + id); if (location.hash !== route) return false; questions = s.questions.map(q => ({...q})); draft = kept; draw(); return true; };
             const erase = root.querySelector('#srv-erase');
             if (erase) erase.onclick = async () => { const rid = Number(root.querySelector('#srv-erase-id').value); if (!rid) return err('ใส่รหัสคำตอบก่อน');
                 if (!confirm('ลบคำตอบรหัส ' + rid + ' ถาวร?')) return;

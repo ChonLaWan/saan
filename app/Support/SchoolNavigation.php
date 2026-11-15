@@ -89,7 +89,7 @@ class SchoolNavigation
             )];
         }
         $accounts = [$item('account', 'บัญชีของฉัน', '/account', 'person')];
-        if ($role === 'admin') array_unshift($accounts, $item('users', 'จัดการผู้ใช้งาน', '/admin/users', 'people'),$item('deployment','ตรวจความพร้อมระบบ','/cms#deployment','shield'));
+        if ($role === 'admin') array_unshift($accounts, $item('users', 'จัดการผู้ใช้งาน', '/admin/users', 'people'),$item('deployment','ตรวจความพร้อมระบบ','/cms#deployment','shield'),$item('updates','อัปเดตระบบ','/admin/updates','download'));
         if ($role === 'editor' && $demo) array_unshift($accounts, $item('plan', 'แผนระบบหลังบ้าน', '/development-plan', 'layers'));
         $groups[] = ['label' => 'บัญชีและระบบ', 'collapsible' => false, 'items' => $accounts];
         return $groups;

@@ -55,7 +55,8 @@ class RuntimeRemediationTest extends TestCase
     {
         foreach (app('router')->getRoutes() as $route) foreach ($route->gatherMiddleware() as $m) if (is_string($m) && str_starts_with($m,'throttle:')) $this->assertCount(3,explode(',',substr($m,9)),$route->uri().' needs a per-route throttle prefix');
         for ($i=0;$i<6;$i++) $this->post('/portal/contact',[]);
-        $this->post('/portal/contact',[])->assertStatus(429);
+        // the visitor gets a Thai page with a way back, not the framework's bare English "429 | Too Many Requests"
+        $this->post('/portal/contact',[])->assertStatus(429)->assertSee('ส่งคำขอถี่เกินไป')->assertSee('กลับไปหน้าเดิม')->assertDontSee('Too Many Requests');
         $this->post('/login',['email'=>'nobody@school.test','password'=>'wrong'])->assertStatus(302);
     }
 

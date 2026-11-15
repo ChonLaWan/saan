@@ -26,14 +26,8 @@
     }
 
     function renderFeed() {
-        const f = state.feed || {}; const a = f.available; const last = f.last_check;
-        let html = `<p>สถานะ: <b>${f.enabled ? 'เปิด' : 'ปิด'}</b></p>`;
-        if (f.enabled && last) html += `<p class="mods-note">ตรวจล่าสุด ${esc(last.at || '')} ${last.ok ? '(สำเร็จ)' : '(ไม่สำเร็จ: ' + esc(last.error || '') + ')'}</p>`;
-        if (f.enabled && a && a.any) {
-            html += '<p><b>มีรุ่นใหม่</b></p><ul>' + (a.core ? `<li>แกนระบบ ${esc(a.core.version)} (ใช้อยู่ ${esc(a.current)})</li>` : '') + (a.modules || []).map(x => `<li>${esc(x.name)} ${esc(x.version)} (ใช้อยู่ ${esc(x.current)})</li>`).join('') + '</ul>';
-        } else if (f.enabled && a) html += '<p class="mods-note">เป็นรุ่นล่าสุดแล้ว</p>';
-        html += `<div class="mods-feed-actions mods-actions"><button type="button" data-feed-act="switch">${f.enabled ? 'ปิดการตรวจรุ่นใหม่' : 'เปิดการตรวจรุ่นใหม่'}</button>${f.enabled ? '<button type="button" data-feed-act="check">ตรวจตอนนี้</button>' : ''}</div><p class="mods-error" data-feed-error role="alert" hidden></p>`;
-        feedBox.innerHTML = html;
+        const f = state.feed || {}; const a = f.available; const base = (document.querySelector('meta[name="school-base"]')?.content || '').replace(/\/+$/, '');
+        feedBox.innerHTML = `<p>สถานะการตรวจรุ่นใหม่: <b>${f.enabled ? 'เปิด' : 'ปิด'}</b>${f.enabled && a && a.any ? ' · มีรุ่นใหม่' : ''}</p><p><a href="${esc(base + '/admin/updates')}">เปิดหน้า อัปเดตระบบ</a> เพื่อตรวจ ดาวน์โหลด และติดตั้ง</p>`;
     }
 
     // one reusable dialog: asks for the admin password (and the typed module id for experimental modules)

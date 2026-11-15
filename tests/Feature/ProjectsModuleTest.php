@@ -600,6 +600,14 @@ class ProjectsModuleTest extends TestCase
         $this->putJson('/api/projects/activities/'.$a['id'], ['version' => $ok['version'], 'note' => 'ครูแก้หมายเหตุ'])->assertOk()->assertJsonPath('fin_ledger_id', $exp);
     }
 
+    public function test_ledger_field_label_matches_the_server_behaviour(): void
+    {
+        // the server accepts and stores the number from an executive (test above), so the field must not be labelled read-only
+        $js = file_get_contents(public_path('assets/modules/projects/projects.js'));
+        $this->assertStringNotContainsString('สมุดเงินสด (อ่านอย่างเดียว)', $js);
+        $this->assertStringContainsString('เลขรายการรายจ่ายในสมุดเงินสด (ผู้บริหารเชื่อมหรือยกเลิกได้ ระบบไม่แก้สมุดเงินสด)', $js);
+    }
+
     // ---- summary / csv / print ---------------------------------------------------------------------------------
 
     public function test_summary_per_plan_and_budget_source_and_csv(): void

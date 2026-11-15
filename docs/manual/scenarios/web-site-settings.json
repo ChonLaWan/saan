@@ -1,0 +1,3618 @@
+{
+  "module": "web-site-settings",
+  "title": "ตั้งค่าและออกแบบเว็บไซต์",
+  "area": "เว็บไซต์โรงเรียน",
+  "purpose": "ผู้ดูแลเว็บไซต์ปรับหน้าตาและโครงสร้างของเว็บไซต์โรงเรียนได้เอง ได้แก่ ชื่อและตราที่ส่วนหัว ปุ่มพิเศษ ภาพใหญ่หน้าแรก (hero) และสไลด์ ประกาศไว้ทุกข์และประกาศเฉลิมฉลอง ไอคอนแท็บและโหมดสี การจัดลำดับส่วนบนหน้าแรก และข้อมูลโรงเรียน นอกจากนี้ยังจัดหมวดเนื้อหา ตั้งที่อยู่เดิมให้พาไปหน้าใหม่ (redirect) ตั้งค่าการส่งอีเมล ตรวจความพร้อมของระบบ และดูประวัติการจัดการ ค่าเหล่านี้เป็นค่าของทั้งเว็บไซต์ ทุกขั้นตอนในหน้านี้ทดลองเปลี่ยน ตรวจบนหน้าเว็บไซต์สาธารณะ แล้วคืนค่าเดิม",
+  "roles": [
+    "ผู้ดูแลเว็บไซต์ (ปรับหน้าตา จัดหน้าแรก จัดหมวด ตั้ง redirect ดูประวัติ)",
+    "ผู้อำนวยการและผู้ดูแลระบบ (เข้าได้เช่นเดียวกัน)",
+    "ผู้ดูแลระบบ (ตั้งค่าการส่งอีเมล และดูตรวจความพร้อมระบบ)",
+    "ผู้เข้าชมทั่วไป (เห็นผลบนเว็บไซต์โดยไม่ต้องเข้าสู่ระบบ)"
+  ],
+  "menu": [
+    "เมนูด้านซ้ายกลุ่ม \"เว็บไซต์โรงเรียน\" > \"โลโก้และชื่อโรงเรียน\" \"ส่วนหัวและเมนู\" \"ออกแบบ hero\" \"สไลด์หน้าแรก\" \"ไว้ทุกข์ / เฉลิมฉลอง\" (/cms#branding /cms#header /cms#hero-design /cms#slides /cms#observance)",
+    "เมนูด้านซ้ายกลุ่ม \"ตั้งค่าเว็บไซต์\" > \"ข้อมูลโรงเรียน\" \"favicon และโหมดสี\" \"ตั้งค่าการส่งอีเมล\" \"Redirect URL เดิม\" \"จัดหน้าแรก\" \"หมวดเนื้อหา\" \"ข้อความติดต่อ\" \"ประวัติการจัดการ\"",
+    "เมนูด้านซ้ายกลุ่ม \"บัญชีและระบบ\" > \"ตรวจความพร้อมระบบ\" (/cms#deployment เฉพาะผู้ดูแลระบบ)"
+  ],
+  "prerequisites": [],
+  "vars": {},
+  "workflows": [
+    {
+      "id": "edit-school-name-and-mark",
+      "title": "เปลี่ยนชื่อและตราของโรงเรียนที่ส่วนหัวเว็บไซต์",
+      "role": "editor",
+      "start": "/cms",
+      "core": true,
+      "vars": {
+        "orig": "โรงเรียนต้นธารวิทยา (ระบบทดลอง)",
+        "name": "{{marker}} โรงเรียนทดลอง"
+      },
+      "intro": "หน้า \"โลโก้และชื่อโรงเรียน\" ปรับชื่อ คำขวัญ ตราที่ออกแบบไว้ โลโก้ที่อัปโหลด ขนาด และสีของตราที่ส่วนหัวของเว็บไซต์ แบ่งเป็นกลุ่ม กดหัวข้อกลุ่มเพื่อกางช่องปรับค่า ปุ่ม \"เก็บร่างส่วนนี้\" เก็บไว้โดยยังไม่เปลี่ยนเว็บไซต์ ปุ่ม \"เผยแพร่ส่วนนี้\" เปลี่ยนเว็บไซต์ทันที ชื่อโรงเรียนเป็นค่าของทั้งเว็บไซต์ จึงต้องคืนค่าเดิมเมื่อทดลองเสร็จ ขั้นตอนนี้ทดลองเปลี่ยนแล้วคืนค่าให้เอง",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "โลโก้และชื่อโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"โลโก้และชื่อโรงเรียน\" ที่แถบเมนูด้านซ้าย หน้านี้ปรับชื่อ ตรา และโลโก้ของโรงเรียน ตัวอย่างด้านขวาเปลี่ยนตามที่พิมพ์",
+          "shot": true,
+          "wait_after": {
+            "id": "presentation-form"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "{{orig}}",
+            "of": {
+              "attr": {
+                "name": "theme__school_name"
+              }
+            }
+          },
+          "comment": "precondition: original school name"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "theme__school_name"
+            }
+          },
+          "value": "{{name}}",
+          "say": "พิมพ์ชื่อใหม่ในช่อง \"ชื่อโรงเรียน\" ในกลุ่ม \"ตราและชื่อโรงเรียน\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "attr": {
+              "data-logo-choice": "shield"
+            }
+          },
+          "say": "เลือกตราที่ออกแบบไว้ เช่น \"โล่การเรียนรู้\" ตัวอย่างด้านขวาเปลี่ยนตาม",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "presentation-preview-status",
+            "has_text": "อัปเดตตัวอย่างแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่ส่วนนี้",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/presentation",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"เผยแพร่ส่วนนี้\" มุมขวาบน ระบบแสดงข้อความ \"เผยแพร่ส่วนนี้แล้ว\" และเปลี่ยนส่วนหัวของเว็บไซต์ทันที",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่ส่วนนี้",
+            "first": true
+          },
+          "wait_after": {
+            "text": "เผยแพร่ส่วนนี้แล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal",
+          "say": "เปิดหน้าแรกของเว็บไซต์ ชื่อใหม่และตราโล่แสดงที่ส่วนหัว",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".school-wordmark strong",
+            "first": true
+          },
+          "wait_after": {
+            "css": ".school-wordmark strong",
+            "has_text": "{{name}}"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "{{name}}",
+              "in": {
+                "css": ".school-wordmark strong",
+                "first": true
+              }
+            },
+            {
+              "count": {
+                "min": 1
+              },
+              "of": {
+                "css": ".site-header svg.school-brand-mark path.brand-outline",
+                "include_hidden": true
+              }
+            }
+          ]
+        },
+        {
+          "do": "goto",
+          "url": "/cms#branding",
+          "wait_after": {
+            "id": "presentation-form"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "theme__school_name"
+            }
+          },
+          "value": "{{orig}}",
+          "say": "คืนชื่อเดิมในช่อง \"ชื่อโรงเรียน\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "attr": {
+              "data-logo-choice": "book"
+            }
+          },
+          "say": "เลือกตราเดิม \"หนังสือและต้นธาร\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "values__source"
+            }
+          },
+          "value": "auto"
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "presentation-preview-status",
+            "has_text": "อัปเดตตัวอย่างแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่ส่วนนี้",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/presentation",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"เผยแพร่ส่วนนี้\" อีกครั้งเพื่อคืนค่าเดิม",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่ส่วนนี้",
+            "first": true
+          },
+          "wait_after": {
+            "text": "เผยแพร่ส่วนนี้แล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal",
+          "wait_after": {
+            "css": ".school-wordmark strong",
+            "has_text": "{{orig}}"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "{{orig}}",
+              "in": {
+                "css": ".school-wordmark strong",
+                "first": true
+              }
+            },
+            {
+              "count": 0,
+              "of": {
+                "css": ".site-header svg.school-brand-mark path.brand-outline",
+                "include_hidden": true
+              }
+            }
+          ]
+        }
+      ],
+      "expected": "ส่วนหัวของเว็บไซต์แสดงชื่อและตราที่เปลี่ยน แล้วกลับเป็นค่าเดิมเมื่อคืนค่า",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเห็นชื่อเดิมและตราเดิมที่ส่วนหัว",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "{{orig}}",
+                  "in": {
+                    "css": ".school-wordmark strong",
+                    "first": true
+                  }
+                },
+                {
+                  "not_text": "{{name}}"
+                }
+              ],
+              "say": "ผู้เข้าชมเปิดหน้าแรก เห็นชื่อโรงเรียนเดิมที่ส่วนหัว",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "css": ".school-wordmark strong",
+                "first": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-header-button",
+      "title": "เพิ่มปุ่มพิเศษที่ส่วนหัวของเว็บไซต์",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "label": "{{marker}} สมัครเรียน"
+      },
+      "intro": "หน้า \"ส่วนหัวและเมนู\" ปรับแถบข้อมูลด้านบน ทางเข้าบุคลากร ปุ่มค้นหา ลิงก์รวมข้อมูล ตัวเลือกโหมดสี ปุ่มพิเศษ ขนาด และสีของส่วนหัว ปุ่มพิเศษเป็นปุ่มเดียวที่โรงเรียนกำหนดข้อความและลิงก์เอง เช่น \"สมัครเรียน\" ถ้าเว้นข้อความว่างปุ่มจะไม่แสดง รายการเมนูของเว็บไซต์จัดที่หน้า \"เมนูเว็บไซต์\" ส่วนหัวเป็นค่าของทั้งเว็บไซต์ ขั้นตอนนี้ทดลองแล้วคืนค่าเดิมให้เอง",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ส่วนหัวและเมนู",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ส่วนหัวและเมนู\" ที่แถบเมนูด้านซ้าย หน้านี้ปรับแถบข้อมูลด้านบน ทางเข้าบุคลากร ปุ่มค้นหา ปุ่มพิเศษ และสีของส่วนหัว",
+          "shot": true,
+          "wait_after": {
+            "id": "presentation-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "ลิงก์และปุ่มพิเศษ",
+            "within": {
+              "id": "presentation-form"
+            }
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "",
+            "of": {
+              "attr": {
+                "name": "values__cta_label"
+              }
+            }
+          },
+          "comment": "precondition: no special button"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "values__cta_label"
+            }
+          },
+          "value": "{{label}}",
+          "say": "พิมพ์ข้อความในช่อง \"ข้อความปุ่มพิเศษ (ว่าง = ซ่อน)\" ในกลุ่ม \"ลิงก์และปุ่มพิเศษ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "values__cta_url"
+            }
+          },
+          "value": "/portal/contact",
+          "say": "ตรวจช่อง \"ลิงก์ปุ่มพิเศษ\" เป็น /portal/contact (ลิงก์ในเว็บไซต์ขึ้นต้นด้วย /portal/ หรือใช้ https)",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "values__cta_style"
+            }
+          },
+          "value": "outline",
+          "say": "เลือก \"รูปแบบปุ่มพิเศษ\" เป็น \"เส้นขอบ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "presentation-preview-status",
+            "has_text": "อัปเดตตัวอย่างแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่ส่วนนี้",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/presentation",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"เผยแพร่ส่วนนี้\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่ส่วนนี้",
+            "first": true
+          },
+          "wait_after": {
+            "text": "เผยแพร่ส่วนนี้แล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal",
+          "say": "เปิดหน้าแรกของเว็บไซต์ ปุ่มพิเศษแสดงท้ายแถบเมนู",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "a.header-cta",
+            "first": true
+          },
+          "wait_after": {
+            "css": "a.header-cta",
+            "has_text": "{{label}}"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "a.header-cta",
+              "has_text": "{{label}}",
+              "first": true
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#header",
+          "wait_after": {
+            "id": "presentation-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "ลิงก์และปุ่มพิเศษ",
+            "within": {
+              "id": "presentation-form"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "values__cta_label"
+            }
+          },
+          "value": "",
+          "say": "ลบข้อความในช่อง \"ข้อความปุ่มพิเศษ\" เพื่อซ่อนปุ่ม",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "values__cta_style"
+            }
+          },
+          "value": "filled"
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "presentation-preview-status",
+            "has_text": "อัปเดตตัวอย่างแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่ส่วนนี้",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/presentation",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"เผยแพร่ส่วนนี้\" อีกครั้งเพื่อคืนค่าเดิม",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่ส่วนนี้",
+            "first": true
+          },
+          "wait_after": {
+            "text": "เผยแพร่ส่วนนี้แล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal"
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 0,
+            "of": {
+              "css": "a.header-cta",
+              "include_hidden": true
+            }
+          }
+        }
+      ],
+      "expected": "ส่วนหัวของเว็บไซต์มีปุ่มพิเศษตามที่ตั้ง แล้วปุ่มหายไปเมื่อคืนค่า",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมไม่เห็นปุ่มพิเศษที่ส่วนหัวแล้ว",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "count": 0,
+                "of": {
+                  "css": "a.header-cta",
+                  "include_hidden": true
+                }
+              },
+              "say": "ผู้เข้าชมเปิดหน้าแรก ส่วนหัวกลับเป็นแบบเดิมไม่มีปุ่มพิเศษ",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-hero-search-text",
+      "title": "แก้ข้อความช่องค้นหาบน hero และดูตัวอย่างก่อนเผยแพร่",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "orig": "ค้นหาข่าว ประกาศ และข้อมูลโรงเรียน",
+        "ph": "{{marker}} ค้นหาข่าวสมมติ"
+      },
+      "intro": "ส่วนต้อนรับ (hero) คือภาพใหญ่ด้านบนของหน้าแรก หน้า \"ออกแบบ hero\" ปรับทีละกลุ่ม ได้แก่ ขนาดและระยะห่าง ข้อความและตัวอักษร สีและพื้นหลัง รูปแบบปุ่ม เครื่องมือบน hero การเล่นและการเคลื่อนไหว และภาพและข้อความตั้งต้น ปุ่ม \"ดูตัวอย่าง\" เปิดตัวอย่างหน้าแรกจากค่าที่กรอกโดยยังไม่เปลี่ยนเว็บไซต์ hero เป็นค่าของทั้งเว็บไซต์ ขั้นตอนนี้ทดลองแล้วคืนค่าเดิมให้เอง",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ออกแบบ hero",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ออกแบบ hero\" ที่แถบเมนูด้านซ้าย หน้านี้ปรับความสูง ตัวอักษร สี ปุ่ม เครื่องมือ และการเล่นสไลด์ของภาพใหญ่หน้าแรก",
+          "shot": true,
+          "wait_after": {
+            "id": "presentation-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เครื่องมือบน hero",
+            "within": {
+              "id": "presentation-form"
+            }
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "{{orig}}",
+            "of": {
+              "attr": {
+                "name": "values__search_placeholder"
+              }
+            }
+          },
+          "comment": "precondition"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "values__search_placeholder"
+            }
+          },
+          "value": "{{ph}}",
+          "say": "พิมพ์ข้อความใหม่ในช่อง \"ข้อความในช่องค้นหา\" ในกลุ่ม \"เครื่องมือบน hero\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "presentation-preview-status",
+            "has_text": "อัปเดตตัวอย่างแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "id": "presentation-open-preview"
+          },
+          "say": "กดปุ่ม \"ดูตัวอย่าง\" มุมขวาบน ระบบเปิดหน้าต่างตัวอย่างของหน้าแรกจากค่าที่กรอก ยังไม่เปลี่ยนเว็บไซต์จริง ดูเสร็จกดปุ่ม \"ปิดตัวอย่าง\" มุมบนของหน้าต่าง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "presentation-dialog-close"
+          },
+          "wait_after": {
+            "id": "presentation-dialog-close"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "id": "presentation-dialog-close"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่ส่วนนี้",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/presentation",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"เผยแพร่ส่วนนี้\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่ส่วนนี้",
+            "first": true
+          },
+          "wait_after": {
+            "text": "เผยแพร่ส่วนนี้แล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal",
+          "say": "เปิดหน้าแรกของเว็บไซต์ ช่องค้นหาบนภาพใหญ่แสดงข้อความใหม่",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "hero-search"
+          },
+          "wait_after": {
+            "id": "hero-search"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "",
+            "of": {
+              "id": "hero-search"
+            }
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 1,
+            "of": {
+              "css": "input#hero-search[placeholder=\"{{ph}}\"]"
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#hero-design",
+          "wait_after": {
+            "id": "presentation-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เครื่องมือบน hero",
+            "within": {
+              "id": "presentation-form"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "values__search_placeholder"
+            }
+          },
+          "value": "{{orig}}",
+          "say": "พิมพ์ข้อความเดิมกลับในช่อง \"ข้อความในช่องค้นหา\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "presentation-preview-status",
+            "has_text": "อัปเดตตัวอย่างแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่ส่วนนี้",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/presentation",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"เผยแพร่ส่วนนี้\" อีกครั้งเพื่อคืนค่าเดิม",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่ส่วนนี้",
+            "first": true
+          },
+          "wait_after": {
+            "text": "เผยแพร่ส่วนนี้แล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal",
+          "wait_after": {
+            "id": "hero-search"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 1,
+            "of": {
+              "css": "input#hero-search[placeholder=\"{{orig}}\"]"
+            }
+          }
+        }
+      ],
+      "expected": "ช่องค้นหาบนภาพใหญ่ของหน้าแรกแสดงข้อความที่ตั้ง แล้วกลับเป็นข้อความเดิมเมื่อคืนค่า",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเห็นข้อความเดิมในช่องค้นหา",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "count": 1,
+                "of": {
+                  "css": "input#hero-search[placeholder=\"{{orig}}\"]"
+                }
+              },
+              "say": "ผู้เข้าชมเปิดหน้าแรก ช่องค้นหากลับเป็นข้อความเดิม",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "id": "hero-search"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "add-and-order-slide",
+      "title": "เพิ่มสไลด์หน้าแรก จัดลำดับ และนำออก",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "t": "{{marker}} สไลด์ทดลอง",
+        "pos": "3"
+      },
+      "intro": "สไลด์หน้าแรกคือภาพใหญ่ที่หมุนเวียนด้านบนของเว็บไซต์ แต่ละสไลด์มีภาพ หัวเรื่อง คำอธิบาย และปุ่ม ลำดับจัดได้ด้วยปุ่ม \"ขึ้น\" \"ลง\" หรือลากการ์ด แล้วกด \"ใช้ลำดับนี้\" ปุ่ม \"สลับสไลด์อัตโนมัติ\" และเวลาต่อสไลด์ตั้งที่ส่วนบนของหน้า ถ้าไม่มีสไลด์เลย ระบบใช้ภาพและข้อความตั้งต้นจากหน้า \"ออกแบบ hero\" ขั้นตอนนี้เพิ่มสไลด์ทดลองแล้วย้ายลงถังขยะเมื่อเสร็จ",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "สไลด์หน้าแรก",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"สไลด์หน้าแรก\" ที่แถบเมนูด้านซ้าย หน้านี้แสดงสไลด์แต่ละภาพพร้อมลำดับและสถานะ",
+          "shot": true,
+          "wait_after": {
+            "id": "hero-slide-list"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เพิ่มสไลด์",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"เพิ่มสไลด์\" มุมขวาบน ระบบเปิดแบบฟอร์มสไลด์ที่เลือกตำแหน่ง \"ส่วนต้อนรับ\" ไว้แล้ว",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "link",
+            "name": "เพิ่มสไลด์",
+            "exact": true
+          },
+          "wait_after": {
+            "id": "hero-detail-fields"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"title\"]"
+          },
+          "value": "{{t}}",
+          "say": "พิมพ์ข้อความหัวเรื่องของสไลด์ในช่อง \"หัวข้อ (ขึ้นบรรทัดได้)\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"excerpt\"]"
+          },
+          "value": "ข้อความสั้นประกอบสไลด์สมมติ",
+          "say": "พิมพ์คำอธิบายใต้หัวเรื่องในช่อง \"คำโปรย\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"kicker\"]"
+          },
+          "value": "ทดลองเพิ่มสไลด์",
+          "say": "พิมพ์ข้อความนำสั้นในช่อง \"ข้อความนำสั้น\" ในกรอบ \"ออกแบบสไลด์หน้าแรก\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"button_label\"]"
+          },
+          "value": "ดูข่าวทั้งหมด",
+          "say": "พิมพ์ข้อความปุ่มในช่อง \"ข้อความปุ่มหลัก\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"url\"]"
+          },
+          "value": "/portal/news",
+          "say": "พิมพ์ปลายทางของปุ่มหลักในช่อง \"ลิงก์ปลายทาง\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"sort_order\"]"
+          },
+          "value": "99",
+          "say": "พิมพ์ \"99\" ในช่อง \"ลำดับแสดงผล\" เพื่อให้สไลด์นี้อยู่ท้ายสุด",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "id": "choose-content-cover"
+          },
+          "settle_ms": 2500,
+          "say": "กดปุ่ม \"เลือกจากคลัง\" ในกรอบ \"รูปปก\" แล้วกดเลือกรูปจากหน้าต่างคลัง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "media-heading"
+          },
+          "wait_after": {
+            "css": "#media-picker button[data-desk-media]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "picker-search"
+          },
+          "value": "staff"
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "#media-picker button[data-desk-media]",
+            "has_text": "staff",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "#media-picker button[data-desk-media]",
+            "has_text": "staff",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#content-cover-preview img"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "status": 201
+          },
+          "say": "กดปุ่ม \"เผยแพร่\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#slides",
+          "wait_after": {
+            "css": "article.release-slide-card",
+            "has_text": "{{t}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ขึ้น",
+            "within": {
+              "css": "article.release-slide-card",
+              "has_text": "{{t}}"
+            }
+          },
+          "say": "กดปุ่ม \"ขึ้น\" ที่การ์ดของสไลด์ใหม่ เพื่อเลื่อนขึ้นหนึ่งลำดับ ตัวเลขมุมรูปเปลี่ยนเป็นลำดับใหม่",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "article.release-slide-card",
+            "has_text": "{{t}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "id": "save-slide-order"
+          },
+          "expect_response": {
+            "url_contains": "/api/site/slides/order",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"ใช้ลำดับนี้\" มุมขวาบน ระบบบันทึกลำดับสไลด์ทั้งหมด",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "save-slide-order"
+          },
+          "wait_after": {
+            "text": "อัปเดตลำดับสไลด์แล้ว"
+          }
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "article.release-slide-card",
+            "has_text": "{{t}}"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "{{pos}}",
+            "in": {
+              "css": ".release-slide-photo span",
+              "within": {
+                "css": "article.release-slide-card",
+                "has_text": "{{t}}"
+              }
+            }
+          },
+          "say": "สไลด์ใหม่อยู่ลำดับที่ {{pos}} หลังบันทึก",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "article.release-slide-card",
+            "has_text": "{{t}}"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal",
+          "say": "เปิดหน้าแรกของเว็บไซต์ สไลด์ใหม่อยู่ในชุดสไลด์ของภาพใหญ่ (สไลด์เปลี่ยนเองตามเวลาที่ตั้ง)",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "[data-campus-carousel]"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 1,
+            "of": {
+              "css": ".campus-hero-slide h2",
+              "has_text": "{{t}}",
+              "include_hidden": true
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#slides",
+          "wait_after": {
+            "css": "article.release-slide-card",
+            "has_text": "{{t}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.release-slide-card",
+              "has_text": "{{t}}"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "status": 200,
+            "method": "POST"
+          },
+          "say": "กดปุ่ม \"ย้ายถังขยะ\" ที่การ์ดของสไลด์ทดลอง ไม่มีหน้าต่างถามยืนยัน สไลด์หายจากรายการและจากหน้าแรก",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "article.release-slide-card",
+            "has_text": "{{t}}"
+          },
+          "wait_after": {
+            "text": "ย้ายสไลด์เข้าถังขยะแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "article.release-slide-card",
+              "has_text": "{{t}}"
+            }
+          }
+        }
+      ],
+      "expected": "สไลด์ใหม่แสดงในชุดสไลด์ของหน้าแรกตามลำดับที่เลือก แล้วหายไปเมื่อย้ายลงถังขยะ",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมไม่เห็นสไลด์ทดลองแล้ว",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "count": 0,
+                "of": {
+                  "css": ".campus-hero-slide h2",
+                  "has_text": "{{t}}",
+                  "include_hidden": true
+                }
+              },
+              "say": "ผู้เข้าชมเปิดหน้าแรก ชุดสไลด์กลับเป็นชุดเดิม",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mourning-ribbon",
+      "title": "เปิดแถบไว้อาลัยมุมจอ ตรวจหน้าเว็บ แล้วปิด",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "t": "{{marker}} ไว้อาลัยสมมติ"
+      },
+      "intro": "ใช้เมื่อโรงเรียนร่วมไว้อาลัย โหมด \"ไว้ทุกข์\" แสดงแถบดำคาดมุมจอ ประกาศแบบหน้าต่าง หรือทำภาพในหน้าเว็บเป็นขาวดำ เลือกได้หลายแบบพร้อมกัน ตั้งวันเวลาเริ่มและสิ้นสุดได้ แถบรับการกดเฉพาะบริเวณแถบ เลือกให้กดแล้วเปิดประกาศหรือไปยังหน้าที่กำหนดได้ ใช้ภาพที่โรงเรียนได้รับอนุญาตเท่านั้น ประกาศนี้เป็นค่าของทั้งเว็บไซต์ ขั้นตอนนี้เปิดแล้วปิดคืนให้เอง",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ไว้ทุกข์ / เฉลิมฉลอง",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ไว้ทุกข์ / เฉลิมฉลอง\" ที่แถบเมนูด้านซ้าย หน้านี้ตั้งแถบไว้อาลัยมุมจอ หรือประกาศแสดงความยินดีของโรงเรียน",
+          "shot": true,
+          "wait_after": {
+            "id": "release-settings"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "off",
+            "of": {
+              "attr": {
+                "name": "mode"
+              }
+            }
+          },
+          "comment": "precondition: notice is off"
+        },
+        {
+          "do": "capture",
+          "target": {
+            "attr": {
+              "name": "title"
+            }
+          },
+          "from_attr": "value",
+          "var": "orig_title"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "mode"
+            }
+          },
+          "value": "mourning",
+          "say": "เลือก \"โหมด\" เป็น \"ไว้ทุกข์\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "title"
+            }
+          },
+          "value": "{{t}}",
+          "say": "พิมพ์หัวข้อประกาศในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "display"
+            }
+          },
+          "value": "ribbon",
+          "say": "เลือก \"รูปแบบไว้อาลัย (โหมดไว้ทุกข์)\" เป็น \"แถบดำคาดมุมจอ (แนะนำ)\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "id": "ribbon-preview"
+          },
+          "say": "เลื่อนลงไปที่กรอบ \"แถบไว้อาลัยมุมจอ\" แล้วกดปุ่ม \"ดูตัวอย่างแถบบนหน้าแรก\" ระบบสร้างลิงก์หน้าตัวอย่างที่ใช้ได้ 10 นาที ยังไม่เปลี่ยนเว็บไซต์จริง",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "id": "ribbon-preview-link"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/settings",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"ใช้บนเว็บไซต์\" มุมขวาบน ระบบแสดงข้อความ \"อัปเดตเว็บไซต์แล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#release-save-status",
+            "has_text": "อัปเดตเว็บไซต์แล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal",
+          "say": "เปิดหน้าแรกของเว็บไซต์ ระบบแสดงประกาศแบบหน้าต่าง ข้อความ \"ด้วยความอาลัย\" และหัวข้อที่ตั้งไว้",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "dialog.observance-dialog"
+          },
+          "wait_after": {
+            "css": "dialog.observance-dialog[open]"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "{{t}}",
+            "in": {
+              "css": "dialog.observance-dialog"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "dialog.observance-dialog .observance-footer button"
+          },
+          "say": "กดปุ่ม \"เข้าสู่เว็บไซต์\" เพื่อปิดหน้าต่างประกาศ แถบดำคาดมุมจอแสดงอยู่ที่มุมขวาบนของหน้า",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "css": "[data-observance-ribbon]"
+          },
+          "crop_pad": 200,
+          "wait_after": {
+            "css": "[data-observance-ribbon]",
+            "include_hidden": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 1,
+            "of": {
+              "css": "[data-observance-ribbon]",
+              "include_hidden": true
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#observance",
+          "wait_after": {
+            "id": "release-settings"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "mode"
+            }
+          },
+          "value": "off",
+          "say": "คืน \"โหมด\" เป็น \"ปิดประกาศพิเศษ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "display"
+            }
+          },
+          "value": "none"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "title"
+            }
+          },
+          "value": "{{orig_title}}",
+          "say": "พิมพ์หัวข้อเดิมกลับในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/settings",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"ใช้บนเว็บไซต์\" อีกครั้งเพื่อปิดประกาศ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#release-save-status",
+            "has_text": "อัปเดตเว็บไซต์แล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal",
+          "wait_after": {
+            "id": "hero-search"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "count": 0,
+              "of": {
+                "css": "[data-observance-ribbon]",
+                "include_hidden": true
+              }
+            },
+            {
+              "count": 0,
+              "of": {
+                "css": "dialog.observance-dialog",
+                "include_hidden": true
+              }
+            }
+          ]
+        }
+      ],
+      "expected": "หน้าแรกแสดงประกาศและแถบดำคาดมุมจอเมื่อเปิดใช้ และกลับเป็นปกติเมื่อปิด",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมไม่เห็นประกาศและแถบไว้อาลัยแล้ว",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "count": 0,
+                  "of": {
+                    "css": "[data-observance-ribbon]",
+                    "include_hidden": true
+                  }
+                },
+                {
+                  "count": 0,
+                  "of": {
+                    "css": "dialog.observance-dialog",
+                    "include_hidden": true
+                  }
+                }
+              ],
+              "say": "ผู้เข้าชมเปิดหน้าแรก ไม่มีประกาศและแถบไว้อาลัย",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "celebration-notice",
+      "title": "แสดงประกาศเฉลิมฉลองแบบหน้าต่าง แล้วปิด",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "t": "{{marker}} ยินดีกับความสำเร็จสมมติ"
+      },
+      "intro": "โหมด \"เฉลิมฉลอง\" แสดงประกาศแบบหน้าต่างพร้อมภาพ ข้อความ และปุ่มเข้าสู่เว็บไซต์ ใช้กับวันสำคัญหรือความสำเร็จของโรงเรียน เลือกความถี่ที่แสดงได้ ได้แก่ ครั้งเดียวต่อการใช้งาน ครั้งเดียวต่อวัน หรือทุกครั้งที่เปิดหน้า ตั้งวันเวลาเริ่มและสิ้นสุดได้ ประกาศนี้เป็นค่าของทั้งเว็บไซต์ ขั้นตอนนี้เปิดแล้วปิดคืนให้เอง",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ไว้ทุกข์ / เฉลิมฉลอง",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ไว้ทุกข์ / เฉลิมฉลอง\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "wait_after": {
+            "id": "release-settings"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "off",
+            "of": {
+              "attr": {
+                "name": "mode"
+              }
+            }
+          },
+          "comment": "precondition: notice is off"
+        },
+        {
+          "do": "capture",
+          "target": {
+            "attr": {
+              "name": "title"
+            }
+          },
+          "from_attr": "value",
+          "var": "orig_title"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "mode"
+            }
+          },
+          "value": "celebration",
+          "say": "เลือก \"โหมด\" เป็น \"เฉลิมฉลอง\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "title"
+            }
+          },
+          "value": "{{t}}",
+          "say": "พิมพ์หัวข้อประกาศในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "body"
+            }
+          },
+          "value": "ขอแสดงความยินดีกับความสำเร็จของนักเรียนโรงเรียนสมมติ",
+          "say": "พิมพ์รายละเอียดในช่อง \"รายละเอียด\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "button_label"
+            }
+          },
+          "value": "ไปที่เว็บไซต์",
+          "say": "พิมพ์ข้อความปุ่มในช่อง \"ข้อความปุ่มเข้าสู่เว็บ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "frequency"
+            }
+          },
+          "value": "visit",
+          "say": "เลือก \"ความถี่ที่แสดง\" เป็น \"ทุกครั้งที่เปิดหน้า\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/settings",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"ใช้บนเว็บไซต์\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#release-save-status",
+            "has_text": "อัปเดตเว็บไซต์แล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal",
+          "say": "เปิดหน้าแรกของเว็บไซต์ ระบบแสดงหน้าต่างประกาศ ข้อความ \"ร่วมแบ่งปันความยินดี\" และปุ่มที่ตั้งไว้",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "dialog.observance-dialog"
+          },
+          "wait_after": {
+            "css": "dialog.observance-dialog[open]"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "{{t}}",
+              "in": {
+                "css": "dialog.observance-dialog"
+              }
+            },
+            {
+              "text": "ร่วมแบ่งปันความยินดี",
+              "in": {
+                "css": "dialog.observance-dialog"
+              }
+            },
+            {
+              "count": 0,
+              "of": {
+                "css": "[data-observance-ribbon]",
+                "include_hidden": true
+              }
+            }
+          ]
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ไปที่เว็บไซต์",
+            "within": {
+              "css": "dialog.observance-dialog"
+            }
+          },
+          "say": "กดปุ่ม \"ไปที่เว็บไซต์\" หน้าต่างประกาศปิด ผู้เข้าชมใช้เว็บไซต์ต่อได้",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "id": "hero-search"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "dialog.observance-dialog[open]"
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#observance",
+          "wait_after": {
+            "id": "release-settings"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "mode"
+            }
+          },
+          "value": "off",
+          "say": "คืน \"โหมด\" เป็น \"ปิดประกาศพิเศษ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "frequency"
+            }
+          },
+          "value": "session"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "title"
+            }
+          },
+          "value": "{{orig_title}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "body"
+            }
+          },
+          "value": ""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "button_label"
+            }
+          },
+          "value": "เข้าสู่เว็บไซต์"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/settings",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"ใช้บนเว็บไซต์\" อีกครั้งเพื่อปิดประกาศ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#release-save-status",
+            "has_text": "อัปเดตเว็บไซต์แล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal",
+          "wait_after": {
+            "id": "hero-search"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 0,
+            "of": {
+              "css": "dialog.observance-dialog",
+              "include_hidden": true
+            }
+          }
+        }
+      ],
+      "expected": "หน้าแรกแสดงหน้าต่างประกาศเมื่อเปิดใช้ และไม่แสดงเมื่อปิด",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมไม่เห็นหน้าต่างประกาศแล้ว",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "count": 0,
+                "of": {
+                  "css": "dialog.observance-dialog",
+                  "include_hidden": true
+                }
+              },
+              "say": "ผู้เข้าชมเปิดหน้าแรก ไม่มีหน้าต่างประกาศ",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "arrange-home-sections",
+      "title": "จัดลำดับและซ่อนส่วนบนหน้าแรก",
+      "role": "editor",
+      "start": "/cms",
+      "intro": "หน้า \"จัดหน้าแรก\" เลือกส่วนที่แสดงและเรียงลำดับส่วนเนื้อหาของหน้าแรกโดยไม่ต้องเขียนโค้ด ส่วนต้อนรับและสถิติอยู่ด้านบนเสมอ ติ๊กเพื่อแสดง เอาเครื่องหมายถูกออกเพื่อซ่อน ปุ่ม \"ขึ้น\" \"ลง\" เลื่อนลำดับ ปุ่ม \"คืนรูปแบบมาตรฐาน\" ตั้งลำดับกลับเป็นแบบมาตรฐานของระบบ หน้าเนื้อหาที่เผยแพร่แล้วเพิ่มเป็นส่วนของหน้าแรกได้จากช่อง \"เพิ่มบล็อกจากหน้าเนื้อหา\" รองรับไม่เกิน 15 ส่วน การจัดหน้าแรกเป็นค่าของทั้งเว็บไซต์ ขั้นตอนนี้ทดลองแล้วคืนค่าเดิมให้เอง",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "ตั้งค่าเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดหน้าแรก",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"ตั้งค่าเว็บไซต์\" แล้วเลือก \"จัดหน้าแรก\"",
+          "shot": true,
+          "wait_after": {
+            "id": "site-home-sections"
+          }
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "css": ".desk-home-section-row",
+            "has_text": "ลิงก์และบริการ"
+          }
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "#homepage-page-block option[value^='page:']",
+            "include_hidden": true
+          },
+          "state": "attached"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลง",
+            "exact": true,
+            "within": {
+              "css": ".desk-home-section-row",
+              "has_text": "ลิงก์และบริการ"
+            }
+          },
+          "say": "กดปุ่ม \"ลง\" ที่แถว \"ลิงก์และบริการ\" เพื่อเลื่อนส่วนนี้ลงหนึ่งลำดับ",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".desk-home-section-row",
+            "has_text": "ลิงก์และบริการ"
+          }
+        },
+        {
+          "do": "uncheck",
+          "target": {
+            "role": "checkbox",
+            "name": "อัลบั้มภาพ",
+            "exact": true
+          },
+          "say": "เอาเครื่องหมายถูกออกจากแถว \"อัลบั้มภาพ\" ส่วนนี้จะไม่แสดงบนหน้าแรก",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/settings",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"ใช้บนเว็บไซต์\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#settings-status",
+            "has_text": "ใช้การตั้งค่าบนเว็บไซต์แล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal",
+          "say": "เปิดหน้าแรกของเว็บไซต์ ส่วนอัลบั้มภาพหายไป และส่วนลิงก์และบริการย้ายลงไปอยู่หลังหน้าเนื้อหา",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "id": "hero-search"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "count": 0,
+              "of": {
+                "css": "section#albums",
+                "include_hidden": true
+              }
+            },
+            {
+              "count": 1,
+              "of": {
+                "css": ".school-home-sections > section.school-page-block:first-child",
+                "include_hidden": true
+              }
+            }
+          ]
+        },
+        {
+          "do": "goto",
+          "url": "/cms#homepage",
+          "wait_after": {
+            "css": ".desk-home-section-row",
+            "has_text": "ลิงก์และบริการ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ขึ้น",
+            "exact": true,
+            "within": {
+              "css": ".desk-home-section-row",
+              "has_text": "ลิงก์และบริการ"
+            }
+          },
+          "say": "กดปุ่ม \"ขึ้น\" ที่แถว \"ลิงก์และบริการ\" เพื่อคืนลำดับเดิม",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".desk-home-section-row",
+            "has_text": "ลิงก์และบริการ"
+          }
+        },
+        {
+          "do": "check",
+          "target": {
+            "role": "checkbox",
+            "name": "อัลบั้มภาพ",
+            "exact": true
+          },
+          "say": "ติ๊กแถว \"อัลบั้มภาพ\" กลับคืน",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/settings",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"ใช้บนเว็บไซต์\" อีกครั้งเพื่อคืนค่าเดิม",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#settings-status",
+            "has_text": "ใช้การตั้งค่าบนเว็บไซต์แล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal",
+          "wait_after": {
+            "id": "hero-search"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "count": 1,
+              "of": {
+                "css": "section#albums",
+                "include_hidden": true
+              }
+            },
+            {
+              "count": 1,
+              "of": {
+                "css": ".school-home-sections > section#services:first-child",
+                "include_hidden": true
+              }
+            }
+          ]
+        }
+      ],
+      "expected": "หน้าแรกเปลี่ยนตามลำดับและส่วนที่เลือก แล้วกลับเป็นเหมือนเดิมเมื่อคืนค่า",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเห็นอัลบั้มภาพและลำดับเดิม",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "count": 1,
+                  "of": {
+                    "css": "section#albums",
+                    "include_hidden": true
+                  }
+                },
+                {
+                  "count": 1,
+                  "of": {
+                    "css": ".school-home-sections > section#services:first-child",
+                    "include_hidden": true
+                  }
+                }
+              ],
+              "say": "ผู้เข้าชมเปิดหน้าแรก ส่วนอัลบั้มภาพและลำดับเดิมกลับมา",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-school-profile",
+      "title": "แก้เวลาทำการและอีเมลของโรงเรียนในข้อมูลโรงเรียน",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "hours": "{{marker}} เปิดทำการสมมติ"
+      },
+      "intro": "หน้า \"ข้อมูลโรงเรียน\" เก็บข้อความแนะนำ ป้ายด้านบนเว็บไซต์ ระดับชั้นที่เปิดสอน ข้อความส่วนท้าย อีเมล เวลาทำการ สถิติที่แสดงหน้าแรก ลิงก์สังคมออนไลน์ แหล่งข้อมูลหน้าบุคลากร และส่วนเสริมของหน้าเว็บไซต์ (ข่าวยอดนิยม ปุ่มแชต แผนที่) ชื่อ โลโก้ ที่อยู่ และโทรศัพท์ปรับที่หน้า \"ปรับธีมหน้าบ้าน\" ข้อมูลในหน้านี้เปิดเผยต่อสาธารณะ ขั้นตอนนี้ทดลองแก้แล้วคืนค่าเดิมให้เอง",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "ตั้งค่าเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ข้อมูลโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"ตั้งค่าเว็บไซต์\" แล้วเลือก \"ข้อมูลโรงเรียน\"",
+          "shot": true,
+          "wait_after": {
+            "label": "ป้ายข้อความด้านบนเว็บไซต์"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "#site-settings-form [name=\"office_hours\"]"
+          },
+          "from_attr": "value",
+          "var": "orig_hours"
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "#site-settings-form [name=\"email\"]"
+          },
+          "from_attr": "value",
+          "var": "orig_email"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#site-settings-form [name=\"office_hours\"]"
+          },
+          "value": "{{hours}}",
+          "say": "พิมพ์เวลาทำการใหม่ในช่อง \"เวลาทำการ\" ในกรอบ \"ติดต่อและสถิติ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#site-settings-form [name=\"email\"]"
+          },
+          "value": "manual.school@example.invalid",
+          "say": "พิมพ์อีเมลโรงเรียนในช่อง \"อีเมลโรงเรียน\" (ใช้อีเมลของโรงเรียนที่เปิดเผยต่อสาธารณะได้)",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/settings",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"ใช้บนเว็บไซต์\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#settings-status",
+            "has_text": "ใช้การตั้งค่าบนเว็บไซต์แล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal/contact",
+          "say": "เปิดหน้า \"ติดต่อโรงเรียน\" ของเว็บไซต์ เวลาทำการและอีเมลแสดงข้อมูลใหม่",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".contact-page > div:first-child"
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "ติดต่อโรงเรียน",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "{{hours}}",
+              "in": {
+                "css": ".contact-page"
+              }
+            },
+            {
+              "text": "manual.school@example.invalid",
+              "in": {
+                "css": ".contact-page"
+              }
+            }
+          ]
+        },
+        {
+          "do": "goto",
+          "url": "/cms#profile",
+          "wait_after": {
+            "label": "ป้ายข้อความด้านบนเว็บไซต์"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#site-settings-form [name=\"office_hours\"]"
+          },
+          "value": "{{orig_hours}}",
+          "say": "พิมพ์เวลาทำการเดิมกลับ",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#site-settings-form [name=\"email\"]"
+          },
+          "value": "{{orig_email}}",
+          "say": "พิมพ์อีเมลเดิมกลับ",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/settings",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"ใช้บนเว็บไซต์\" อีกครั้งเพื่อคืนค่าเดิม",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#settings-status",
+            "has_text": "ใช้การตั้งค่าบนเว็บไซต์แล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal/contact",
+          "wait_after": {
+            "role": "heading",
+            "name": "ติดต่อโรงเรียน",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "not_text": "{{hours}}",
+              "in": {
+                "css": ".contact-page"
+              }
+            },
+            {
+              "not_text": "manual.school@example.invalid",
+              "in": {
+                "css": ".contact-page"
+              }
+            }
+          ]
+        }
+      ],
+      "expected": "หน้า \"ติดต่อโรงเรียน\" แสดงเวลาทำการและอีเมลที่แก้ แล้วกลับเป็นค่าเดิมเมื่อคืนค่า",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเห็นข้อมูลติดต่อเดิม",
+          "as": "anonymous",
+          "start": "/portal/contact",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "not_text": "{{hours}}"
+                },
+                {
+                  "not_text": "manual.school@example.invalid"
+                }
+              ],
+              "say": "ผู้เข้าชมเปิดหน้า \"ติดต่อโรงเรียน\" เห็นข้อมูลเดิม",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "manage-categories",
+      "title": "เพิ่ม เปลี่ยนชื่อ และลบหมวดเนื้อหา",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "label": "{{marker}} หมวดทดลอง",
+        "label2": "{{marker}} หมวดทดลอง (เปลี่ยนชื่อ)",
+        "slug": "m{{run_id}}"
+      },
+      "intro": "หมวดเนื้อหาใช้จัดกลุ่มข่าวและเนื้อหาอื่นของเว็บไซต์ ผู้ดูแลเพิ่มหมวดใหม่ เปลี่ยนชื่อหมวด และลบหมวดที่ไม่มีเนื้อหา ร่าง หรือประวัติใช้อยู่ได้ รหัสหมวดใช้อักษรอังกฤษพิมพ์เล็ก ตัวเลข และขีด ไม่เกิน 30 ตัว ขั้นตอนนี้เพิ่ม เปลี่ยนชื่อ และลบหมวดทดลองของตนเอง",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "ตั้งค่าเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "หมวดเนื้อหา",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"ตั้งค่าเว็บไซต์\" แล้วเลือก \"หมวดเนื้อหา\"",
+          "shot": true,
+          "wait_after": {
+            "id": "add-category"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#add-category [name=\"label\"]"
+          },
+          "value": "{{label}}",
+          "say": "พิมพ์ชื่อหมวดในช่อง \"ชื่อหมวด\" ของกรอบ \"เพิ่มหมวดเนื้อหา\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#add-category [name=\"slug\"]"
+          },
+          "value": "{{slug}}",
+          "say": "พิมพ์รหัสหมวดในช่อง \"รหัสหมวด (a-z, 0-9, ขีด)\" ใช้ตัวอักษรอังกฤษพิมพ์เล็ก ตัวเลข และขีดเท่านั้น",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มหมวด",
+            "exact": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/categories",
+            "status": 201,
+            "method": "POST"
+          },
+          "say": "กดปุ่ม \"เพิ่มหมวด\" ระบบแสดงข้อความ \"บันทึกหมวดแล้ว\" และหมวดใหม่อยู่ในกรอบ \"หมวดทั้งหมด\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "form[data-category-form]:has(input[name=\"slug\"][value=\"{{slug}}\"])"
+          },
+          "wait_after": {
+            "css": "form[data-category-form]:has(input[name=\"slug\"][value=\"{{slug}}\"])"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[name=\"label\"]",
+            "within": {
+              "css": "form[data-category-form]:has(input[name=\"slug\"][value=\"{{slug}}\"])"
+            }
+          },
+          "value": "{{label2}}",
+          "say": "แก้ชื่อหมวดในช่อง \"ชื่อหมวด\" ของแถวหมวดใหม่",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "form[data-category-form]:has(input[name=\"slug\"][value=\"{{slug}}\"])"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-category-form]:has(input[name=\"slug\"][value=\"{{slug}}\"])"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/api/site/categories/",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"บันทึก\" ท้ายแถว",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "form[data-category-form]:has(input[name=\"slug\"][value=\"{{slug}}\"])"
+          },
+          "wait_after": {
+            "text": "บันทึกหมวดแล้ว"
+          }
+        },
+        {
+          "do": "reload"
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-category-form]:has(input[name=\"slug\"][value=\"{{slug}}\"])"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "{{label2}}",
+            "of": {
+              "css": "[name=\"label\"]",
+              "within": {
+                "css": "form[data-category-form]:has(input[name=\"slug\"][value=\"{{slug}}\"])"
+              }
+            }
+          },
+          "say": "ชื่อใหม่ยังอยู่หลังเปิดหน้าอีกครั้ง",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "form[data-category-form]:has(input[name=\"slug\"][value=\"{{slug}}\"])"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบหมวด",
+            "within": {
+              "css": "form[data-category-form]:has(input[name=\"slug\"][value=\"{{slug}}\"])"
+            }
+          },
+          "dialog": "accept",
+          "expect_response": {
+            "url_contains": "/api/site/categories/",
+            "status": 200,
+            "method": "DELETE"
+          },
+          "say": "กดปุ่ม \"ลบหมวด\" แล้วกดตกลงในหน้าต่างยืนยัน หมวดที่ยังมีเนื้อหาใช้อยู่ลบไม่ได้",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "form[data-category-form]:has(input[name=\"slug\"][value=\"{{slug}}\"])"
+          },
+          "wait_after": {
+            "text": "ลบหมวดแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "form[data-category-form]:has(input[name=\"slug\"][value=\"{{slug}}\"])"
+            }
+          }
+        }
+      ],
+      "expected": "หมวดทดลองถูกเพิ่ม เปลี่ยนชื่อ แล้วลบออกจากรายการ",
+      "verify": [
+        {
+          "title": "หมวดทดลองไม่อยู่ในรายการเลือกหมวดของแบบฟอร์มเขียนเนื้อหา",
+          "start": "/cms#compose",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "id": "rich-body"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "count": 0,
+                "of": {
+                  "css": "select[name=\"category\"] option[value=\"{{slug}}\"]",
+                  "include_hidden": true
+                }
+              },
+              "say": "แบบฟอร์มเขียนเนื้อหาไม่มีหมวดทดลองแล้ว",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "select[name=\"category\"]"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "view-audit-trail",
+      "title": "ดูประวัติการจัดการของเว็บไซต์",
+      "role": "editor",
+      "start": "/cms",
+      "depends_on": [
+        "manage-categories"
+      ],
+      "intro": "หน้า \"ประวัติการจัดการ\" บันทึกว่าใครทำอะไรกับเว็บไซต์ เช่น บันทึกร่าง เผยแพร่ ย้ายลงถังขยะ เปลี่ยนการตั้งค่า อัปโหลดไฟล์ เปลี่ยนหมวด และเปลี่ยนสถานะข้อความ แสดงรายการล่าสุดหน้าละ 30 รายการ หน้านี้ไม่มีช่องกรอง ดูอย่างเดียว ใช้ตรวจย้อนหลังเมื่อพบว่ามีสิ่งที่เปลี่ยนไป",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "ตั้งค่าเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ประวัติการจัดการ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"ตั้งค่าเว็บไซต์\" แล้วเลือก \"ประวัติการจัดการ\"",
+          "shot": true,
+          "wait_after": {
+            "css": "table"
+          }
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "tbody tr",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "tbody tr",
+              "has_text": "category.deleted",
+              "first": true
+            }
+          },
+          "say": "หน้า \"ประวัติการจัดการ\" เรียงรายการล่าสุดไว้บนสุด แต่ละแถวมีเวลา รายการที่ทำ (เช่น category.deleted ของหมวดที่เพิ่งลบ) รหัสผู้ใช้ และเรื่องที่เกี่ยวข้อง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "tbody tr",
+            "has_text": "category.deleted",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "th",
+              "has_text": "อ้างอิง"
+            }
+          },
+          "say": "หัวตารางมี 4 คอลัมน์ ได้แก่ เวลา รายการ ผู้ใช้ และอ้างอิง",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "thead"
+          }
+        }
+      ],
+      "expected": "ตารางแสดงรายการจัดการล่าสุดของเว็บไซต์",
+      "verify": [
+        {
+          "title": "ตารางประวัติมีรายการของหมวดที่เพิ่งลบ",
+          "start": "/cms#audit",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "tbody tr",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "tbody tr",
+                  "has_text": "category.deleted",
+                  "first": true
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "redirect-old-address",
+      "title": "ตั้ง redirect จากที่อยู่เดิม ตรวจการพาไปหน้าใหม่ แล้วปิดใช้",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "old": "/old-manual-{{run_id}}"
+      },
+      "intro": "เมื่อย้ายหน้าเว็บไซต์ ที่อยู่เดิมที่คนเก็บไว้หรือค้นเจอจากเว็บค้นหาจะไม่พบหน้า redirect บอกเบราว์เซอร์ให้พาไปที่อยู่ใหม่ ที่อยู่เดิมใช้เส้นทางในเว็บไซต์ เช่น /old-page/ หรือ /?p=123 ปลายทางเป็นเส้นทางในเว็บไซต์หรือ https ระบบไม่ยอมให้ตั้งกับเส้นทางของระบบหลังบ้านและตรวจวงวนให้ ชนิด 301 คือย้ายถาวร 302 คือย้ายชั่วคราว ไม่มีปุ่มลบ ปิดใช้ได้ด้วยการเอาเครื่องหมายถูกที่ \"เปิดใช้\" ออก",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "ตั้งค่าเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "Redirect URL เดิม",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"ตั้งค่าเว็บไซต์\" แล้วเลือก \"Redirect URL เดิม\"",
+          "shot": true,
+          "wait_after": {
+            "id": "new-redirect"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#new-redirect [name=\"source_path\"]"
+          },
+          "value": "{{old}}",
+          "say": "พิมพ์ที่อยู่เดิมของหน้าในช่อง \"เส้นทางเดิม\" เช่น /old-page/ (ขึ้นต้นด้วย /)",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#new-redirect [name=\"target_path\"]"
+          },
+          "value": "/portal/contact",
+          "say": "พิมพ์ที่อยู่ใหม่ในช่อง \"ปลายทาง\" เช่น /portal/contact",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "#new-redirect [name=\"status_code\"]"
+          },
+          "value": "301",
+          "say": "เลือก \"ชนิด\" เป็น \"301 ย้ายถาวร\" (ใช้ 302 เมื่อย้ายชั่วคราว)",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่ม redirect",
+            "exact": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/redirects",
+            "status": 201,
+            "method": "POST"
+          },
+          "say": "กดปุ่ม \"เพิ่ม redirect\" ระบบแสดงข้อความ \"บันทึก redirect แล้ว\" และแถวใหม่อยู่ในกรอบ \"รายการ redirect\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เพิ่ม redirect",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "form[data-redirect-id]:has(input[name=\"source_path\"][value=\"{{old}}\"])"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "http_status": 301,
+            "url": "{{old}}",
+            "anonymous": true
+          }
+        },
+        {
+          "do": "goto",
+          "url": "{{old}}",
+          "say": "เปิดที่อยู่เดิมในเบราว์เซอร์ ระบบพาไปหน้า \"ติดต่อโรงเรียน\" ซึ่งเป็นที่อยู่ใหม่",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "role": "heading",
+            "name": "ติดต่อโรงเรียน",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "url": "/portal/contact"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#redirects",
+          "wait_after": {
+            "css": "form[data-redirect-id]:has(input[name=\"source_path\"][value=\"{{old}}\"])"
+          }
+        },
+        {
+          "do": "uncheck",
+          "target": {
+            "role": "checkbox",
+            "name": "เปิดใช้",
+            "within": {
+              "css": "form[data-redirect-id]:has(input[name=\"source_path\"][value=\"{{old}}\"])"
+            }
+          },
+          "say": "เอาเครื่องหมายถูกออกจากช่อง \"เปิดใช้\" ในแถวของ redirect นี้ (ระบบไม่มีปุ่มลบ ใช้การปิดแทน)",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "form[data-redirect-id]:has(input[name=\"source_path\"][value=\"{{old}}\"])"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-redirect-id]:has(input[name=\"source_path\"][value=\"{{old}}\"])"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/api/site/redirects/",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"บันทึก\" ท้ายแถว",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "form[data-redirect-id]:has(input[name=\"source_path\"][value=\"{{old}}\"])"
+          },
+          "wait_after": {
+            "text": "บันทึก redirect แล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "http_status": 404,
+            "url": "{{old}}",
+            "anonymous": true
+          }
+        }
+      ],
+      "expected": "ที่อยู่เดิมพาผู้เข้าชมไปหน้าใหม่ และหยุดพาไปเมื่อปิดใช้",
+      "verify": [
+        {
+          "title": "ที่อยู่เดิมไม่พาไปหน้าใหม่แล้ว",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "http_status": 404,
+                "url": "{{old}}",
+                "anonymous": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "save-mail-settings",
+      "title": "บันทึกการตั้งค่าส่งอีเมล (ค่าสมมติ) แล้วคืนค่าเดิม",
+      "role": "admin",
+      "start": "/cms",
+      "intro": "ผู้ดูแลระบบตั้งวิธีส่งอีเมลของระบบ เช่น อีเมลแจ้งเรื่องและลิงก์ตั้งรหัสผ่าน มี 4 แบบ ได้แก่ ใช้ค่าจากเซิร์ฟเวอร์ ปิดการส่ง Gmail หรือ Google Workspace (ต้องใช้ App Password 16 ตัว ไม่ใช่รหัสผ่านปกติของ Google และต้องเปิดการยืนยัน 2 ขั้นตอนก่อน) และ SMTP ทั่วไป ระบบเก็บรหัสผ่านแบบเข้ารหัสและไม่แสดงกลับในฟอร์ม ปุ่ม \"ส่งอีเมลทดสอบ\" ส่งข้อความทดสอบไปยังอีเมลที่กรอก เฉพาะผู้ดูแลระบบเท่านั้นที่เปิดหน้านี้ได้ คู่มือนี้ใช้ค่าสมมติและไม่ส่งอีเมลจริง ขั้นตอนนี้บันทึกแล้วคืนค่าเดิมให้เอง",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "ตั้งค่าเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตั้งค่าการส่งอีเมล",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"ตั้งค่าเว็บไซต์\" แล้วเลือก \"ตั้งค่าการส่งอีเมล\"",
+          "shot": true,
+          "wait_after": {
+            "css": "#mail-config"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "[name=\"host\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "from_attr": "value",
+          "var": "o_host"
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "[name=\"port\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "from_attr": "value",
+          "var": "o_port"
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "[name=\"username\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "from_attr": "value",
+          "var": "o_username"
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "[name=\"from_address\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "from_attr": "value",
+          "var": "o_from_address"
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "[name=\"from_name\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "from_attr": "value",
+          "var": "o_from_name"
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "[name=\"reply_to\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "from_attr": "value",
+          "var": "o_reply_to"
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "[name=\"provider\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "value": "smtp",
+          "say": "เลือก \"วิธีส่งอีเมล\" เป็น \"SMTP ทั่วไป\" (Gmail เลือก \"Gmail / Google Workspace\" แล้วใช้ App Password)",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[name=\"host\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "value": "smtp.example.invalid",
+          "say": "พิมพ์ที่อยู่เซิร์ฟเวอร์ในช่อง \"SMTP host\" (ตัวอย่างสมมติ)",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[name=\"port\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "value": "587",
+          "say": "ตรวจช่อง \"Port\" (STARTTLS ปกติใช้ 587)",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[name=\"username\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "value": "manual-user@example.invalid",
+          "say": "พิมพ์บัญชีผู้ส่งในช่อง \"บัญชีเข้าสู่ SMTP / อีเมล Google\" (ตัวอย่างสมมติ)",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[name=\"password\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "value": "รหัสสมมติ-ไม่ใช่ของจริง-0000",
+          "say": "พิมพ์รหัสผ่านของบัญชีผู้ส่งในช่อง \"App Password / รหัสผ่าน SMTP\" ระบบเก็บแบบเข้ารหัสและไม่แสดงกลับ",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[name=\"from_address\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "value": "noreply@example.invalid",
+          "say": "พิมพ์อีเมลผู้ส่งในช่อง \"อีเมลผู้ส่ง\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[name=\"from_name\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "value": "{{marker}} โรงเรียนสมมติ",
+          "say": "พิมพ์ชื่อผู้ส่งในช่อง \"ชื่อผู้ส่ง\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่าเมล",
+            "exact": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/mail",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"บันทึกการตั้งค่าเมล\" ระบบแสดงข้อความ \"บันทึกการตั้งค่าเมลแล้ว รหัสผ่านไม่ถูกแสดงกลับ\" (ไม่กดปุ่ม \"ส่งอีเมลทดสอบ\" ในขั้นตอนนี้)",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่าเมล",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "#mail-status",
+            "has_text": "บันทึกการตั้งค่าเมลแล้ว"
+          }
+        },
+        {
+          "do": "reload"
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "#mail-config"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "value": "smtp",
+              "of": {
+                "css": "[name=\"provider\"]",
+                "within": {
+                  "css": "#mail-config"
+                }
+              }
+            },
+            {
+              "value": "smtp.example.invalid",
+              "of": {
+                "css": "[name=\"host\"]",
+                "within": {
+                  "css": "#mail-config"
+                }
+              }
+            },
+            {
+              "value": "",
+              "of": {
+                "css": "[name=\"password\"]",
+                "within": {
+                  "css": "#mail-config"
+                }
+              }
+            }
+          ],
+          "say": "หลังเปิดหน้าอีกครั้ง การตั้งค่าอยู่ครบ แต่ช่องรหัสผ่านว่างเสมอ ข้อความใต้ช่องบอกว่า \"มีรหัสผ่านที่เข้ารหัสแล้ว\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "[name=\"password\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[name=\"host\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "value": "{{o_host}}",
+          "say": "คืนค่าเดิมในช่อง \"SMTP host\" และช่องอื่นของกรอบ \"ผู้ให้บริการและบัญชีผู้ส่ง\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[name=\"port\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "value": "{{o_port}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[name=\"username\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "value": "{{o_username}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[name=\"from_address\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "value": "{{o_from_address}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[name=\"from_name\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "value": "{{o_from_name}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[name=\"reply_to\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "value": "{{o_reply_to}}"
+        },
+        {
+          "do": "check",
+          "target": {
+            "css": "[name=\"clear_password\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "say": "ติ๊ก \"ลบรหัสผ่านที่เก็บไว้\" แล้วเลือก \"วิธีส่งอีเมล\" เป็น \"ใช้ค่าจากเซิร์ฟเวอร์\" เพื่อคืนการตั้งค่าเดิม",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "[name=\"provider\"]",
+            "within": {
+              "css": "#mail-config"
+            }
+          },
+          "value": "env"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่าเมล",
+            "exact": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/mail",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"บันทึกการตั้งค่าเมล\" อีกครั้ง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่าเมล",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "#mail-status",
+            "has_text": "บันทึกการตั้งค่าเมลแล้ว"
+          }
+        }
+      ],
+      "expected": "การตั้งค่าอีเมลบันทึกได้และอ่านกลับมาครบ แล้วกลับเป็นค่าเดิม",
+      "verify": [
+        {
+          "title": "การตั้งค่าอีเมลกลับเป็นค่าเดิมและไม่มีรหัสผ่านค้าง",
+          "start": "/cms#mail",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "#mail-config"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "value": "env",
+                  "of": {
+                    "css": "[name=\"provider\"]",
+                    "within": {
+                      "css": "#mail-config"
+                    }
+                  }
+                },
+                {
+                  "visible": {
+                    "css": "#mail-config .desk-help",
+                    "has_text": "ยังไม่เก็บรหัสผ่าน"
+                  }
+                }
+              ],
+              "say": "หน้าตั้งค่ากลับเป็น \"ใช้ค่าจากเซิร์ฟเวอร์\" และบอกว่า \"ยังไม่เก็บรหัสผ่าน\"",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "[name=\"provider\"]",
+                "within": {
+                  "css": "#mail-config"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "read-deployment-readiness",
+      "title": "ตรวจความพร้อมของระบบและอ่านผลตรวจ",
+      "role": "admin",
+      "start": "/cms",
+      "intro": "หน้า \"ตรวจความพร้อมระบบ\" สำหรับผู้ดูแลระบบ แสดงผลตรวจจากเครื่องที่ติดตั้งระบบ ตรวจเรื่องการเปิดเว็บไซต์ให้คนภายนอก การสำรองและกู้คืน การส่งอีเมล งานตั้งเวลา (cron) ที่ใช้เผยแพร่ตามเวลา สิทธิ์โฟลเดอร์ และการตั้งค่าความปลอดภัย หน้านี้ดูอย่างเดียว ไม่เปลี่ยนค่า แถวที่ติดป้าย \"ต้องตรวจ\" บอกสิ่งที่ผู้ดูแลเครื่องแม่ข่ายต้องแก้ ในระบบทดลองบางแถวติดป้ายนี้เป็นเรื่องปกติ เช่น ยังไม่ตั้งงานตั้งเวลา",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตรวจความพร้อมระบบ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "css": ".release-health-list",
+            "first": true
+          },
+          "say": "เลือกเมนู \"ตรวจความพร้อมระบบ\" ในกลุ่ม \"บัญชีและระบบ\" ที่แถบเมนูด้านซ้าย (เห็นเฉพาะผู้ดูแลระบบ)",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "h2",
+              "has_text": "รายการผ่าน",
+              "first": true
+            }
+          },
+          "say": "ส่วนบนของหน้าสรุปจำนวนรายการตรวจที่ผ่าน เช่น \"23 / 34 รายการผ่าน\" และมีข้อความอธิบายผลตรวจ",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "h2",
+            "has_text": "รายการผ่าน",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": ".release-health-list .tag",
+              "has_text": "พร้อม",
+              "first": true
+            }
+          },
+          "say": "แถวสรุป 4 เรื่อง ได้แก่ \"เปิดเว็บไซต์ให้คนภายนอก\" \"สำรองและกู้คืน\" \"ส่งอีเมล\" และ \"เผยแพร่ตามเวลา\" ป้าย \"พร้อม\" แปลว่าตั้งค่าแล้ว ป้าย \"ยังไม่พร้อม\" แปลว่ายังต้องตั้งค่า",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".release-health-list",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "h3",
+              "has_text": "รายการตรวจทั้งหมด"
+            }
+          },
+          "say": "หัวข้อ \"รายการตรวจทั้งหมด\" แสดงทุกข้อที่ระบบตรวจ แต่ละแถวมีป้าย \"ผ่าน\" หรือ \"ต้องตรวจ\" ชื่อรายการ และคำอธิบายว่าพบอะไร",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "h3",
+            "has_text": "รายการตรวจทั้งหมด"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "h2",
+              "has_text": "สำหรับผู้ดูแลเครื่องแม่ข่าย"
+            }
+          },
+          "say": "ส่วน \"สำหรับผู้ดูแลเครื่องแม่ข่าย\" บอกคำสั่งตรวจซ้ำ การสร้างผู้ดูแลครั้งแรก การกู้บัญชี และงานตั้งเวลา (cron) ที่ต้องตั้งบนเครื่อง",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "h2",
+            "has_text": "สำหรับผู้ดูแลเครื่องแม่ข่าย"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "#saan-updates h2",
+              "has_text": "อัปเดตระบบ"
+            }
+          },
+          "say": "ส่วนล่างสุด \"อัปเดตระบบ\" สรุปรุ่นปัจจุบัน ปุ่ม \"เปิดหน้า อัปเดตระบบ\" ไปหน้าตรวจรุ่นใหม่และติดตั้ง",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "#saan-updates"
+          }
+        }
+      ],
+      "expected": "หน้าแสดงจำนวนรายการที่ผ่าน สรุป 4 เรื่อง และรายการตรวจทั้งหมด",
+      "verify": [
+        {
+          "title": "หน้าตรวจความพร้อมมีรายการตรวจ",
+          "start": "/cms#deployment",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "css": ".release-health-list",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "count": {
+                  "min": 5
+                },
+                "of": {
+                  "css": ".release-health-list > div"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "favicon-and-color-mode",
+      "title": "เปลี่ยนไอคอนแท็บและโหมดสีตั้งต้นของเว็บไซต์",
+      "role": "editor",
+      "start": "/cms",
+      "intro": "หน้า \"favicon และโหมดสี\" ตั้งไอคอนที่แสดงบนแท็บของเบราว์เซอร์ (favicon) และโหมดสีตั้งต้นของเว็บไซต์ ได้แก่ สว่าง มืด ตามระบบของผู้ชม ชัดสูง และมืดชัด ผู้ชมเลือกโหมดของตนเองได้ที่แถบเมนูโดยไม่เปลี่ยนค่าของโรงเรียน และเบราว์เซอร์จำโหมดที่ผู้ชมเลือกไว้ ถ้าไม่เลือกรูป ระบบใช้ตราที่เลือกไว้ในหน้า \"โลโก้และชื่อโรงเรียน\" ขั้นตอนนี้ทดลองเปลี่ยนค่า การคืนค่าเดิมอยู่ในขั้นตอนท้ายสุดของหน่วยนี้ \"คืนไอคอนแท็บและโหมดสีตั้งต้นของเว็บไซต์\"",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "ตั้งค่าเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "favicon และโหมดสี",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"ตั้งค่าเว็บไซต์\" แล้วเลือก \"favicon และโหมดสี\"",
+          "shot": true,
+          "wait_after": {
+            "id": "release-settings"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "light",
+            "of": {
+              "attr": {
+                "name": "color_mode"
+              }
+            }
+          },
+          "comment": "precondition"
+        },
+        {
+          "do": "click",
+          "target": {
+            "attr": {
+              "data-image-pick": "favicon_media_id"
+            }
+          },
+          "settle_ms": 2500,
+          "say": "กดปุ่ม \"เลือกจากคลัง\" ในกรอบ \"favicon / ไอคอนแท็บ\" แล้วกดเลือกรูปสี่เหลี่ยมจากหน้าต่างคลัง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "attr": {
+              "data-image-pick": "favicon_media_id"
+            }
+          },
+          "wait_after": {
+            "css": "#media-picker button[data-desk-media]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "picker-search"
+          },
+          "value": "staff"
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "#media-picker button[data-desk-media]",
+            "has_text": "staff",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "#media-picker button[data-desk-media]",
+            "has_text": "staff",
+            "first": true
+          },
+          "wait_after": {
+            "css": "[data-image-preview=\"favicon_media_id\"] img"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "[data-image-preview=\"favicon_media_id\"] img"
+            }
+          },
+          "say": "รูปที่เลือกแสดงในกรอบ \"favicon / ไอคอนแท็บ\" ปุ่ม \"นำรูปออก\" ใช้ถอนรูป",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "[data-image-preview=\"favicon_media_id\"]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "color_mode"
+            }
+          },
+          "value": "dark",
+          "say": "เลือก \"โหมดสีตั้งต้น\" เป็น \"มืด\" ผู้เข้าชมที่ยังไม่เคยเลือกโหมดเองจะเห็นหน้าเว็บแบบมืด",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/settings",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"ใช้บนเว็บไซต์\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#release-save-status",
+            "has_text": "อัปเดตเว็บไซต์แล้ว"
+          }
+        }
+      ],
+      "expected": "หน้าแรกตั้งโหมดสีตั้งต้นเป็นมืด (ผู้เข้าชมที่เคยเลือกโหมดเองในเบราว์เซอร์จะเห็นโหมดของตน) และแท็บใช้ไอคอนที่เลือก",
+      "verify": [
+        {
+          "title": "หน้าแรกของเว็บไซต์ตั้งโหมดสีตั้งต้นเป็นมืด และแท็บใช้ไอคอนที่เลือก",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "id": "hero-search"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "count": 1,
+                  "of": {
+                    "css": "meta[name=\"school-color-mode\"][content=\"dark\"]",
+                    "include_hidden": true
+                  }
+                },
+                {
+                  "count": 1,
+                  "of": {
+                    "css": "link[rel=\"icon\"][href*=\"/media/\"]",
+                    "include_hidden": true
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "restore-identity-defaults",
+      "title": "คืนไอคอนแท็บและโหมดสีตั้งต้นของเว็บไซต์",
+      "role": "editor",
+      "start": "/cms",
+      "cleanup": true,
+      "intro": "ขั้นตอนนี้คืนค่า favicon และโหมดสีตั้งต้นที่เปลี่ยนไว้ เพราะเป็นค่าของทั้งเว็บไซต์ ผู้ดูแลทำเช่นเดียวกันเมื่อทดลองแล้วไม่ต้องการใช้",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "ตั้งค่าเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "favicon และโหมดสี",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"ตั้งค่าเว็บไซต์\" แล้วเลือก \"favicon และโหมดสี\"",
+          "shot": true,
+          "wait_after": {
+            "id": "release-settings"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "attr": {
+              "data-image-clear": "favicon_media_id"
+            }
+          },
+          "say": "กดปุ่ม \"นำรูปออก\" ในกรอบ \"favicon / ไอคอนแท็บ\" (ถ้ามีรูปที่เลือกค้างไว้)",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "color_mode"
+            }
+          },
+          "value": "light",
+          "say": "ตั้ง \"โหมดสีตั้งต้น\" เป็น \"สว่าง\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/settings",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"ใช้บนเว็บไซต์\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#release-save-status",
+            "has_text": "อัปเดตเว็บไซต์แล้ว"
+          }
+        }
+      ],
+      "expected": "เว็บไซต์ใช้โหมดสว่างและไอคอนเริ่มต้น",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเห็นโหมดสว่างและไอคอนเดิม",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "count": 1,
+                  "of": {
+                    "css": "meta[name=\"school-color-mode\"][content=\"light\"]",
+                    "include_hidden": true
+                  }
+                },
+                {
+                  "count": 0,
+                  "of": {
+                    "css": "link[rel=\"icon\"][href*=\"/media/\"]",
+                    "include_hidden": true
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": [
+    "ปุ่ม \"ส่งอีเมลทดสอบ\" ในหน้า \"ตั้งค่าการส่งอีเมล\" ไม่ได้กด เพราะส่งอีเมลออกไปยังบริการภายนอกจริง และการสร้าง Gmail App Password ทำโดยเจ้าของบัญชี Google เอง",
+    "ปุ่ม \"ดูตัวอย่างแถบบนหน้าแรก\" สร้างลิงก์ตัวอย่างแล้ว แต่ไม่ได้เปิดลิงก์ตัวอย่างนั้น ผลจริงตรวจจากหน้าแรกหลังกด \"ใช้บนเว็บไซต์\" แทน",
+    "แถบไว้อาลัยแบบรูปที่อัปโหลดเอง (PNG / WebP / SVG) การเลือกมุมและขนาดแถบ การทำรูปในหน้าเว็บเป็นขาวดำ การตั้งวันเวลาเริ่มและสิ้นสุด และการเลือกให้แถบเปิดประกาศหรือไปยังหน้าที่กำหนด ไม่ได้ทดสอบ (ทดสอบเฉพาะแถบในตัวแบบดำคาดมุมขวาบนและประกาศแบบหน้าต่าง)",
+    "การอัปโหลดโลโก้ของโรงเรียน (พื้นสว่าง พื้นมืด มือถือ) การตั้งขนาดและสีของตรา และการตั้งค่า hero กลุ่มอื่น (ขนาด สี ปุ่ม การเล่นสไลด์ ภาพตั้งต้น) ไม่ได้ทดสอบ ทดสอบเฉพาะการเปลี่ยนชื่อ ตราที่ออกแบบไว้ ปุ่มพิเศษที่ส่วนหัว และข้อความช่องค้นหาบน hero เพราะใช้แบบฟอร์มและปุ่มเผยแพร่เดียวกัน",
+    "ส่วนเสริมของหน้าเว็บไซต์ (ข่าวยอดนิยมและยอดอ่าน ปุ่มแชต Messenger และ LINE แผนที่โรงเรียน) สถิติหน้าแรก ลิงก์สังคมออนไลน์ และแหล่งข้อมูลหน้าบุคลากรในหน้า \"ข้อมูลโรงเรียน\" ไม่ได้ทดสอบ ปุ่ม \"โหลดแผนที่\" ติดต่อผู้ให้บริการแผนที่ภายนอกจริง",
+    "หน้า \"ประวัติการจัดการ\" ไม่มีช่องกรอง มีเฉพาะการแบ่งหน้า (ปุ่ม \"ถัดไป\" และ \"ก่อนหน้า\") จึงตรวจการดูรายการเท่านั้น ไม่ได้ตรวจการเปลี่ยนหน้า",
+    "ระบบไม่มีปุ่มลบ redirect ปิดใช้ได้เท่านั้น แถวของที่อยู่เดิมที่ทดลองจึงค้างอยู่ในรายการเป็นสถานะปิด ส่วนค่าอื่นของหน้าในกลุ่มนี้คืนค่าเดิมครบ",
+    "ระบบไม่มีปุ่มลบสไลด์ถาวร สไลด์ที่ย้ายลงถังขยะค้างอยู่ในถังขยะ ส่วนหมวดเนื้อหาที่ลบแล้วหายจริง",
+    "ผู้ชมกดปุ่มโหมดสีเองบนหน้าเว็บ (ผลเก็บในเบราว์เซอร์ของผู้ชม) ไม่ได้ทดสอบ ตรวจเฉพาะโหมดสีตั้งต้นของโรงเรียน",
+    "การตรวจเมื่อติดตั้งแบบสองฝั่ง (หน้าบ้านแยกเครื่อง) ไม่ได้ตรวจ การติดตั้งนี้เป็นแบบรวม"
+  ],
+  "coverage": "partial",
+  "coverage_note": "ครอบคลุมหน้าตั้งค่าที่เปลี่ยนผลบนเว็บไซต์ได้ตรง ๆ ทุกหน้า และหน้าจัดการ 6 หน้า ส่วนปุ่มที่ติดต่อบริการภายนอก ปุ่มลบที่ระบบไม่มี และกลุ่มตัวเลือกย่อยที่ใช้แบบฟอร์มเดียวกันยังไม่ได้ทดสอบทุกช่อง"
+}

@@ -34,6 +34,14 @@
 .hl-msg p{margin:0 0 .3rem}
 .hl-msg ul{margin:.2rem 0 .5rem;padding-left:1.2rem}
 .hl-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* phone: the name takes what is left, so the weight and the height box are both on screen without sideways scrolling */
+@media (max-width:639px){
+  .hl-table{table-layout:fixed}
+  .hl-table :is(th,td):nth-child(2),.hl-table :is(th,td):nth-child(3){width:5.2rem}
+  .hl-table td input{min-width:0;padding-inline:.3rem}
+  .hl-table thead th{font-size:.78rem}
+  .hl-name{overflow-wrap:anywhere}
+}
 @media (min-width:640px){
   .hl-pick{grid-template-columns:repeat(3,minmax(8rem,14rem))}
   .hl-pick .hl-field:last-child{grid-column:auto}

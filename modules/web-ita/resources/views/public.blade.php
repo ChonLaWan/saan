@@ -19,7 +19,7 @@
                     <li data-ita-item>
                         @php($res = $item['resolved'] ?? null)
                         @php($auto = ($res['mode'] ?? '') === 'auto')
-                        @php($href = $item['media_id'] ? url('/media/'.$item['media_id']) : ($item['url'] ?: ($auto && $res['ok'] ? url($res['path']) : null)))
+                        @php($href = $item['media_id'] ? url('/media/'.$item['media_id']) : ($item['url'] ? (preg_match('#^/(?!/)#', $item['url']) ? url($item['url']) : $item['url']) : ($auto && $res['ok'] ? url($res['path']) : null)))
                         @if($href)<a href="{{ $href }}" @if(str_starts_with((string) $href, 'https://')) target="_blank" rel="noopener noreferrer" @endif>{{ $item['title'] }}</a>@else<span>{{ $item['title'] }}</span>@endif
                         @if($auto && $res['ok'])<small class="ita-evidence">{{ $res['evidence'] }}</small>@foreach($res['extra'] as $x)<a class="ita-extra" href="{{ url($x['path']) }}">{{ $x['title'] }}</a>@endforeach
                         @elseif($auto)<small class="ita-missing" data-ita-missing>{{ !empty($res['yearly']) ? 'ยังไม่มีข้อมูลในปีงบประมาณนี้' : 'ยังไม่มีข้อมูล' }}</small>@endif

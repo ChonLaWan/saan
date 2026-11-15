@@ -42,6 +42,10 @@ if ($staffEdition && is_file(base_path('modules/personnel/module.json'))) Schedu
 $feedMinute = crc32((string) config('app.key')) % 120;
 Schedule::command('saan:update-check')->dailyAt(sprintf('%02d:%02d', 3 + intdiv($feedMinute, 60), $feedMinute % 60))->withoutOverlapping();
 
+// Self-update (staff editions): does nothing unless the admin chose the mode "อัปเดตแพตช์อัตโนมัติ" (auto_patch), the night window is open, nothing is
+// unfinished and a PATCH release is waiting (minor and major releases are never installed by itself). One attempt per release.
+if ($staffEdition) Schedule::command('saan:self-update --auto')->everyTenMinutes()->withoutOverlapping(120);
+
 // Optional scheduled backup (internal/combined only; the public edition can be rebuilt from the internal one). saan.backup.daily_at = HH:MM, empty = off.
 // Writes storage/app/private/backups/auto-YYYYMMDD.zip through `school:archive backup` and keeps the newest saan.backup.keep of those; pre-update-*.zip are the updater's and untouched.
 $backupAt = trim((string) config('saan.backup.daily_at', ''));

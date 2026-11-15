@@ -5,7 +5,6 @@ namespace App\Domain\Demo;
 use App\Support\Saan\Mutation;
 use App\Support\Saan\Settings;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 /** Trial school, part 4: clubs and the student-council election, project-based learning, exam checking, learning links, archives, the API gateway. */
 final class DemoStudentLife
@@ -180,7 +179,7 @@ final class DemoStudentLife
         if (!$c->has('api-gateway', 'api_clients', 'api_request_log')) return;
         $name = 'ระบบห้องสมุดสมมติ (ตัวอย่างการเชื่อมต่อ)';
         $client = $c->insertId('api_clients', ['name' => $name, 'name_key' => \Saan\Modules\ApiGateway\Net::key($name), 'client_id' => 'cl_'.bin2hex(random_bytes(10)),
-            'secret_hash' => Hash::make(bin2hex(random_bytes(32))), 'scopes' => ['classrooms:read', 'courses:read'], 'allowed_ips' => null, 'redirect_uris' => null,
+            'secret_hash' => $c->lockedHash(), 'scopes' => ['classrooms:read', 'courses:read'], 'allowed_ips' => null, 'redirect_uris' => null,
             'rate_per_minute' => 120, 'is_active' => true, 'last_used_at' => $c->at($c->today->subDay(), '10:05')]);
         $rows = [];
         for ($i = 0; $i < 14; $i++) {

@@ -1,0 +1,1065 @@
+{
+  "module": "web-notices",
+  "title": "ประกาศรายชื่อสาธารณะ",
+  "area": "เว็บไซต์โรงเรียน",
+  "purpose": "ผู้ดูแลเว็บไซต์ประกาศรายชื่อ เช่น การจัดห้องเรียน ผลการรับสมัคร หรือผลการศึกษาต่อ โดยเปิดเผยข้อมูลน้อยที่สุด ผู้ดูแลวางรายชื่อจาก Excel หรือ Google Sheets ระบบปิดบังชื่อที่ฝั่งเซิร์ฟเวอร์ก่อนแสดง ปฏิเสธคอลัมน์ที่เหมือนเบอร์โทรศัพท์ เลขบัตรประชาชน วันเกิด และอีเมล ตั้งรหัสเข้าดูได้ กำหนดวันหมดอายุไม่เกิน 120 วัน หน้าประกาศไม่อยู่ในแผนที่เว็บไซต์และไม่ถูกจัดทำดัชนีโดยเครื่องมือค้นหา และรายชื่อถูกลบอัตโนมัติ 30 วันหลังหมดอายุ",
+  "roles": [
+    "ผู้ดูแลเว็บไซต์ (สร้างและเผยแพร่ประกาศ)",
+    "ผู้อำนวยการและผู้ดูแลระบบ (เข้าได้เช่นเดียวกัน)",
+    "ผู้เข้าชมที่ได้รับลิงก์ประกาศ (อ่านรายชื่อที่ปิดบังแล้ว และกรอกรหัสเข้าดูถ้ามี)"
+  ],
+  "menu": [
+    "เมนูด้านซ้ายกลุ่ม \"เนื้อหาเว็บไซต์\" > \"ประกาศรายชื่อ\" (/cms#notices)",
+    "หน้าเว็บสาธารณะ: /portal/notices/<รหัสท้ายลิงก์> (โรงเรียนส่งลิงก์ให้ผู้ปกครองหรือผู้สมัคร ไม่มีเมนูบนหน้าแรก)"
+  ],
+  "prerequisites": [],
+  "vars": {
+    "list_title": "{{marker}} ประกาศจัดห้องเรียนสมมติ ม.1",
+    "access_code": "รหัส{{run_id}}ทดสอบ"
+  },
+  "workflows": [
+    {
+      "id": "create-list",
+      "title": "สร้างประกาศรายชื่อใหม่",
+      "core": true,
+      "role": "editor",
+      "start": "/cms",
+      "intro": "ประกาศใหม่เป็นฉบับร่าง ผู้เข้าชมยังไม่เห็น วันหมดอายุตั้งต้นคือ 30 วันนับจากวันนี้ และกำหนดได้ไม่เกิน 120 วันนับจากวันเริ่มเผยแพร่",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ประกาศรายชื่อ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ประกาศรายชื่อ\" ที่แถบเมนูด้านซ้าย (อยู่ในกลุ่ม \"เนื้อหาเว็บไซต์\")",
+          "shot": true,
+          "wait_after": {
+            "id": "nt-create"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 0,
+            "of": {
+              "css": ".notice-admin-row",
+              "has_text": "{{marker}}"
+            }
+          },
+          "comment": "precondition"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หัวข้อประกาศ"
+          },
+          "value": "{{list_title}}",
+          "say": "พิมพ์หัวข้อประกาศในช่อง \"หัวข้อประกาศ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "note",
+          "say": "ช่อง \"เริ่มเผยแพร่\" และ \"หมดอายุ\" มีค่าตั้งต้นเป็นวันนี้และอีก 30 วัน ปรับได้ตามต้องการ ช่อง \"การแสดงชื่อ\" ตั้งต้นเป็น \"ชื่อ + ตัวอักษรแรกของนามสกุล\"",
+          "shot": true,
+          "highlight": [
+            {
+              "label": "เริ่มเผยแพร่"
+            },
+            {
+              "label": "หมดอายุ"
+            },
+            {
+              "label": "การแสดงชื่อ"
+            }
+          ],
+          "crop": "panel"
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "ห้อง/ชั้น",
+            "within": {
+              "id": "nt-create"
+            }
+          },
+          "say": "ติ๊กคอลัมน์ที่ต้องการแสดงเพิ่ม เช่น \"ห้อง/ชั้น\" คอลัมน์ \"ชื่อ\" เลือกไว้เสมอ ไม่มีตัวเลือกเบอร์โทร เลขบัตร หรือวันเกิด",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "fieldset",
+            "has_text": "คอลัมน์ที่แสดง",
+            "within": {
+              "id": "nt-create"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างรายการ"
+          },
+          "say": "กดปุ่ม \"สร้างรายการ\" ระบบเปิดหน้าจัดการประกาศนั้นและแสดงป้าย \"ฉบับร่าง\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "heading",
+            "name": "{{list_title}}"
+          },
+          "wait_after": {
+            "id": "nt-meta"
+          }
+        }
+      ],
+      "expected": "หน้าจัดการแสดงหัวข้อประกาศ ป้าย \"ฉบับร่าง\" และลิงก์หน้าเว็บของประกาศ",
+      "verify": [
+        {
+          "title": "ประกาศอยู่ในรายการ \"รายการทั้งหมด\" เป็นฉบับร่าง",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/cms#notices",
+              "wait_after": {
+                "id": "nt-create"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": ".notice-admin-row",
+                    "has_text": "{{list_title}}"
+                  }
+                },
+                {
+                  "text": "ฉบับร่าง",
+                  "in": {
+                    "css": ".notice-admin-row",
+                    "has_text": "{{list_title}}"
+                  }
+                }
+              ],
+              "say": "ประกาศที่สร้างอยู่ในรายการ \"รายการทั้งหมด\" และมีป้าย \"ฉบับร่าง\"",
+              "shot": true,
+              "crop": "tight",
+              "crop_pad": 40,
+              "highlight": {
+                "css": ".notice-admin-row",
+                "has_text": "{{list_title}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "paste-rows",
+      "title": "วางรายชื่อจาก Excel และดูตัวอย่างชื่อที่ปิดบังแล้ว",
+      "role": "editor",
+      "start": "/cms#notices",
+      "depends_on": [
+        "create-list"
+      ],
+      "intro": "แถวแรกที่วางต้องเป็นหัวตาราง (ลำดับ ชื่อ ห้อง กลุ่ม หมายเหตุ) การวางแทนที่รายชื่อเดิมทั้งหมด ระบบปฏิเสธข้อมูลที่เหมือนเบอร์โทรศัพท์ เลขบัตรประชาชน วันเกิด หรืออีเมล ตารางตัวอย่างแสดงชื่อที่ปิดบังแล้วเสมอ",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "nt-create"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการ",
+            "within": {
+              "css": ".notice-admin-row",
+              "has_text": "{{list_title}}"
+            }
+          },
+          "say": "กดปุ่ม \"จัดการ\" ที่แถวของประกาศ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "link",
+            "name": "จัดการ",
+            "within": {
+              "css": ".notice-admin-row",
+              "has_text": "{{list_title}}"
+            }
+          },
+          "wait_after": {
+            "id": "nt-rows"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รายชื่อที่วาง"
+          },
+          "value": "ลำดับ\tชื่อ\tห้อง\n1\tเด็กชาย สมหมาย ตัวอย่างหนึ่ง\tม.1/1\n2\tเด็กหญิง สมศรี ตัวอย่างสอง\tม.1/2\n3\tเด็กชาย สมปอง ตัวอย่างสาม\tม.1/1",
+          "say": "คัดลอกตารางจาก Excel แล้ววางในช่อง \"วางรายชื่อจาก Excel / Google Sheets\" พร้อมแถวหัวตาราง",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "แทนที่รายชื่อ"
+          },
+          "expect_response": {
+            "url_contains": "/rows",
+            "method": "PUT",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"แทนที่รายชื่อ\" ระบบแสดงข้อความ \"บันทึกรายชื่อ 3 รายการ\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "แทนที่รายชื่อ"
+          },
+          "wait_after": {
+            "text": "บันทึกรายชื่อ 3 รายการ"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "เด็กชาย สมหมาย ต.",
+              "in": {
+                "css": ".notice-admin-preview"
+              }
+            },
+            {
+              "not_text": "ตัวอย่างหนึ่ง",
+              "in": {
+                "css": ".notice-admin-preview"
+              }
+            }
+          ],
+          "say": "ตารางใต้หัวข้อ \"ตัวอย่างที่ผู้ชมเห็น (ชื่อปิดบังแล้ว)\" แสดงชื่อแบบย่อ นามสกุลเหลือเพียงตัวอักษรแรก",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".notice-admin-preview"
+          }
+        }
+      ],
+      "expected": "ตารางตัวอย่างมี 3 แถว ชื่อแสดงเป็น \"เด็กชาย สมหมาย ต.\" ไม่มีนามสกุลเต็ม",
+      "verify": [
+        {
+          "title": "เปิดหน้าจัดการใหม่ รายชื่อที่วางต้องยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/cms#notices",
+              "wait_after": {
+                "id": "nt-create"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "จัดการ",
+                "within": {
+                  "css": ".notice-admin-row",
+                  "has_text": "{{list_title}}"
+                }
+              },
+              "wait_after": {
+                "id": "nt-rows"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "count": 3,
+                  "of": {
+                    "css": ".notice-admin-preview tbody tr"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "publish-list",
+      "title": "เผยแพร่ประกาศและตรวจหน้าที่ผู้เข้าชมเห็น",
+      "core": true,
+      "role": "editor",
+      "start": "/cms#notices",
+      "depends_on": [
+        "paste-rows"
+      ],
+      "intro": "เมื่อเผยแพร่ ประกาศมีลิงก์ของตนเอง (/portal/notices/...) โรงเรียนส่งลิงก์ให้ผู้ที่เกี่ยวข้อง ลิงก์นี้ไม่อยู่ในแผนที่เว็บไซต์และการค้นหา ประกาศที่ยังไม่เผยแพร่ หมดอายุ หรือเก็บถาวร ผู้เข้าชมเห็น 404 เหมือนกันทุกกรณี",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "nt-create"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการ",
+            "within": {
+              "css": ".notice-admin-row",
+              "has_text": "{{list_title}}"
+            }
+          },
+          "say": "กดปุ่ม \"จัดการ\" ที่แถวของประกาศ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "id": "nt-rows"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true
+          },
+          "expect_response": {
+            "url_contains": "/status",
+            "method": "POST",
+            "status": 200
+          },
+          "say": "เลื่อนลงไปที่หัวข้อ \"สถานะ\" แล้วกดปุ่ม \"เผยแพร่\" ระบบแสดงข้อความ \"อัปเดตสถานะแล้ว\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true
+          },
+          "wait_after": {
+            "text": "อัปเดตสถานะแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "กำลังแสดง"
+          },
+          "say": "ป้ายของประกาศเปลี่ยนเป็น \"กำลังแสดง\" ลิงก์ของหน้าเว็บอยู่ใต้หัวข้อ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".cms-heading .tag"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": ".cms-heading a[href*='/portal/notices/']"
+          },
+          "var": "notice_url",
+          "from_attr": "href"
+        }
+      ],
+      "expected": "ประกาศมีป้าย \"กำลังแสดง\" และมีปุ่ม \"เก็บถาวร (ปิดการแสดง)\" แทนปุ่ม \"เผยแพร่\"",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเปิดลิงก์ประกาศได้ และเห็นเฉพาะชื่อที่ปิดบังแล้ว",
+          "as": "anonymous",
+          "start": "{{notice_url}}",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "heading",
+                    "name": "{{list_title}}"
+                  }
+                },
+                {
+                  "text": "3 รายการ"
+                },
+                {
+                  "text": "เด็กชาย สมหมาย ต.",
+                  "in": {
+                    "css": "table.notice-table"
+                  }
+                },
+                {
+                  "not_text": "ตัวอย่างหนึ่ง"
+                }
+              ],
+              "say": "ผู้เข้าชมเห็นหัวข้อประกาศ จำนวนรายการ วันที่หมดอายุ และตารางรายชื่อที่ปิดบังนามสกุล",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "css": "table.notice-table"
+              }
+            }
+          ]
+        },
+        {
+          "title": "หน้าประกาศสั่งไม่ให้เครื่องมือค้นหาจัดทำดัชนี",
+          "as": "anonymous",
+          "start": "{{notice_url}}",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "count": {
+                  "min": 1
+                },
+                "of": {
+                  "css": "meta[name=robots][content*=noindex]",
+                  "include_hidden": true
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "protect-with-code",
+      "title": "ตั้งรหัสเข้าดูประกาศ",
+      "role": "editor",
+      "start": "/cms#notices",
+      "depends_on": [
+        "publish-list"
+      ],
+      "intro": "รหัสเข้าดูยาว 6 ถึง 40 ตัวอักษร โรงเรียนแจ้งรหัสให้ผู้ที่เกี่ยวข้องเอง ระบบเก็บรหัสแบบเข้ารหัสและไม่แสดงรหัสเดิมกลับมา ผู้เข้าชมที่กรอกรหัสผิดหลายครั้งถูกจำกัดการลองชั่วคราว",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "nt-create"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการ",
+            "within": {
+              "css": ".notice-admin-row",
+              "has_text": "{{list_title}}"
+            }
+          },
+          "say": "กดปุ่ม \"จัดการ\" ที่แถวของประกาศ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "id": "nt-meta"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": ".cms-heading a[href*='/portal/notices/']"
+          },
+          "var": "notice_url",
+          "from_attr": "href"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสเข้าดู (ไม่บังคับ 6-40 ตัวอักษร)"
+          },
+          "value": "{{access_code}}",
+          "say": "พิมพ์รหัสเข้าดูในช่อง \"รหัสเข้าดู\" ในกรอบ \"ตั้งค่า\"",
+          "shot": true,
+          "crop": "panel",
+          "mask": [
+            {
+              "label": "รหัสเข้าดู (ไม่บังคับ 6-40 ตัวอักษร)"
+            }
+          ]
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่า"
+          },
+          "expect_response": {
+            "url_contains": "/api/notices/lists/",
+            "method": "PUT",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"บันทึกการตั้งค่า\" ระบบแสดงข้อความ \"บันทึกแล้ว\" และช่องรหัสเปลี่ยนเป็น \"รหัสเข้าดู (ตั้งไว้แล้ว ใส่ใหม่เพื่อเปลี่ยน)\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่า"
+          },
+          "wait_after": {
+            "text": "ตั้งไว้แล้ว ใส่ใหม่เพื่อเปลี่ยน"
+          }
+        }
+      ],
+      "expected": "ช่องรหัสแสดง \"ตั้งไว้แล้ว ใส่ใหม่เพื่อเปลี่ยน\" และมีตัวเลือก \"ยกเลิกรหัสเข้าดู\"",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเห็นช่องกรอกรหัส ไม่เห็นรายชื่อ รหัสผิดถูกปฏิเสธ รหัสถูกเปิดรายชื่อได้",
+          "as": "anonymous",
+          "start": "{{notice_url}}",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "label": "รหัสเข้าดูรายชื่อ"
+                  }
+                },
+                {
+                  "hidden": {
+                    "css": "table.notice-table"
+                  }
+                }
+              ],
+              "say": "ผู้เข้าชมที่เปิดลิงก์ประกาศเห็นช่อง \"รหัสเข้าดูรายชื่อ\" ยังไม่เห็นรายชื่อ",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "label": "รหัสเข้าดูรายชื่อ"
+              }
+            },
+            {
+              "do": "fill",
+              "target": {
+                "label": "รหัสเข้าดูรายชื่อ"
+              },
+              "value": "รหัสผิดทดสอบ"
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "เปิดดูรายชื่อ"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "รหัสเข้าดูไม่ถูกต้อง"
+              },
+              "say": "เมื่อกรอกรหัสผิดและกด \"เปิดดูรายชื่อ\" ระบบแสดงข้อความ \"รหัสเข้าดูไม่ถูกต้อง\"",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "css": "#notice-err"
+              }
+            },
+            {
+              "do": "fill",
+              "target": {
+                "label": "รหัสเข้าดูรายชื่อ"
+              },
+              "value": "{{access_code}}"
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "เปิดดูรายชื่อ"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "3 รายการ"
+                },
+                {
+                  "text": "เด็กชาย สมหมาย ต.",
+                  "in": {
+                    "css": "table.notice-table"
+                  }
+                }
+              ],
+              "say": "เมื่อกรอกรหัสถูกต้อง ระบบแสดงตารางรายชื่อที่ปิดบังแล้ว",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "css": "table.notice-table"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cancel-access-code",
+      "title": "ยกเลิกรหัสเข้าดูประกาศ",
+      "role": "editor",
+      "start": "/cms#notices",
+      "depends_on": [
+        "protect-with-code"
+      ],
+      "intro": "ผู้ดูแลยกเลิกรหัสเข้าดูได้เมื่อไม่ต้องการจำกัดผู้อ่านด้วยรหัสอีกต่อไป หลังยกเลิก ผู้ที่ได้รับลิงก์เปิดดูรายชื่อที่ปิดบังแล้วได้ทันทีโดยไม่ต้องกรอกรหัส ถ้าต้องการใช้รหัสอีก ตั้งรหัสใหม่ได้ที่ช่องเดิม",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "nt-create"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการ",
+            "within": {
+              "css": ".notice-admin-row",
+              "has_text": "{{list_title}}"
+            }
+          },
+          "say": "กดปุ่ม \"จัดการ\" ที่แถวของประกาศ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "id": "nt-meta"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": ".cms-heading a[href*='/portal/notices/']"
+          },
+          "var": "notice_url",
+          "from_attr": "href"
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "ยกเลิกรหัสเข้าดู"
+          },
+          "say": "ติ๊กตัวเลือก \"ยกเลิกรหัสเข้าดู\" ที่ใต้ช่องรหัสเข้าดู (ตัวเลือกนี้ปรากฏเมื่อตั้งรหัสไว้แล้ว)",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ยกเลิกรหัสเข้าดู"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่า"
+          },
+          "expect_response": {
+            "url_contains": "/api/notices/lists/",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"บันทึกการตั้งค่า\" ช่องรหัสกลับเป็น \"รหัสเข้าดู (ไม่บังคับ 6-40 ตัวอักษร)\" และตัวเลือกยกเลิกหายไป",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่า"
+          },
+          "wait_after": {
+            "text": "ไม่บังคับ 6-40 ตัวอักษร"
+          }
+        }
+      ],
+      "expected": "ช่องรหัสแสดง \"ไม่บังคับ 6-40 ตัวอักษร\" และผู้เข้าชมเปิดดูได้โดยไม่ต้องกรอกรหัส",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเปิดลิงก์ประกาศแล้วเห็นรายชื่อทันทีโดยไม่ต้องกรอกรหัส",
+          "as": "anonymous",
+          "start": "{{notice_url}}",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "table.notice-table"
+                  }
+                },
+                {
+                  "count": 0,
+                  "of": {
+                    "label": "รหัสเข้าดูรายชื่อ",
+                    "include_hidden": true
+                  }
+                }
+              ],
+              "say": "ผู้เข้าชมที่เปิดลิงก์ประกาศเห็นตารางรายชื่อทันที ไม่มีช่อง \"รหัสเข้าดูรายชื่อ\"",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "css": "table.notice-table"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "refuse-search-mode",
+      "title": "ตรวจข้อจำกัดของโหมดค้นหาชื่อตัวเองและชื่อเต็ม",
+      "role": "editor",
+      "start": "/cms#notices",
+      "depends_on": [
+        "create-list"
+      ],
+      "intro": "โหมดค้นหาชื่อตัวเองและการแสดงชื่อเต็มต้องใช้ด่านป้องกันบอท Cloudflare Turnstile ถ้าผู้ดูแลระบบยังไม่ตั้งค่า Turnstile ระบบปฏิเสธการบันทึกโหมดเหล่านี้ ขั้นตอนนี้แสดงข้อความที่ผู้ดูแลเว็บไซต์จะเห็นในกรณีดังกล่าว",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "nt-create"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการ",
+            "within": {
+              "css": ".notice-admin-row",
+              "has_text": "{{list_title}}"
+            }
+          },
+          "wait_after": {
+            "id": "nt-meta"
+          }
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "โหมดค้นหาชื่อตัวเอง"
+          },
+          "say": "ติ๊กตัวเลือก \"โหมดค้นหาชื่อตัวเอง\" ในกรอบ \"ตั้งค่า\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่า"
+          },
+          "say": "กดปุ่ม \"บันทึกการตั้งค่า\" ถ้ายังไม่ได้ตั้งค่า Turnstile ระบบปฏิเสธและแสดงข้อความสีแดงด้านบนของหน้า",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "nt-error"
+          },
+          "wait_after": {
+            "css": "#nt-error",
+            "has_text": "Turnstile"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ไม่อนุญาตโหมดค้นหาชื่อตัวเอง เพราะยังไม่ได้ตั้งค่า Cloudflare Turnstile",
+            "in": {
+              "id": "nt-error"
+            }
+          }
+        }
+      ],
+      "expected": "ระบบแสดงข้อความ \"ไม่อนุญาตโหมดค้นหาชื่อตัวเอง เพราะยังไม่ได้ตั้งค่า Cloudflare Turnstile\" และไม่บันทึกโหมดนี้",
+      "verify": [
+        {
+          "title": "เปิดหน้าจัดการใหม่ โหมดค้นหาชื่อตัวเองยังไม่ถูกติ๊ก",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/cms#notices",
+              "wait_after": {
+                "id": "nt-create"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "จัดการ",
+                "within": {
+                  "css": ".notice-admin-row",
+                  "has_text": "{{list_title}}"
+                }
+              },
+              "wait_after": {
+                "id": "nt-meta"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "unchecked": {
+                  "label": "โหมดค้นหาชื่อตัวเอง"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reject-expiry-over-120-days",
+      "title": "ตรวจข้อจำกัดวันหมดอายุไม่เกิน 120 วัน",
+      "role": "editor",
+      "start": "/cms#notices",
+      "depends_on": [
+        "create-list"
+      ],
+      "intro": "ประกาศรายชื่อมีวันหมดอายุตามที่โรงเรียนตั้ง แต่ไม่เกิน 120 วันนับจากวันเริ่มเผยแพร่ เพื่อไม่ให้ข้อมูลรายชื่อค้างบนเว็บไซต์นานเกินจำเป็น ถ้าตั้งเกิน ระบบปฏิเสธและบอกเหตุผล รายชื่อถูกลบอัตโนมัติ 30 วันหลังหมดอายุ",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "nt-create"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการ",
+            "within": {
+              "css": ".notice-admin-row",
+              "has_text": "{{list_title}}"
+            }
+          },
+          "wait_after": {
+            "id": "nt-meta"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[name=\"expires_on\"]",
+            "within": {
+              "css": "#nt-meta"
+            }
+          },
+          "value": "{{next_weekday:200}}",
+          "say": "พิมพ์วันหมดอายุที่ห่างจากวันเริ่มเผยแพร่เกิน 120 วันในช่อง \"หมดอายุ (ไม่เกิน 120 วันหลังวันเริ่ม)\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "[name=\"expires_on\"]",
+            "within": {
+              "css": "#nt-meta"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่า"
+          },
+          "say": "กดปุ่ม \"บันทึกการตั้งค่า\" ระบบปฏิเสธและแสดงข้อความสีแดงด้านบนของหน้า ไม่บันทึกวันที่นี้",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "nt-error"
+          },
+          "wait_after": {
+            "css": "#nt-error",
+            "has_text": "120"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "#nt-error",
+              "has_text": "120"
+            }
+          }
+        }
+      ],
+      "expected": "ระบบแสดงข้อความปฏิเสธวันหมดอายุที่เกิน 120 วัน และไม่บันทึกวันที่นั้น",
+      "verify": [
+        {
+          "title": "เปิดหน้าจัดการใหม่ วันหมดอายุยังเป็นค่าเดิม",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/cms#notices",
+              "wait_after": {
+                "id": "nt-create"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "จัดการ",
+                "within": {
+                  "css": ".notice-admin-row",
+                  "has_text": "{{list_title}}"
+                }
+              },
+              "wait_after": {
+                "id": "nt-meta"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "count": 0,
+                "of": {
+                  "css": "#nt-meta [name=\"expires_on\"][value=\"{{next_weekday:200}}\"]"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "archive-and-delete",
+      "title": "เก็บถาวรและลบประกาศ",
+      "cleanup": true,
+      "role": "editor",
+      "start": "/cms#notices",
+      "intro": "ประกาศที่กำลังแสดงต้องเก็บถาวรก่อนจึงลบได้ การลบเป็นการลบถาวร ลบทั้งประกาศและรายชื่อ ระบบถามยืนยันหนึ่งครั้ง",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "nt-create"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการ",
+            "within": {
+              "css": ".notice-admin-row",
+              "has_text": "{{list_title}}"
+            }
+          },
+          "say": "กดปุ่ม \"จัดการ\" ที่แถวของประกาศที่ต้องการลบ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "id": "nt-meta"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เก็บถาวร (ปิดการแสดง)"
+          },
+          "optional": true,
+          "say": "กดปุ่ม \"เก็บถาวร (ปิดการแสดง)\" ในกรอบ \"สถานะ\" ประกาศหายจากหน้าเว็บทันที",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "text": "อัปเดตสถานะแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "role": "button",
+              "name": "กู้เป็นฉบับร่าง"
+            }
+          },
+          "say": "ปุ่มเปลี่ยนเป็น \"กู้เป็นฉบับร่าง\" และมีปุ่ม \"ลบรายการและรายชื่อ\" เพิ่มขึ้น",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "role": "button",
+            "name": "ลบรายการและรายชื่อ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบรายการและรายชื่อ"
+          },
+          "dialog": "accept",
+          "expect_response": {
+            "url_contains": "/api/notices/lists/",
+            "method": "DELETE",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"ลบรายการและรายชื่อ\" แล้วกดตกลงในหน้าต่างยืนยัน ระบบกลับไปหน้ารายการ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "id": "nt-create"
+          }
+        }
+      ],
+      "expected": "ประกาศหายจากรายการ \"รายการทั้งหมด\" และผู้เข้าชมเปิดลิงก์เดิมไม่ได้",
+      "verify": [
+        {
+          "title": "ประกาศไม่อยู่ในรายการ",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/cms#notices",
+              "wait_after": {
+                "id": "nt-create"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "count": 0,
+                "of": {
+                  "css": ".notice-admin-row",
+                  "has_text": "{{marker}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": [
+    "ผู้เข้าชมค้นหาชื่อของตนเอง (โหมดค้นหา) และการแสดงชื่อเต็มหลังผ่าน Cloudflare Turnstile ตรวจด้วยเบราว์เซอร์ไม่ได้ เพราะระบบตรวจไม่ได้ตั้งค่า Turnstile ระบบจึงปฏิเสธการบันทึกโหมดทั้งสอง (ดูขั้นตอน \"ตรวจข้อจำกัดของโหมดค้นหาชื่อตัวเองและชื่อเต็ม\")",
+    "การลบรายชื่ออัตโนมัติ 30 วันหลังหมดอายุ ยังไม่ได้ทดสอบ เพราะเป็นงานตามเวลาของเซิร์ฟเวอร์ (คำสั่งตั้งเวลา) ไม่ใช่หน้าจอ"
+  ]
+}

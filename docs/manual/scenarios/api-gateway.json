@@ -1,0 +1,1763 @@
+{
+ "module": "api-gateway",
+ "title": "เกตเวย์ API สำหรับแอปภายนอก และ PIN นักเรียน",
+ "area": "การเชื่อมต่อระบบ",
+ "purpose": "ให้แอปการเรียนภายนอกอ่านข้อมูลของโรงเรียนอย่างปลอดภัยแทนการใช้คีย์ร่วม ผู้ดูแลระบบสร้างไคลเอนต์รายแอป เลือกสิทธิ์ระดับฟิลด์ กำหนดจำนวนครั้งต่อนาที จำกัด IP ที่เรียกได้ ออก secret ใหม่ และเพิกถอน ระบบแสดง secret ครั้งเดียว และมีหน้าสรุปการใช้งาน 7 วัน นอกจากนี้ครูประจำชั้นออก PIN 6 หลักให้นักเรียนเพื่อเข้าสู่ระบบแอปภายนอกด้วยรหัสนักเรียน",
+ "roles": [
+  "ผู้ดูแลระบบ (จัดการไคลเอนต์ และออก PIN ได้ทุกห้อง)",
+  "ผู้อำนวยการ (ออก PIN ได้ทุกห้อง)",
+  "ครูประจำชั้น (ออก PIN เฉพาะห้องของตน)",
+  "นักพัฒนาแอปภายนอก (เรียก API ด้วย client_id และ client_secret)"
+ ],
+ "menu": [
+  "เมนูด้านซ้าย \"งานโรงเรียน\" > \"เชื่อมต่อแอปภายนอก (API)\" (/work#api) เฉพาะผู้ดูแลระบบ",
+  "เมนูด้านซ้าย \"งานโรงเรียน\" > \"PIN เข้าแอปเรียนของนักเรียน\" (/work#student-pins)"
+ ],
+ "prerequisites": [
+  {
+   "module": "registry",
+   "text": "ต้องมีรายชื่อนักเรียนและห้องเรียน ใบ PIN ออกให้นักเรียนที่กำลังศึกษาอยู่"
+  }
+ ],
+ "vars": {},
+ "workflows": [
+  {
+   "id": "create-client",
+   "title": "สร้างไคลเอนต์ให้แอปภายนอกและรับ client secret",
+   "role": "admin",
+   "start": "/work",
+   "core": true,
+   "intro": "แอปภายนอกของนักพัฒนา เช่น แอปการเรียน ใช้ข้อมูลของโรงเรียนผ่านคีย์ที่จำกัดสิทธิ์ ผู้ดูแลระบบสร้างไคลเอนต์หนึ่งรายการต่อหนึ่งแอป เลือกเฉพาะข้อมูลที่แอปจำเป็นต้องใช้ ระบบแสดง client secret ครั้งเดียว และเก็บไว้เฉพาะค่าแฮช ถ้าหายต้องออกรหัสใหม่ ห้ามส่งรหัสผ่านทางช่องทางสาธารณะ",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "เชื่อมต่อแอปภายนอก (API)",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.gw"
+     },
+     "say": "เลือกเมนู \"เชื่อมต่อแอปภายนอก (API)\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "details.gw-new > summary"
+     },
+     "crop": "panel",
+     "wait_after": {
+      "css": "form[data-form=create]"
+     },
+     "say": "กดหัวข้อ \"สร้างไคลเอนต์ใหม่\" เพื่อเปิดแบบฟอร์ม (ถ้ายังไม่มีไคลเอนต์ แบบฟอร์มเปิดอยู่แล้ว)",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ชื่อแอป",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "value": "{{marker}} แอปทดสอบ",
+     "crop": "panel",
+     "say": "พิมพ์ชื่อแอปในช่อง \"ชื่อแอป\"",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "checkbox",
+      "name": "students:read:basic",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "crop": "panel",
+     "say": "ติ๊กสิทธิ์ (scope) ที่แอปต้องใช้ ในที่นี้ติ๊ก \"students:read:basic\" ซึ่งให้อ่านรหัส ชื่อ ห้อง และสถานะของนักเรียน ไม่ให้วันเกิดหรือเลขประจำตัวประชาชน",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "checkbox",
+      "name": "classrooms:read",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "IP ที่อนุญาต",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "value": "203.0.113.10",
+     "crop": "panel",
+     "say": "พิมพ์ IP ของเซิร์ฟเวอร์แอปในช่อง \"IP ที่อนุญาต\" บรรทัดละหนึ่งรายการ ถ้าเว้นว่างจะไม่จำกัด",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จำนวนครั้งต่อนาที",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "value": "60",
+     "crop": "tight",
+     "say": "กำหนดจำนวนครั้งต่อนาทีที่แอปเรียกใช้ได้ในช่อง \"จำนวนครั้งต่อนาที\" เกินกว่านี้ระบบปฏิเสธ",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "สร้างไคลเอนต์",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "crop": "viewport",
+     "mask": [
+      {
+       "css": "section.gw-secret dl"
+      }
+     ],
+     "highlight": {
+      "css": "section.gw-secret"
+     },
+     "expect_response": {
+      "url_contains": "/api/api-gateway/clients",
+      "method": "POST",
+      "status": 201
+     },
+     "wait_after": {
+      "css": "section.gw-secret"
+     },
+     "say": "กดปุ่ม \"สร้างไคลเอนต์\" ระบบแสดงกล่อง \"เก็บ client secret ... ไว้เดี๋ยวนี้\" พร้อม client_id และ client_secret (ภาพนี้ปิดรหัสไว้) จดหรือคัดลอกเก็บทันที",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เก็บแล้ว ปิดหน้านี้"
+     },
+     "crop": "viewport",
+     "mask": [
+      {
+       "css": "section.gw-secret dl"
+      }
+     ],
+     "wait_after": {
+      "css": "li.gw-card",
+      "has_text": "{{marker}}"
+     },
+     "say": "กดปุ่ม \"เก็บแล้ว ปิดหน้านี้\" เมื่อเก็บรหัสเรียบร้อย กล่องรหัสหายไปและเรียกกลับมาดูไม่ได้",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "hidden": {
+       "css": "section.gw-secret"
+      }
+     }
+    }
+   ],
+   "expected": "รายการไคลเอนต์มีแอปใหม่ แสดง client_id สิทธิ์ที่ให้ จำนวนครั้งต่อนาที IP ที่อนุญาต และ \"ใช้ล่าสุด: ยังไม่เคย\" ไม่มี client secret แสดงอีก",
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ ไคลเอนต์ต้องยังอยู่และไม่มีรหัสแสดง",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "li.gw-card",
+        "has_text": "{{marker}}"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "li.gw-card",
+        "has_text": "{{marker}}"
+       },
+       "that": [
+        {
+         "visible": {
+          "css": "li.gw-card",
+          "has_text": "{{marker}}"
+         }
+        },
+        {
+         "text": "60 ครั้ง/นาที",
+         "in": {
+          "css": "li.gw-card",
+          "has_text": "{{marker}}"
+         }
+        },
+        {
+         "text": "203.0.113.10",
+         "in": {
+          "css": "li.gw-card",
+          "has_text": "{{marker}}"
+         }
+        },
+        {
+         "hidden": {
+          "css": "section.gw-secret"
+         }
+        }
+       ],
+       "say": "เปิดหน้า \"เชื่อมต่อแอปภายนอก (API)\" ใหม่ ไคลเอนต์ที่สร้างอยู่ในรายการ แสดงสิทธิ์และจำนวนครั้งต่อนาที แต่ไม่แสดง client secret",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "edit-client",
+   "title": "แก้สิทธิ์และจำนวนครั้งของไคลเอนต์",
+   "role": "admin",
+   "start": "/work#api",
+   "depends_on": [
+    "create-client"
+   ],
+   "intro": "ลดสิทธิ์ของไคลเอนต์มีผลกับโทเคนที่ออกไปแล้วทันที ไม่ต้องรอให้โทเคนหมดอายุ ติ๊กหรือเอาออกจากช่อง \"เปิดใช้งาน\" เพื่อพักหรือเปิดแอปได้ แก้ชื่อ รายการ IP และ Redirect URI ได้ในแบบฟอร์มเดียวกัน",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "li.gw-card",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "แก้ไข",
+      "within": {
+       "css": "li.gw-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "li.gw-card",
+      "has_text": "{{marker}}"
+     },
+     "wait_after": {
+      "css": "form[data-form=edit]"
+     },
+     "say": "กดปุ่ม \"แก้ไข\" ในรายการของแอป ระบบแสดงแบบฟอร์มแก้ไข",
+     "shot": true
+    },
+    {
+     "do": "uncheck",
+     "target": {
+      "role": "checkbox",
+      "name": "classrooms:read",
+      "within": {
+       "css": "form[data-form=edit]"
+      }
+     },
+     "crop": "panel",
+     "say": "เอาเครื่องหมายถูกออกจากสิทธิ์ที่แอปไม่ต้องใช้แล้ว ในที่นี้คือ \"classrooms:read\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จำนวนครั้งต่อนาที",
+      "within": {
+       "css": "form[data-form=edit]"
+      }
+     },
+     "value": "90",
+     "crop": "panel",
+     "say": "เปลี่ยนจำนวนครั้งต่อนาทีในช่อง \"จำนวนครั้งต่อนาที\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=edit]"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/api-gateway/clients/",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "css": "li.gw-card",
+      "has_text": "90 ครั้ง/นาที"
+     },
+     "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกแล้ว\"",
+     "shot": true
+    }
+   ],
+   "expected": "รายการไคลเอนต์แสดง 90 ครั้ง/นาที และเหลือสิทธิ์ students:read:basic เพียงรายการเดียว",
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ ค่าที่แก้ต้องยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "li.gw-card",
+        "has_text": "{{marker}}"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "li.gw-card",
+        "has_text": "{{marker}}"
+       },
+       "that": [
+        {
+         "text": "90 ครั้ง/นาที",
+         "in": {
+          "css": "li.gw-card",
+          "has_text": "{{marker}}"
+         }
+        },
+        {
+         "text": "students:read:basic",
+         "in": {
+          "css": "li.gw-card",
+          "has_text": "{{marker}}"
+         }
+        },
+        {
+         "not_text": "classrooms:read",
+         "in": {
+          "css": "li.gw-card",
+          "has_text": "{{marker}}"
+         }
+        }
+       ],
+       "say": "เปิดหน้าใหม่ แอปแสดง 90 ครั้ง/นาที และมีสิทธิ์เพียง students:read:basic",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "rotate-secret",
+   "title": "ออก client secret ใหม่",
+   "role": "admin",
+   "start": "/work#api",
+   "depends_on": [
+    "create-client"
+   ],
+   "intro": "ออก secret ใหม่เมื่อรหัสเดิมรั่วหรือหาย secret เดิมและโทเคนที่ออกไปแล้วของแอปนั้นใช้ไม่ได้ทันที ต้องส่ง secret ใหม่ให้ผู้ดูแลแอปแล้วตั้งค่าในแอปใหม่ ระบบแสดงรหัสใหม่ครั้งเดียวเช่นกัน",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "li.gw-card",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ออก secret ใหม่",
+      "within": {
+       "css": "li.gw-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "viewport",
+     "mask": [
+      {
+       "css": "section.gw-secret dl"
+      }
+     ],
+     "highlight": {
+      "css": "section.gw-secret"
+     },
+     "expect_response": {
+      "url_contains": "/rotate",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "css": "section.gw-secret"
+     },
+     "say": "กดปุ่ม \"ออก secret ใหม่\" ในรายการของแอป ระบบถามยืนยัน แล้วแสดงกล่อง client secret ใหม่ (ภาพนี้ปิดรหัสไว้)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เก็บแล้ว ปิดหน้านี้"
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "li.gw-card",
+      "has_text": "{{marker}}"
+     },
+     "say": "กดปุ่ม \"เก็บแล้ว ปิดหน้านี้\" หลังจดรหัสใหม่",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "hidden": {
+       "css": "section.gw-secret"
+      }
+     }
+    }
+   ],
+   "expected": "กล่องรหัสหายไป รายการไคลเอนต์ยังอยู่ และรหัสเดิมของแอปใช้ไม่ได้อีก",
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ ไม่มีรหัสแสดงและไคลเอนต์ยังเปิดใช้งาน",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "li.gw-card",
+        "has_text": "{{marker}}"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "hidden": {
+          "css": "section.gw-secret"
+         }
+        },
+        {
+         "not_text": "ปิดใช้งาน",
+         "in": {
+          "css": "li.gw-card",
+          "has_text": "{{marker}}"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "view-usage",
+   "title": "ดูการใช้งาน 7 วันล่าสุดของแต่ละแอป",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "create-client"
+   ],
+   "intro": "ตารางท้ายหน้าแสดงจำนวนครั้งที่แต่ละแอปเรียกใช้ในแต่ละวัน ตัวเลขในวงเล็บสีแดงคือจำนวนที่ผิดพลาด ใช้ดูว่าแอปยังใช้งานอยู่ ใช้เกินกำหนดหรือไม่ และก่อนปิดวิธีเดิมของระบบเก่า",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "เชื่อมต่อแอปภายนอก (API)",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.gw"
+     }
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "css": "table.gw-usage"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "table.gw-usage"
+     },
+     "say": "เลื่อนหน้าลงไปที่หัวข้อ \"การใช้งาน 7 วันล่าสุด\" ตารางมีหนึ่งแถวต่อแอป และหนึ่งช่องต่อวัน",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "visible": {
+       "css": "table.gw-usage tbody th",
+       "has_text": "{{marker}}"
+      }
+     }
+    }
+   ],
+   "expected": "แถวของแอปที่สร้างแสดงจำนวนครั้งเป็น 0 ทุกวัน เพราะยังไม่มีการเรียกใช้",
+   "verify": [
+    {
+     "title": "ตารางมีแถวของแอปและ 7 คอลัมน์ของวัน",
+     "steps": [
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "table.gw-usage tbody tr",
+        "has_text": "{{marker}}"
+       },
+       "that": {
+        "visible": {
+         "css": "table.gw-usage tbody tr",
+         "has_text": "{{marker}}"
+        }
+       },
+       "say": "ตารางแสดงแถวของแอปที่สร้าง ช่องแต่ละวันเป็น 0",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "student-sso-page",
+   "title": "ดูหน้าเข้าสู่ระบบด้วยรหัสนักเรียนที่แอปภายนอกเรียกใช้",
+   "role": "admin",
+   "start": "/work#api",
+   "depends_on": [
+    "create-client"
+   ],
+   "intro": "แอปที่ได้รับสิทธิ์ sso:student ส่งนักเรียนมาที่หน้านี้เพื่อให้นักเรียนยืนยันตัวตนด้วยรหัสนักเรียนและ PIN หรือรหัสผ่านของพอร์ทัลนักเรียน แอปได้รับเพียงชื่อ ห้อง และรหัสนักเรียน ต้องลงทะเบียน Redirect URI แบบ https ของแอปไว้ก่อน คู่มือนี้แสดงเฉพาะหน้า ไม่ได้ลงชื่อเข้าใช้",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "li.gw-card",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "แก้ไข",
+      "within": {
+       "css": "li.gw-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "wait_after": {
+      "css": "form[data-form=edit]"
+     }
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "checkbox",
+      "name": "sso:student",
+      "within": {
+       "css": "form[data-form=edit]"
+      }
+     },
+     "crop": "panel",
+     "say": "ติ๊กสิทธิ์ \"sso:student\" และพิมพ์ Redirect URI ของแอปในช่อง \"Redirect URI สำหรับให้นักเรียนเข้าสู่ระบบ\" ต้องเป็น https",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "Redirect URI",
+      "within": {
+       "css": "form[data-form=edit]"
+      }
+     },
+     "value": "https://app.example.invalid/callback"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=edit]"
+      }
+     },
+     "crop": "panel",
+     "expect_response": {
+      "url_contains": "/api/api-gateway/clients/",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "css": "li.gw-card",
+      "has_text": "sso:student"
+     },
+     "say": "กดปุ่ม \"บันทึก\"",
+     "shot": true
+    },
+    {
+     "do": "capture",
+     "target": {
+      "css": "p > code",
+      "within": {
+       "css": "li.gw-card",
+       "has_text": "{{marker}}"
+      },
+      "nth": 0
+     },
+     "var": "cid"
+    },
+    {
+     "do": "goto",
+     "url": "/oauth/authorize?response_type=code&client_id={{cid}}&redirect_uri=https%3A%2F%2Fapp.example.invalid%2Fcallback&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256&state=manual",
+     "crop": "viewport",
+     "wait_after": {
+      "css": "main.sso"
+     },
+     "say": "แอปส่งนักเรียนมาที่หน้า \"เข้าสู่ระบบด้วยรหัสนักเรียน\" (ที่อยู่ลงท้ายด้วย /oauth/authorize ตามด้วยข้อมูลของแอป) หน้านี้บอกชื่อแอปและข้อมูลที่แอปจะเห็น",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "visible": {
+        "label": "รหัสนักเรียน"
+       }
+      },
+      {
+       "text": "{{marker}} แอปทดสอบ",
+       "in": {
+        "css": "main.sso"
+       }
+      }
+     ]
+    }
+   ],
+   "expected": "หน้าแสดงชื่อแอป ช่อง \"รหัสนักเรียน\" ช่องรหัสผ่านหรือ PIN และปุ่ม \"เข้าสู่ระบบ\" ภาพไม่แสดงรหัสใด",
+   "verify": [
+    {
+     "title": "หน้าเข้าสู่ระบบนักเรียนมีช่องกรอกครบ",
+     "steps": [
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "main.sso form"
+       },
+       "that": [
+        {
+         "visible": {
+          "label": "รหัสนักเรียน"
+         }
+        },
+        {
+         "visible": {
+          "role": "button",
+          "name": "เข้าสู่ระบบ"
+         }
+        }
+       ],
+       "say": "หน้าเข้าสู่ระบบด้วยรหัสนักเรียนมีช่อง \"รหัสนักเรียน\" ช่องรหัสผ่านหรือ PIN และปุ่ม \"เข้าสู่ระบบ\"",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "issue-student-pin",
+   "title": "ออก PIN ให้นักเรียนและพิมพ์ใบ PIN",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "student-sso-page"
+   ],
+   "intro": "PIN เป็นตัวเลข 6 หลักที่นักเรียนใช้คู่กับรหัสนักเรียนเพื่อเข้าแอปเรียนออนไลน์ ครูประจำชั้นออกและรีเซ็ตได้เฉพาะห้องตนเอง ผู้ดูแลระบบและผู้อำนวยการออกได้ทุกห้อง ระบบแสดง PIN ครั้งเดียวบนใบ PIN ที่พิมพ์แจก ใส่ผิด 5 ครั้งจากเครือข่ายเดียวกัน ระบบพักการรับจากเครือข่ายนั้น 30 นาที และเมื่อใส่ผิดรวม 12 ครั้ง PIN จะถูกล็อก การออก PIN ใหม่เปลี่ยนรหัสผ่านที่นักเรียนใช้เข้าพอร์ทัลนักเรียนด้วย เพราะใช้ที่เก็บรหัสเดียวกัน",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "PIN เข้าแอปเรียนของนักเรียน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "id": "gw-class"
+     },
+     "say": "เลือกเมนู \"PIN เข้าแอปเรียนของนักเรียน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "select",
+     "target": {
+      "id": "gw-class"
+     },
+     "label": "ม.6/1",
+     "crop": "panel",
+     "wait_after": {
+      "css": "table.gw-table tbody tr"
+     },
+     "say": "เลือกห้องเรียนในช่อง \"ห้องเรียน\" ในที่นี้เลือก \"ม.6/1\" ตารางแสดงนักเรียนของห้องพร้อมสถานะ PIN ของแต่ละคน",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "button[data-act=reset]",
+      "within": {
+       "css": "table.gw-table tbody tr",
+       "nth": 6
+      }
+     },
+     "crop": "viewport",
+     "mask": [
+      {
+       "css": "div.gw-slip-grid"
+      }
+     ],
+     "highlight": {
+      "css": "section.gw-slips"
+     },
+     "expect_response": {
+      "url_contains": "/reset",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "css": "div.gw-slip-grid article.gw-slip"
+     },
+     "say": "กดปุ่ม \"ออก PIN\" หรือ \"รีเซ็ต PIN\" ที่แถวของนักเรียนที่ต้องการ ระบบแสดงใบ PIN พร้อมรหัสนักเรียนและ PIN 6 หลัก (ภาพนี้ปิดใบ PIN ไว้)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "พิมพ์ใบ PIN"
+     },
+     "crop": "panel",
+     "mask": [
+      {
+       "css": "div.gw-slip-grid"
+      }
+     ],
+     "highlight": {
+      "role": "button",
+      "name": "พิมพ์ใบ PIN"
+     },
+     "say": "กดปุ่ม \"พิมพ์ใบ PIN\" เพื่อสั่งพิมพ์ใบ PIN ไปแจกนักเรียน (ใบ PIN แสดงครั้งเดียว ปิดหน้านี้แล้วดูย้อนหลังไม่ได้)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ล้างหน้านี้"
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "table.gw-table"
+     },
+     "say": "กดปุ่ม \"ล้างหน้านี้\" หลังพิมพ์หรือจดแล้ว ใบ PIN หายไปจากหน้าจอ",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "hidden": {
+       "css": "section.gw-slips"
+      }
+     }
+    }
+   ],
+   "expected": "ใบ PIN หายไปจากหน้าจอ และแถวของนักเรียนที่ออก PIN แสดงสถานะ \"มี PIN แล้ว\" ปุ่มเปลี่ยนเป็น \"รีเซ็ต PIN\"",
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ สถานะ PIN ของนักเรียนต้องเป็น \"มี PIN แล้ว\"",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "table.gw-table tbody tr"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "table.gw-table tbody tr",
+        "nth": 6
+       },
+       "that": {
+        "text": "มี PIN แล้ว",
+        "in": {
+         "css": "table.gw-table tbody tr",
+         "nth": 6
+        }
+       },
+       "say": "เปิดหน้า \"PIN เข้าแอปเรียนของนักเรียน\" ใหม่ แถวของนักเรียนแสดง \"มี PIN แล้ว\" และปุ่ม \"รีเซ็ต PIN\" ไม่แสดงตัวเลข PIN",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "homeroom-pin-list",
+   "title": "ครูประจำชั้นดูรายชื่อห้องตนเองในหน้า PIN",
+   "role": "homeroom",
+   "start": "/work",
+   "intro": "ครูประจำชั้นเห็นและออก PIN ได้เฉพาะนักเรียนในห้องประจำชั้นของตนเท่านั้น ใช้ปุ่ม \"ออก PIN ให้คนที่ยังไม่มี\" เมื่อต้องการออกให้ทั้งห้อง และ \"รีเซ็ต PIN\" รายคนเมื่อนักเรียนลืมหรือถูกล็อก คู่มือนี้ไม่กดออก PIN เพราะจะเปลี่ยนรหัสของนักเรียนจริง",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "PIN เข้าแอปเรียนของนักเรียน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "id": "gw-class"
+     },
+     "say": "เลือกเมนู \"PIN เข้าแอปเรียนของนักเรียน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "crop": "panel",
+     "highlight": {
+      "css": "div.gw-actions"
+     },
+     "that": [
+      {
+       "visible": {
+        "role": "button",
+        "name": "ออก PIN ให้คนที่ยังไม่มี"
+       }
+      },
+      {
+       "visible": {
+        "css": "table.gw-table tbody tr",
+        "first": true
+       }
+      }
+     ],
+     "say": "รายชื่อแสดงเฉพาะห้องประจำชั้น พร้อมปุ่ม \"ออก PIN ให้คนที่ยังไม่มี\" และ \"รีเซ็ต PIN ทั้งห้อง\" (ไม่ได้กดปุ่มใด)",
+     "shot": true
+    }
+   ],
+   "expected": "ช่อง \"ห้องเรียน\" มีเฉพาะห้องประจำชั้นของครู และตารางแสดงรหัสกับชื่อนักเรียนของห้อง",
+   "verify": [
+    {
+     "title": "ช่องเลือกห้องมีห้องเดียว",
+     "steps": [
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "ม.1/1",
+         "in": {
+          "id": "gw-class"
+         }
+        },
+        {
+         "not_text": "ม.2/1",
+         "in": {
+          "id": "gw-class"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "student-pin-wrong-tries",
+   "title": "นักเรียนใส่ PIN ผิดหลายครั้งและครูปลดให้ใช้ได้อีก",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "student-sso-page",
+    "issue-student-pin"
+   ],
+   "intro": "นักเรียนใช้รหัสนักเรียนคู่กับ PIN 6 หลักที่ครูออกให้เพื่อเข้าแอปเรียนภายนอก ระบบนับครั้งที่ใส่ผิดของนักเรียนแต่ละคน ถ้าผิดซ้ำจากเครือข่ายเดียวกันเกิน 5 ครั้ง ระบบหยุดรับการลองจากเครือข่ายนั้น และถ้าผิดรวมหลายเครือข่ายถึงเกณฑ์ ระบบล็อก PIN ชั่วคราว (ล็อกนานขึ้นเมื่อเกิดซ้ำ) ข้อความที่นักเรียนเห็นเหมือนกันทุกกรณีเพื่อไม่บอกผู้บุกรุก ครูปลดล็อกได้ทันทีด้วยปุ่ม \"รีเซ็ต PIN\" ขั้นตอนนี้ใช้ PIN จริงที่ครูเพิ่งออก ไม่แสดงในภาพ",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "PIN เข้าแอปเรียนของนักเรียน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "PIN เข้าแอปเรียนของนักเรียน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "css": "select#gw-class"
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"PIN เข้าแอปเรียนของนักเรียน\"",
+     "shot": true
+    },
+    {
+     "do": "select",
+     "target": {
+      "id": "gw-class"
+     },
+     "label": "ม.6/1",
+     "wait_after": {
+      "css": "table.gw-table tbody tr",
+      "first": true
+     },
+     "settle_ms": 800
+    },
+    {
+     "do": "capture",
+     "target": {
+      "css": "table.gw-table tbody td[data-label=รหัส]",
+      "first": true
+     },
+     "var": "scode"
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "button[data-act=reset]",
+      "within": {
+       "css": "table.gw-table tbody tr",
+       "has_text": "{{scode}}"
+      }
+     },
+     "crop": {
+      "css": "section.gw-slips"
+     },
+     "highlight": {
+      "css": "section.gw-slips"
+     },
+     "wait_after": {
+      "css": "strong.gw-pin",
+      "first": true
+     },
+     "say": "กดปุ่ม \"ออก PIN\" (ถ้านักเรียนมี PIN แล้วปุ่มชื่อ \"รีเซ็ต PIN\") ที่แถวของนักเรียน 1 คน ระบบแสดงใบ PIN (ภาพนี้ปิด PIN ไว้) ใบ PIN แสดงครั้งเดียว",
+     "shot": true,
+     "mask": [
+      {
+       "css": "div.gw-slip-grid"
+      }
+     ]
+    },
+    {
+     "do": "capture",
+     "target": {
+      "css": "strong.gw-pin",
+      "first": true
+     },
+     "var": "pin1"
+    },
+    {
+     "do": "goto",
+     "url": "/work#api",
+     "crop": "viewport",
+     "wait_after": {
+      "css": "li.gw-card",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "capture",
+     "target": {
+      "css": "p > code",
+      "within": {
+       "css": "li.gw-card",
+       "has_text": "{{marker}}"
+      },
+      "nth": 0
+     },
+     "var": "cid"
+    },
+    {
+     "do": "goto",
+     "url": "/oauth/authorize?response_type=code&client_id={{cid}}&redirect_uri=https%3A%2F%2Fapp.example.invalid%2Fcallback&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256&state=manual",
+     "crop": "viewport",
+     "wait_after": {
+      "label": "รหัสนักเรียน"
+     },
+     "say": "นักเรียนเปิดหน้า \"เข้าสู่ระบบด้วยรหัสนักเรียน\" ของแอปภายนอก หน้านี้ให้กรอกรหัสนักเรียนและ PIN",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสนักเรียน"
+     },
+     "value": "{{scode}}"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านหรือ PIN"
+     },
+     "value": "000001",
+     "secret": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เข้าสู่ระบบ"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "main.sso"
+     },
+     "wait_after": {
+      "role": "alert",
+      "first": true
+     },
+     "say": "กรอกรหัสนักเรียนและพิมพ์ PIN ผิด แล้วกดปุ่ม \"เข้าสู่ระบบ\" ระบบแจ้งว่า \"รหัสนักเรียนหรือ PIN ไม่ถูกต้อง หรือบัญชีถูกพักชั่วคราว\" และให้กรอกใหม่",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "รหัสนักเรียนหรือ PIN ไม่ถูกต้อง",
+      "in": {
+       "role": "alert",
+       "first": true
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสนักเรียน"
+     },
+     "value": "{{scode}}"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านหรือ PIN"
+     },
+     "value": "000001",
+     "secret": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เข้าสู่ระบบ"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "main.sso"
+     },
+     "wait_after": {
+      "role": "alert",
+      "first": true
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "รหัสนักเรียนหรือ PIN ไม่ถูกต้อง",
+      "in": {
+       "role": "alert",
+       "first": true
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสนักเรียน"
+     },
+     "value": "{{scode}}"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านหรือ PIN"
+     },
+     "value": "000001",
+     "secret": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เข้าสู่ระบบ"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "main.sso"
+     },
+     "wait_after": {
+      "role": "alert",
+      "first": true
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "รหัสนักเรียนหรือ PIN ไม่ถูกต้อง",
+      "in": {
+       "role": "alert",
+       "first": true
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสนักเรียน"
+     },
+     "value": "{{scode}}"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านหรือ PIN"
+     },
+     "value": "000001",
+     "secret": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เข้าสู่ระบบ"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "main.sso"
+     },
+     "wait_after": {
+      "role": "alert",
+      "first": true
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "รหัสนักเรียนหรือ PIN ไม่ถูกต้อง",
+      "in": {
+       "role": "alert",
+       "first": true
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสนักเรียน"
+     },
+     "value": "{{scode}}"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านหรือ PIN"
+     },
+     "value": "000001",
+     "secret": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เข้าสู่ระบบ"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "main.sso"
+     },
+     "wait_after": {
+      "role": "alert",
+      "first": true
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "รหัสนักเรียนหรือ PIN ไม่ถูกต้อง",
+      "in": {
+       "role": "alert",
+       "first": true
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสนักเรียน"
+     },
+     "value": "{{scode}}"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านหรือ PIN"
+     },
+     "value": "{{pin1}}",
+     "secret": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เข้าสู่ระบบ"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "main.sso"
+     },
+     "wait_after": {
+      "role": "alert",
+      "first": true
+     },
+     "say": "พอใส่ผิดครบ 5 ครั้งจากเครื่องหรือเครือข่ายเดียวกัน ระบบหยุดรับการลองของนักเรียนคนนั้นจากเครือข่ายนี้ แม้ครั้งต่อไปจะพิมพ์ PIN ที่ถูกต้อง ก็ได้ข้อความเดิม",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "รหัสนักเรียนหรือ PIN ไม่ถูกต้อง",
+      "in": {
+       "role": "alert",
+       "first": true
+      }
+     }
+    },
+    {
+     "do": "goto",
+     "url": "/work#student-pins"
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "select#gw-class"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "id": "gw-class"
+     },
+     "label": "ม.6/1",
+     "wait_after": {
+      "css": "table.gw-table tbody tr",
+      "first": true
+     },
+     "settle_ms": 800
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "button[data-act=reset]",
+      "within": {
+       "css": "table.gw-table tbody tr",
+       "has_text": "{{scode}}"
+      }
+     },
+     "crop": {
+      "css": "section.gw-slips"
+     },
+     "highlight": {
+      "css": "section.gw-slips"
+     },
+     "wait_after": {
+      "css": "strong.gw-pin",
+      "first": true
+     },
+     "say": "ครูปลดให้ใช้ได้อีกด้วยการกดปุ่ม \"รีเซ็ต PIN\" ที่แถวของนักเรียน ระบบออก PIN ใหม่ ล้างจำนวนครั้งที่ผิด และปลดล็อก (ภาพนี้ปิด PIN ไว้)",
+     "shot": true,
+     "mask": [
+      {
+       "css": "div.gw-slip-grid"
+      }
+     ]
+    },
+    {
+     "do": "capture",
+     "target": {
+      "css": "strong.gw-pin",
+      "first": true
+     },
+     "var": "pin2"
+    },
+    {
+     "do": "goto",
+     "url": "/oauth/authorize?response_type=code&client_id={{cid}}&redirect_uri=https%3A%2F%2Fapp.example.invalid%2Fcallback&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256&state=manual",
+     "crop": "viewport",
+     "wait_after": {
+      "label": "รหัสนักเรียน"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสนักเรียน"
+     },
+     "value": "{{scode}}"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านหรือ PIN"
+     },
+     "value": "{{pin2}}",
+     "secret": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เข้าสู่ระบบ"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "main.sso"
+     },
+     "wait_after": {
+      "role": "alert",
+      "first": true
+     },
+     "say": "นักเรียนกรอกรหัสนักเรียนกับ PIN ใหม่ ระบบรับ PIN แล้ว (ไม่ขึ้นว่า PIN ไม่ถูกต้อง) แต่เป็น PIN ชั่วคราวจากใบ PIN จึงให้ไปเปลี่ยนรหัสผ่านที่หน้านักเรียนก่อนใช้แอป",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ต้องเปลี่ยนก่อนใช้งาน",
+      "in": {
+       "role": "alert",
+       "first": true
+      }
+     }
+    }
+   ],
+   "expected": "PIN ใหม่ใช้ได้ทันที PIN เดิมใช้ไม่ได้อีก และครูเห็นนักเรียนมี PIN แล้ว",
+   "verify": [
+    {
+     "title": "ครูเปิดรายชื่อห้อง นักเรียนคนนั้นไม่ถูกล็อก",
+     "steps": [
+      {
+       "do": "goto",
+       "url": "/work#student-pins",
+       "crop": "viewport"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "select#gw-class"
+       }
+      },
+      {
+       "do": "select",
+       "target": {
+        "id": "gw-class"
+       },
+       "label": "ม.6/1",
+       "wait_after": {
+        "css": "table.gw-table tbody tr",
+        "first": true
+       },
+       "settle_ms": 800
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "มี PIN แล้ว",
+         "in": {
+          "css": "table.gw-table tbody tr",
+          "has_text": "{{scode}}"
+         }
+        },
+        {
+         "not_text": "ถูกล็อก",
+         "in": {
+          "css": "table.gw-table tbody tr",
+          "has_text": "{{scode}}"
+         }
+        }
+       ],
+       "crop": "panel",
+       "highlight": {
+        "css": "table.gw-table tbody tr",
+        "has_text": "{{scode}}"
+       },
+       "say": "เปิดรายชื่อห้องอีกครั้ง แถวของนักเรียนแสดง \"มี PIN แล้ว\" ไม่มีป้าย \"ถูกล็อก\"",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "issue-class-pins",
+   "title": "ออก PIN ให้ทั้งห้อง และรีเซ็ต PIN ทั้งห้อง",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "issue-student-pin"
+   ],
+   "intro": "ครูประจำชั้นหรือผู้ดูแลระบบออก PIN ให้ทั้งห้องในครั้งเดียว ใช้ตอนเปิดภาคเรียนหรือเมื่อ PIN รั่วไหล ปุ่ม \"ออก PIN ให้คนที่ยังไม่มี\" ไม่แตะ PIN ของคนที่มีแล้ว ส่วน \"รีเซ็ต PIN ทั้งห้อง\" เปลี่ยน PIN ของทุกคนและล้างการล็อก",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "PIN เข้าแอปเรียนของนักเรียน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "PIN เข้าแอปเรียนของนักเรียน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "css": "select#gw-class"
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"PIN เข้าแอปเรียนของนักเรียน\"",
+     "shot": true
+    },
+    {
+     "do": "select",
+     "target": {
+      "id": "gw-class"
+     },
+     "label": "ม.6/1",
+     "crop": "panel",
+     "highlight": {
+      "id": "gw-class"
+     },
+     "say": "เลือกห้องเรียน ในที่นี้คือ \"ม.6/1\" รายชื่อแสดงสถานะ PIN ของนักเรียนแต่ละคน",
+     "shot": true,
+     "wait_after": {
+      "css": "table.gw-table tbody tr",
+      "first": true
+     },
+     "settle_ms": 800
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ออก PIN ให้คนที่ยังไม่มี"
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "button",
+      "name": "ออก PIN ให้คนที่ยังไม่มี"
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"ออก PIN ให้คนที่ยังไม่มี\" ระบบออก PIN ให้เฉพาะคนที่ยังไม่มี ถ้าทุกคนมีแล้วจะแจ้ง \"ทุกคนมี PIN แล้ว\"",
+     "shot": true,
+     "mask": [
+      {
+       "css": "div.gw-slip-grid"
+      }
+     ]
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "รีเซ็ต PIN ทั้งห้อง"
+     },
+     "crop": {
+      "css": "section.gw-slips"
+     },
+     "highlight": {
+      "css": "section.gw-slips"
+     },
+     "wait_after": {
+      "css": "article.gw-slip",
+      "first": true
+     },
+     "say": "กดปุ่ม \"รีเซ็ต PIN ทั้งห้อง\" แล้วกดยืนยันในกล่องถามว่าจะรีเซ็ต PIN ของทุกคนในห้อง PIN เดิมของทุกคนใช้ไม่ได้ ระบบออกใบ PIN ใหม่ให้ทุกคน (ภาพนี้ปิด PIN ไว้)",
+     "shot": true,
+     "dialog": "accept",
+     "mask": [
+      {
+       "css": "div.gw-slip-grid"
+      }
+     ]
+    },
+    {
+     "do": "expect",
+     "that": {
+      "count": {
+       "min": 2
+      },
+      "of": {
+       "css": "article.gw-slip"
+      }
+     }
+    },
+    {
+     "do": "note",
+     "crop": {
+      "css": "section.gw-slips"
+     },
+     "highlight": {
+      "css": "section.gw-slips"
+     },
+     "mask": [
+      {
+       "css": "div.gw-slip-grid"
+      }
+     ],
+     "say": "ใบ PIN ของแต่ละคนมีรหัสนักเรียนและ PIN 6 หลัก ปุ่ม \"พิมพ์ใบ PIN\" พิมพ์ทั้งหน้าเพื่อตัดแจก PIN แสดงครั้งเดียว ปิดหน้านี้แล้วดูย้อนหลังไม่ได้ ถ้าทำหายต้องออกใหม่",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ล้างหน้านี้"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "hidden": {
+       "css": "section.gw-slips"
+      }
+     }
+    }
+   ],
+   "expected": "ทุกคนในห้องมี PIN ใหม่และรายชื่อแสดง \"มี PIN แล้ว\"",
+   "verify": [
+    {
+     "title": "เปิดรายชื่อห้อง ทุกคนมี PIN แล้ว",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "select#gw-class"
+       }
+      },
+      {
+       "do": "select",
+       "target": {
+        "id": "gw-class"
+       },
+       "label": "ม.6/1",
+       "wait_after": {
+        "css": "table.gw-table tbody tr",
+        "first": true
+       },
+       "settle_ms": 800
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "not_text": "ยังไม่มี",
+         "in": {
+          "css": "table.gw-table"
+         }
+        },
+        {
+         "not_text": "ถูกล็อก",
+         "in": {
+          "css": "table.gw-table"
+         }
+        }
+       ],
+       "crop": "panel",
+       "highlight": {
+        "css": "table.gw-table"
+       },
+       "say": "เปิดรายชื่อห้องใหม่ ทุกแถวแสดง \"มี PIN แล้ว\"",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "revoke-client",
+   "title": "เพิกถอนไคลเอนต์ที่ไม่ใช้แล้ว",
+   "role": "admin",
+   "start": "/work#api",
+   "cleanup": true,
+   "intro": "เพิกถอนเมื่อเลิกใช้แอป หรือเมื่อสงสัยว่าคีย์รั่ว แอปเรียก API ไม่ได้ทันที โทเคนที่ออกไปแล้วถูกยกเลิก ระบบไม่มีปุ่มลบไคลเอนต์ รายการที่เพิกถอนแล้วยังอยู่ในรายการเพื่อดูประวัติ เปิดใช้งานใหม่ได้โดยแก้ไขและติ๊ก \"เปิดใช้งาน\" และควรออก secret ใหม่",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "li.gw-card",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิกถอน",
+      "within": {
+       "css": "li.gw-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": "li.gw-card",
+      "has_text": "{{marker}}"
+     },
+     "expect_response": {
+      "url_contains": "/revoke",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "css": "span.gw-off",
+      "within": {
+       "css": "li.gw-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "say": "กดปุ่ม \"เพิกถอน\" ในรายการของแอป ระบบถามยืนยัน แล้วแสดงข้อความ \"เพิกถอนแล้ว\" และป้าย \"ปิดใช้งาน\"",
+     "shot": true
+    }
+   ],
+   "expected": "รายการของแอปมีป้าย \"ปิดใช้งาน\" และไม่มีปุ่ม \"เพิกถอน\" แล้ว",
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ ไคลเอนต์ต้องปิดใช้งาน",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "li.gw-card",
+        "has_text": "{{marker}}"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "li.gw-card",
+        "has_text": "{{marker}}"
+       },
+       "that": [
+        {
+         "text": "ปิดใช้งาน",
+         "in": {
+          "css": "li.gw-card",
+          "has_text": "{{marker}}"
+         }
+        },
+        {
+         "hidden": {
+          "role": "button",
+          "name": "เพิกถอน",
+          "within": {
+           "css": "li.gw-card",
+           "has_text": "{{marker}}"
+          }
+         }
+        }
+       ],
+       "say": "เปิดหน้าใหม่ แอปที่เพิกถอนแสดง \"ปิดใช้งาน\"",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "skeleton": [],
+ "untested": [
+  "การเรียกใช้ API ด้วยคีย์จริง (ขอโทเคนที่ POST /api/v1/token หรือ /oauth/token แล้วอ่าน /api/v1/students /classrooms /teachers /courses /attendance/summary) ไม่ได้ทดสอบด้วยเบราว์เซอร์ เพราะเป็นการเรียกระหว่างเซิร์ฟเวอร์ที่ต้องส่งคำขอ POST พร้อม client secret และตัวรันทดสอบเปิดได้เฉพาะหน้าเว็บ และ secret ที่แสดงครั้งเดียวต้องไม่ถูกเก็บในไฟล์ใด จึงยังไม่ได้ตรวจว่าโทเคนใช้ได้ ถูกจำกัดสิทธิ์ ถูกจำกัดจำนวนครั้ง ถูกจำกัด IP และใช้ไม่ได้หลังเพิกถอน",
+  "การลงชื่อเข้าใช้ของนักเรียนที่หน้า /oauth/authorize ทั้งขั้นตอน (กรอกรหัสนักเรียนและ PIN แล้วส่งกลับ code ไปยัง Redirect URI ของแอป และแลก code เป็นโทเคนที่ /oauth/token) ไม่ได้ทดสอบ เพราะปลายทางเป็นเว็บของแอปภายนอกและการลงชื่อเข้าใช้ต้องใช้ PIN จริงของนักเรียน ตรวจเฉพาะการแสดงหน้า",
+  "ระบบไม่มีปุ่มลบไคลเอนต์ ไคลเอนต์ทดสอบที่เพิกถอนแล้วจึงเหลืออยู่ในรายการทุกครั้งที่รัน (มีเครื่องหมายทดสอบในชื่อและป้าย \"ปิดใช้งาน\") และใบ PIN ที่ออกไม่มีวิธีเรียกคืน",
+  "คำสั่งล้างข้อมูลเก่า php artisan saan:api-prune (ล้างบันทึกการเรียกใช้เกิน 30 วัน และโทเคนที่หมดอายุ) เป็นงานตามกำหนดเวลาของระบบ ไม่มีหน้าจอ ไม่ได้ทดสอบ",
+  "การล็อก PIN ตัวเอง (ป้าย \"ถูกล็อก\" ในรายชื่อห้อง) ไม่ได้ทดสอบ เพราะระบบล็อกเมื่อมีการใส่ผิดรวม 12 ครั้งจากหลายเครือข่าย ส่วนเครือข่ายเดียวกันถูกหยุดรับการลองหลังผิด 5 ครั้งก่อนถึงเกณฑ์ล็อก (modules/api-gateway/src/Pins.php บรรทัด 21-22) เบราว์เซอร์เครื่องเดียวจึงทำให้ PIN ล็อกไม่ได้ ทดสอบได้เฉพาะการหยุดรับการลองจากเครือข่ายเดียวและการปลดด้วยปุ่ม \"รีเซ็ต PIN\" (งาน \"นักเรียนใส่ PIN ผิดหลายครั้งและครูปลดให้ใช้ได้อีก\")",
+  "ใบ PIN ที่ออกให้ทั้งห้องไม่มีวิธีเรียกคืนหรือดูซ้ำ ต้องออกใหม่เท่านั้น งานออก PIN ทั้งห้องในคู่มือทดสอบกับห้อง ม.6/1 เท่านั้น"
+ ]
+}

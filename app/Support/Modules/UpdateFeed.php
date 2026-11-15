@@ -13,10 +13,15 @@ use RuntimeException;
  * the same public key that signs packages (config saan.release_public_key).
  *
  * feed.json: {"core":{"version","released","summary","notes_url"},"modules":{"<id>":{"version","summary","notes_url"}}}
+ * Version 2 (backwards compatible, "version":2) adds "base" (folder of the newest release relative to the feed, e.g. "0.7.0/") and per package
+ * "zip", "bytes", "sha256"; the core also "laravel" (laravel/framework in that release) and "requires":{"php","from"}. App\Domain\SelfUpdate
+ * downloads from those. A feed without them is still read for the notice.
  */
 class UpdateFeed
 {
     public const MAX_BYTES = 262144;
+    /** Largest package a feed may announce (the downloader refuses more). */
+    public const MAX_PACKAGE_BYTES = 536870912;
 
     public static function enabled(): bool
     {
@@ -38,7 +43,7 @@ class UpdateFeed
                 $local = is_array($mu) && is_string($mu['id'] ?? null) && is_string($mu['version'] ?? null) ? $registry->get($mu['id']) : null;
                 if ($local && Updater::compareVersions($mu['version'], $local['version']) > 0) $modules[] = ['current' => $local['version']] + $mu;
             }
-            $available = ['checked_at' => $stored['checked_at'] ?? null, 'current' => $current, 'core' => $core, 'modules' => $modules, 'any' => $core !== null || $modules !== []];
+            $available = ['checked_at' => $stored['checked_at'] ?? null, 'current' => $current, 'feed_version' => (int) ($stored['feed_version'] ?? 1), 'base' => $stored['base'] ?? null, 'core' => $core, 'modules' => $modules, 'any' => $core !== null || $modules !== []];
         }
         return ['enabled' => $enabled, 'feed' => (string) config('saan.update_feed'), 'available' => $available, 'last_check' => Settings::get('updates.last_check')];
     }
@@ -52,9 +57,22 @@ class UpdateFeed
             Settings::put('updates.last_check', ['at' => $now, 'ok' => true, 'error' => null]);
             return $record;
         } catch (\Throwable $e) {
-            Settings::put('updates.last_check', ['at' => $now, 'ok' => false, 'error' => mb_substr($e->getMessage(), 0, 200)]);
+            Settings::put('updates.last_check', ['at' => $now, 'ok' => false, 'error' => self::friendly($e)]);
             return (array) (Settings::get('updates.available') ?? []);
         }
+    }
+
+    /**
+     * Messages this class throws are already Thai and safe. Anything else (Guzzle/OpenSSL/curl text) is English, up to 200 characters and can
+     * carry absolute server paths (/var/www/.../vendor/guzzlehttp/...), so the admin gets a Thai sentence with the cause class instead.
+     */
+    private static function friendly(\Throwable $e): string
+    {
+        $m = $e->getMessage();
+        if ($e instanceof RuntimeException && preg_match('/\p{Thai}/u', $m)) return mb_substr($m, 0, 200);
+        if (stripos($m, 'certificate') !== false || stripos($m, 'SSL') !== false) return 'ตรวจใบรับรอง HTTPS ของเซิร์ฟเวอร์โครงการไม่ผ่าน (เครื่องนี้ไม่รู้จักผู้ออกใบรับรอง หรือใบรับรองหมดอายุ) ตรวจ curl.cainfo / openssl.cafile ของ PHP และเวลาเครื่อง';
+        if (stripos($m, 'refused') !== false || stripos($m, 'timed out') !== false || stripos($m, 'resolve') !== false || $e instanceof \Illuminate\Http\Client\ConnectionException) return 'เชื่อมต่อเซิร์ฟเวอร์โครงการไม่ได้ ตรวจว่าเครื่องนี้ออกอินเทอร์เน็ตแบบ HTTPS ไปที่ '.(string) parse_url((string) config('saan.update_feed'), PHP_URL_HOST).' ได้ (ไฟร์วอลล์หรือโฮสต์อาจปิดการเชื่อมต่อขาออก)';
+        return 'ตรวจรุ่นใหม่ไม่สำเร็จ ('.class_basename($e).') ลองใหม่ภายหลัง';
     }
 
     private function fetch(): array
@@ -75,15 +93,49 @@ class UpdateFeed
         if ($gen !== false) Settings::put('updates.feed_generated_at', $gen);
 
         $current = (string) config('saan.version');
-        $core = self::release($feed['core'] ?? null);
+        // feed version 2 carries download data (zip, bytes, sha256) under a folder (base); a feed without it still gives the notice
+        $feedVersion = is_int($feed['version'] ?? null) ? $feed['version'] : 1;
+        $base = $feedVersion >= 2 ? self::base($feed['base'] ?? null) : null;
+        $core = self::release($feed['core'] ?? null, 'core', null, $base);
         $registry = app(ModuleRegistry::class);
         $modules = [];
         foreach (is_array($feed['modules'] ?? null) ? $feed['modules'] : [] as $id => $info) {
-            $rel = self::release($info); $local = is_string($id) ? $registry->get($id) : null;
+            $rel = self::release($info, 'module', is_string($id) ? $id : null, $base); $local = is_string($id) ? $registry->get($id) : null;
             if ($rel && $local && Updater::compareVersions($rel['version'], $local['version']) > 0) $modules[] = ['id' => $id, 'name' => $local['name'], 'current' => $local['version']] + $rel;
         }
         $newCore = $core && Updater::compareVersions($core['version'], $current) > 0 ? $core : null;
-        return ['checked_at' => now()->toIso8601String(), 'current' => $current, 'core' => $newCore, 'modules' => $modules, 'any' => $newCore !== null || $modules !== []];
+        return ['checked_at' => now()->toIso8601String(), 'current' => $current, 'feed_version' => $feedVersion, 'base' => $base, 'core' => $newCore, 'modules' => $modules, 'any' => $newCore !== null || $modules !== []];
+    }
+
+    /** Folder of the newest release relative to the feed ("0.7.0/"): plain path segments only, never "..", never absolute. Null = no download data. */
+    public static function base(mixed $b): ?string
+    {
+        if (!is_string($b) || strlen($b) > 100 || !preg_match('~^((?!\.{1,2}/)[A-Za-z0-9._-]+/)*$~D', $b)) return null;
+        return $b;
+    }
+
+    /**
+     * Download data of one entry (version 2): zip, bytes, sha256 and, for the core, the framework version and requirements. All or nothing: a
+     * malformed field drops the whole set and the entry stays a plain notice (the page then offers the manual upload only). The file name
+     * must be the one the release builder gives the package, so the feed can never point the downloader at another file.
+     * @return array<string,mixed>
+     */
+    private static function package(array $r, string $kind, ?string $id, string $version): array
+    {
+        $zip = $r['zip'] ?? null; $bytes = $r['bytes'] ?? null; $sha = $r['sha256'] ?? null;
+        $want = $kind === 'core' ? 'saan-core-'.$version.'.zip' : ($id !== null ? 'saan-mod-'.$id.'-'.$version.'.zip' : null);
+        if (!is_string($zip) || $zip !== $want || !is_int($bytes) || $bytes < 1 || $bytes > self::MAX_PACKAGE_BYTES || !is_string($sha) || !preg_match('/^[0-9a-f]{64}$/D', $sha)) return [];
+        $out = ['zip' => $zip, 'bytes' => $bytes, 'sha256' => $sha];
+        if ($kind === 'core') {
+            $laravel = is_string($r['laravel'] ?? null) && preg_match('/^\d+\.\d+\.\d+$/D', $r['laravel']) ? $r['laravel'] : null;
+            $req = is_array($r['requires'] ?? null) ? $r['requires'] : [];
+            $requires = [];
+            if (is_string($req['php'] ?? null) && preg_match('/^(>=)?\d+\.\d+(\.\d+)?$/D', $req['php'])) $requires['php'] = $req['php'];
+            if (is_string($req['from'] ?? null) && preg_match('/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/D', $req['from'])) $requires['from'] = $req['from'];
+            if ($laravel !== null) $out['laravel'] = $laravel;
+            if ($requires) $out['requires'] = $requires;
+        }
+        return $out;
     }
 
         private function get(string $url): string
@@ -101,12 +153,13 @@ class UpdateFeed
         if ($body === '') throw new RuntimeException('ขนาดฟีดไม่ถูกต้อง');
         return $body;
     }
-    /** Only well-formed values are kept; links must be https. */
-    private static function release(mixed $r): ?array
+    /** Only well-formed values are kept; links must be https. $base non-null = a version 2 feed: download data is read too. */
+    private static function release(mixed $r, string $kind = 'core', ?string $id = null, ?string $base = null): ?array
     {
         if (!is_array($r) || !is_string($r['version'] ?? null) || !preg_match('/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/D', $r['version'])) return null;
         $notes = is_string($r['notes_url'] ?? null) && preg_match('~^https://[^\s<>"\']{1,300}$~D', $r['notes_url']) ? $r['notes_url'] : null;
         $date = is_string($r['released'] ?? null) && preg_match('/^\d{4}-\d{2}-\d{2}$/D', $r['released']) ? $r['released'] : null;
-        return ['version' => $r['version'], 'released' => $date, 'summary' => is_string($r['summary'] ?? null) ? mb_substr(strip_tags($r['summary']), 0, 300) : '', 'notes_url' => $notes];
+        $out = ['version' => $r['version'], 'released' => $date, 'summary' => is_string($r['summary'] ?? null) ? mb_substr(strip_tags($r['summary']), 0, 300) : '', 'notes_url' => $notes];
+        return $base === null ? $out : $out + self::package($r, $kind, $id, $r['version']);
     }
 }

@@ -45,6 +45,7 @@ final class DemoContext
     private array $columns = [];
     private array $userRows = [];
     private array $temp = [];
+    private ?string $locked = null;
 
     public function __construct(private ModuleRegistry $registry)
     {
@@ -74,6 +75,12 @@ final class DemoContext
     }
 
     // ---------------------------------------------------------------- rows
+
+    /** One password hash of a random string nobody has seen, for every account or client whose secret is not meant to be used (a hash costs 0.2 s in production). */
+    public function lockedHash(): string
+    {
+        return $this->locked ??= \Illuminate\Support\Facades\Hash::make(bin2hex(random_bytes(32)));
+    }
 
     public function columns(string $table): array
     {

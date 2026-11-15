@@ -261,7 +261,7 @@ private function overlap(int $teacherId, string $from, string $to, ?string $half
             }
         }
         if ($type->needs_attachment_after_days !== null && $p['days'] > (float) $type->needs_attachment_after_days && !$hasAttachment) {
-            $this->invalid('attachment', sprintf('ลา%sเกิน %s วันต้องแนบไฟล์ (เช่น ใบรับรองแพทย์) ก่อนส่ง', $type->label, (float) $type->needs_attachment_after_days));
+            $this->invalid('attachment', sprintf('%sเกิน %s วันต้องแนบไฟล์ (เช่น ใบรับรองแพทย์) ก่อนส่ง', $type->label, (float) $type->needs_attachment_after_days));
         }
     }
 

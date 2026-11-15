@@ -123,7 +123,7 @@ final class DemoAcademic
             'clerk' => ['ธุรการ สารบรรณ และช่างซ่อมบำรุง (teacher + ตั้งค่า documents.clerk_user_ids, maintenance.technician_user_ids)', 'ลงทะเบียนหนังสือ รับงานซ่อม ทะเบียนครุภัณฑ์'],
             'editor' => ['ผู้ดูแลเว็บไซต์ (editor)', 'เขียนข่าว แบบสำรวจ ประกาศรายชื่อ ITA ที่หน้า /cms'],
         ];
-        $locked = Hash::make(bin2hex(random_bytes(32))); // one unusable hash for the accounts that are not listed
+        $locked = $c->lockedHash(); // one unusable hash for the accounts that are not listed
         $people = [];
         foreach (DemoNames::STAFF as $i => $s) $people[] = [$s[7] ?? 't'.$i, $c->teachers[$i]['name'], $i === 0 ? 'principal' : 'teacher', $i, $s[7] !== null];
         $people[] = ['editor', 'กานต์ ประสานงาน', 'editor', null, true];

@@ -162,16 +162,17 @@
                 const qs = new URLSearchParams({type: b.type, starts_on: b.starts_on, ends_on: b.ends_on});
                 if (b.half_day) qs.set('half_day', b.half_day);
                 if (st.editing?.row?.id && st.editing.mode === 'edit') qs.set('except_id', st.editing.row.id);
+                const seq = st.previewSeq = (st.previewSeq || 0) + 1; // a slow older answer must not overwrite the count of a newer request
                 try {
                     const p = await ctx.api(L + '/preview?' + qs);
-                    if (!ctx.alive()) return;
+                    if (!ctx.alive() || seq !== st.previewSeq) return;
                     const skipped = p.skipped.map(s => s.reason === 'holiday' ? dshort(s.date) + ' (' + (s.title || 'วันหยุด') + ')' : null).filter(Boolean);
                     const q = p.quota;
                     box.className = 'ld-preview ld-ok';
                     box.innerHTML = `<b>${esc(num(p.days))} ${p.count_mode === 'calendar' ? 'วัน (นับต่อเนื่อง)' : 'วันทำการ'}</b> (ปีงบประมาณ ${esc(p.fiscal_year)})${skipped.length ? `<br>ไม่นับวันหยุด: ${esc(skipped.join(', '))}` : ''}${q.quota === null ? '' : `<br>โควตาคงเหลือหลังลาครั้งนี้ ${esc(num(q.remaining))} วัน`}${p.needs_attachment ? '<br><b>ต้องแนบไฟล์ (เช่น ใบรับรองแพทย์) ก่อนส่งใบลา</b>' : ''}`;
                     if (q.quota !== null && q.remaining < 0) box.className = 'ld-preview ld-warn';
                 } catch (e) {
-                    if (e?.name === 'AbortError') return;
+                    if (e?.name === 'AbortError' || seq !== st.previewSeq) return;
                     box.className = 'ld-preview ld-error';
                     box.textContent = e.message || '';
                 }

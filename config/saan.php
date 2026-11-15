@@ -104,7 +104,7 @@ return [
     'update_finish_timeout' => (int) env('SAAN_UPDATE_FINISH_TIMEOUT', 1800),
     // Path of the PHP CLI binary when the web server's PHP cannot find it by itself (web updater on hosts where PHP_BINDIR has no php).
     'php_cli' => env('SAAN_PHP_CLI', ''),
-    // Optional, off by default (admin switch in /admin/modules). Signed with the same Ed25519 key as packages: feed.json + feed.sig. No telemetry, nothing is installed automatically.
+    // Optional, off by default (mode on /admin/updates). Signed with the same Ed25519 key as packages: feed.json + feed.sig (version 2 also lists zip/bytes/sha256 per package under base/, which App\Domain\SelfUpdate downloads from the same host). No telemetry; only the mode auto_patch installs by itself, and only patch releases.
     'update_feed' => env('SAAN_UPDATE_FEED', 'https://saan.linuxthai.org/releases/feed.json'),
     // Reverse proxies whose X-Forwarded-* headers are believed: comma list of IPs/CIDRs, or "*" only when the origin is reachable solely through the proxy.
     // Empty (default) = trust nobody. Behind Cloudflare, list its ranges (https://www.cloudflare.com/ips/).

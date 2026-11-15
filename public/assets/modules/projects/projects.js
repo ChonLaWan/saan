@@ -212,7 +212,7 @@
                 ${field('งบกิจกรรม (บาท)', `<input name="budget" inputmode="decimal" required value="${a ? esc(plain(a.budget_satang)) : '0.00'}">`)}
                 ${field('ใช้จ่ายจริง (บาท)', `<input name="spent" inputmode="decimal" value="${a ? esc(plain(a.spent_satang)) : '0.00'}"${['in_progress', 'done'].includes(p.status) ? '' : ' disabled'}>`)}
                 ${field('วันที่ทำกิจกรรม', `<input type="date" name="done_on" max="${esc(me.today)}" value="${v('done_on')}">`)}
-                ${perm.ledger ? field('เลขรายการรายจ่ายในสมุดเงินสด (อ่านอย่างเดียว)', `<input name="fin_ledger_id" inputmode="numeric" value="${v('fin_ledger_id')}">`) : ''}</div>
+                ${perm.ledger ? field('เลขรายการรายจ่ายในสมุดเงินสด (ผู้บริหารเชื่อมหรือยกเลิกได้ ระบบไม่แก้สมุดเงินสด)', `<input name="fin_ledger_id" inputmode="numeric" value="${v('fin_ledger_id')}">`) : ''}</div>
                 ${field('หมายเหตุ', `<input name="note" maxlength="500" value="${v('note')}">`)}
                 ${field('เหตุผลที่ใช้จ่ายเกินงบ (กรอกเมื่อใช้จ่ายเกินงบกิจกรรมหรืองบโครงการ)', `<input name="over_budget_reason" maxlength="500" value="${v('over_budget_reason')}">`)}
                 <div class="prj-actions"><button class="prj-btn primary" type="submit">${a ? 'บันทึกกิจกรรม' : 'เพิ่มกิจกรรม'}</button>

@@ -1,0 +1,510 @@
+/* Saan Glass: the visual layer of the staff side (shell, CMS, work pages, account pages, sign-in).
+   Loaded last on every staff page. Tokens follow design-system section 3 (colour) and section 9 (glass).
+   Rules that keep text readable: every text/surface pair is measured on rendered pixels by tests/browser/contrast_audit.py;
+   control edges use --sg-border-strong (3:1), focus is a 3px ring, and the fallbacks at the end give opaque surfaces. */
+
+/* ------------------------------------------------------------------ tokens */
+:root{
+  --sg-bg:#f5f5ef;--sg-surface:#fffdf5;--sg-text:#202d27;--sg-muted:#465549;
+  --sg-border:#c8d2c7;--sg-border-strong:#566559;
+  --sg-primary:#163b30;--sg-primary-hover:#0e2c23;--sg-on-primary:#fffdf5;
+  --sg-accent:#d9e6ac;--sg-on-accent:#163b30;
+  --sg-link:#155e4b;--sg-focus:#005fcc;
+  --sg-success:#21633f;--sg-warning:#805800;--sg-danger:#b83317;--sg-danger-text:#9c2a12;--sg-info:#215b80;
+  --sg-glass:rgba(255,253,245,.74);--sg-glass-solid:rgba(255,253,245,.9);--sg-tint:rgba(255,253,245,.8);
+  --sg-glass-edge:rgba(255,255,255,.65);--sg-glass-hi:rgba(255,255,255,.7);
+  --sg-shadow:0 8px 32px rgba(22,59,48,.12);--sg-shadow-raised:0 16px 48px rgba(22,59,48,.2);
+  --sg-field:rgba(255,255,255,.9);--sg-zebra:rgba(22,59,48,.045);--sg-hover:rgba(22,59,48,.07);
+  --sg-chip:rgba(22,59,48,.09);--sg-head:rgba(22,59,48,.08);
+  --sg-scene:
+    radial-gradient(60vmax 48vmax at 6% -4%,rgba(22,59,48,.34),transparent 64%),
+    radial-gradient(54vmax 42vmax at 104% 8%,rgba(217,230,172,1),transparent 64%),
+    radial-gradient(58vmax 46vmax at 96% 104%,rgba(238,176,142,.7),transparent 64%),
+    radial-gradient(52vmax 42vmax at -4% 98%,rgba(70,160,165,.42),transparent 64%);
+  --sg-radius:16px;--sg-radius-control:12px;
+  color-scheme:light;
+}
+html[data-appearance=dark]{
+  --sg-bg:#111915;--sg-surface:#19251f;--sg-text:#edf2ea;--sg-muted:#b2beb4;
+  --sg-border:#42574b;--sg-border-strong:#c8d9cd;
+  --sg-primary:#a8ccb9;--sg-primary-hover:#c0deCe;--sg-on-primary:#111915;
+  --sg-accent:#ccd991;--sg-on-accent:#111915;
+  --sg-link:#9fd8be;--sg-focus:#91bdff;
+  --sg-success:#93d3a4;--sg-warning:#e8c66a;--sg-danger:#ffaa96;--sg-danger-text:#ffaa96;--sg-info:#a9d2f4;
+  --sg-glass:rgba(25,37,31,.76);--sg-glass-solid:rgba(25,37,31,.92);--sg-tint:rgba(25,37,31,.78);
+  --sg-glass-edge:rgba(255,255,255,.14);--sg-glass-hi:rgba(255,255,255,.1);
+  --sg-shadow:0 8px 32px rgba(0,0,0,.35);--sg-shadow-raised:0 16px 48px rgba(0,0,0,.5);
+  --sg-field:rgba(10,18,14,.7);--sg-zebra:rgba(255,255,255,.04);--sg-hover:rgba(255,255,255,.08);
+  --sg-chip:rgba(255,255,255,.1);--sg-head:rgba(255,255,255,.07);
+  --sg-scene:
+    radial-gradient(60vmax 48vmax at 6% -4%,rgba(60,140,100,.5),transparent 64%),
+    radial-gradient(54vmax 42vmax at 104% 8%,rgba(204,217,145,.22),transparent 64%),
+    radial-gradient(58vmax 46vmax at 96% 104%,rgba(190,95,62,.34),transparent 64%),
+    radial-gradient(52vmax 42vmax at -4% 98%,rgba(60,150,160,.36),transparent 64%);
+  color-scheme:dark;
+}
+
+/* old tokens used by the module stylesheets are pointed at the new ones, so every module follows the scheme */
+html body.school-layout,html body.login-body{
+  --ink:var(--sg-text);--muted:var(--sg-muted);--line:var(--sg-border);--control-line:var(--sg-border-strong);
+  --surface:var(--sg-surface);--surface-raised:var(--sg-surface);--canvas:var(--sg-bg);--sheet:var(--sg-surface);--glass:var(--sg-glass);
+  --accent:var(--sg-danger-text);--danger:var(--sg-danger-text);--link:var(--sg-link);--moss:var(--sg-success);--section-tint:var(--sg-head);
+  --radius:var(--sg-radius);--shadow:var(--sg-shadow);--brand:var(--sg-primary);--on-brand:var(--sg-on-primary);
+  color:var(--sg-text);background:transparent;
+  font-family:var(--body,'IBM Plex Sans Thai',Tahoma,sans-serif);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ------------------------------------------------------------------ scene */
+/* the paper colour sits on the page (html), the body is transparent: a body background would be painted over the scene layer behind it */
+html:has(body.school-layout),html:has(body.login-body){background:var(--sg-bg)}
+html body.school-layout::before,html body.login-body::before{
+  content:'';position:fixed;inset:-6%;z-index:-1;pointer-events:none;background:var(--sg-scene);
+}
+@media(prefers-reduced-motion:no-preference){
+  html body.school-layout::before,html body.login-body::before{animation:sg-drift 90s ease-in-out infinite alternate}
+}
+@keyframes sg-drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(-2%,1.5%,0) scale(1.04)}}
+html body.school-layout .ambient{display:none}
+
+/* ------------------------------------------------------------------ type */
+html body.school-layout h1,html body.login-body h1{font:600 clamp(1.35rem,1.1rem + 1vw,1.75rem)/1.4 var(--body);letter-spacing:0;margin:0 0 6px}
+html body.school-layout h1:after,html body.login-body h1:after{display:none}
+html body.school-layout h2,html body.school-layout h3,html body.login-body h2{font-family:var(--body);font-weight:600;letter-spacing:0}
+html body.school-layout .eyebrow,html body.school-layout .account-kicker,html body.school-layout .cms-kicker{font:400 .8125rem/1.5 var(--body);letter-spacing:0;text-transform:none;color:var(--sg-muted)}
+html body.school-layout .eyebrow b{color:var(--sg-muted)}
+html body.school-layout .subtitle,html body.school-layout .desk-help,html body.school-layout .account-help,html body.school-layout .cms-heading p,html body.school-layout .micro,html body.school-layout small{color:var(--sg-muted);font-size:max(.8125rem,13px)}
+html body.school-layout a{color:var(--sg-link)}
+html body.school-layout footer{font-size:13px;color:var(--sg-text)}
+html body.school-layout main{padding:20px 24px 16px}
+html body.school-layout :is(code,kbd){font-family:'IBM Plex Mono',Consolas,monospace;font-size:.9em}
+
+/* big figures: the display serif of the old prototype is replaced by the one family */
+html body.school-layout :is(.metric .value,.ring span,.score-preview strong,.sg-stat strong,.desk-stats strong){font-family:var(--body);font-weight:600;letter-spacing:0}
+html body.school-layout .metric .value{font-size:2rem;line-height:1.25;color:var(--sg-text)}
+html body.school-layout .metric:nth-child(3) .value{color:var(--sg-text)}
+html body.school-layout .metric .mini{opacity:.5}
+
+/* ------------------------------------------------------------------ glass surface */
+html body.school-layout .glass,html body.login-body .glass,
+html body.school-layout :is(.account-card,.desk-editor-card,.desk-list,.cms-design-card,.cms-control-card,.presentation-panel,.presentation-preview,.desk-media-grid>article,.desk-home-section-row,.desk-message,.release-menu-row,.table-wrap,.score-preview,.post-card,.duty-card,.panel,.metric,.module-tile){
+  background:var(--sg-tint);color:var(--sg-text);
+  border:1px solid var(--sg-glass-edge);border-radius:var(--sg-radius);
+  box-shadow:inset 0 1px 0 var(--sg-glass-hi),var(--sg-shadow);backdrop-filter:none;-webkit-backdrop-filter:none;
+}
+/* the large containers of a page carry the blur (at most about three blurred layers are on screen: sidebar, top bar, one panel) */
+html body.school-layout :is(main,#work-view,#cms-view,.account-main)>.glass,
+html body.school-layout .desk-editor-card,
+html body.login-body .login-sheet{
+  background:var(--sg-glass);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);
+}
+html body.school-layout .glass .glass,html body.school-layout .glass .desk-editor-card{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--sg-tint)}
+html body.school-layout .table-wrap{background:var(--sg-tint);overflow:auto}
+
+/* ------------------------------------------------------------------ shell: sidebar */
+html body.school-layout .school-nav{
+  background:var(--sg-glass);border-right:1px solid var(--sg-glass-edge);color:var(--sg-text);
+  backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);box-shadow:var(--sg-shadow);
+}
+html body.school-layout .school-nav-brand{border-bottom:1px solid var(--sg-border)}
+html body.school-layout .school-nav-school>span{background:var(--sg-accent);color:var(--sg-on-accent);border-radius:12px;border:1px solid var(--sg-glass-edge)}
+html body.school-layout .school-nav-school strong{color:var(--sg-text)}
+html body.school-layout .school-nav-school small{color:var(--sg-muted)}
+html body.school-layout .school-nav-group h2,html body.school-layout .school-nav-group>summary{color:var(--sg-muted)}
+html body.school-layout .school-nav-group>summary span{color:var(--sg-muted)}
+html body.school-layout .school-nav-group>summary:hover{background:var(--sg-hover)}
+html body.school-layout .school-nav a.school-nav-link{color:var(--sg-text);transition:background .15s,color .15s}
+html body.school-layout .school-nav .school-nav-link svg.ui-icon{color:var(--sg-primary);opacity:.9}
+html body.school-layout .school-nav a.school-nav-link:hover{background:var(--sg-hover)}
+html body.school-layout .school-nav a.school-nav-link[aria-current=page]{background:var(--sg-accent);color:var(--sg-on-accent);font-weight:600;box-shadow:inset 3px 0 0 var(--sg-primary)}
+html body.school-layout .school-nav a.school-nav-link[aria-current=page] svg.ui-icon{color:var(--sg-on-accent)}
+html body.school-layout .school-nav-link>small{border:1px solid var(--sg-border-strong);color:var(--sg-muted)}
+html body.school-layout .school-nav-footer{border-top:1px solid var(--sg-border);background:transparent}
+html body.school-layout .school-nav-footer>p{color:var(--sg-muted)}
+html body.school-layout .school-nav-footer i{background:var(--sg-success)}
+html body.school-layout .school-nav-footer a{color:var(--sg-text)}
+html body.school-layout .school-nav-footer button{background:var(--sg-field);border:1px solid var(--sg-border-strong);color:var(--sg-text);border-radius:var(--sg-radius-control)}
+html body.school-layout .school-nav-overlay{background:rgba(17,25,21,.45);backdrop-filter:blur(3px)}
+html body.school-layout .school-menu-toggle,html body.school-layout .school-menu-close{background:var(--sg-glass-solid);border:1px solid var(--sg-border-strong);color:var(--sg-text);border-radius:var(--sg-radius-control);backdrop-filter:blur(14px)}
+html body.school-layout .school-nav .saan-brand-logo{height:40px}
+
+/* ------------------------------------------------------------------ shell: top bars */
+html body.school-layout :is(.topbar,.cms-top,.account-top){
+  background:var(--sg-glass);color:var(--sg-text);border:1px solid var(--sg-glass-edge);border-width:0 0 1px;border-radius:0;
+  backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);box-shadow:inset 0 -1px 0 var(--sg-border);
+}
+html body.school-layout .account-top{border-width:1px;border-radius:var(--sg-radius);margin-bottom:8px;box-shadow:var(--sg-shadow)}
+html body.school-layout .cms-top,html body.school-layout .topbar{min-height:56px;padding-block:6px}
+html body.school-layout .term-label{font-size:15px;font-weight:600}
+html body.school-layout .term-label span{font-size:14px;color:var(--sg-text)}
+html body.school-layout .cms-status{background:var(--sg-success);border-radius:50%;width:8px;height:8px}
+html body.school-layout .cms-top #school-title{color:var(--sg-text);font-weight:600}
+html body.school-layout .top-actions{gap:8px}
+html body.school-layout .avatar{background:var(--sg-primary);color:var(--sg-on-primary);border:1px solid var(--sg-glass-edge);width:32px;height:32px}
+html body.school-layout .user-button{color:var(--sg-text);font-size:14px;min-height:44px;gap:8px}
+html body.school-layout .cms-account-popover{background:var(--sg-glass-solid);color:var(--sg-text);border:1px solid var(--sg-border-strong);border-radius:var(--sg-radius);box-shadow:var(--sg-shadow-raised);backdrop-filter:blur(18px)}
+html body.school-layout .cms-account-popover a,html body.school-layout .cms-account-popover button{color:var(--sg-text)}
+html body.school-layout .account-top nav a{color:var(--sg-text);min-height:44px;display:inline-flex;align-items:center;font-size:14px;padding:0 6px}
+html body.school-layout .appearance-control,html body.school-layout .cms-top .cms-account-menu>summary,html body.school-layout .cms-top .appearance-control{
+  background:var(--sg-field);border:1px solid var(--sg-border-strong);color:var(--sg-text);border-radius:var(--sg-radius-control)}
+html body.school-layout .appearance-control select{color:var(--sg-text);font-size:14px}
+html body.school-layout .appearance-control option{background:var(--sg-surface);color:var(--sg-text)}
+
+/* admin warning banner (cron, failed checks) */
+html body.school-layout .school-health-banner{
+  display:block;margin:12px 24px 0;padding:10px 14px;border-radius:var(--sg-radius);
+  background:var(--sg-glass-solid);color:var(--sg-text);border:1px solid var(--sg-warning);border-left-width:6px;box-shadow:var(--sg-shadow);font-size:14px;line-height:1.55;
+}
+html body.school-layout .school-health-banner svg.ui-icon{color:var(--sg-warning);margin:0 8px 0 0;vertical-align:-4px}
+html body.school-layout .school-health-banner a{color:var(--sg-text);font-weight:600;text-decoration:underline;text-underline-offset:3px;margin-left:4px}
+
+/* ------------------------------------------------------------------ buttons */
+html body.school-layout :is(button,.quiet-button,a.quiet-button),html body.login-body button{
+  font-size:14px;line-height:1.4;min-height:40px;padding:8px 14px;border-radius:var(--sg-radius-control);
+  background:var(--sg-field);color:var(--sg-text);border:1px solid var(--sg-border-strong);
+  transition:background .15s,transform .15s,border-color .15s;
+}
+html body.school-layout :is(button,.quiet-button):hover:not(:disabled):not([aria-selected=true]):not([aria-current=true]):not([aria-pressed=true]):not(.primary):not(.lesson){background:var(--sg-glass-solid);border-color:var(--sg-text)}
+html body.school-layout :is(button,.quiet-button):active:not(:disabled){transform:translateY(1px)}
+html body.school-layout :is(button.primary,.primary,button[type=submit].primary),html body.login-body button.primary{
+  background:var(--sg-primary);color:var(--sg-on-primary);border-color:var(--sg-primary);font-weight:600;
+}
+html body.school-layout :is(button.primary,.primary):hover:not(:disabled),html body.login-body button.primary:hover{background:var(--sg-primary-hover);border-color:var(--sg-primary-hover);color:var(--sg-on-primary)}
+html body.school-layout :is(button.danger,.danger,.desk-danger),html body.school-layout :is(button,a).desk-danger,html body.school-layout .desk-row-actions .desk-danger,html body.school-layout .desk-media-grid footer .desk-danger{color:var(--sg-danger-text);border-color:var(--sg-danger);background:var(--sg-field)}
+html body.school-layout :is(button,.quiet-button):disabled{opacity:.6;cursor:not-allowed}
+html body.school-layout .icon-button{border:0;background:transparent;min-width:44px;min-height:44px}
+html body.school-layout :is(button,a,input,select,textarea,summary,[tabindex]):focus-visible,html body.login-body :is(button,a,input,select):focus-visible{
+  outline:3px solid var(--sg-focus)!important;outline-offset:2px!important;box-shadow:none!important;
+}
+
+/* ------------------------------------------------------------------ form fields */
+html body.school-layout :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]),
+html body.login-body :is(input,select,textarea):not([type=checkbox]):not([type=radio]){
+  background:var(--sg-field);color:var(--sg-text);border:1px solid var(--sg-border-strong);border-radius:var(--sg-radius-control);
+  min-height:40px;padding:8px 12px;font-size:14px;
+}
+html body.school-layout :is(input,textarea)::placeholder{color:var(--sg-muted);opacity:1}
+html body.school-layout :is(input[type=checkbox],input[type=radio]){accent-color:var(--sg-primary)}
+html body.school-layout :is(.desk-field,.field,.account-form label)>span,html body.school-layout .account-form label{color:var(--sg-text);font-size:14px;font-weight:600}
+html body.school-layout .account-form label small,html body.school-layout .desk-field small{font-weight:400}
+
+/* the modules dim muted text with opacity, which lowers its contrast below the token: the colour token alone carries the muted look */
+html body.school-layout :is(small,.sps-muted,.gw-lead,.gw-meta,.gw-empty,.gw-small,.gw-badge.gw-none,.sso-help,.rp-hint,.rp-empty,.ld-card.ld-dim,.ms-users small,.ms-help,.ms-key,.micro){opacity:1}
+html body.school-layout .ms-key{font-size:13px}
+html body.school-layout :is(.gw-table td[data-label],.gw-table th[data-label],.notice-admin-preview td)::before{opacity:1}
+
+html body.school-layout :is(.desk-error,.error-text,.cms-error,.mods-error,.account-alert.error){color:var(--sg-danger-text)}
+
+/* ------------------------------------------------------------------ chips and badges */
+html body.school-layout .tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;line-height:1.5;padding:2px 10px;border-radius:999px;background:var(--sg-chip);color:var(--sg-text);border:1px solid var(--sg-border-strong);white-space:nowrap}
+html body.school-layout .tag.warm{color:var(--sg-warning);border-color:var(--sg-warning);background:transparent}
+html body.school-layout .tag.bad{color:var(--sg-danger-text);border-color:var(--sg-danger);background:transparent}
+html body.school-layout .tag.neutral{color:var(--sg-text)}
+html body.school-layout .tag.ok{color:var(--sg-success);border-color:var(--sg-success);background:transparent}
+html body.school-layout .tag.info{color:var(--sg-info);border-color:var(--sg-info);background:transparent}
+
+/* ------------------------------------------------------------------ tables: dense, zebra by tint */
+html body.school-layout table{border-collapse:collapse;color:var(--sg-text)}
+html body.school-layout :is(th,td){border-color:var(--sg-border)}
+html body.school-layout thead th,html body.school-layout th{background:var(--sg-head);color:var(--sg-text);font-size:13px;font-weight:600}
+html body.school-layout tbody tr:nth-child(even){background:var(--sg-zebra)}
+html body.school-layout tbody tr:hover{background:var(--sg-hover)}
+html body.school-layout :is(th,td){padding:9px 12px;font-size:14px}
+
+/* ------------------------------------------------------------------ dialogs, toast */
+html body.school-layout dialog,html body.school-layout .mods-dialog{
+  background:var(--sg-glass-solid);color:var(--sg-text);border:1px solid var(--sg-border-strong);border-radius:20px;box-shadow:var(--sg-shadow-raised);
+  backdrop-filter:blur(20px) saturate(140%);-webkit-backdrop-filter:blur(20px) saturate(140%);
+}
+html body.school-layout dialog::backdrop{background:rgba(17,25,21,.5);backdrop-filter:blur(6px)}
+html body.school-layout #toast,html body.school-layout #cms-toast{background:var(--sg-glass-solid);color:var(--sg-text);border:1px solid var(--sg-border-strong);border-radius:var(--sg-radius);box-shadow:var(--sg-shadow-raised);font-size:14px;backdrop-filter:blur(14px)}
+html body.school-layout #toast.error,html body.school-layout #cms-toast.error{border-color:var(--sg-danger);color:var(--sg-text);border-left:6px solid var(--sg-danger)}
+html body.school-layout .skip{background:var(--sg-surface);color:var(--sg-text);border:1px solid var(--sg-border-strong)}
+
+/* ------------------------------------------------------------------ module link strip of /work */
+html body.school-layout .work-tabs{background:var(--sg-tint);border:1px solid var(--sg-glass-edge);border-radius:var(--sg-radius);box-shadow:inset 0 1px 0 var(--sg-glass-hi),var(--sg-shadow);padding:6px 8px}
+html body.school-layout .work-tabs a{color:var(--sg-text);font-size:14px;border-radius:999px}
+html body.school-layout .work-tabs a:hover{background:var(--sg-hover)}
+html body.school-layout .work-tabs a[aria-current=page]{background:var(--sg-primary);color:var(--sg-on-primary);font-weight:600}
+html body.school-layout .work-tabs a svg.ui-icon{color:currentColor}
+
+/* ------------------------------------------------------------------ icons: one family, 24 grid, 1.75 stroke */
+html body.school-layout svg.ui-icon[data-ui-icon],html body.login-body svg.ui-icon[data-ui-icon]{stroke-width:1.75}
+html body.school-layout .sg-ico{display:inline-grid;place-items:center;flex:0 0 auto;width:40px;height:40px;border-radius:12px;background:var(--sg-chip);color:var(--sg-primary)}
+html[data-appearance=dark] body.school-layout .sg-ico{color:var(--sg-accent)}
+html body.school-layout .sg-ico svg.ui-icon[data-ui-icon]{inline-size:22px!important;block-size:22px!important;min-inline-size:22px!important;min-block-size:22px!important;max-inline-size:22px!important;max-block-size:22px!important;flex:none!important}
+html body.school-layout :is(button,.quiet-button) svg.ui-icon[data-ui-icon]{margin-right:6px}
+
+/* ------------------------------------------------------------------ page heading */
+html body.school-layout :is(.sg-pagehead,.cms-heading,.page-header){display:flex;align-items:flex-start;justify-content:space-between;gap:12px 20px;flex-wrap:wrap;margin:0 0 14px;padding:0;border:0}
+html body.school-layout .sg-pagehead h1,html body.school-layout .cms-heading h1{margin:0}
+html body.school-layout .sg-pagehead p,html body.school-layout .cms-heading p{margin:2px 0 0;font-size:14px;color:var(--sg-muted)}
+html body.school-layout :is(.sg-pagehead-actions,.cms-heading-actions,.page-actions){display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+html body.school-layout .cms-heading .eyebrow{display:none}
+
+/* ------------------------------------------------------------------ CMS dashboard */
+html body.school-layout .sg-site{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:18px;align-items:center;padding:14px;margin-bottom:12px}
+html body.school-layout .sg-browser{border:1px solid var(--sg-border-strong);border-radius:12px;overflow:hidden;background:var(--sg-surface);box-shadow:var(--sg-shadow)}
+html body.school-layout .sg-browser-bar{display:flex;align-items:center;gap:5px;padding:6px 10px;background:var(--sg-head);font-size:13px;color:var(--sg-muted);border-bottom:1px solid var(--sg-border)}
+html body.school-layout .sg-browser-bar i{width:8px;height:8px;border-radius:50%;background:var(--sg-border-strong);display:block}
+html body.school-layout .sg-browser-bar span{margin-left:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+html body.school-layout .sg-browser-view{position:relative;height:130px;background:linear-gradient(135deg,var(--sg-primary),var(--sg-info));overflow:hidden}
+html body.school-layout .sg-browser-view img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+html body.school-layout .sg-browser-copy{position:absolute;inset:auto 0 0;padding:8px 12px 9px;display:grid;gap:0;background:rgba(8,24,18,.86);color:#fff}
+html body.school-layout .sg-browser-copy strong{font-size:15px;line-height:1.35;color:#fff}
+html body.school-layout .sg-browser-copy small{font-size:13px;color:#e9f0e4}
+html body.school-layout .sg-site-copy small{color:var(--sg-muted)}
+html body.school-layout .sg-site-copy h2{margin:0;font-size:1.2rem;line-height:1.4}
+html body.school-layout .sg-site-copy p{margin:2px 0 10px;color:var(--sg-muted);font-size:14px}
+html body.school-layout .sg-site-actions{display:flex;gap:8px;flex-wrap:wrap}
+html body.school-layout .sg-site-actions .quiet-button{display:inline-flex;align-items:center;text-decoration:none}
+html body.school-layout .sg-site-actions a.primary{background:var(--sg-primary);color:var(--sg-on-primary);border-color:var(--sg-primary)}
+html body.school-layout .sg-stats,html body.school-layout .desk-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:0 0 12px}
+html body.school-layout .sg-stat{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;align-items:center;column-gap:10px;padding:10px 12px;text-decoration:none;color:var(--sg-text)}
+html body.school-layout .sg-stat .sg-ico{grid-row:1/span 2}
+html body.school-layout .sg-stat strong{font:600 1.5rem/1.15 var(--body);color:var(--sg-text)}
+html body.school-layout .sg-stat span:not(.sg-ico){font-size:13px;color:var(--sg-muted);line-height:1.3}
+html body.school-layout a.sg-stat:hover{background:var(--sg-glass-solid)}
+html body.school-layout .sg-split{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:12px;margin-bottom:12px;align-items:start}
+html body.school-layout :is(.sg-kinds,.sg-recent){padding:14px}
+html body.school-layout .desk-section-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 10px;padding:0;border:0}
+html body.school-layout .desk-section-heading h2{margin:0;font-size:1.0625rem}
+html body.school-layout .desk-section-heading p{margin:0;font-size:13px;color:var(--sg-muted)}
+html body.school-layout .sg-kind-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:8px}
+html body.school-layout .sg-kind{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;text-decoration:none;color:var(--sg-text);background:var(--sg-zebra);border:1px solid var(--sg-border);min-height:52px}
+html body.school-layout .sg-kind:hover{background:var(--sg-hover);border-color:var(--sg-border-strong)}
+html body.school-layout .sg-kind-copy{display:grid;min-width:0}
+html body.school-layout .sg-kind-copy strong{font-size:14px;font-weight:600;line-height:1.35;overflow-wrap:anywhere}
+html body.school-layout .sg-kind-copy small{font-size:13px;color:var(--sg-muted)}
+html body.school-layout .sg-recent-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+html body.school-layout .sg-recent-list a{display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;gap:10px;text-decoration:none;color:var(--sg-text);padding:4px 6px;border-radius:12px}
+html body.school-layout .sg-recent-list a:hover{background:var(--sg-hover)}
+html body.school-layout .sg-thumb{width:48px;height:48px;border-radius:10px;object-fit:cover;display:block;background:var(--sg-chip)}
+html body.school-layout .sg-thumb-icon{display:grid;place-items:center;color:var(--sg-primary)}
+html[data-appearance=dark] body.school-layout .sg-thumb-icon{color:var(--sg-accent)}
+html body.school-layout .sg-recent-copy{display:grid;min-width:0}
+html body.school-layout .sg-recent-copy strong{font-size:14px;font-weight:600;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body.school-layout .sg-recent-copy small{font-size:13px}
+html body.school-layout .sg-quick,html body.school-layout .desk-quick-settings{display:grid;grid-template-columns:repeat(auto-fill,minmax(172px,1fr));gap:8px;margin:0 0 12px}
+html body.school-layout .sg-quick-link{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;text-decoration:none;color:var(--sg-text);background:var(--sg-tint);border:1px solid var(--sg-glass-edge);box-shadow:inset 0 1px 0 var(--sg-glass-hi);font-size:14px;font-weight:500;min-height:52px}
+html body.school-layout .sg-quick-link:hover{background:var(--sg-glass-solid)}
+html body.school-layout .desk-empty,html body.school-layout .empty{padding:18px;text-align:center;color:var(--sg-muted);font-size:14px}
+
+
+/* empty states: an icon of the family (the inbox glyph) and at most one action */
+html body.school-layout .desk-empty{display:grid;justify-items:center;gap:8px;padding:22px 16px}
+html body.school-layout .desk-empty::before{content:'';width:48px;height:48px;border-radius:14px;background:var(--sg-primary);opacity:.85;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 13h5l1 3h6l1-3h5M3 13l3-8h12l3 8v7H3z'/%3E%3C/svg%3E") center/28px no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 13h5l1 3h6l1-3h5M3 13l3-8h12l3 8v7H3z'/%3E%3C/svg%3E") center/28px no-repeat;box-shadow:0 0 0 999px transparent}
+html body.school-layout .desk-empty p{margin:0}
+
+
+/* hard-coded light surfaces of the old prototype follow the scheme */
+html body.school-layout .ring::before{background:var(--sg-surface)}
+html body.school-layout .cms-preview-address{background:var(--sg-field);color:var(--sg-muted);font-size:13px;border:1px solid var(--sg-border-strong);border-radius:999px}
+html body.school-layout .cms-preview-browser,html body.school-layout .cms-article-preview{background:var(--sg-tint);color:var(--sg-text);border:1px solid var(--sg-border-strong);border-radius:var(--sg-radius)}
+html body.school-layout .cms-heading-actions.cms-theme-actions,html body.school-layout .cms-theme-actions{background:var(--sg-glass-solid);color:var(--sg-text);border:1px solid var(--sg-border-strong);box-shadow:var(--sg-shadow-raised);backdrop-filter:blur(14px)}
+html body.school-layout .cms-sticky-actions{background:var(--sg-glass-solid);color:var(--sg-text);border:1px solid var(--sg-border-strong);border-radius:var(--sg-radius)}
+/* module tags that carry their own colours */
+html body.school-layout :is(.doc-tag.doc-secret,.doc-tag.doc-urg-most_urgent){color:var(--sg-danger-text);border-color:var(--sg-danger)}
+html body.school-layout :is(.doc-tag.doc-urg-urgent,.doc-tag.doc-urg-very_urgent){color:var(--sg-warning);border-color:var(--sg-warning)}
+
+
+/* lesson boxes keep their tinted paper in both schemes (dark text on light tint); other colours that modules hard-code for a light page follow */
+html body.school-layout button.lesson{background:#e9efdb;color:#102719!important;border-color:#c3d3aa}
+html body.school-layout button.lesson.tone-1{background:#f6e4d9;border-color:#dfc2ad}
+html body.school-layout button.lesson.tone-2{background:#e7ede9;border-color:#bdcfc6}
+html body.school-layout button.lesson.tone-3{background:#f0eace;border-color:#d1c7a3}
+html body.school-layout button.lesson small{color:#294a27!important}
+html[data-appearance=dark] body.school-layout :is(.mnt-tag,.cmp-status){color:var(--sg-text)}
+html body.school-layout .act-btn{background:var(--sg-field);color:var(--sg-text);border-color:var(--sg-border-strong)}
+html body.school-layout .act-btn.primary{background:var(--sg-primary);color:var(--sg-on-primary);border-color:var(--sg-primary)}
+/* ------------------------------------------------------------------ /work hub */
+html body.school-layout .work-home{padding:14px 16px}
+html body.school-layout .work-home .sg-pagehead{margin-bottom:6px}
+html body.school-layout .work-area{margin:0 0 12px}
+html body.school-layout .work-area h2{display:flex;align-items:center;gap:8px;margin:6px 0 8px;font-size:1rem;color:var(--sg-text)}
+html body.school-layout .work-area h2 small{background:var(--sg-chip);border-radius:999px;padding:0 8px;font-weight:600;color:var(--sg-muted)}
+html body.school-layout .work-home ul{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+html body.school-layout .work-home a{display:flex;align-items:center;gap:10px;padding:8px 10px;min-height:52px;border:1px solid var(--sg-border);border-radius:14px;background:var(--sg-zebra);color:var(--sg-text);font-size:14px;font-weight:500;line-height:1.35;overflow-wrap:break-word;min-width:0}
+html body.school-layout .work-home a:hover{background:var(--sg-hover);border-color:var(--sg-border-strong)}
+html body.school-layout .work-home .sg-ico{width:36px;height:36px;border-radius:11px}
+html body.school-layout .work-services{margin-top:12px}
+html body.school-layout .work-empty,html body.school-layout .work-error{padding:16px}
+
+/* ------------------------------------------------------------------ CMS lists and rows */
+html body.school-layout .desk-list-filters,html body.school-layout .filters{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px}
+html body.school-layout .desk-list-filters>input{flex:1 1 220px;max-width:420px}
+html body.school-layout .desk-list-filters>span{color:var(--sg-muted);font-size:14px}
+html body.school-layout .desk-list{padding:4px 12px;overflow:hidden}
+html body.school-layout .desk-content-row{display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--sg-border)}
+html body.school-layout .desk-content-row:first-child{border-top:0}
+html body.school-layout .desk-list-cover,html body.school-layout .desk-file-symbol.desk-list-cover{width:56px;height:56px;border-radius:12px;object-fit:cover;background:var(--sg-chip);color:var(--sg-primary);display:grid;place-items:center}
+html body.school-layout .desk-file-symbol svg{width:24px;height:24px}
+html body.school-layout .desk-row-copy{min-width:0}
+html body.school-layout .desk-row-category{font-size:13px;color:var(--sg-muted)}
+html body.school-layout .desk-row-copy h2{margin:0;font-size:15px;line-height:1.4;font-weight:600;overflow-wrap:anywhere}
+html body.school-layout .desk-row-copy p{margin:2px 0 0;font-size:13px;color:var(--sg-muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+html body.school-layout .desk-row-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+html body.school-layout .desk-row-actions :is(button,a){font-size:13px;min-height:36px;padding:4px 10px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+html body.school-layout .desk-pagination{display:flex;align-items:center;justify-content:center;gap:10px;margin:12px 0 4px;font-size:14px;color:var(--sg-muted)}
+
+/* media library: thumbnail grid */
+html body.school-layout .desk-media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+html body.school-layout .desk-media-grid>article{overflow:hidden;padding:0;display:flex;flex-direction:column}
+html body.school-layout .desk-media-grid>article>img,html body.school-layout .desk-pdf-cover{width:100%;height:120px;object-fit:cover;background:var(--sg-chip);color:var(--sg-primary);display:grid;place-items:center}
+html body.school-layout .desk-media-grid>article>div:not(.desk-pdf-cover){padding:8px 10px;background:transparent;color:var(--sg-text)}
+html body.school-layout .desk-media-grid h2{font-size:14px;margin:0}
+html body.school-layout .desk-media-grid p{font-size:13px;color:var(--sg-muted);margin:2px 0}
+
+/* editors */
+html body.school-layout .desk-editor-layout{display:grid;gap:12px}
+html body.school-layout .desk-editor-card{padding:14px;margin:0 0 12px}
+html body.school-layout .desk-editor-card>h2{font-size:1rem;margin:0 0 10px;padding:0 0 8px;background:transparent;border:0;border-bottom:1px solid var(--sg-border);border-radius:0;color:var(--sg-text)}
+html body.school-layout .desk-field{display:grid;gap:4px;margin:0 0 10px}
+html body.school-layout .desk-rich-toolbar,html body.school-layout .desk-rich-body{background:var(--sg-field);color:var(--sg-text);border:1px solid var(--sg-border-strong);border-radius:var(--sg-radius-control)}
+html body.school-layout .desk-rich-toolbar{border-bottom-left-radius:0;border-bottom-right-radius:0}
+html body.school-layout .desk-rich-body{border-top-left-radius:0;border-top-right-radius:0}
+html body.school-layout .desk-savebar{background:var(--sg-glass-solid);color:var(--sg-text);border:1px solid var(--sg-border-strong);border-radius:var(--sg-radius);box-shadow:var(--sg-shadow-raised);backdrop-filter:blur(14px)}
+html body.school-layout .desk-library button,html body.school-layout .cms-library button{background:var(--sg-field);border:1px solid var(--sg-border-strong);color:var(--sg-text)}
+html body.school-layout :is(.cms-preset,.presentation-tabs>a){border:1px solid var(--sg-border-strong);border-radius:var(--sg-radius-control);background:var(--sg-field);color:var(--sg-text)}
+html body.school-layout :is(.cms-preset.selected,.presentation-tabs>a[aria-current=page]){background:var(--sg-primary);color:var(--sg-on-primary);border-color:var(--sg-primary)}
+html body.school-layout .cms-preset :is(strong,span){color:inherit}
+html body.school-layout .cms-preset span:last-child{font-size:13px;line-height:1.4}
+html body.school-layout .presentation-note{font-size:13px;color:var(--sg-muted)}
+html body.school-layout .presentation-panel>summary{background:transparent;color:var(--sg-text);border-bottom:1px solid var(--sg-border)}
+html body.school-layout .cms-footer{color:var(--sg-muted)}
+
+/* segmented controls and tabs of the modules */
+html body.school-layout :is([role=tablist],.tt-tabs,.ld-tabs,.att-tabs,.cmp-tabs,.bhv-nav,.cms-device-buttons){gap:6px}
+html body.school-layout :is([role=tab],.tt-tab,.att-tabs button,.cmp-tabs a,.bhv-nav a){border:1px solid var(--sg-border-strong);border-radius:999px;background:var(--sg-field);color:var(--sg-text);min-height:40px}
+html body.school-layout :is([role=tab][aria-selected=true],.tt-tab[aria-selected=true],.att-tabs button[aria-current=true],.cmp-tabs a[aria-current=page],.bhv-nav a[aria-current=page],.cms-device-buttons button[aria-pressed=true]){background:var(--sg-primary);color:var(--sg-on-primary);border-color:var(--sg-primary);font-weight:600}
+
+/* notes and notices */
+html body.school-layout .note-box{background:var(--sg-tint);color:var(--sg-text);border:1px solid var(--sg-border-strong);border-left:5px solid var(--sg-info);border-radius:14px;font-size:14px;padding:10px 14px}
+html body.school-layout .note-box.green{border-left-color:var(--sg-success)}
+html body.school-layout .account-alert{background:var(--sg-tint);color:var(--sg-text);border:1px solid var(--sg-success);border-left-width:5px;border-radius:14px;font-size:14px}
+html body.school-layout .account-alert.error{border-color:var(--sg-danger)}
+html body.school-layout .plan-notice{background:var(--sg-tint);color:var(--sg-text);border:1px solid var(--sg-warning);border-radius:14px}
+
+/* ------------------------------------------------------------------ account pages (/account, /admin/users, /admin/modules, /whats-new) */
+html body.account-body{background:transparent}
+html body.school-layout .account-shell{padding:14px 20px 20px}
+html body.school-layout .account-main{padding:8px 0 12px}
+html body.school-layout .account-main>h1{margin:4px 0 6px}
+html body.school-layout .account-main>.eyebrow{display:none}
+html body.school-layout .account-intro{font-size:14px;color:var(--sg-muted);margin:0 0 12px}
+html body.school-layout .account-card{padding:16px;margin-bottom:12px}
+html body.school-layout .account-card h2{font-size:1.0625rem;margin:0 0 8px}
+html body.school-layout .account-columns{gap:12px}
+html body.school-layout .account-form{gap:12px}
+html body.school-layout .account-form button{font-size:14px;padding:8px 18px;min-height:44px}
+html body.school-layout .account-user,html body.school-layout .account-teacher-links{border-top:1px solid var(--sg-border)}
+html body.school-layout .account-avatar{background:var(--sg-chip);border:1px solid var(--sg-border-strong);color:var(--sg-text)}
+html body.school-layout .account-user>summary small{color:var(--sg-muted);font-size:13px}
+html body.school-layout .account-user>summary strong{font-size:14px;font-weight:600}
+html body.school-layout .account-user>summary:after{color:var(--sg-muted)}
+html body.school-layout .mods-new,html body.school-layout .mods-banner{background:var(--sg-glass-solid);border:1px solid var(--sg-info);border-left-width:5px;border-radius:var(--sg-radius);color:var(--sg-text)}
+html body.school-layout .mods-notes li{margin:6px 0}
+
+/* the period times in the timetable header wrap instead of spilling out of their narrow column */
+html body.school-layout :is(.tt-grid th small,.tt-break-h small){display:block;white-space:normal;overflow-wrap:anywhere}
+
+/* sticky bars must hide the rows that scroll under them */
+html body.school-layout .att-foot{background:linear-gradient(transparent,var(--sg-surface) 1.25rem)}
+html body.school-layout :is(.as-savebar,.att-grid .att-left){background:var(--sg-surface)}
+html body.school-layout .account-invite{display:flex;align-items:flex-start;gap:10px;min-height:44px;font-weight:500;overflow-wrap:anywhere}
+html body.school-layout .account-create .account-invite{grid-column:1/-1}
+html body.school-layout .account-form .account-invite input{flex:none;width:22px;height:22px;min-height:22px;padding:0;margin-top:2px}
+
+/* ------------------------------------------------------------------ sign-in pages */
+html body.login-body{display:grid;place-items:center;min-height:100dvh;padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom))}
+html body.login-body .login-sheet{width:min(100%,460px);max-width:460px;padding:26px 28px;border-radius:24px;box-shadow:var(--sg-shadow-raised),inset 0 1px 0 var(--sg-glass-hi)}
+html body.login-body .login-sheet h1{font-size:1.5rem;margin:14px 0 6px}
+html body.login-body .login-sheet p{font-size:14px;color:var(--sg-muted)}
+html body.login-body .sg-login-id{display:flex;align-items:center;justify-content:space-between;gap:12px}
+html body.login-body .sg-login-school{display:flex;align-items:center;gap:10px;min-width:0}
+html body.login-body .sg-login-school img,html body.login-body .sg-login-school span{width:48px;height:48px;border-radius:14px;flex:0 0 48px;object-fit:contain;background:var(--sg-accent);color:var(--sg-on-accent);display:grid;place-items:center;font-size:22px;font-weight:600;border:1px solid var(--sg-glass-edge)}
+html body.login-body .sg-login-school strong{font-size:15px;line-height:1.4;overflow-wrap:anywhere}
+html body.login-body .sg-login-saan{flex:none}
+html body.login-body .login-sheet .saan-brand-logo{height:30px;margin:0}
+html body.login-body .eyebrow{display:none}
+html body.login-body .account-form label{font-size:14px;font-weight:600;color:var(--sg-text)}
+html body.login-body .account-form input{min-height:44px;font-size:16px}
+html body.login-body .account-form button{min-height:48px;font-size:15px}
+html body.login-body .account-back{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-size:14px;color:var(--sg-link);vertical-align:middle}
+html body.login-body .demo-accounts{border-top:1px solid var(--sg-border)}
+html body.login-body .demo-accounts summary{font-size:14px;color:var(--sg-muted);min-height:44px;display:flex;align-items:center}
+html body.login-body .demo-accounts p{font-size:13px}
+html body.login-body .demo-accounts form button span{font-size:13px}
+html body.login-body .account-alert{background:var(--sg-tint);color:var(--sg-text);border:1px solid var(--sg-success);border-left-width:5px;border-radius:14px;font-size:14px}
+html body.login-body .account-alert.error{border-color:var(--sg-danger)}
+html body.login-body a{color:var(--sg-link)}
+
+/* ------------------------------------------------------------------ narrow screens: 16px inputs, bottom-safe paddings, labelled cards stay with the modules */
+@media(max-width:767px){
+  html body.school-layout main{padding:16px 12px calc(16px + env(safe-area-inset-bottom))}
+  html body.school-layout .account-shell{padding:12px 12px calc(16px + env(safe-area-inset-bottom))}
+  html body.school-layout :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]){font-size:16px;min-height:44px}
+  html body.school-layout :is(button,.quiet-button){min-height:44px}
+  html body.school-layout .sg-site{grid-template-columns:1fr}
+  html body.school-layout .sg-browser-view{height:110px}
+  html body.school-layout .sg-stats,html body.school-layout .desk-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html body.school-layout .sg-stats .sg-stat:last-child{grid-column:1/-1}
+  html body.school-layout .sg-split{grid-template-columns:1fr}
+  html body.school-layout .sg-kind-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html body.school-layout .sg-quick,html body.school-layout .desk-quick-settings{grid-template-columns:repeat(2,minmax(0,1fr))}
+  html body.school-layout .work-home ul{grid-template-columns:1fr 1fr}
+  html body.school-layout .desk-content-row{grid-template-columns:48px minmax(0,1fr)}
+  html body.school-layout .desk-content-row .desk-row-actions{grid-column:1/-1;justify-content:flex-start}
+  html body.school-layout .desk-list-cover,html body.school-layout .desk-file-symbol.desk-list-cover{width:48px;height:48px}
+  html body.school-layout .school-health-banner{margin:10px 12px 0}
+  html body.login-body .login-sheet{padding:22px 18px;border-radius:20px}
+  html body.login-body .account-form input{font-size:16px}
+}
+@media(max-width:380px){html body.school-layout .work-home ul,html body.school-layout .sg-kind-grid,html body.school-layout .sg-quick{grid-template-columns:1fr}}
+@media(min-width:768px) and (max-width:1100px){
+  html body.school-layout .sg-stats,html body.school-layout .desk-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  html body.school-layout .sg-split{grid-template-columns:1fr}
+  html body.school-layout .sg-site{grid-template-columns:minmax(0,240px) minmax(0,1fr)}
+}
+@media(orientation:landscape) and (max-height:520px){
+  html body.school-layout .sg-browser-view{height:90px}
+  html body.login-body{place-items:start center}
+}
+@media(min-width:1600px){html body.school-layout :is(.cms-shell,.workspace) main{max-width:1560px}}
+/* full sidebar already carries the Saan logo: the account pages' own bar does not repeat it (rail and phone widths keep it) */
+@media(min-width:1025px){html body.school-layout .account-top>.saan-brand{display:none}}
+
+/* ------------------------------------------------------------------ fallbacks */
+/* no backdrop-filter: opaque surfaces so the text never depends on the scene */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  :root{--sg-glass:rgba(255,253,245,.97);--sg-glass-solid:#fffdf5;--sg-tint:rgba(255,253,245,.95)}
+  html[data-appearance=dark]{--sg-glass:rgba(25,37,31,.97);--sg-glass-solid:#19251f;--sg-tint:rgba(25,37,31,.95)}
+}
+/* the reader asked for less transparency */
+@media(prefers-reduced-transparency:reduce){
+  :root{--sg-glass:#fffdf5;--sg-glass-solid:#fffdf5;--sg-tint:#fffdf5}
+  html[data-appearance=dark]{--sg-glass:#19251f;--sg-glass-solid:#19251f;--sg-tint:#19251f}
+  html body.school-layout *,html body.login-body *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  html body.school-layout::before,html body.login-body::before{display:none}
+}
+/* high contrast mode of the appearance switch (accessibility.css supplies the opaque tokens) */
+html[data-contrast=high] body.school-layout,html[data-contrast=high] body.login-body{
+  --sg-glass:var(--surface);--sg-glass-solid:var(--surface);--sg-tint:var(--surface);--sg-field:var(--surface-raised);
+  --sg-text:var(--ink);--sg-muted:var(--ink);--sg-border:var(--line);--sg-border-strong:var(--control-line);
+}
+html[data-contrast=high] body.school-layout *,html[data-contrast=high] body.login-body *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important}
+html[data-contrast=high] body.school-layout::before,html[data-contrast=high] body.login-body::before{display:none}
+/* forced colours: system colours, visible borders */
+@media(forced-colors:active){
+  html body.school-layout::before,html body.login-body::before{display:none}
+  html body.school-layout :is(.glass,.school-nav,.account-card,.desk-editor-card,.sg-stat,.sg-kind,.sg-quick-link,.work-tabs,.desk-list,dialog){border:2px solid CanvasText;background:Canvas;color:CanvasText;backdrop-filter:none}
+  html body.school-layout .school-nav a.school-nav-link[aria-current=page]{background:Highlight;color:HighlightText;forced-color-adjust:none}
+  html body.school-layout :is(button,input,select,textarea){border:2px solid ButtonText}
+}
+/* print: the print views have their own sheets; every other staff page prints on plain paper */
+@media print{
+  html body.school-layout,html body.login-body{background:#fff!important;color:#000!important}
+  html body.school-layout::before,html body.login-body::before{display:none!important}
+  html body.school-layout *,html body.login-body *{backdrop-filter:none!important;box-shadow:none!important;animation:none!important}
+  html body.school-layout :is(.glass,.account-card,.desk-editor-card,.table-wrap){background:#fff!important;border:1px solid #999!important}
+}

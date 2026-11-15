@@ -87,6 +87,12 @@ Route::middleware(['auth',CurrentSchoolAccount::class,'throttle:600,1,signed-in'
         Route::get('/api/site/updates/feed',[\App\Http\Controllers\UpdateController::class,'feed']);
         Route::put('/api/site/updates/feed',[\App\Http\Controllers\UpdateController::class,'feedSwitch'])->middleware('throttle:10,1,put-api-site-updates-feed');
         Route::post('/api/site/updates/feed/check',[\App\Http\Controllers\UpdateController::class,'feedCheck'])->middleware('throttle:6,1,post-api-site-updates-feed-check');
+        // self-update page: status, check, one package per download call, mode (installing reuses POST /api/site/updates/apply below)
+        Route::get('/admin/updates',[\App\Http\Controllers\SelfUpdateController::class,'page']);
+        Route::get('/api/site/updates/self',[\App\Http\Controllers\SelfUpdateController::class,'status']);
+        Route::post('/api/site/updates/self/check',[\App\Http\Controllers\SelfUpdateController::class,'check'])->middleware('throttle:6,1,post-api-site-updates-self-check');
+        Route::post('/api/site/updates/self/download',[\App\Http\Controllers\SelfUpdateController::class,'download'])->middleware('throttle:90,1,post-api-site-updates-self-download');
+        Route::put('/api/site/updates/self/mode',[\App\Http\Controllers\SelfUpdateController::class,'mode'])->middleware('throttle:10,1,put-api-site-updates-self-mode');
     });
     Route::post('/api/site/updates/apply',[\App\Http\Controllers\UpdateController::class,'apply'])->middleware('throttle:3,1,post-api-site-updates-apply');
     Route::get('/api/site/deployment',[\App\Http\Controllers\WebsiteToolsController::class,'deployment']);

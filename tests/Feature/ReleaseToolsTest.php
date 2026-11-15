@@ -148,4 +148,25 @@ class ReleaseToolsTest extends TestCase
         $this->assertSame(1, $code, $log);
         $this->assertFileDoesNotExist($out.'/release-index.json');
     }
+    public function test_core_manifest_and_index_record_the_laravel_version_and_each_entry_its_type(): void
+    {
+        $out = $this->dir.'/out';
+        // without composer.lock nothing is claimed (older trees, this fake root)
+        [$code, $log] = $this->php('build-release.php', [$out, $this->dir.'/test.json', '--allow-test-key']);
+        $this->assertSame(0, $code, $log);
+        $z = new \ZipArchive; $z->open($out.'/saan-core-9.9.9.zip'); $m = json_decode($z->getFromName('manifest.json'), true); $z->close();
+        $this->assertArrayNotHasKey('provides', $m);
+        // with it, the framework version of THIS release is signed into the core manifest and listed in the index (the feed builder never opens a zip)
+        file_put_contents($this->dir.'/root/composer.lock', json_encode(['packages' => [['name' => 'x/y', 'version' => '1.0.0'], ['name' => 'laravel/framework', 'version' => 'v13.45.1']]]));
+        [$code, $log] = $this->php('build-release.php', [$out, $this->dir.'/test.json', '--allow-test-key']);
+        $this->assertSame(0, $code, $log);
+        $z = new \ZipArchive; $z->open($out.'/saan-core-9.9.9.zip'); $m = json_decode($z->getFromName('manifest.json'), true); $z->close();
+        $this->assertSame(['laravel' => '13.45.1'], $m['provides']);
+        $index = json_decode((string) file_get_contents($out.'/release-index.json'), true);
+        $core = collect($index['packages'])->firstWhere('zip', 'saan-core-9.9.9.zip');
+        $this->assertSame(['laravel' => '13.45.1'], $core['provides']);
+        $this->assertSame(['core', 'core', '9.9.9'], [$core['type'], $core['id'], $core['version']]);
+        $this->assertSame('>=8.4.1', $core['requires']['php']);
+        $this->assertSame(hash_file('sha256', $out.'/saan-core-9.9.9.zip'), $core['sha256']);
+    }
 }

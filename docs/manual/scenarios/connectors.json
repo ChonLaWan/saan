@@ -1,0 +1,2827 @@
+{
+ "module": "connectors",
+ "title": "ข้อมูลปีเก่าและตัวนำเข้าจากระบบเดิม",
+ "area": "งานวิชาการและงานนักเรียน",
+ "purpose": "เก็บข้อมูลปีการศึกษาที่ผ่านมาจากระบบเดิมไว้ค้นแบบอ่านอย่างเดียว แยกจากข้อมูลปัจจุบัน ผู้ดูแลระบบและผู้อำนวยการนำเข้าไฟล์ CSV เป็นชุดข้อมูลรายปี ค้นประวัติของนักเรียนรายคนและส่งออกเป็นไฟล์ CSV ได้ ครูค้นได้เมื่อผู้ดูแลระบบอนุญาต และมีเครื่องมือแปลงไฟล์ CSV จากระบบเดิมให้เป็นรูปแบบของทะเบียนนักเรียน",
+ "roles": [
+  "ผู้ดูแลระบบและผู้อำนวยการ (จัดการชุดข้อมูล นำเข้า ค้น ส่งออก และแปลงไฟล์)",
+  "ครู (ค้นได้เฉพาะนักเรียนประจำชั้นของตน เมื่อผู้ดูแลระบบอนุญาต)"
+ ],
+ "menu": [
+  "เมนูด้านซ้าย \"งานโรงเรียน\" > \"ข้อมูลปีเก่า\" (/work#archives) แท็บ \"ค้นหา\" \"จัดการชุดข้อมูล\" และ \"แปลงไฟล์เข้าทะเบียน\""
+ ],
+ "prerequisites": [
+  {
+   "module": "registry",
+   "text": "การส่งไฟล์ที่แปลงแล้วเข้าทะเบียนนักเรียนต้องเปิดโมดูลทะเบียนนักเรียน ถ้าไม่เปิดดาวน์โหลดไฟล์ที่แปลงแล้วได้อย่างเดียว"
+  }
+ ],
+ "vars": {},
+ "workflows": [
+  {
+   "id": "create-archive",
+   "title": "สร้างชุดข้อมูลปีเก่า",
+   "role": "admin",
+   "start": "/work",
+   "core": true,
+   "intro": "ชุดข้อมูลคือที่เก็บข้อมูลของปีการศึกษาที่ผ่านมา แยกจากข้อมูลปัจจุบัน ผู้ดูแลระบบและผู้อำนวยการสร้างชุดข้อมูลแล้วนำเข้าไฟล์ CSV จากระบบเดิมได้ ข้อมูลในชุดค้นดูได้อย่างเดียว แก้ไม่ได้ ชื่อชุดข้อมูลต้องไม่ซ้ำกัน",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ข้อมูลปีเก่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.con"
+     },
+     "say": "เลือกเมนู \"ข้อมูลปีเก่า\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "จัดการชุดข้อมูล",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูข้อมูลปีเก่า"
+      }
+     },
+     "crop": "panel",
+     "wait_after": {
+      "id": "con-new"
+     },
+     "say": "เลือกแท็บ \"จัดการชุดข้อมูล\" ด้านบนของหน้า",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ชื่อชุดข้อมูล",
+      "within": {
+       "id": "con-new"
+      }
+     },
+     "value": "{{marker}} ปีการศึกษา 2560",
+     "crop": "panel",
+     "say": "พิมพ์ชื่อชุดข้อมูลในช่อง \"ชื่อชุดข้อมูล\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ปีการศึกษา (พ.ศ.)",
+      "within": {
+       "id": "con-new"
+      }
+     },
+     "value": "2560",
+     "crop": "panel",
+     "say": "พิมพ์ปีการศึกษาเป็นปี พ.ศ. ในช่อง \"ปีการศึกษา (พ.ศ.)\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "แหล่งที่มา",
+      "within": {
+       "id": "con-new"
+      }
+     },
+     "value": "ไฟล์ตัวอย่างสำหรับทดสอบ",
+     "crop": "panel",
+     "say": "พิมพ์แหล่งที่มาของข้อมูลในช่อง \"แหล่งที่มา\" (ไม่บังคับ)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "สร้างชุดข้อมูล"
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/connectors/archives",
+      "method": "POST",
+      "status": 201
+     },
+     "wait_after": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     },
+     "say": "กดปุ่ม \"สร้างชุดข้อมูล\" ระบบแสดงข้อความ \"สร้างชุดข้อมูลแล้ว\" และชุดข้อมูลใหม่อยู่ในรายการด้านล่าง",
+     "shot": true
+    }
+   ],
+   "expected": "รายการชุดข้อมูลมีชุดใหม่ พ.ศ. 2560 จำนวน 0 แถว และยังไม่มีไฟล์",
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ ชุดข้อมูลต้องยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       },
+       "that": {
+        "visible": {
+         "css": "article.con-card",
+         "has_text": "{{marker}}"
+        }
+       },
+       "say": "เปิดแท็บ \"จัดการชุดข้อมูล\" ใหม่ ชุดข้อมูลที่สร้างยังอยู่ในรายการ",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "import-csv-file",
+   "title": "นำเข้าไฟล์ CSV จากระบบเดิมเข้าชุดข้อมูล",
+   "role": "admin",
+   "start": "/work#archives/manage",
+   "depends_on": [
+    "create-archive"
+   ],
+   "intro": "เลือกชนิดข้อมูล รูปแบบไฟล์ และไฟล์ CSV (UTF-8 หรือ Windows-874) ระบบจับคู่หัวคอลัมน์ให้ตามรูปแบบที่เลือก แถวที่อ่านไม่ได้ถูกข้ามและแสดงจำนวน ไฟล์ที่ไม่ตรงรูปแบบสามารถจับคู่คอลัมน์เองได้ในส่วน \"จับคู่คอลัมน์เอง (ขั้นสูง)\"",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ชนิดข้อมูล",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "label": "ทะเบียนนักเรียน",
+     "crop": "panel",
+     "highlight": {
+      "css": "form.con-upload",
+      "within": {
+       "css": "article.con-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "say": "เลือกชนิดข้อมูลในช่อง \"ชนิดข้อมูล\" ของชุดที่ต้องการ ในที่นี้เลือก \"ทะเบียนนักเรียน\"",
+     "shot": true
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "รูปแบบไฟล์",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "label": "CSV ทั่วไป หัวตารางภาษาไทย",
+     "crop": "panel",
+     "highlight": {
+      "css": "form.con-upload",
+      "within": {
+       "css": "article.con-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "say": "เลือกรูปแบบไฟล์ในช่อง \"รูปแบบไฟล์\" ในที่นี้เลือก \"CSV ทั่วไป หัวตารางภาษาไทย\"",
+     "shot": true
+    },
+    {
+     "do": "upload",
+     "target": {
+      "label": "ไฟล์ CSV",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "file": "sample.csv",
+     "crop": "panel",
+     "highlight": {
+      "label": "ไฟล์ CSV",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "say": "กดปุ่มเลือกไฟล์ในช่อง \"ไฟล์ CSV\" แล้วเลือกไฟล์จากเครื่อง",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "นำเข้าไฟล์",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     },
+     "expect_response": {
+      "url_contains": "/files",
+      "method": "POST",
+      "status": 201
+     },
+     "wait_after": {
+      "css": "ul.con-files li",
+      "has_text": "sample.csv",
+      "within": {
+       "css": "article.con-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "say": "กดปุ่ม \"นำเข้าไฟล์\" ระบบแสดงจำนวนแถวที่นำเข้าและข้าม และชื่อไฟล์ปรากฏในชุดข้อมูล",
+     "shot": true
+    }
+   ],
+   "expected": "ในชุดข้อมูลมีรายการไฟล์ \"ทะเบียนนักเรียน: sample.csv (2 แถว)\" และจำนวนแถวรวมของชุดเปลี่ยนตาม",
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ ไฟล์และจำนวนแถวต้องยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       },
+       "that": {
+        "text": "sample.csv",
+        "in": {
+         "css": "article.con-card",
+         "has_text": "{{marker}}"
+        }
+       },
+       "say": "เปิดแท็บ \"จัดการชุดข้อมูล\" ใหม่ ชุดข้อมูลมีไฟล์ที่นำเข้าและจำนวนแถว",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "search-and-open-record",
+   "title": "ค้นประวัตินักเรียนจากข้อมูลปีเก่าและส่งออก",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "import-csv-file"
+   ],
+   "intro": "ค้นด้วยรหัสนักเรียนหรือชื่ออย่างน้อย 2 ตัวอักษร ผลที่แสดงเป็นข้อมูลอ่านอย่างเดียว ไม่ปะปนกับข้อมูลปีปัจจุบัน ระบบบันทึกว่าใครค้นอะไร (ข้อมูลเป็นข้อมูลส่วนบุคคลของเด็ก) ครูค้นได้เมื่อผู้ดูแลระบบอนุญาต และเห็นเฉพาะนักเรียนประจำชั้นของตน",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ข้อมูลปีเก่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.con"
+     },
+     "say": "เลือกเมนู \"ข้อมูลปีเก่า\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสนักเรียนหรือชื่อ"
+     },
+     "value": "001",
+     "crop": "panel",
+     "say": "พิมพ์รหัสนักเรียนหรือส่วนหนึ่งของชื่อในช่อง \"รหัสนักเรียนหรือชื่อ\" (ต้องมีอย่างน้อย 2 ตัวอักษร)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ค้นหา",
+      "exact": true
+     },
+     "crop": "panel",
+     "wait_after": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     },
+     "say": "กดปุ่ม \"ค้นหา\" ระบบแสดงจำนวนที่พบและรายการของแต่ละชุดข้อมูล",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "เปิดดู",
+      "within": {
+       "css": "article.con-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "dl.con-dl"
+     },
+     "say": "กดปุ่ม \"เปิดดู\" ในรายการของชุดข้อมูลที่ต้องการ ระบบแสดงประวัติของนักเรียนคนนั้น",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ส่งออกประวัติ CSV"
+     },
+     "crop": "panel",
+     "expect_download": {
+      "ext": ".csv",
+      "kind": "csv",
+      "min_bytes": 20
+     },
+     "say": "กดลิงก์ \"ส่งออกประวัติ CSV\" เพื่อบันทึกประวัติของปีนี้เป็นไฟล์ (ระบบบันทึกการส่งออก)",
+     "shot": true
+    }
+   ],
+   "expected": "หน้าประวัติแสดงรหัส ชื่อชุดข้อมูล ปีการศึกษา และข้อมูลที่นำเข้า พร้อมข้อความ \"อ่านอย่างเดียว\"",
+   "verify": [
+    {
+     "title": "ประวัติแสดงข้อมูลจากไฟล์ที่นำเข้า และไฟล์ CSV มีรหัสนักเรียน",
+     "steps": [
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "dl.con-dl",
+        "first": true
+       },
+       "that": [
+        {
+         "text": "อ่านอย่างเดียว"
+        },
+        {
+         "visible": {
+          "css": "dl.con-dl",
+          "first": true
+         }
+        }
+       ],
+       "say": "หน้าประวัติแสดงข้อมูลของนักเรียนจากไฟล์ที่นำเข้า ไม่มีปุ่มแก้ไข",
+       "shot": true
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ส่งออกประวัติ CSV"
+       },
+       "expect_download": {
+        "ext": ".csv",
+        "kind": "csv",
+        "min_bytes": 20,
+        "contains": "001"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "export-history-all-years",
+   "title": "ส่งออกประวัตินักเรียนทุกปีจากข้อมูลปีเก่า",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "search-and-open-record"
+   ],
+   "intro": "ส่งออกประวัติของนักเรียนทุกชุดข้อมูลปีเก่าเป็นไฟล์ CSV ไฟล์มีข้อมูลส่วนบุคคลของเด็ก ต้องเก็บในที่ปลอดภัย ระบบบันทึกการส่งออกไว้เช่นเดียวกับการส่งออกปีเดียว",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ข้อมูลปีเก่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.con"
+     },
+     "say": "เลือกเมนู \"ข้อมูลปีเก่า\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสนักเรียนหรือชื่อ"
+     },
+     "value": "001"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ค้นหา",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "เปิดดู",
+      "within": {
+       "css": "article.con-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "dl.con-dl"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ส่งออกทุกปี"
+     },
+     "crop": "panel",
+     "expect_download": {
+      "ext": ".csv",
+      "kind": "csv",
+      "min_bytes": 20
+     },
+     "say": "กดลิงก์ \"ส่งออกทุกปี\" เพื่อบันทึกประวัติของนักเรียนจากทุกชุดข้อมูลเป็นไฟล์ CSV",
+     "shot": true
+    }
+   ],
+   "expected": "ได้ไฟล์ CSV ที่มีประวัติของนักเรียนจากทุกปีการศึกษาที่นำเข้า",
+   "verify": [
+    {
+     "title": "ไฟล์ส่งออกทุกปีเป็น CSV และไม่ว่าง",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ส่งออกทุกปี"
+       },
+       "expect_download": {
+        "ext": ".csv",
+        "kind": "csv",
+        "min_bytes": 20
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "preview-mapping",
+   "title": "ดูตัวอย่างการแปลงไฟล์จากระบบเดิมก่อนนำเข้าทะเบียนนักเรียน",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "create-archive"
+   ],
+   "intro": "แท็บนี้แปลงไฟล์ CSV จากระบบเดิมให้เป็นรูปแบบของทะเบียนนักเรียน ขั้นที่ 1 ดูตัวอย่างการจับคู่คอลัมน์ ขั้นที่ 2 ส่งเข้าตัวอย่างของทะเบียน ขั้นที่ 3 ยืนยันนำเข้า (ย้อนกลับได้ที่หน้านำเข้าของทะเบียนนักเรียน) คู่มือนี้ทำถึงขั้นที่ 1 และดาวน์โหลดไฟล์ที่แปลงแล้ว ไม่ส่งเข้าทะเบียน เพราะจะเพิ่มนักเรียนในทะเบียนจริง",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ข้อมูลปีเก่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.con"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แปลงไฟล์เข้าทะเบียน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูข้อมูลปีเก่า"
+      }
+     },
+     "crop": "panel",
+     "wait_after": {
+      "id": "con-map"
+     },
+     "say": "เลือกแท็บ \"แปลงไฟล์เข้าทะเบียน\" ด้านบนของหน้า",
+     "shot": true
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "รูปแบบไฟล์",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "label": "CSV ทั่วไป หัวตารางภาษาไทย",
+     "crop": "panel",
+     "say": "เลือกรูปแบบไฟล์ในช่อง \"รูปแบบไฟล์\" ในที่นี้เลือก \"CSV ทั่วไป หัวตารางภาษาไทย\"",
+     "shot": true
+    },
+    {
+     "do": "upload",
+     "target": {
+      "label": "ไฟล์ CSV",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "file": "sample.csv",
+     "crop": "panel",
+     "say": "กดปุ่มเลือกไฟล์ในช่อง \"ไฟล์ CSV\" แล้วเลือกไฟล์จากเครื่อง",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ดูตัวอย่างการจับคู่"
+     },
+     "crop": "viewport",
+     "expect_response": {
+      "url_contains": "/mapping/preview",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "css": "#con-map-out ul.con-files"
+     },
+     "say": "กดปุ่ม \"ดูตัวอย่างการจับคู่\" ระบบแสดงว่าคอลัมน์ใดจับคู่กับช่องใดของทะเบียน และแถวที่มีปัญหา",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ดาวน์โหลด CSV ที่แปลงแล้ว"
+     },
+     "crop": "panel",
+     "expect_download": {
+      "ext": ".csv",
+      "kind": "csv",
+      "min_bytes": 20
+     },
+     "say": "กดปุ่ม \"ดาวน์โหลด CSV ที่แปลงแล้ว\" เพื่อบันทึกไฟล์ที่เรียงคอลัมน์ตามทะเบียนนักเรียน",
+     "shot": true
+    }
+   ],
+   "expected": "ส่วนตัวอย่างแสดงจำนวนแถว จำนวนแถวที่มีปัญหา รายการ \"คอลัมน์ → ช่อง\" และตัวอย่างแถวแรก ๆ",
+   "verify": [
+    {
+     "title": "ตัวอย่างแสดงการจับคู่คอลัมน์ และไฟล์ที่แปลงแล้วมีรหัส",
+     "steps": [
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "#con-map-out ul.con-files"
+       },
+       "that": {
+        "text": "รหัส",
+        "in": {
+         "id": "con-map-out"
+        }
+       },
+       "say": "ส่วนตัวอย่างแสดงรายการจับคู่คอลัมน์ของไฟล์ที่เลือกกับช่องของทะเบียนนักเรียน",
+       "shot": true
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ดาวน์โหลด CSV ที่แปลงแล้ว"
+       },
+       "expect_download": {
+        "ext": ".csv",
+        "kind": "csv",
+        "min_bytes": 20,
+        "contains": "001"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "commit-mapped-import-to-registry",
+   "title": "แปลงไฟล์จากระบบเดิมแล้วยืนยันนำเข้าเข้าทะเบียนนักเรียน",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "create-archive"
+   ],
+   "intro": "การนำเข้ามี 3 ขั้น ดูตัวอย่างการจับคู่ ส่งเข้าตัวอย่างของทะเบียนนักเรียน และยืนยันนำเข้า ทะเบียนนักเรียนเป็นผู้เขียนข้อมูลจริงและตรวจรหัสซ้ำกับห้องเรียนเอง ถ้าผิดพลาดย้อนกลับได้ที่หน้า \"นำเข้าข้อมูลนักเรียน\" (ดูงานถัดไป) ไฟล์ตัวอย่างใช้รหัสและชื่อสมมติ",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ข้อมูลปีเก่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "ข้อมูลปีเก่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "role": "link",
+      "name": "แปลงไฟล์เข้าทะเบียน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูข้อมูลปีเก่า"
+      }
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"ข้อมูลปีเก่า\" แล้วเลือกแท็บ \"แปลงไฟล์เข้าทะเบียน\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แปลงไฟล์เข้าทะเบียน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูข้อมูลปีเก่า"
+      }
+     },
+     "wait_after": {
+      "id": "con-map"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "รูปแบบไฟล์",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "label": "CSV ทั่วไป หัวตารางภาษาไทย",
+     "crop": "panel",
+     "highlight": {
+      "label": "รูปแบบไฟล์",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "say": "เลือก \"รูปแบบไฟล์\" ให้ตรงกับไฟล์ ในที่นี้คือ \"CSV ทั่วไป หัวตารางภาษาไทย\"",
+     "shot": true
+    },
+    {
+     "do": "upload",
+     "target": {
+      "label": "ไฟล์ CSV",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "file": "connectors-students-th.csv",
+     "crop": "panel",
+     "highlight": {
+      "label": "ไฟล์ CSV",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "say": "เลือกไฟล์ CSV ที่ได้จากระบบเดิม (ไฟล์ตัวอย่างมีนักเรียนสมมติ 3 คน)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ดูตัวอย่างการจับคู่"
+     },
+     "crop": "panel",
+     "highlight": {
+      "id": "con-map-out"
+     },
+     "wait_after": {
+      "css": "h2",
+      "has_text": "ตัวอย่างการจับคู่",
+      "within": {
+       "id": "con-map-out"
+      }
+     },
+     "say": "กดปุ่ม \"ดูตัวอย่างการจับคู่\" ระบบแสดงว่าคอลัมน์ไหนไปเป็นช่องใด และข้อมูลตัวอย่างของแต่ละแถว ขั้นนี้ยังไม่แตะทะเบียนนักเรียน",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งเข้าตัวอย่างของทะเบียน"
+     },
+     "crop": "panel",
+     "highlight": {
+      "id": "con-stage"
+     },
+     "wait_after": {
+      "css": "h2",
+      "has_text": "ตัวอย่างจากทะเบียนนักเรียน",
+      "within": {
+       "id": "con-stage"
+      }
+     },
+     "say": "กดปุ่ม \"ส่งเข้าตัวอย่างของทะเบียน\" ระบบส่งไฟล์ที่แปลงแล้วให้ทะเบียนนักเรียนตรวจ และบอกว่าจะเพิ่มใหม่ อัปเดต ข้าม หรือผิดพลาดกี่แถว ยังไม่มีนักเรียนถูกเพิ่ม",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "เพิ่มใหม่ 3",
+      "in": {
+       "id": "con-stage"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยืนยันนำเข้า",
+      "within": {
+       "id": "con-stage"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "id": "con-stage"
+     },
+     "wait_after": {
+      "css": "h2",
+      "has_text": "นำเข้าแล้ว",
+      "within": {
+       "id": "con-stage"
+      }
+     },
+     "say": "ตรวจตัวเลขแล้วกดปุ่ม \"ยืนยันนำเข้า\" ระบบเพิ่มนักเรียนเข้าทะเบียนและแจ้งว่า \"นำเข้าแล้ว\" พร้อมข้อความว่าย้อนกลับได้จากหน้า \"นำเข้าข้อมูลนักเรียน\" ของทะเบียน",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "เพิ่มใหม่ 3",
+      "in": {
+       "id": "con-stage"
+      }
+     }
+    }
+   ],
+   "expected": "ทะเบียนนักเรียนมีนักเรียนใหม่ 3 คนจากไฟล์ และชุดนำเข้าอยู่ในประวัติของหน้า \"นำเข้าข้อมูลนักเรียน\"",
+   "verify": [
+    {
+     "title": "เปิดทะเบียนนักเรียน ค้นพบนักเรียนที่นำเข้า",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ทะเบียนนักเรียน",
+        "exact": true,
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        }
+       },
+       "wait_after": {
+        "css": "#reg-filter"
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "#reg-filter"
+        }
+       },
+       "value": "ทดสอบแปลง",
+       "crop": "panel",
+       "highlight": {
+        "css": "table.reg-table"
+       },
+       "say": "เลือกเมนู \"ทะเบียนนักเรียน\" แล้วค้นหาชื่อ \"ทดสอบแปลง\" ทะเบียนแสดงนักเรียน 3 คนที่เพิ่งนำเข้า",
+       "shot": true,
+       "wait_after": {
+        "css": "table.reg-table td",
+        "has_text": "88801"
+       },
+       "settle_ms": 800
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "88801",
+         "in": {
+          "css": "table.reg-table"
+         }
+        },
+        {
+         "text": "88802",
+         "in": {
+          "css": "table.reg-table"
+         }
+        },
+        {
+         "text": "88803",
+         "in": {
+          "css": "table.reg-table"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "undo-mapped-import",
+   "title": "ย้อนกลับชุดนำเข้าที่แปลงจากระบบเดิม",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "commit-mapped-import-to-registry"
+   ],
+   "intro": "การย้อนกลับเป็นของโมดูลทะเบียนนักเรียน ไม่ใช่ของโมดูลข้อมูลปีเก่า ใช้ได้เมื่อนักเรียนที่เพิ่มจากชุดนั้นยังไม่ถูกแก้ไขหรือยังไม่มีข้อมูลอื่นผูกอยู่ ถ้าแถวใดย้อนไม่ได้ ระบบบอกเหตุผลรายแถว",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "นำเข้าข้อมูลนักเรียน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "นำเข้าข้อมูลนักเรียน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "css": "ul.reg-batches li",
+      "has_text": "connectors-students-th.csv"
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"นำเข้าข้อมูลนักเรียน\" หัวข้อ \"ชุดนำเข้าล่าสุด\" มีชุดที่มาจากการแปลงไฟล์ (ชื่อไฟล์ขึ้นต้นด้วย connectors-)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "connectors-connectors-students-th.csv",
+      "first": true,
+      "within": {
+       "css": "ul.reg-batches li",
+       "has_text": "connectors-students-th.csv"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "button[data-rollback]"
+     },
+     "say": "กดชื่อชุดนำเข้านั้น หน้ารายละเอียดมีปุ่ม \"ย้อนกลับชุดนี้\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ย้อนกลับชุดนี้",
+      "exact": true
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "p.reg-sub"
+     },
+     "wait_after": {
+      "css": "p.reg-sub",
+      "has_text": "ย้อนกลับแล้ว"
+     },
+     "say": "กดปุ่ม \"ย้อนกลับชุดนี้\" แล้วกดยืนยัน ระบบเอานักเรียนที่เพิ่มจากชุดนี้ออก สถานะชุดเป็น \"ย้อนกลับแล้ว\" (ย้อนกลับได้เมื่อแถวนั้นยังไม่ถูกแก้ไข)",
+     "shot": true,
+     "dialog": "accept"
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ย้อนกลับแล้ว",
+      "in": {
+       "css": "p.reg-sub"
+      }
+     }
+    }
+   ],
+   "expected": "ชุดนำเข้าแสดง \"ย้อนกลับแล้ว\" และนักเรียนจากไฟล์ไม่อยู่ในทะเบียน",
+   "verify": [
+    {
+     "title": "ค้นทะเบียนนักเรียน ไม่พบนักเรียนจากไฟล์",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ทะเบียนนักเรียน",
+        "exact": true,
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        }
+       },
+       "wait_after": {
+        "css": "#reg-filter"
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "#reg-filter"
+        }
+       },
+       "value": "ทดสอบแปลง",
+       "settle_ms": 1200
+      },
+      {
+       "do": "expect",
+       "that": {
+        "hidden": {
+         "css": "table.reg-table td",
+         "has_text": "88801"
+        }
+       },
+       "crop": "panel",
+       "highlight": {
+        "css": "#reg-filter"
+       },
+       "say": "ค้นหาชื่อ \"ทดสอบแปลง\" ในทะเบียนนักเรียนอีกครั้ง ไม่พบรายการแล้ว",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "preview-windows-874-file",
+   "title": "ดูตัวอย่างไฟล์ที่เข้ารหัส Windows-874 (ไฟล์เก่าจากโปรแกรมรุ่นเดิม)",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "create-archive"
+   ],
+   "intro": "ไฟล์ CSV จากโปรแกรมรุ่นเก่ามักเข้ารหัสแบบ Windows-874 ถ้าเปิดด้วยโปรแกรมทั่วไปจะเห็นภาษาไทยเป็นตัวอักษรเพี้ยน ระบบสานตรวจชนิดรหัสให้เอง ขั้นตอนนี้ดูตัวอย่างอย่างเดียว ไม่เพิ่มข้อมูล",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ข้อมูลปีเก่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "ข้อมูลปีเก่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "role": "link",
+      "name": "แปลงไฟล์เข้าทะเบียน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูข้อมูลปีเก่า"
+      }
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"ข้อมูลปีเก่า\" แล้วเลือกแท็บ \"แปลงไฟล์เข้าทะเบียน\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แปลงไฟล์เข้าทะเบียน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูข้อมูลปีเก่า"
+      }
+     },
+     "wait_after": {
+      "id": "con-map"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "รูปแบบไฟล์",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "label": "CSV ทั่วไป หัวตารางภาษาไทย",
+     "crop": "panel",
+     "highlight": {
+      "label": "รูปแบบไฟล์",
+      "within": {
+       "id": "con-map"
+      }
+     }
+    },
+    {
+     "do": "upload",
+     "target": {
+      "label": "ไฟล์ CSV",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "file": "connectors-students-874.csv",
+     "crop": "panel",
+     "highlight": {
+      "label": "ไฟล์ CSV",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "say": "เลือกไฟล์ CSV ที่บันทึกด้วยรหัสตัวอักษร Windows-874 (ไฟล์จากโปรแกรมรุ่นเก่ามักเป็นแบบนี้) ระบบอ่านได้ทั้ง UTF-8 และ Windows-874",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ดูตัวอย่างการจับคู่"
+     },
+     "crop": "panel",
+     "highlight": {
+      "id": "con-map-out"
+     },
+     "wait_after": {
+      "css": "h2",
+      "has_text": "ตัวอย่างการจับคู่",
+      "within": {
+       "id": "con-map-out"
+      }
+     },
+     "say": "กดปุ่ม \"ดูตัวอย่างการจับคู่\" ภาษาไทยในชื่อและหัวตารางอ่านได้ถูกต้อง ไม่เป็นตัวอักษรเพี้ยน",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "text": "ไฟล์เก่า",
+       "in": {
+        "id": "con-map-out"
+       }
+      },
+      {
+       "text": "เลขประจำตัวนักเรียน",
+       "in": {
+        "id": "con-map-out"
+       }
+      }
+     ]
+    }
+   ],
+   "expected": "ตัวอย่างแสดงชื่อภาษาไทยถูกต้อง 2 แถว ไม่มีแถวที่มีปัญหา",
+   "verify": [
+    {
+     "title": "ตัวอย่างอ่านภาษาไทยได้",
+     "steps": [
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "2 แถว",
+         "in": {
+          "id": "con-map-out"
+         }
+        },
+        {
+         "text": "มีปัญหา 0 แถว",
+         "in": {
+          "id": "con-map-out"
+         }
+        }
+       ],
+       "crop": "panel",
+       "highlight": {
+        "id": "con-map-out"
+       },
+       "say": "ตัวอย่างบอกว่ามี 2 แถว มีปัญหา 0 แถว",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "preview-dmc-like-file",
+   "title": "ดูตัวอย่างไฟล์รูปแบบคล้าย DMC",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "create-archive"
+   ],
+   "intro": "รูปแบบ \"คล้าย DMC\" เป็นโครงสมมติของไฟล์ที่ส่งออกจากระบบกลางลักษณะนี้ (ไม่ใช่ข้อกำหนดจริงของหน่วยงานใด) ใช้เพศแบบ 1 ชาย 2 หญิง และวันเกิดแบบ ปปปปดดวว ขั้นตอนนี้ดูตัวอย่างอย่างเดียว",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ข้อมูลปีเก่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "ข้อมูลปีเก่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "role": "link",
+      "name": "แปลงไฟล์เข้าทะเบียน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูข้อมูลปีเก่า"
+      }
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"ข้อมูลปีเก่า\" แล้วเลือกแท็บ \"แปลงไฟล์เข้าทะเบียน\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แปลงไฟล์เข้าทะเบียน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูข้อมูลปีเก่า"
+      }
+     },
+     "wait_after": {
+      "id": "con-map"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "รูปแบบไฟล์",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "label": "รูปแบบคล้าย DMC (โครงสมมติ)",
+     "crop": "panel",
+     "highlight": {
+      "label": "รูปแบบไฟล์",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "say": "เลือก \"รูปแบบไฟล์\" เป็น \"รูปแบบคล้าย DMC (โครงสมมติ)\" หัวตารางเป็นภาษาอังกฤษ เช่น STUDENT_ID FIRSTNAME CLASS_LEVEL",
+     "shot": true
+    },
+    {
+     "do": "upload",
+     "target": {
+      "label": "ไฟล์ CSV",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "file": "connectors-students-dmc.csv",
+     "crop": "panel",
+     "highlight": {
+      "label": "ไฟล์ CSV",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "say": "เลือกไฟล์ CSV รูปแบบนี้ (ไฟล์ตัวอย่างมีนักเรียนสมมติ 2 คน)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ดูตัวอย่างการจับคู่"
+     },
+     "crop": "panel",
+     "highlight": {
+      "id": "con-map-out"
+     },
+     "wait_after": {
+      "css": "h2",
+      "has_text": "ตัวอย่างการจับคู่",
+      "within": {
+       "id": "con-map-out"
+      }
+     },
+     "say": "กดปุ่ม \"ดูตัวอย่างการจับคู่\" ระบบจับคู่ STUDENT_ID เป็นรหัสนักเรียน และรวม CLASS_LEVEL กับ CLASS_ROOM เป็นห้องเรียน เช่น ม.5/1",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "text": "STUDENT_ID",
+       "in": {
+        "id": "con-map-out"
+       }
+      },
+      {
+       "text": "ม.5/1",
+       "in": {
+        "id": "con-map-out"
+       }
+      },
+      {
+       "text": "รูปแบบดีเอ็มซี",
+       "in": {
+        "id": "con-map-out"
+       }
+      }
+     ]
+    }
+   ],
+   "expected": "ตัวอย่างแสดงการจับคู่ของคอลัมน์และห้องเรียน ม.5/1 ของนักเรียนทั้ง 2 แถว",
+   "verify": [
+    {
+     "title": "ตัวอย่างแสดงห้องเรียนที่รวมแล้ว",
+     "steps": [
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "2 แถว",
+         "in": {
+          "id": "con-map-out"
+         }
+        },
+        {
+         "text": "มีปัญหา 0 แถว",
+         "in": {
+          "id": "con-map-out"
+         }
+        }
+       ],
+       "crop": "panel",
+       "highlight": {
+        "id": "con-map-out"
+       },
+       "say": "ตัวอย่างบอกว่ามี 2 แถว มีปัญหา 0 แถว",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "custom-json-mapping",
+   "title": "จับคู่คอลัมน์เองด้วย JSON เมื่อหัวตารางของไฟล์ไม่ตรงรูปแบบ",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "create-archive"
+   ],
+   "intro": "ใช้เมื่อไฟล์จากระบบเดิมตั้งหัวตารางเอง ระบบจึงเดาไม่ได้ JSON เป็นรายการ \"ชื่อหัวตาราง\":\"ชื่อช่อง\" ใช้ชื่อช่องที่ระบบกำหนดเท่านั้น (เช่น code first_name last_name classroom) การจับคู่เองมีผลก่อนรูปแบบไฟล์ คอลัมน์ที่ไม่ได้จับคู่ถูกทิ้ง ไม่เก็บไว้ ขั้นตอนนี้ดูตัวอย่างอย่างเดียว",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ข้อมูลปีเก่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "ข้อมูลปีเก่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "role": "link",
+      "name": "แปลงไฟล์เข้าทะเบียน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูข้อมูลปีเก่า"
+      }
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"ข้อมูลปีเก่า\" แล้วเลือกแท็บ \"แปลงไฟล์เข้าทะเบียน\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แปลงไฟล์เข้าทะเบียน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูข้อมูลปีเก่า"
+      }
+     },
+     "wait_after": {
+      "id": "con-map"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "รูปแบบไฟล์",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "label": "CSV ทั่วไป หัวตารางภาษาไทย",
+     "crop": "panel",
+     "highlight": {
+      "label": "รูปแบบไฟล์",
+      "within": {
+       "id": "con-map"
+      }
+     }
+    },
+    {
+     "do": "upload",
+     "target": {
+      "label": "ไฟล์ CSV",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "file": "connectors-students-custom.csv",
+     "crop": "panel",
+     "highlight": {
+      "label": "ไฟล์ CSV",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "say": "เลือกไฟล์ CSV ที่หัวตารางไม่ตรงรูปแบบมาตรฐาน (ในที่นี้ \"ID นักเรียน\" \"ชื่อต้น\" \"สกุล\" \"ห้องที่เรียน\")",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ดูตัวอย่างการจับคู่"
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "ถ้ากดดูตัวอย่างทันที ระบบหาคอลัมน์รหัสนักเรียนไม่เจอ และแจ้งให้ตั้งการจับคู่คอลัมน์เอง",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ไม่พบคอลัมน์รหัสนักเรียน",
+      "in": {
+       "id": "toast"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "details.con-adv > summary",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "details.con-adv",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "wait_after": {
+      "css": "textarea[name=mapping]",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "say": "เปิดส่วน \"จับคู่คอลัมน์เอง (ขั้นสูง)\" ส่วนนี้รับข้อความ JSON ที่บอกว่าหัวตารางไหนคือช่องใด",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "css": "textarea[name=mapping]",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "value": "{\"ID นักเรียน\":\"code\",\"ชื่อต้น\":\"first_name\",\"สกุล\":\"last_name\",\"ห้องที่เรียน\":\"classroom\"}",
+     "crop": "panel",
+     "highlight": {
+      "css": "textarea[name=mapping]",
+      "within": {
+       "id": "con-map"
+      }
+     },
+     "say": "พิมพ์ JSON ในรูป \"หัวตารางในไฟล์\":\"ชื่อช่อง\" คั่นแต่ละคู่ด้วยเครื่องหมายจุลภาค ชื่อช่องที่ใช้ได้แสดงอยู่เหนือกล่อง เช่น code first_name last_name classroom",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ดูตัวอย่างการจับคู่"
+     },
+     "crop": "panel",
+     "highlight": {
+      "id": "con-map-out"
+     },
+     "wait_after": {
+      "css": "h2",
+      "has_text": "ตัวอย่างการจับคู่",
+      "within": {
+       "id": "con-map-out"
+      }
+     },
+     "say": "กดปุ่ม \"ดูตัวอย่างการจับคู่\" ครั้งนี้ระบบจับคู่ตามที่ตั้งไว้ คอลัมน์ที่ไม่ได้ใช้ (หมายเหตุเดิม) แสดงแยกไว้",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "text": "ID นักเรียน",
+       "in": {
+        "id": "con-map-out"
+       }
+      },
+      {
+       "text": "หมายเหตุเดิม",
+       "in": {
+        "id": "con-map-out"
+       }
+      },
+      {
+       "text": "จับคู่เอง",
+       "in": {
+        "id": "con-map-out"
+       }
+      }
+     ]
+    }
+   ],
+   "expected": "ตัวอย่างแสดงการจับคู่ตาม JSON 4 คอลัมน์ และ \"คอลัมน์ที่ไม่ใช้\" คือ หมายเหตุเดิม",
+   "verify": [
+    {
+     "title": "ตัวอย่างใช้การจับคู่ที่ตั้งเอง",
+     "steps": [
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "2 แถว",
+         "in": {
+          "id": "con-map-out"
+         }
+        },
+        {
+         "text": "มีปัญหา 0 แถว",
+         "in": {
+          "id": "con-map-out"
+         }
+        }
+       ],
+       "crop": "panel",
+       "highlight": {
+        "id": "con-map-out"
+       },
+       "say": "ตัวอย่างบอกว่ามี 2 แถว มีปัญหา 0 แถว",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "import-grade-file",
+   "title": "นำเข้าไฟล์ผลการเรียนของปีเก่า",
+   "role": "admin",
+   "start": "/work#archives/manage",
+   "depends_on": [
+    "import-csv-file"
+   ],
+   "intro": "ชุดข้อมูลปีเก่าเก็บได้หลายชนิด ได้แก่ ทะเบียนนักเรียน ผลการเรียน สรุปเวลาเรียน และอื่น ๆ ไฟล์ผลการเรียนต้องมีคอลัมน์รหัสนักเรียน และมักมี รหัสวิชา ชื่อวิชา ภาคเรียน คะแนน เกรด ไฟล์เดียวกันนำเข้าซ้ำในชุดเดิมไม่ได้",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ชนิดข้อมูล",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "label": "ผลการเรียน",
+     "crop": "panel",
+     "highlight": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     },
+     "say": "เลือก \"ชนิดข้อมูล\" เป็น \"ผลการเรียน\" ที่การ์ดของชุดข้อมูล",
+     "shot": true
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "รูปแบบไฟล์",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "label": "CSV ทั่วไป หัวตารางภาษาไทย"
+    },
+    {
+     "do": "upload",
+     "target": {
+      "label": "ไฟล์ CSV",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "file": "connectors-grades.csv",
+     "crop": "panel",
+     "highlight": {
+      "label": "ไฟล์ CSV",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "say": "เลือกไฟล์ CSV (ไฟล์ตัวอย่างใช้รหัสนักเรียนสมมติ 001 และ 002)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "นำเข้าไฟล์",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"นำเข้าไฟล์\" ระบบแจ้งจำนวนแถวที่นำเข้า",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "นำเข้า 3 แถว",
+      "in": {
+       "id": "toast"
+      }
+     }
+    }
+   ],
+   "expected": "การ์ดของชุดข้อมูลมีรายการไฟล์ใหม่ \"ผลการเรียน: connectors-grades.csv\"",
+   "verify": [
+    {
+     "title": "เปิดหน้าจัดการใหม่ ชุดข้อมูลมีไฟล์นี้",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "ผลการเรียน: connectors-grades.csv",
+        "in": {
+         "css": "article.con-card",
+         "has_text": "{{marker}}"
+        }
+       },
+       "crop": "panel",
+       "highlight": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       },
+       "say": "เปิดหน้า \"จัดการชุดข้อมูล\" ใหม่ การ์ดของชุดข้อมูลแสดงไฟล์ที่นำเข้า",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "import-attendance-summary-file",
+   "title": "นำเข้าไฟล์สรุปเวลาเรียนของปีเก่า",
+   "role": "admin",
+   "start": "/work#archives/manage",
+   "depends_on": [
+    "import-csv-file"
+   ],
+   "intro": "ไฟล์สรุปเวลาเรียนมีคอลัมน์รหัสนักเรียน ภาคเรียน วันมา วันขาด วันลา และวันเรียน",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ชนิดข้อมูล",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "label": "สรุปเวลาเรียน",
+     "crop": "panel",
+     "highlight": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     },
+     "say": "เลือก \"ชนิดข้อมูล\" เป็น \"สรุปเวลาเรียน\" ที่การ์ดของชุดข้อมูล",
+     "shot": true
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "รูปแบบไฟล์",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "label": "CSV ทั่วไป หัวตารางภาษาไทย"
+    },
+    {
+     "do": "upload",
+     "target": {
+      "label": "ไฟล์ CSV",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "file": "connectors-attendance.csv",
+     "crop": "panel",
+     "highlight": {
+      "label": "ไฟล์ CSV",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "say": "เลือกไฟล์ CSV (ไฟล์ตัวอย่างใช้รหัสนักเรียนสมมติ 001 และ 002)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "นำเข้าไฟล์",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"นำเข้าไฟล์\" ระบบแจ้งจำนวนแถวที่นำเข้า",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "นำเข้า 2 แถว",
+      "in": {
+       "id": "toast"
+      }
+     }
+    }
+   ],
+   "expected": "การ์ดของชุดข้อมูลมีรายการไฟล์ใหม่ \"สรุปเวลาเรียน: connectors-attendance.csv\"",
+   "verify": [
+    {
+     "title": "เปิดหน้าจัดการใหม่ ชุดข้อมูลมีไฟล์นี้",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "สรุปเวลาเรียน: connectors-attendance.csv",
+        "in": {
+         "css": "article.con-card",
+         "has_text": "{{marker}}"
+        }
+       },
+       "crop": "panel",
+       "highlight": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       },
+       "say": "เปิดหน้า \"จัดการชุดข้อมูล\" ใหม่ การ์ดของชุดข้อมูลแสดงไฟล์ที่นำเข้า",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "import-teacher-scope-file",
+   "title": "นำเข้ารายชื่อนักเรียนปีเก่าที่ตรงกับห้องปัจจุบัน (ใช้ทดสอบสิทธิ์ครู)",
+   "role": "admin",
+   "start": "/work#archives/manage",
+   "depends_on": [
+    "import-csv-file"
+   ],
+   "intro": "ขั้นเตรียมข้อมูลสำหรับงานถัดไปที่ดูว่าครูเห็นข้อมูลปีเก่าของนักเรียนห้องตนเองเท่านั้น",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ชนิดข้อมูล",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "label": "ทะเบียนนักเรียน"
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "รูปแบบไฟล์",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "label": "CSV ทั่วไป หัวตารางภาษาไทย"
+    },
+    {
+     "do": "upload",
+     "target": {
+      "label": "ไฟล์ CSV",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "file": "connectors-teacher-scope.csv",
+     "crop": "panel",
+     "highlight": {
+      "label": "ไฟล์ CSV",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "say": "ชุดข้อมูลนี้มีนักเรียนปีเก่า 2 คน คนหนึ่งเป็นนักเรียนห้อง ม.1/1 ปัจจุบัน อีกคนอยู่ห้องอื่น เลือกไฟล์ CSV นี้",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "นำเข้าไฟล์",
+      "within": {
+       "css": "form.con-upload",
+       "within": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"นำเข้าไฟล์\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "นำเข้า 2 แถว",
+      "in": {
+       "id": "toast"
+      }
+     }
+    }
+   ],
+   "expected": "การ์ดของชุดข้อมูลมีไฟล์ทะเบียนนักเรียนเพิ่มอีก 1 ไฟล์",
+   "verify": [
+    {
+     "title": "การ์ดมีไฟล์นี้",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "connectors-teacher-scope.csv",
+        "in": {
+         "css": "article.con-card",
+         "has_text": "{{marker}}"
+        }
+       },
+       "crop": "panel",
+       "highlight": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       },
+       "say": "เปิดหน้า \"จัดการชุดข้อมูล\" ใหม่ การ์ดแสดงไฟล์ที่นำเข้า",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "view-record-with-grades-and-attendance",
+   "title": "เปิดดูประวัติรายคนที่มีผลการเรียนและสรุปเวลาเรียน",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "import-grade-file",
+    "import-attendance-summary-file"
+   ],
+   "intro": "หน้าประวัติรวมข้อมูลของนักเรียนคนเดียวในชุดข้อมูลเดียว ทุกครั้งที่เปิดดู ระบบบันทึกว่าใครดูใคร",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ข้อมูลปีเก่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "ข้อมูลปีเก่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "label": "รหัสนักเรียนหรือชื่อ"
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"ข้อมูลปีเก่า\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสนักเรียนหรือชื่อ"
+     },
+     "value": "001"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ค้นหา",
+      "exact": true
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     },
+     "wait_after": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     },
+     "say": "พิมพ์รหัสนักเรียน \"001\" แล้วกดปุ่ม \"ค้นหา\" ผลค้นแสดงชุดข้อมูลปีเก่าที่มีนักเรียนคนนี้ พร้อมจำนวนรายการ",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "เปิดดู",
+      "within": {
+       "css": "article.con-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.con-group h2",
+      "has_text": "ผลการเรียน"
+     },
+     "say": "กดปุ่ม \"เปิดดู\" หน้าประวัติรายคนแยกเป็นหัวข้อตามชนิดข้อมูล",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "visible": {
+        "css": "section.con-group h2",
+        "has_text": "ผลการเรียน"
+       }
+      },
+      {
+       "text": "สรุปเวลาเรียน"
+      },
+      {
+       "text": "ภาษาไทย (สมมติ)"
+      },
+      {
+       "text": "คณิตศาสตร์ (สมมติ)"
+      }
+     ],
+     "crop": "viewport",
+     "highlight": {
+      "css": "section.con-group",
+      "has_text": "ผลการเรียน"
+     },
+     "say": "หัวข้อ \"ผลการเรียน\" แสดงวิชา คะแนน และเกรดของแต่ละภาคเรียน ส่วน \"สรุปเวลาเรียน\" แสดงวันมา ขาด ลา ข้อมูลเป็นแบบอ่านอย่างเดียว",
+     "shot": true
+    }
+   ],
+   "expected": "หน้าประวัติแสดงผลการเรียน 2 วิชาและสรุปเวลาเรียนของนักเรียนรหัส 001",
+   "verify": [
+    {
+     "title": "หน้าประวัติมีทั้งสองหัวข้อ",
+     "steps": [
+      {
+       "do": "expect",
+       "that": [
+        {
+         "visible": {
+          "css": "section.con-group h2",
+          "has_text": "ผลการเรียน"
+         }
+        },
+        {
+         "visible": {
+          "css": "section.con-group h2",
+          "has_text": "สรุปเวลาเรียน"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lock-archive",
+   "title": "ล็อกชุดข้อมูลไม่ให้ลบหรือนำเข้าเพิ่ม",
+   "role": "admin",
+   "start": "/work#archives/manage",
+   "depends_on": [
+    "import-csv-file"
+   ],
+   "intro": "ชุดข้อมูลที่ล็อกแล้วลบและนำเข้าไฟล์เพิ่มไม่ได้ ใช้กับข้อมูลที่ต้องเก็บไว้ถาวร ปลดล็อกได้เมื่อจำเป็น (ผู้ดูแลระบบเท่านั้นที่ปลดล็อกชุดที่ล็อกแล้ว)",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ล็อกไม่ให้ลบ",
+      "within": {
+       "css": "article.con-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     },
+     "expect_response": {
+      "url_contains": "/api/connectors/archives/",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "css": "span.con-badge",
+      "within": {
+       "css": "article.con-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "say": "กดปุ่ม \"ล็อกไม่ให้ลบ\" ในชุดข้อมูล ป้าย \"ล็อก\" ปรากฏที่ชื่อชุด และแบบฟอร์มนำเข้าไฟล์ในชุดนั้นหายไป",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปลดล็อก",
+      "within": {
+       "css": "article.con-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     },
+     "expect_response": {
+      "url_contains": "/api/connectors/archives/",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "ลบชุดข้อมูล",
+      "within": {
+       "css": "article.con-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "say": "กดปุ่ม \"ปลดล็อก\" เมื่อต้องการลบหรือนำเข้าเพิ่ม ป้าย \"ล็อก\" หายไป",
+     "shot": true
+    }
+   ],
+   "expected": "ชุดข้อมูลกลับมาเป็นชุดที่ลบได้ มีปุ่ม \"ลบชุดข้อมูล\" และ \"ล็อกไม่ให้ลบ\"",
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ ชุดข้อมูลต้องไม่ถูกล็อก",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.con-card",
+        "has_text": "{{marker}}"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "visible": {
+         "role": "button",
+         "name": "ล็อกไม่ให้ลบ",
+         "within": {
+          "css": "article.con-card",
+          "has_text": "{{marker}}"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "teacher-searches-archives",
+   "title": "ครูค้นข้อมูลปีเก่าของนักเรียนประจำชั้นตนเอง",
+   "role": "homeroom",
+   "start": "/work",
+   "intro": "เมื่อผู้ดูแลระบบอนุญาต ครูเห็นเมนู \"ข้อมูลปีเก่า\" และค้นได้เฉพาะนักเรียนประจำชั้นของตน ครูไม่เห็นแท็บ \"จัดการชุดข้อมูล\" และ \"แปลงไฟล์เข้าทะเบียน\" ระบบบันทึกว่าใครค้นอะไร ในระบบทดลองนี้ผู้ดูแลระบบอนุญาตไว้แล้ว",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ข้อมูลปีเก่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.con"
+     },
+     "say": "เลือกเมนู \"ข้อมูลปีเก่า\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "crop": "panel",
+     "highlight": {
+      "css": "form#con-search"
+     },
+     "that": [
+      {
+       "visible": {
+        "label": "รหัสนักเรียนหรือชื่อ"
+       }
+      },
+      {
+       "hidden": {
+        "role": "link",
+        "name": "จัดการชุดข้อมูล"
+       }
+      }
+     ],
+     "say": "ครูเห็นหน้า \"ข้อมูลปีเก่า\" มีช่อง \"รหัสนักเรียนหรือชื่อ\" และมีแท็บ \"ค้นหา\" เพียงแท็บเดียว",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสนักเรียนหรือชื่อ"
+     },
+     "value": "00",
+     "crop": "panel",
+     "say": "พิมพ์รหัสหรือชื่อนักเรียนในช่อง \"รหัสนักเรียนหรือชื่อ\" แล้วกดปุ่ม \"ค้นหา\" ครูเห็นเฉพาะผลของนักเรียนที่ตนเป็นครูประจำชั้น",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ค้นหา",
+      "exact": true
+     },
+     "wait_after": {
+      "id": "con-count"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "visible": {
+       "id": "con-count"
+      }
+     }
+    }
+   ],
+   "expected": "ผลค้นแสดงจำนวนที่พบ หรือ \"ไม่พบข้อมูล\" ถ้านักเรียนในห้องของครูไม่มีข้อมูลปีเก่า",
+   "verify": [
+    {
+     "title": "ครูเห็นผลการค้นและไม่มีแท็บจัดการ",
+     "steps": [
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "id": "con-count"
+       },
+       "that": {
+        "hidden": {
+         "role": "link",
+         "name": "แปลงไฟล์เข้าทะเบียน"
+        }
+       },
+       "say": "ผลการค้นของครูแสดงจำนวนที่พบ ไม่แสดงข้อมูลของนักเรียนห้องอื่น",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "teacher-sees-only-own-homeroom",
+   "title": "ครูประจำชั้นค้นข้อมูลปีเก่าได้เฉพาะนักเรียนในห้องของตน",
+   "role": "homeroom",
+   "start": "/work",
+   "depends_on": [
+    "import-teacher-scope-file"
+   ],
+   "intro": "เมื่อผู้ดูแลระบบเปิดให้ครูค้นข้อมูลปีเก่า ครูประจำชั้นเห็นเฉพาะนักเรียนที่ตอนนี้อยู่ในห้องที่ตนเป็นครูประจำชั้น และไม่เห็นหน้าจัดการ ผู้อำนวยการและผู้ดูแลระบบเห็นทุกคน",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ข้อมูลปีเก่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "ข้อมูลปีเก่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "label": "รหัสนักเรียนหรือชื่อ"
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"ข้อมูลปีเก่า\" (ครูเห็นเฉพาะหน้าค้นหา)",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสนักเรียนหรือชื่อ"
+     },
+     "value": "69002"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ค้นหา",
+      "exact": true
+     },
+     "crop": "panel",
+     "highlight": {
+      "id": "con-results"
+     },
+     "wait_after": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     },
+     "say": "พิมพ์รหัสของนักเรียนห้องที่ตนเป็นครูประจำชั้น (ในที่นี้ \"69002\") แล้วกดปุ่ม \"ค้นหา\" ระบบแสดงข้อมูลปีเก่าของนักเรียนคนนี้",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสนักเรียนหรือชื่อ"
+     },
+     "value": "64001"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ค้นหา",
+      "exact": true
+     },
+     "crop": "panel",
+     "highlight": {
+      "id": "con-count"
+     },
+     "wait_after": {
+      "css": "#con-count",
+      "has_text": "ไม่พบข้อมูล"
+     },
+     "say": "พิมพ์รหัสของนักเรียนห้องอื่น (ในที่นี้ \"64001\") ระบบตอบ \"ไม่พบข้อมูล\" แม้ชุดข้อมูลมีรหัสนี้อยู่ เพราะครูเห็นเฉพาะนักเรียนประจำชั้นของตน",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ไม่พบข้อมูล",
+      "in": {
+       "id": "con-count"
+      }
+     }
+    }
+   ],
+   "expected": "รหัสของนักเรียนในห้องตนพบข้อมูล ส่วนรหัสของนักเรียนห้องอื่นขึ้น \"ไม่พบข้อมูล\"",
+   "verify": [
+    {
+     "title": "ผลค้นของนักเรียนห้องอื่นว่าง",
+     "steps": [
+      {
+       "do": "expect",
+       "that": [
+        {
+         "hidden": {
+          "css": "article.con-card",
+          "has_text": "{{marker}}"
+         }
+        },
+        {
+         "text": "ไม่พบข้อมูล",
+         "in": {
+          "id": "con-count"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "turn-off-teacher-lookup",
+   "title": "ปิดสิทธิ์ให้ครูค้นข้อมูลปีเก่า",
+   "role": "admin",
+   "start": "/work#archives/manage",
+   "depends_on": [
+    "teacher-searches-archives"
+   ],
+   "intro": "ผู้ดูแลระบบเปิดหรือปิดสิทธิ์ให้ครูค้นข้อมูลปีเก่าด้วยช่องติ๊กเดียวที่หน้า \"จัดการชุดข้อมูล\" เมื่อปิด ครูที่เปิดหน้านี้เห็นข้อความแจ้งแทนช่องค้นหา",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "id": "con-teacher"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "checked": {
+       "id": "con-teacher"
+      }
+     }
+    },
+    {
+     "do": "uncheck",
+     "target": {
+      "id": "con-teacher"
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": "label.con-check"
+     },
+     "expect_response": {
+      "url_contains": "/api/connectors/settings",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "เอาเครื่องหมายถูกออกจากช่อง \"ให้ครูค้นข้อมูลปีเก่าของนักเรียนประจำชั้นตนเอง\" ระบบแสดงข้อความ \"บันทึกการตั้งค่าแล้ว\"",
+     "shot": true
+    }
+   ],
+   "expected": "ช่องติ๊กว่าง และครูเปิดหน้า \"ข้อมูลปีเก่า\" แล้วเห็นข้อความแจ้งว่ายังไม่เปิดให้ค้น",
+   "verify": [
+    {
+     "title": "ครูประจำชั้นเปิดหน้าแล้วเห็นข้อความแจ้งแทนช่องค้นหา",
+     "as": "homeroom",
+     "start": "/work#archives",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "section.con"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "viewport",
+       "highlight": {
+        "css": "section.con"
+       },
+       "that": [
+        {
+         "text": "ยังไม่เปิดให้ครูค้นข้อมูลปีเก่า"
+        },
+        {
+         "hidden": {
+          "label": "รหัสนักเรียนหรือชื่อ"
+         }
+        }
+       ],
+       "say": "ครูเปิดหน้า \"ข้อมูลปีเก่า\" แล้วเห็นข้อความ \"ยังไม่เปิดให้ครูค้นข้อมูลปีเก่า โปรดติดต่อผู้ดูแลระบบ\" แทนช่องค้นหา",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restore-teacher-lookup",
+   "title": "เปิดสิทธิ์ให้ครูค้นข้อมูลปีเก่าอีกครั้ง (คืนค่าเดิม)",
+   "role": "admin",
+   "start": "/work#archives/manage",
+   "cleanup": true,
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "id": "con-teacher"
+     }
+    },
+    {
+     "do": "check",
+     "target": {
+      "id": "con-teacher"
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": "label.con-check"
+     },
+     "expect_response": {
+      "url_contains": "/api/connectors/settings",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "ติ๊กช่อง \"ให้ครูค้นข้อมูลปีเก่าของนักเรียนประจำชั้นตนเอง\" เพื่อเปิดสิทธิ์อีกครั้ง",
+     "shot": true
+    }
+   ],
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ ช่องติ๊กต้องมีเครื่องหมายถูก",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "id": "con-teacher"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "checked": {
+         "id": "con-teacher"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "delete-archive",
+   "title": "ลบชุดข้อมูลปีเก่าที่ไม่ใช้",
+   "role": "admin",
+   "start": "/work#archives/manage",
+   "cleanup": true,
+   "intro": "การลบนำข้อมูลปีเก่าออกถาวรและย้อนกลับไม่ได้ ระบบให้พิมพ์ข้อความยืนยัน \"ลบ\" ตามด้วยชื่อชุดข้อมูลให้ตรงทุกตัวอักษร ก่อนปุ่ม \"ลบถาวร\" จึงจะกดได้ ชุดที่ล็อกไว้ต้องปลดล็อกก่อน",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบชุดข้อมูล",
+      "within": {
+       "css": "article.con-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     },
+     "wait_after": {
+      "css": "input[data-delinput]",
+      "within": {
+       "css": "article.con-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "say": "กดปุ่ม \"ลบชุดข้อมูล\" ในชุดที่ต้องการลบ ระบบแสดงข้อความเตือนและช่องพิมพ์ยืนยัน",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ข้อความยืนยัน",
+      "within": {
+       "css": "article.con-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "value": "ลบ {{marker}} ปีการศึกษา 2560",
+     "crop": "panel",
+     "highlight": {
+      "css": "article.con-card",
+      "has_text": "{{marker}}"
+     },
+     "say": "พิมพ์ข้อความยืนยันให้ตรงกับที่แสดง คือคำว่า \"ลบ\" เว้นวรรค แล้วตามด้วยชื่อชุดข้อมูล ปุ่ม \"ลบถาวร\" จึงกดได้",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบถาวร",
+      "within": {
+       "css": "article.con-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/connectors/archives/",
+      "method": "DELETE",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"ลบถาวร\" ระบบแสดงข้อความ \"ลบชุดข้อมูลแล้ว\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "hidden": {
+       "css": "article.con-card",
+       "has_text": "{{marker}}"
+      }
+     }
+    }
+   ],
+   "expected": "ชุดข้อมูลไม่อยู่ในรายการอีก และค้นรหัสนักเรียนของชุดนั้นไม่พบ",
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ ชุดข้อมูลต้องไม่อยู่ในรายการ",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "id": "con-new"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "that": {
+        "hidden": {
+         "css": "article.con-card",
+         "has_text": "{{marker}}"
+        }
+       },
+       "say": "เปิดแท็บ \"จัดการชุดข้อมูล\" ใหม่ ชุดข้อมูลที่ลบไม่อยู่ในรายการ",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "skeleton": [],
+ "untested": [
+  "การย้อนกลับของชุดนำเข้าตรวจในกรณีที่ยังไม่มีการแก้ไขนักเรียน กรณีที่ย้อนกลับไม่ได้เพราะนักเรียนถูกแก้ไขแล้ว (หน้าจอบอกเหตุผลรายแถว) เป็นงานของโมดูลทะเบียนนักเรียน",
+  "ชนิดข้อมูล \"อื่น ๆ\" และไฟล์ .xlsx ไม่ได้ทดสอบ ตรวจเฉพาะไฟล์ CSV ที่เข้ารหัส UTF-8 และ Windows-874",
+  "การค้นของครูตรวจกับนักเรียนห้อง ม.1/1 (พบ) และ ม.6/1 (ไม่พบ) เท่านั้น"
+ ]
+}

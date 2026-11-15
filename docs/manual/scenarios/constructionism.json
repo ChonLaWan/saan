@@ -1,0 +1,1787 @@
+{
+  "module": "constructionism",
+  "title": "โครงงาน Constructionism",
+  "area": "งานวิชาการและงานนักเรียน",
+  "purpose": "สำหรับโรงเรียนที่ใช้การเรียนรู้โดยการสร้างชิ้นงาน ครูเป็นผู้บันทึกข้อมูลโครงงานของนักเรียน นักเรียนไม่ต้องมีบัญชี ครูสร้างทีมโครงงานของห้อง ตั้งคำถามนำ เพิ่มสมาชิกและบทบาท เขียนสมุดบันทึกความก้าวหน้า แนบชิ้นงานเป็นไฟล์ส่วนตัวหรือลิงก์ https บันทึกการสะท้อนคิดของนักเรียนพร้อมให้คะแนนตามเกณฑ์รูบริก 4 ระดับ และพิมพ์ใบสรุปโครงงาน ผู้ดูแลระบบและผู้อำนวยการแก้เกณฑ์รูบริกของโรงเรียนได้",
+  "roles": [
+    "ครู (สร้างและบันทึกโครงงานของห้องที่ตนมีสิทธิ์ ครูที่ปรึกษาและผู้สร้างลบโครงงานได้)",
+    "ผู้ดูแลระบบและผู้อำนวยการ (ทำได้ทุกห้อง และแก้เกณฑ์รูบริก)"
+  ],
+  "menu": [
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"โครงงาน Constructionism\" (/work#pbl)",
+    "ผู้ดูแลระบบและผู้อำนวยการ: ลิงก์ \"แก้เกณฑ์รูบริกของโรงเรียน\" ที่ด้านบนของหน้าโครงงาน (/work#pbl/rubric)"
+  ],
+  "prerequisites": [
+    {
+      "module": "academic",
+      "text": "ต้องตั้งค่าภาคเรียนปัจจุบันและห้องเรียน โครงงานของภาคเรียนที่ผ่านมาดูได้อย่างเดียว"
+    },
+    {
+      "module": "registry",
+      "text": "ต้องมีรายชื่อนักเรียนอยู่ในห้อง จึงเพิ่มเป็นสมาชิกทีมได้"
+    }
+  ],
+  "vars": {
+    "ptitle": "{{marker}} โครงงานน้ำใสใจสะอาด",
+    "ptitle2": "{{marker}} โครงงานน้ำใสใจสะอาด (ปรับปรุง)",
+    "dq": "นักเรียนจะช่วยกันทำให้น้ำดื่มในโรงเรียนสะอาดได้อย่างไร",
+    "log1": "{{marker}} ทีมออกแบบเครื่องกรองน้ำจากถ่านและทราย ทดลองครั้งแรกน้ำยังขุ่น",
+    "log2": "{{marker}} ทีมปรับชั้นกรองใหม่ ครั้งที่สองน้ำใสขึ้น",
+    "art_title": "{{marker}} ภาพถ่ายเครื่องกรองน้ำ",
+    "art_url": "https://www.example.com/pbl-{{run_id}}",
+    "refl": "{{marker}} ผมเรียนรู้ว่าต้องทดลองซ้ำและบันทึกผลทุกครั้ง"
+  },
+  "workflows": [
+    {
+      "id": "create-project",
+      "title": "ครูสร้างโครงงานของห้องพร้อมคำถามนำ",
+      "intro": "คำถามนำ (Driving question) คือคำถามปลายเปิดที่ทีมจะหาคำตอบด้วยการลงมือสร้างชิ้นงาน ครูเลือกห้องเรียนได้เฉพาะห้องที่ตนมีสิทธิ์ ช่อง \"ครูที่ปรึกษา\" ระบบเลือกครูที่เข้าสู่ระบบให้ก่อน หลังสร้างแล้ว ระบบเปิดหน้าโครงงานให้เพิ่มสมาชิกต่อ",
+      "role": "homeroom",
+      "start": "/work",
+      "core": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "โครงงาน Constructionism",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"โครงงาน Constructionism\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "form[data-role=create]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อโครงงาน",
+            "within": {
+              "css": "form[data-role=create]"
+            }
+          },
+          "value": "{{ptitle}}",
+          "say": "พิมพ์ชื่อโครงงานในช่อง \"ชื่อโครงงาน\" ในหัวข้อ \"สร้างโครงงานใหม่\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ชื่อโครงงาน",
+            "within": {
+              "css": "form[data-role=create]"
+            }
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "form[data-role=create]"
+            }
+          },
+          "label": "ม.1/1",
+          "say": "เลือกห้องเรียนในช่อง \"ห้องเรียน\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "form[data-role=create]"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "คำถามนำ",
+            "within": {
+              "css": "form[data-role=create]"
+            }
+          },
+          "value": "{{dq}}",
+          "say": "พิมพ์คำถามนำในช่อง \"คำถามนำ (Driving question)\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "คำถามนำ",
+            "within": {
+              "css": "form[data-role=create]"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างโครงงาน"
+          },
+          "say": "กดปุ่ม \"สร้างโครงงาน\" ระบบเปิดหน้าโครงงานที่เพิ่งสร้าง ซึ่งมีหัวข้อ \"ข้อมูลโครงงาน\" \"สมาชิกทีม\" \"สมุดบันทึกความก้าวหน้า\" \"ชิ้นงาน\" และ \"การสะท้อนคิดและรูบริก\"",
+          "shot": true,
+          "crop": "viewport",
+          "expect_response": {
+            "url_contains": "/api/pbl/projects",
+            "method": "POST"
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "ข้อมูลโครงงาน"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "{{ptitle}}",
+            "of": {
+              "label": "ชื่อโครงงาน",
+              "within": {
+                "css": "form[data-role=project]"
+              }
+            }
+          }
+        }
+      ],
+      "expected": "หน้าโครงงานแสดงชื่อและคำถามนำที่กรอก สถานะ \"วางแผน\" และยังไม่มีสมาชิก บันทึก หรือชิ้นงาน",
+      "verify": [
+        {
+          "title": "รายการโครงงานของห้องมีโครงงานใหม่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#pbl",
+              "wait_after": {
+                "css": "form[data-role=create]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "link",
+                  "name": "{{ptitle}}"
+                }
+              },
+              "say": "กลับไปหน้ารายการโครงงาน โครงงานใหม่อยู่ในรายการพร้อมห้อง สถานะ จำนวนสมาชิก บันทึก และชิ้นงาน",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "li.pbl-item",
+                "has_text": "{{ptitle}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "update-project",
+      "title": "ครูแก้ชื่อโครงงานและเปลี่ยนสถานะ",
+      "intro": "สถานะมี 4 ค่า คือ วางแผน กำลังทำ นำเสนอ และเสร็จสิ้น โครงงานของภาคเรียนที่ผ่านมาเปลี่ยนแปลงไม่ได้ ดูได้อย่างเดียว",
+      "role": "homeroom",
+      "start": "/work#pbl",
+      "depends_on": [
+        "create-project"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{ptitle}}"
+          },
+          "say": "ที่หน้ารายการโครงงาน กดชื่อโครงงานที่ต้องการ",
+          "shot": true,
+          "crop": "tight",
+          "wait_after": {
+            "role": "heading",
+            "name": "ข้อมูลโครงงาน"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อโครงงาน",
+            "within": {
+              "css": "form[data-role=project]"
+            }
+          },
+          "value": "{{ptitle2}}",
+          "say": "แก้ชื่อในช่อง \"ชื่อโครงงาน\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ชื่อโครงงาน",
+            "within": {
+              "css": "form[data-role=project]"
+            }
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "สถานะ",
+            "within": {
+              "css": "form[data-role=project]"
+            }
+          },
+          "value": "active",
+          "say": "เลือก \"กำลังทำ\" ในช่อง \"สถานะ\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "สถานะ",
+            "within": {
+              "css": "form[data-role=project]"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-role=project]"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".pbl-msg .pbl-note"
+          },
+          "expect_response": {
+            "url_contains": "/api/pbl/projects/",
+            "method": "PUT"
+          },
+          "wait_after": {
+            "css": ".pbl-msg .pbl-note"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "บันทึกแล้ว",
+            "in": {
+              "css": ".pbl-msg"
+            }
+          }
+        }
+      ],
+      "expected": "ระบบแจ้งว่าบันทึกแล้ว และชื่อกับสถานะใหม่แสดงในหน้าโครงงานและในรายการโครงงาน",
+      "verify": [
+        {
+          "title": "เปิดรายการโครงงานใหม่ ชื่อใหม่และสถานะ \"กำลังทำ\" ต้องอยู่ในรายการ",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#pbl",
+              "wait_after": {
+                "css": "form[data-role=create]"
+              }
+            },
+            {
+              "do": "reload"
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "link",
+                    "name": "{{ptitle2}}"
+                  }
+                },
+                {
+                  "text": "กำลังทำ",
+                  "in": {
+                    "css": "li.pbl-item",
+                    "has_text": "{{ptitle2}}"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "add-members",
+      "title": "ครูเพิ่มสมาชิกทีมและกำหนดบทบาท",
+      "intro": "รายการนักเรียนที่เพิ่มได้คือนักเรียนของห้องของโครงงานที่ยังไม่เป็นสมาชิก บทบาทเป็นข้อความอิสระ เช่น หัวหน้าทีม ผู้บันทึก ผู้ทดลอง ครูแก้บทบาทภายหลังได้ และนำสมาชิกออกได้",
+      "role": "homeroom",
+      "start": "/work#pbl",
+      "depends_on": [
+        "update-project"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{ptitle2}}"
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "สมาชิกทีม"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "form[data-role=member-add] option",
+            "has_text": "69007",
+            "include_hidden": true
+          },
+          "var": "sid7",
+          "from_attr": "value"
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "form[data-role=member-add] option",
+            "has_text": "69008",
+            "include_hidden": true
+          },
+          "var": "sid8",
+          "from_attr": "value"
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "เพิ่มนักเรียน",
+            "within": {
+              "css": "form[data-role=member-add]"
+            }
+          },
+          "value": "{{sid7}}",
+          "say": "เลือกนักเรียนในช่อง \"เพิ่มนักเรียน\" ของหัวข้อ \"สมาชิกทีม\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "เพิ่มนักเรียน",
+            "within": {
+              "css": "form[data-role=member-add]"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "บทบาท",
+            "within": {
+              "css": "form[data-role=member-add]"
+            }
+          },
+          "value": "หัวหน้าทีม",
+          "say": "พิมพ์บทบาทในช่อง \"บทบาท\"",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "label": "บทบาท",
+            "within": {
+              "css": "form[data-role=member-add]"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มสมาชิก"
+          },
+          "say": "กดปุ่ม \"เพิ่มสมาชิก\" ระบบแสดงข้อความ \"บันทึกแล้ว\" และชื่อนักเรียนอยู่ในรายการสมาชิก",
+          "shot": true,
+          "crop": "viewport",
+          "expect_response": {
+            "url_contains": "/members",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": ".pbl-msg .pbl-note"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "เพิ่มนักเรียน",
+            "within": {
+              "css": "form[data-role=member-add]"
+            }
+          },
+          "value": "{{sid8}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "บทบาท",
+            "within": {
+              "css": "form[data-role=member-add]"
+            }
+          },
+          "value": "ผู้บันทึก"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มสมาชิก"
+          },
+          "wait_after": {
+            "css": ".pbl-msg .pbl-note"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "input[data-role=member-role]",
+            "first": true
+          },
+          "value": "หัวหน้าทีมและผู้นำเสนอ",
+          "say": "แก้บทบาทในช่อง \"บทบาท\" ข้างชื่อสมาชิก แล้วกดปุ่ม \"บันทึกบทบาท\"",
+          "shot": true,
+          "crop": "tight"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกบทบาท",
+            "first": true
+          },
+          "wait_after": {
+            "css": ".pbl-msg .pbl-note"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 2,
+            "of": {
+              "css": "input[data-role=member-role]"
+            }
+          }
+        }
+      ],
+      "expected": "รายการสมาชิกแสดงนักเรียน 2 คนพร้อมบทบาท และจำนวนสมาชิกในหัวข้อเพิ่มขึ้น",
+      "verify": [
+        {
+          "title": "เปิดหน้าโครงงานใหม่ สมาชิก 2 คนและบทบาทที่แก้ต้องอยู่",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "role": "heading",
+                "name": "สมาชิกทีม (2)"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "value": "หัวหน้าทีมและผู้นำเสนอ",
+                "of": {
+                  "css": "input[data-role=member-role]",
+                  "first": true
+                }
+              },
+              "say": "เปิดหน้าโครงงานใหม่ หัวข้อ \"สมาชิกทีม (2)\" แสดงนักเรียน 2 คนพร้อมบทบาทที่บันทึก",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "role": "heading",
+                "name": "สมาชิกทีม (2)"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "write-progress-log",
+      "title": "ครูเขียนสมุดบันทึกความก้าวหน้า",
+      "intro": "ครูบันทึกสิ่งที่สังเกตเห็นหรือที่นักเรียนเล่าให้ฟัง โดยเลือกผู้บันทึกในช่อง \"ผู้บันทึก\" ระบบเก็บชื่อครูและวันที่ ครูแก้หรือลบบันทึกได้ รายการเรียงจากใหม่ไปเก่า วันที่บันทึกเลือกได้ไม่เกินวันนี้",
+      "role": "homeroom",
+      "start": "/work#pbl",
+      "depends_on": [
+        "add-members"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{ptitle2}}"
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "สมุดบันทึกความก้าวหน้า"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "entry"
+            },
+            "within": {
+              "css": "form[data-role=log-add]"
+            }
+          },
+          "value": "{{log1}}",
+          "say": "พิมพ์สิ่งที่สังเกตเห็นในช่อง \"บันทึก\" ของหัวข้อ \"สมุดบันทึกความก้าวหน้า\" วันที่และผู้บันทึกตั้งไว้ให้ก่อน",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "attr": {
+              "name": "entry"
+            },
+            "within": {
+              "css": "form[data-role=log-add]"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มบันทึก"
+          },
+          "say": "กดปุ่ม \"เพิ่มบันทึก\" ระบบแสดงข้อความ \"บันทึกแล้ว\" และบันทึกอยู่ในรายการด้านล่าง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "li.pbl-item",
+            "has_text": "{{log1}}"
+          },
+          "expect_response": {
+            "url_contains": "/logs",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": "li.pbl-item",
+            "has_text": "{{log1}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "entry"
+            },
+            "within": {
+              "css": "form[data-role=log-add]"
+            }
+          },
+          "value": "{{log2}}"
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ผู้บันทึก",
+            "within": {
+              "css": "form[data-role=log-add]"
+            }
+          },
+          "value": "0",
+          "say": "เพิ่มบันทึกถัดไปได้ เลือก \"บันทึกจากคำบอกเล่าของนักเรียน\" ในช่อง \"ผู้บันทึก\" เมื่อข้อมูลมาจากที่นักเรียนเล่า",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ผู้บันทึก",
+            "within": {
+              "css": "form[data-role=log-add]"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มบันทึก"
+          },
+          "wait_after": {
+            "css": "li.pbl-item",
+            "has_text": "{{log2}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "แก้ไข",
+            "within": {
+              "css": "li.pbl-item",
+              "has_text": "{{log1}}"
+            }
+          },
+          "say": "กดปุ่ม \"แก้ไข\" ท้ายบันทึก ข้อความเดิมขึ้นในช่อง \"บันทึก\" ให้แก้แล้วกดปุ่ม \"บันทึกการแก้ไข\"",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "button",
+            "name": "บันทึกการแก้ไข"
+          },
+          "wait_after": {
+            "role": "button",
+            "name": "บันทึกการแก้ไข"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "entry"
+            },
+            "within": {
+              "css": "form[data-role=log-add]"
+            }
+          },
+          "value": "{{log1}} (แก้ไข)"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการแก้ไข"
+          },
+          "wait_after": {
+            "text": "(แก้ไข)"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 2,
+            "of": {
+              "css": "li.pbl-item",
+              "has_text": "{{marker}}"
+            }
+          }
+        }
+      ],
+      "expected": "สมุดบันทึกมี 2 รายการ เรียงจากใหม่ไปเก่า พร้อมวันที่ ผู้บันทึก และชื่อครู",
+      "verify": [
+        {
+          "title": "เปิดหน้าโครงงานใหม่ บันทึกทั้งสองต้องอยู่และมีบันทึกที่แก้ไข",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "role": "heading",
+                "name": "สมุดบันทึกความก้าวหน้า (2)"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "li.pbl-item",
+                    "has_text": "{{log1}} (แก้ไข)"
+                  }
+                },
+                {
+                  "visible": {
+                    "css": "li.pbl-item",
+                    "has_text": "{{log2}}"
+                  }
+                }
+              ],
+              "say": "เปิดหน้าโครงงานใหม่ หัวข้อ \"สมุดบันทึกความก้าวหน้า (2)\" แสดงบันทึกทั้งสอง รวมบันทึกที่แก้ไขแล้ว",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "role": "heading",
+                "name": "สมุดบันทึกความก้าวหน้า (2)"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "attach-artifacts",
+      "title": "ครูแนบชิ้นงานเป็นลิงก์และเป็นไฟล์",
+      "intro": "ชิ้นงานแนบได้สองแบบ คือลิงก์ที่ขึ้นต้นด้วย https:// หรือไฟล์ที่เก็บแบบส่วนตัว ไฟล์เปิดได้เฉพาะครูที่เข้าสู่ระบบ ไม่มีที่อยู่สาธารณะ แต่ละชิ้นงานต้องมีชื่อ ครูแก้ชื่อและชนิดได้ และลบชิ้นงานได้ (ไฟล์ถูกลบด้วย)",
+      "role": "homeroom",
+      "start": "/work#pbl",
+      "depends_on": [
+        "add-members"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{ptitle2}}"
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "ชิ้นงาน"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อชิ้นงาน",
+            "within": {
+              "css": "form[data-role=artifact-add]"
+            }
+          },
+          "value": "{{art_title}}",
+          "say": "พิมพ์ชื่อในช่อง \"ชื่อชิ้นงาน\" ของหัวข้อ \"ชิ้นงาน\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ชื่อชิ้นงาน",
+            "within": {
+              "css": "form[data-role=artifact-add]"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หรือลิงก์",
+            "within": {
+              "css": "form[data-role=artifact-add]"
+            }
+          },
+          "value": "{{art_url}}",
+          "say": "พิมพ์ลิงก์ที่ขึ้นต้นด้วย https:// ในช่อง \"หรือลิงก์ https://\" หรือเลือกไฟล์ในช่อง \"ไฟล์\" อย่างใดอย่างหนึ่ง",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "หรือลิงก์",
+            "within": {
+              "css": "form[data-role=artifact-add]"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มชิ้นงาน"
+          },
+          "say": "กดปุ่ม \"เพิ่มชิ้นงาน\" ระบบแสดงข้อความ \"บันทึกแล้ว\" และชิ้นงานอยู่ในรายการ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "li.pbl-item",
+            "has_text": "{{art_title}}"
+          },
+          "expect_response": {
+            "url_contains": "/artifacts",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": "li.pbl-item",
+            "has_text": "{{art_title}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อชิ้นงาน",
+            "within": {
+              "css": "form[data-role=artifact-add]"
+            }
+          },
+          "value": "{{marker}} ไฟล์รายงานผลการทดลอง"
+        },
+        {
+          "do": "upload",
+          "target": {
+            "css": "form[data-role=artifact-add] input[type=file]",
+            "include_hidden": true
+          },
+          "file": "sample.txt",
+          "say": "เลือกไฟล์ในช่อง \"ไฟล์\" แล้วกดปุ่ม \"เพิ่มชิ้นงาน\" ไฟล์เก็บแบบส่วนตัวและเปิดได้เฉพาะครู",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "form[data-role=artifact-add] input[type=file]",
+            "include_hidden": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มชิ้นงาน"
+          },
+          "expect_response": {
+            "url_contains": "/artifacts",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": "li.pbl-item",
+            "has_text": "ไฟล์รายงานผลการทดลอง"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "sample.txt",
+            "in": {
+              "css": "li.pbl-item",
+              "has_text": "ไฟล์รายงานผลการทดลอง"
+            }
+          },
+          "say": "ชิ้นงานที่เป็นไฟล์แสดงชื่อไฟล์และขนาด ครูกดชื่อไฟล์เพื่อดาวน์โหลด",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "css": "li.pbl-item",
+            "has_text": "ไฟล์รายงานผลการทดลอง"
+          }
+        }
+      ],
+      "expected": "ชิ้นงานทั้งสองอยู่ในรายการ ชิ้นแรกเป็นลิงก์ ชิ้นที่สองเป็นไฟล์พร้อมขนาด",
+      "verify": [
+        {
+          "title": "เปิดหน้าโครงงานใหม่ ชิ้นงานทั้งสองต้องอยู่ และดาวน์โหลดไฟล์ได้",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "role": "heading",
+                "name": "ชิ้นงาน (2)"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "li.pbl-item",
+                  "has_text": "{{art_title}}"
+                }
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "sample.txt"
+              },
+              "expect_download": {
+                "ext": ".txt",
+                "min_bytes": 1
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reflection-rubric",
+      "title": "ครูบันทึกการสะท้อนคิดและให้คะแนนตามรูบริก",
+      "intro": "รูบริกมี 4 ระดับ คือ ต้องพัฒนา พอใช้ ดี และดีเยี่ยม เกณฑ์แต่ละข้อโรงเรียนกำหนดเอง ครูเลือก \"ยังไม่ประเมิน\" ได้ในเกณฑ์ที่ยังไม่ให้คะแนน นักเรียนหนึ่งคนมีการสะท้อนคิดได้หนึ่งรายการต่อโครงงาน ต้องเพิ่มสมาชิกก่อนจึงเพิ่มการสะท้อนคิดได้",
+      "role": "homeroom",
+      "start": "/work#pbl",
+      "depends_on": [
+        "add-members"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{ptitle2}}"
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "เพิ่มการสะท้อนคิด"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "text"
+            },
+            "within": {
+              "css": "form[data-role=reflection][data-id=\"0\"]"
+            }
+          },
+          "value": "{{refl}}",
+          "say": "ในหัวข้อ \"เพิ่มการสะท้อนคิด\" เลือกนักเรียน แล้วพิมพ์สิ่งที่นักเรียนเรียนรู้ในช่อง \"การสะท้อนคิด\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "attr": {
+              "name": "text"
+            },
+            "within": {
+              "css": "form[data-role=reflection][data-id=\"0\"]"
+            }
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "select[name^=\"rubric:\"]",
+            "nth": 0,
+            "within": {
+              "css": "form[data-role=reflection][data-id=\"0\"]"
+            }
+          },
+          "value": "3"
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "select[name^=\"rubric:\"]",
+            "nth": 1,
+            "within": {
+              "css": "form[data-role=reflection][data-id=\"0\"]"
+            }
+          },
+          "value": "4",
+          "say": "เลือกระดับของแต่ละเกณฑ์ในรูบริก เช่น \"3 ดี\" หรือ \"4 ดีเยี่ยม\" เกณฑ์ที่ไม่เลือกถือว่า \"ยังไม่ประเมิน\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "select[name^=\"rubric:\"]",
+            "nth": 1,
+            "within": {
+              "css": "form[data-role=reflection][data-id=\"0\"]"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-role=reflection][data-id=\"0\"]"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกแล้ว\" และการสะท้อนคิดอยู่ในหัวข้อเดียวกัน",
+          "shot": true,
+          "crop": "viewport",
+          "expect_response": {
+            "url_contains": "/reflections",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": ".pbl-msg .pbl-note"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "form[data-role=reflection]",
+              "has_text": "{{refl}}",
+              "first": true
+            }
+          }
+        }
+      ],
+      "expected": "การสะท้อนคิดของนักเรียนอยู่ในหัวข้อ \"การสะท้อนคิดและรูบริก\" พร้อมระดับที่เลือก",
+      "verify": [
+        {
+          "title": "เปิดหน้าโครงงานใหม่ ข้อความสะท้อนคิดและระดับรูบริกต้องยังอยู่",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "role": "heading",
+                "name": "การสะท้อนคิดและรูบริก"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "value": "{{refl}}",
+                  "of": {
+                    "attr": {
+                      "name": "text"
+                    },
+                    "within": {
+                      "css": "form[data-role=reflection][data-id]:not([data-id=\"0\"])"
+                    }
+                  }
+                },
+                {
+                  "value": "4",
+                  "of": {
+                    "css": "select[name^=\"rubric:\"]",
+                    "nth": 1,
+                    "within": {
+                      "css": "form[data-role=reflection][data-id]:not([data-id=\"0\"])"
+                    }
+                  }
+                }
+              ],
+              "say": "เปิดหน้าโครงงานใหม่ การสะท้อนคิดและระดับของแต่ละเกณฑ์ที่บันทึกยังอยู่ ครูแก้ไขหรือกดปุ่ม \"ลบ\" ได้",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "form[data-role=reflection][data-id]:not([data-id=\"0\"])"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "print-summary",
+      "title": "พิมพ์ใบสรุปโครงงาน",
+      "intro": "ใบสรุปรวมข้อมูลโครงงาน สมาชิก บันทึกความก้าวหน้า ชิ้นงาน และผลรูบริก เปิดในแท็บใหม่ แล้วสั่งพิมพ์หรือบันทึกเป็นไฟล์ PDF ได้จากเบราว์เซอร์",
+      "role": "homeroom",
+      "start": "/work#pbl",
+      "depends_on": [
+        "reflection-rubric",
+        "write-progress-log",
+        "attach-artifacts"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{ptitle2}}"
+          },
+          "wait_after": {
+            "role": "link",
+            "name": "พิมพ์ใบสรุปโครงงาน"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "พิมพ์ใบสรุปโครงงาน"
+          },
+          "say": "ที่หน้าโครงงาน กดปุ่ม \"พิมพ์ใบสรุปโครงงาน\" ระบบเปิดใบสรุปในแท็บใหม่",
+          "shot": true,
+          "crop": "tight",
+          "expect_popup": {
+            "url_regex": "/pbl/projects/[0-9]+/print"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "{{ptitle2}}"
+          },
+          "say": "ใบสรุปแสดงชื่อโครงงาน คำถามนำ สมาชิก บันทึก ชิ้นงาน และผลรูบริก พร้อมสำหรับสั่งพิมพ์",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "close_tab"
+        }
+      ],
+      "expected": "ใบสรุปโครงงานเปิดในแท็บใหม่และมีข้อมูลครบทุกหัวข้อ",
+      "verify": [
+        {
+          "title": "ใบสรุปมีข้อมูลสมาชิกและบันทึกของโครงงาน",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "พิมพ์ใบสรุปโครงงาน"
+              },
+              "expect_popup": {
+                "url_regex": "/pbl/projects/[0-9]+/print"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "หัวหน้าทีมและผู้นำเสนอ"
+                },
+                {
+                  "text": "{{log2}}"
+                }
+              ]
+            },
+            {
+              "do": "close_tab"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-rubric",
+      "title": "ผู้ดูแลระบบแก้เกณฑ์รูบริกของโรงเรียน",
+      "intro": "เฉพาะผู้ดูแลระบบและผู้อำนวยการแก้เกณฑ์ได้ มีได้ 1 ถึง 10 เกณฑ์ ทุกเกณฑ์ให้คะแนน 4 ระดับ เกณฑ์ที่เคยมีการให้คะแนนแล้วลบไม่ได้ แต่เปลี่ยนชื่อได้ การแก้เกณฑ์มีผลกับทุกโครงงานของโรงเรียน ครูประจำชั้นไม่เห็นลิงก์แก้เกณฑ์",
+      "role": "admin",
+      "start": "/work#pbl",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "แก้เกณฑ์รูบริกของโรงเรียน"
+          },
+          "say": "ที่หน้ารายการโครงงาน กดลิงก์ \"แก้เกณฑ์รูบริกของโรงเรียน\" (แสดงเฉพาะผู้ดูแลระบบและผู้อำนวยการ)",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "เกณฑ์รูบริกของโรงเรียน"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 5,
+            "of": {
+              "css": "input[data-f=label]"
+            }
+          },
+          "comment": "precondition: the school uses the 5 default criteria, otherwise an earlier run left dirty data (run constructionism.restore-clean)"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มเกณฑ์"
+          },
+          "say": "กดปุ่ม \"เพิ่มเกณฑ์\" ระบบเพิ่มช่องเกณฑ์ใหม่ท้ายรายการ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เพิ่มเกณฑ์"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "input[data-f=label][data-i=\"5\"]"
+          },
+          "value": "{{marker}} เกณฑ์ทดสอบ",
+          "say": "พิมพ์ชื่อเกณฑ์ในช่อง \"ชื่อเกณฑ์\" ของช่องที่เพิ่ม ช่อง \"คำอธิบายระดับ 1-4\" ไม่บังคับ",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "css": "input[data-f=label][data-i=\"5\"]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกเกณฑ์"
+          },
+          "say": "กดปุ่ม \"บันทึกเกณฑ์\" ระบบแสดงข้อความ \"บันทึกเกณฑ์แล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".pbl-msg .pbl-note"
+          },
+          "expect_response": {
+            "url_contains": "/api/pbl/rubric",
+            "method": "PUT"
+          },
+          "wait_after": {
+            "css": ".pbl-msg .pbl-note"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "บันทึกเกณฑ์แล้ว",
+            "in": {
+              "css": ".pbl-msg"
+            }
+          }
+        }
+      ],
+      "expected": "รายการเกณฑ์มีเกณฑ์ใหม่ และโครงงานทุกโครงงานของโรงเรียนมีเกณฑ์นี้ในส่วนการสะท้อนคิด",
+      "verify": [
+        {
+          "title": "เปิดหน้าแก้เกณฑ์ใหม่ เกณฑ์ที่เพิ่มต้องยังอยู่",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "role": "heading",
+                "name": "เกณฑ์รูบริกของโรงเรียน"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "value": "{{marker}} เกณฑ์ทดสอบ",
+                "of": {
+                  "css": "input[data-f=label][data-i=\"5\"]"
+                }
+              },
+              "say": "เปิดหน้าแก้เกณฑ์ใหม่ เกณฑ์ที่เพิ่มอยู่ท้ายรายการ",
+              "shot": true,
+              "crop": "tight",
+              "highlight": {
+                "css": "input[data-f=label][data-i=\"5\"]"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "remove-member-and-entries",
+      "title": "ครูนำสมาชิกออก ลบชิ้นงานและการสะท้อนคิด และแก้ชื่อชิ้นงาน",
+      "role": "homeroom",
+      "start": "/work#pbl",
+      "depends_on": [
+        "add-members",
+        "attach-artifacts",
+        "reflection-rubric"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{ptitle2}}"
+          },
+          "say": "ที่หน้ารายการโครงงาน กดชื่อโครงงานที่ต้องการแก้สมาชิกและชิ้นงาน",
+          "shot": true,
+          "crop": "tight",
+          "wait_after": {
+            "role": "heading",
+            "name": "สมาชิกทีม"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "นำออก",
+            "within": {
+              "css": "li",
+              "has_text": "ชลธาร"
+            }
+          },
+          "say": "กดปุ่ม \"นำออก\" ท้ายชื่อสมาชิกที่ไม่ต้องอยู่ในทีม แล้วกดตกลงในกล่องยืนยัน ระบบนำสมาชิกออกจากทีม",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "li",
+            "has_text": "ชลธาร"
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "สมาชิกทีม (1)"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "li",
+              "has_text": "{{art_title}}"
+            }
+          },
+          "say": "กดปุ่ม \"ลบ\" ท้ายชิ้นงาน แล้วกดตกลงในกล่องยืนยัน ระบบลบชิ้นงานออกจากรายการ",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "li",
+            "has_text": "{{art_title}}"
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "ชิ้นงาน (1)"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "แก้ไข",
+            "exact": true,
+            "within": {
+              "css": "li",
+              "has_text": "ไฟล์รายงานผลการทดลอง"
+            }
+          },
+          "say": "กดปุ่ม \"แก้ไข\" ท้ายชิ้นงานที่เป็นไฟล์ ชื่อชิ้นงานขึ้นในช่อง \"ชื่อชิ้นงาน\" ให้แก้ชื่อ",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "form[data-role=artifact-add] [name=title]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "form[data-role=artifact-add] [name=title]"
+          },
+          "value": "{{marker}} ไฟล์รายงาน (แก้ไข)",
+          "say": "แก้ชื่อชิ้นงานเป็น \"ไฟล์รายงาน (แก้ไข)\""
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "form[data-role=artifact-add] button[type=submit]",
+            "first": true
+          },
+          "say": "กดปุ่มบันทึกของชิ้นงาน ระบบแสดงชื่อใหม่ในรายการชิ้นงาน",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "li",
+            "has_text": "(แก้ไข)"
+          },
+          "expect_response": {
+            "url_contains": "/artifacts/",
+            "method": "PUT"
+          },
+          "wait_after": {
+            "css": "li",
+            "has_text": "(แก้ไข)"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "form[data-role=reflection]:not([data-id=\"0\"])"
+            }
+          },
+          "say": "ในหัวข้อ \"การสะท้อนคิดและรูบริก\" กดปุ่ม \"ลบ\" ท้ายการสะท้อนคิดที่ไม่ต้องการ แล้วกดตกลงในกล่องยืนยัน",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "form[data-role=reflection]:not([data-id=\"0\"])",
+            "first": true
+          }
+        }
+      ],
+      "expected": "สมาชิกที่นำออกหายจากทีม ชิ้นงานที่ลบหายจากรายการ ชื่อชิ้นงานที่แก้แสดงใหม่ และการสะท้อนคิดที่ลบแล้วไม่อยู่ในหน้า",
+      "verify": [
+        {
+          "title": "เปิดโครงงานใหม่ สมาชิก ชิ้นงาน และการสะท้อนคิดถูกลบตามที่แก้ไข",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#pbl",
+              "wait_after": {
+                "css": "form[data-role=create]"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{ptitle2}}"
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "สมาชิกทีม"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "สมาชิกทีม (1)"
+                },
+                {
+                  "hidden": {
+                    "text": "ชลธาร"
+                  }
+                },
+                {
+                  "text": "(แก้ไข)"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "subject-teacher-room-choice",
+      "title": "ครูผู้สอนที่ไม่ได้สอนห้องเห็นเฉพาะห้องของตนในการสร้างโครงงาน",
+      "role": "subject",
+      "start": "/work#pbl",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "form[data-role=create]"
+            }
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 0,
+            "of": {
+              "css": "form[data-role=create] option",
+              "has_text": "ม.1/1",
+              "include_hidden": true
+            }
+          },
+          "say": "ครูผู้สอนที่ไม่ได้สอนห้อง ม.1/1 เปิดฟอร์ม \"สร้างโครงงานใหม่\" ช่อง \"ห้องเรียน\" ไม่มีห้องนี้ จึงสร้างโครงงานของห้องนั้นไม่ได้",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "form[data-role=create]"
+            }
+          }
+        }
+      ],
+      "expected": "ช่องห้องเรียนในฟอร์มสร้างโครงงานของครูผู้สอนแสดงเฉพาะห้องที่ตนสอน",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ ห้องที่ไม่ได้สอนยังไม่อยู่ในรายการ",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "label": "ห้องเรียน",
+                "within": {
+                  "css": "form[data-role=create]"
+                }
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "count": 0,
+                "of": {
+                  "css": "form[data-role=create] option",
+                  "has_text": "ม.1/1",
+                  "include_hidden": true
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rename-scored-criterion",
+      "title": "ผู้ดูแลระบบเปลี่ยนชื่อเกณฑ์รูบริกที่มีการให้คะแนนแล้ว",
+      "role": "admin",
+      "start": "/work#pbl/rubric",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "heading",
+            "name": "เกณฑ์รูบริกของโรงเรียน"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "input[data-f=label][data-i=\"0\"]"
+          },
+          "var": "orig_label",
+          "from_attr": "value"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "input[data-f=label][data-i=\"0\"]"
+          },
+          "value": "{{marker}} ชื่อเกณฑ์ทดสอบ",
+          "say": "เปลี่ยนชื่อเกณฑ์แรกของโรงเรียน เกณฑ์ที่มีการให้คะแนนแล้วเปลี่ยนชื่อได้",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "input[data-f=label][data-i=\"0\"]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกเกณฑ์"
+          },
+          "say": "กดปุ่ม \"บันทึกเกณฑ์\" ระบบแสดงข้อความ \"บันทึกเกณฑ์แล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".pbl-msg .pbl-note"
+          },
+          "expect_response": {
+            "url_contains": "/api/pbl/rubric",
+            "method": "PUT"
+          },
+          "wait_after": {
+            "css": ".pbl-msg .pbl-note"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "บันทึกเกณฑ์แล้ว",
+            "in": {
+              "css": ".pbl-msg"
+            }
+          }
+        }
+      ],
+      "expected": "ชื่อเกณฑ์ที่เปลี่ยนแสดงในหน้าแก้เกณฑ์ และเมื่อทดสอบเสร็จชื่อเดิมถูกคืน",
+      "verify": [
+        {
+          "title": "เปิดหน้าแก้เกณฑ์ใหม่ ชื่อที่เปลี่ยนยังอยู่",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "role": "heading",
+                "name": "เกณฑ์รูบริกของโรงเรียน"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "value": "{{marker}} ชื่อเกณฑ์ทดสอบ",
+                "of": {
+                  "css": "input[data-f=label][data-i=\"0\"]"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "คืนชื่อเกณฑ์แรกเป็นชื่อเดิม",
+          "steps": [
+            {
+              "do": "fill",
+              "target": {
+                "css": "input[data-f=label][data-i=\"0\"]"
+              },
+              "value": "{{orig_label}}"
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "บันทึกเกณฑ์"
+              },
+              "expect_response": {
+                "url_contains": "/api/pbl/rubric",
+                "method": "PUT"
+              },
+              "wait_after": {
+                "css": ".pbl-msg .pbl-note"
+              }
+            },
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "role": "heading",
+                "name": "เกณฑ์รูบริกของโรงเรียน"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "value": "{{orig_label}}",
+                "of": {
+                  "css": "input[data-f=label][data-i=\"0\"]"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "delete-project",
+      "title": "ครูลบโครงงานที่ไม่ใช้แล้ว (ล้างข้อมูลทดสอบ)",
+      "intro": "การลบโครงงานลบสมาชิก บันทึก ชิ้นงาน ไฟล์ และการสะท้อนคิดทั้งหมดของโครงงานนั้น ลบแล้วกู้คืนไม่ได้ ปุ่มนี้แสดงเฉพาะผู้ที่สร้างโครงงานหรือครูที่ปรึกษา และผู้ดูแลระบบ ในการทดสอบ ขั้นตอนนี้ล้างข้อมูลที่สร้างไว้ และคืนเกณฑ์รูบริกของโรงเรียนเป็นเดิมด้วย",
+      "role": "homeroom",
+      "start": "/work#pbl",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{marker}}",
+            "first": true
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "ข้อมูลโครงงาน"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบโครงงาน"
+          },
+          "say": "เปิดโครงงานที่ต้องการลบ แล้วกดปุ่ม \"ลบโครงงาน\" ที่ท้ายหัวข้อ \"ข้อมูลโครงงาน\" และกดตกลงในกล่องยืนยัน ระบบกลับไปหน้ารายการโครงงาน",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "role": "button",
+            "name": "ลบโครงงาน"
+          },
+          "expect_response": {
+            "url_contains": "/api/pbl/projects/",
+            "method": "DELETE"
+          },
+          "wait_after": {
+            "css": "form[data-role=create]"
+          }
+        }
+      ],
+      "verify": [
+        {
+          "title": "ครูเปิดรายการโครงงานใหม่ ไม่มีโครงงานทดสอบค้างอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#pbl",
+              "wait_after": {
+                "css": "form[data-role=create]"
+              }
+            },
+            {
+              "do": "reload"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "css": "li.pbl-item",
+                  "has_text": "{{marker}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "restore-rubric",
+      "title": "คืนเกณฑ์รูบริกของโรงเรียนเป็นเดิม (ล้างข้อมูลทดสอบ)",
+      "intro": "ขั้นตอนนี้ใช้ตอนทดสอบเท่านั้น ในการใช้งานจริงผู้ดูแลระบบกดปุ่ม \"ลบเกณฑ์\" ของเกณฑ์ที่ไม่ใช้แล้ว และกดปุ่ม \"บันทึกเกณฑ์\"",
+      "role": "admin",
+      "start": "/work#pbl/rubric",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "heading",
+            "name": "เกณฑ์รูบริกของโรงเรียน"
+          }
+        },
+        {
+          "do": "note",
+          "say": "กดปุ่ม \"ลบเกณฑ์\" ของเกณฑ์ที่ไม่ใช้แล้ว (เกณฑ์ที่เพิ่มระหว่างทดสอบ) แล้วกดปุ่ม \"บันทึกเกณฑ์\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "li:has(input[data-f=label][value*=\"{{marker}}\"]) button[data-act=rubric-del]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "li:has(input[data-f=label][value*=\"{{marker}}\"]) button[data-act=rubric-del]"
+          },
+          "optional": true,
+          "timeout": 4000
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกเกณฑ์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "wait_after": {
+            "css": ".pbl-msg .pbl-note"
+          }
+        }
+      ],
+      "verify": [
+        {
+          "title": "เหลือเกณฑ์ 5 ข้อเหมือนเดิม",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "role": "heading",
+                "name": "เกณฑ์รูบริกของโรงเรียน"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "count": 5,
+                "of": {
+                  "css": "input[data-f=label]"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": [
+    "การดูโครงงานของภาคเรียนที่ผ่านมา (ดูได้อย่างเดียว) ยังไม่ได้ทดสอบ เพราะยังไม่ได้ตรวจว่าข้อมูลทดลองมีโครงงานของภาคเรียนที่ผ่านมาหรือไม่",
+    "ปุ่ม \"พิมพ์ใบสรุปโครงงาน\" เปิดในแท็บใหม่และเป็นหน้าสั่งพิมพ์ของเบราว์เซอร์ ตัวรันทดสอบตรวจเฉพาะว่าหน้าเปิดและมีชื่อโครงงาน"
+  ]
+}

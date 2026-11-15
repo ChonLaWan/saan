@@ -1,0 +1,1171 @@
+{
+  "module": "admin-users",
+  "title": "จัดการผู้ใช้งาน",
+  "area": "การดูแลระบบ",
+  "purpose": "ผู้ดูแลระบบเพิ่มบัญชีผู้ใช้งานของบุคลากร กำหนดสิทธิ์ตามงานที่รับผิดชอบ แก้ไขชื่อ อีเมล และสิทธิ์ ปิดบัญชีที่ไม่ใช้แล้ว และส่งลิงก์ให้ผู้ใช้ตั้งรหัสผ่านเองทางอีเมล โดยผู้ดูแลไม่ต้องรู้รหัสผ่านของผู้ใช้ บัญชีสาธิตของโรงเรียนทดลองแก้ไขไม่ได้ และผู้ดูแลระบบปิดบัญชีหรือลดสิทธิ์ของตนเองไม่ได้",
+  "roles": [
+    "ผู้ดูแลระบบ (เพิ่ม แก้ไข ปิดบัญชี ส่งลิงก์ตั้งรหัสผ่าน)",
+    "ผู้ใช้สิทธิ์อื่น (ไม่เห็นเมนูและเปิดหน้านี้ไม่ได้)"
+  ],
+  "menu": [
+    "เมนูด้านซ้าย กลุ่ม \"บัญชีและระบบ\" > \"จัดการผู้ใช้งาน\" (/admin/users) แสดงเฉพาะผู้ดูแลระบบ"
+  ],
+  "prerequisites": [
+    {
+      "module": "academic",
+      "text": "บัญชีของครูต้องเลือกครูเจ้าของบัญชีและห้องที่รับผิดชอบ จึงต้องมีรายชื่อครูและห้องเรียนในระบบก่อน"
+    }
+  ],
+  "vars": {
+    "user_name": "{{marker}} ผู้ใช้ตัวอย่าง",
+    "user_name2": "{{marker}} ผู้ใช้ตัวอย่าง (แก้ไขแล้ว)",
+    "user_email": "manual-{{run_id}}@example.test"
+  },
+  "workflows": [
+    {
+      "id": "add-user",
+      "title": "เพิ่มบัญชีผู้ใช้งานและส่งลิงก์ให้ตั้งรหัสผ่านเอง",
+      "intro": "เลือกสิทธิ์ตามงานที่รับผิดชอบ ผู้ดูแลเว็บไซต์ดูแลธีมและข่าวได้โดยไม่เห็นข้อมูลนักเรียน บัญชีครูต้องเลือกครูเจ้าของบัญชีและห้องที่รับผิดชอบในหัวข้อ \"ข้อมูลเพิ่มเติมสำหรับบัญชีครู\" วิธีที่แนะนำคือเลือก \"ส่งลิงก์ให้ผู้ใช้ตั้งรหัสผ่านเองทางอีเมล\" ระบบจะสร้างบัญชีและส่งลิงก์ที่ใช้ได้ 72 ชั่วโมง",
+      "role": "admin",
+      "start": "/work",
+      "core": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการผู้ใช้งาน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"จัดการผู้ใช้งาน\" ที่แถบเมนูด้านซ้าย กลุ่ม \"บัญชีและระบบ\"",
+          "wait_after": {
+            "role": "heading",
+            "name": "เพิ่มผู้ใช้งาน"
+          },
+          "shot": true,
+          "crop": "viewport",
+          "logins_ok": true
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "text": "{{marker}}"
+            }
+          },
+          "comment": "precondition: no leftover user of an earlier run"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อผู้ใช้งาน",
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "value": "{{user_name}}",
+          "say": "พิมพ์ชื่อของผู้ใช้ในช่อง \"ชื่อผู้ใช้งาน\"",
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมล",
+            "exact": true,
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "value": "{{user_email}}",
+          "say": "พิมพ์อีเมลของผู้ใช้ในช่อง \"อีเมล\" ระบบใช้อีเมลนี้เป็นชื่อเข้าสู่ระบบและส่งลิงก์ให้ อีเมลซ้ำกับบัญชีอื่นไม่ได้",
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "role"
+            },
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "label": "ผู้ดูแลเว็บไซต์",
+          "say": "เลือกสิทธิ์ในช่อง \"สิทธิ์\" ตัวเลือกคือ ผู้ดูแลระบบ ผู้ดูแลเว็บไซต์ ผู้อำนวยการ และครู",
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "ส่งลิงก์ให้ผู้ใช้ตั้งรหัสผ่านเองทางอีเมล",
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "say": "ติ๊กช่อง \"ส่งลิงก์ให้ผู้ใช้ตั้งรหัสผ่านเองทางอีเมล (แนะนำ)\" ช่องกำหนดรหัสผ่านเริ่มต้นจะหายไป เพราะผู้ใช้ตั้งรหัสผ่านเอง",
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มบัญชีผู้ใช้งาน",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"เพิ่มบัญชีผู้ใช้งาน\" ระบบสร้างบัญชีและแสดงข้อความยืนยันว่าส่งลิงก์ตั้งรหัสผ่านไปที่อีเมลแล้ว",
+          "wait_after": {
+            "text": "ส่งลิงก์ตั้งรหัสผ่านไปที่"
+          },
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        }
+      ],
+      "expected": "ระบบแสดงข้อความ \"เพิ่มบัญชีและส่งลิงก์ตั้งรหัสผ่านไปที่ ... แล้ว\" และบัญชีใหม่ปรากฏในรายการบัญชีที่ใช้งาน",
+      "verify": [
+        {
+          "title": "เปิดหน้าจัดการผู้ใช้งานใหม่ บัญชีที่เพิ่มต้องอยู่ในรายการพร้อมสิทธิ์ \"ผู้ดูแลเว็บไซต์\"",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/admin/users"
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "details.account-user summary",
+                    "has_text": "{{user_name}}"
+                  }
+                },
+                {
+                  "text": "ผู้ดูแลเว็บไซต์",
+                  "in": {
+                    "css": "details.account-user summary",
+                    "has_text": "{{user_name}}"
+                  }
+                }
+              ],
+              "say": "เปิดหน้า \"จัดการผู้ใช้งาน\" ใหม่ บัญชีที่เพิ่มอยู่ในรายการ \"บัญชีที่ใช้งาน\" พร้อมป้ายสิทธิ์และสถานะ \"ใช้งาน\"",
+              "shot": true,
+              "crop": "panel",
+              "logins_ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-user",
+      "title": "แก้ไขชื่อของบัญชีผู้ใช้งาน",
+      "intro": "แตะที่แถวของผู้ใช้เพื่อเปิดแบบฟอร์มแก้ไข ผู้ดูแลแก้ชื่อ อีเมล สิทธิ์ สถานะ ครูเจ้าของบัญชี และห้องที่รับผิดชอบได้ เมื่อบันทึกแล้วผู้ใช้ต้องเข้าสู่ระบบใหม่",
+      "role": "admin",
+      "start": "/admin/users",
+      "depends_on": [
+        "add-user"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "heading",
+            "name": "เพิ่มผู้ใช้งาน"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "details.account-user summary",
+            "has_text": "{{user_name}}"
+          },
+          "say": "แตะที่แถวของผู้ใช้ในรายการ \"บัญชีที่ใช้งาน\" แบบฟอร์มแก้ไขเปิดออก",
+          "wait_after": {
+            "role": "button",
+            "name": "บันทึกบัญชี"
+          },
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อผู้ใช้งาน",
+            "within": {
+              "css": "details.account-user[open]",
+              "has_text": "{{user_name}}"
+            }
+          },
+          "value": "{{user_name2}}",
+          "say": "แก้ข้อความในช่อง \"ชื่อผู้ใช้งาน\"",
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกบัญชี",
+            "within": {
+              "css": "details.account-user[open]",
+              "has_text": "{{user_name}}"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึกบัญชี\" ระบบแสดงข้อความ \"บันทึกบัญชีแล้ว ผู้ใช้ต้องเข้าสู่ระบบใหม่\"",
+          "wait_after": {
+            "text": "บันทึกบัญชีแล้ว"
+          },
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        }
+      ],
+      "expected": "ระบบแสดงข้อความ \"บันทึกบัญชีแล้ว ผู้ใช้ต้องเข้าสู่ระบบใหม่\" และรายการแสดงชื่อใหม่",
+      "verify": [
+        {
+          "title": "เปิดหน้าจัดการผู้ใช้งานใหม่ ชื่อที่แก้ไขต้องยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/admin/users"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "details.account-user summary",
+                  "has_text": "{{user_name2}}"
+                }
+              },
+              "say": "เปิดหน้า \"จัดการผู้ใช้งาน\" ใหม่ รายการแสดงชื่อที่แก้ไขแล้ว",
+              "shot": true,
+              "crop": "panel",
+              "logins_ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "send-password-link",
+      "title": "ส่งลิงก์ตั้งรหัสผ่านทางอีเมลให้ผู้ใช้ที่มีบัญชีอยู่แล้ว",
+      "intro": "ใช้เมื่อผู้ใช้ลืมรหัสผ่านหรือยังไม่ได้ตั้งรหัสผ่านจากลิงก์แรก ระบบส่งลิงก์ใหม่ที่ใช้ได้ 72 ชั่วโมง ปุ่มนี้แสดงเฉพาะบัญชีที่ใช้งานอยู่ ผู้ดูแลไม่เห็นรหัสผ่านของผู้ใช้",
+      "role": "admin",
+      "start": "/admin/users",
+      "depends_on": [
+        "edit-user"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "heading",
+            "name": "เพิ่มผู้ใช้งาน"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "details.account-user summary",
+            "has_text": "{{user_name2}}"
+          },
+          "say": "แตะที่แถวของผู้ใช้ในรายการ",
+          "wait_after": {
+            "role": "button",
+            "name": "ส่งลิงก์ตั้งรหัสผ่านทางอีเมล"
+          },
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ส่งลิงก์ตั้งรหัสผ่านทางอีเมล",
+            "within": {
+              "css": "details.account-user[open]",
+              "has_text": "{{user_name2}}"
+            }
+          },
+          "say": "กดปุ่ม \"ส่งลิงก์ตั้งรหัสผ่านทางอีเมล\" ใต้แบบฟอร์ม ระบบแสดงข้อความว่าส่งลิงก์ไปที่อีเมลของผู้ใช้แล้ว",
+          "wait_after": {
+            "text": "ส่งลิงก์ตั้งรหัสผ่านไปที่"
+          },
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        }
+      ],
+      "expected": "ระบบแสดงข้อความ \"ส่งลิงก์ตั้งรหัสผ่านไปที่ ... แล้ว\"",
+      "verify": [
+        {
+          "title": "หน้ายืนยันว่าส่งลิงก์ไปที่อีเมลของบัญชีนั้น",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "text": "ส่งลิงก์ตั้งรหัสผ่านไปที่ manual-"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "disable-user",
+      "title": "ปิดบัญชีผู้ใช้งานที่ไม่ใช้แล้ว",
+      "intro": "การปิดบัญชีทำให้ผู้ใช้เข้าสู่ระบบไม่ได้ แต่ประวัติการทำงานยังอยู่ ระบบไม่มีปุ่มลบบัญชี หากต้องการให้ใช้ได้อีก ให้เปลี่ยนสถานะกลับเป็น \"ใช้งาน\" ผู้ดูแลระบบปิดบัญชีของตนเองไม่ได้ และต้องเหลือผู้ดูแลระบบที่ใช้งานได้อย่างน้อย 1 คน",
+      "role": "admin",
+      "start": "/admin/users",
+      "depends_on": [
+        "send-password-link"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "heading",
+            "name": "เพิ่มผู้ใช้งาน"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "details.account-user summary",
+            "has_text": "{{user_name2}}"
+          },
+          "say": "แตะที่แถวของผู้ใช้ที่ต้องการปิดบัญชี",
+          "wait_after": {
+            "role": "button",
+            "name": "บันทึกบัญชี"
+          },
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "is_active"
+            },
+            "within": {
+              "css": "details.account-user[open]",
+              "has_text": "{{user_name2}}"
+            }
+          },
+          "label": "ปิดบัญชี",
+          "say": "เลือก \"ปิดบัญชี\" ในช่อง \"สถานะ\"",
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกบัญชี",
+            "within": {
+              "css": "details.account-user[open]",
+              "has_text": "{{user_name2}}"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึกบัญชี\" บัญชีนี้หายจากรายการ \"บัญชีที่ใช้งาน\"",
+          "wait_after": {
+            "text": "บันทึกบัญชีแล้ว"
+          },
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "details.account-user summary",
+              "has_text": "{{user_name2}}"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "แสดงบัญชีที่ปิดใช้งานด้วย"
+          },
+          "say": "กดลิงก์ \"แสดงบัญชีที่ปิดใช้งานด้วย\" เหนือรายการ บัญชีที่ปิดแสดงป้าย \"ปิดบัญชี\"",
+          "wait_after": {
+            "css": "details.account-user summary",
+            "has_text": "{{user_name2}}"
+          },
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        }
+      ],
+      "expected": "บัญชีหายจากรายการที่ใช้งาน และปรากฏพร้อมป้าย \"ปิดบัญชี\" เมื่อเลือกแสดงบัญชีที่ปิดใช้งานด้วย",
+      "verify": [
+        {
+          "title": "รายการแบบรวมบัญชีที่ปิดแล้วแสดงบัญชีนี้เป็น \"ปิดบัญชี\"",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/admin/users?inactive=1"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "ปิดบัญชี",
+                "in": {
+                  "css": "details.account-user summary",
+                  "has_text": "{{user_name2}}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "รายการเริ่มต้นไม่แสดงบัญชีที่ปิดแล้ว",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/admin/users"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "css": "details.account-user summary",
+                  "has_text": "{{user_name2}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "non-admin-blocked",
+      "title": "ผู้ใช้สิทธิ์อื่นไม่เห็นเมนูและเปิดหน้าจัดการผู้ใช้งานไม่ได้",
+      "intro": "ครูและผู้อำนวยการไม่มีเมนู \"จัดการผู้ใช้งาน\" หากพิมพ์ที่อยู่หน้านี้เอง ระบบปฏิเสธและไม่แสดงรายชื่อบัญชี",
+      "role": "homeroom",
+      "start": "/work",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "navigation",
+            "name": "ระบบงานโรงเรียน"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "role": "link",
+              "name": "จัดการผู้ใช้งาน",
+              "exact": true
+            }
+          },
+          "say": "ครูเปิดแถบเมนูด้านซ้าย กลุ่ม \"บัญชีและระบบ\" มีเฉพาะ \"บัญชีของฉัน\" ไม่มี \"จัดการผู้ใช้งาน\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "link",
+            "name": "บัญชีของฉัน",
+            "exact": true
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/admin/users"
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "role": "heading",
+              "name": "เพิ่มผู้ใช้งาน"
+            }
+          },
+          "say": "เมื่อพิมพ์ที่อยู่ /admin/users ระบบไม่แสดงหน้าจัดการผู้ใช้งานให้ครู แต่แสดงข้อความ \"403 สิทธิ์ไม่เพียงพอ\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false
+        }
+      ],
+      "expected": "ครูไม่เห็นเมนูจัดการผู้ใช้งาน และเปิดหน้านี้ไม่ได้",
+      "verify": [
+        {
+          "title": "หน้าจัดการผู้ใช้งานไม่แสดงฟอร์มเพิ่มผู้ใช้ให้ครู",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "role": "button",
+                  "name": "เพิ่มบัญชีผู้ใช้งาน"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "refuse-self-disable",
+      "title": "ผู้ดูแลระบบปิดบัญชีของตนเองไม่ได้",
+      "intro": "ระบบไม่ให้ปิดบัญชีของตนเองหรือลดสิทธิ์ของตนเอง ขั้นตอนนี้เลือกบัญชีผู้ดูแลระบบของตนแล้วพยายามปิดบัญชี ระบบปฏิเสธและบัญชียังใช้งานได้",
+      "role": "admin",
+      "start": "/admin/users",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "heading",
+            "name": "เพิ่มผู้ใช้งาน"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "details.account-user summary",
+            "has_text": "ผู้ดูแลระบบ",
+            "first": true
+          },
+          "say": "แตะที่แถวบัญชีผู้ดูแลระบบของตนเองในรายการ",
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true,
+          "wait_after": {
+            "role": "button",
+            "name": "บันทึกบัญชี"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "is_active"
+            },
+            "within": {
+              "css": "details.account-user[open]"
+            }
+          },
+          "label": "ปิดบัญชี",
+          "say": "เลือก \"ปิดบัญชี\" ในช่อง \"สถานะ\" ของบัญชีตนเอง"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกบัญชี",
+            "within": {
+              "css": "details.account-user[open]"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/admin/users",
+            "status": 422
+          },
+          "say": "กดปุ่ม \"บันทึกบัญชี\" ระบบปฏิเสธการบันทึกและไม่ปิดบัญชี (ระบบตอบกลับว่าข้อมูลไม่ถูกต้อง)"
+        }
+      ],
+      "expected": "ระบบแจ้งว่าไม่สามารถปิดบัญชีหรือลดสิทธิ์ของตนเอง และบัญชียังใช้งานได้",
+      "verify": [
+        {
+          "title": "บัญชีของตนเองยังอยู่ในรายการที่ใช้งาน",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/admin/users",
+              "wait_after": {
+                "role": "heading",
+                "name": "เพิ่มผู้ใช้งาน"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "details.account-user summary",
+                  "has_text": "ผู้ดูแลระบบ",
+                  "first": true
+                }
+              },
+              "say": "เปิดหน้าจัดการผู้ใช้งานใหม่ บัญชีผู้ดูแลระบบยังอยู่ในรายการที่ใช้งาน",
+              "shot": true,
+              "crop": "panel",
+              "logins_ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "add-user-with-initial-password",
+      "title": "เพิ่มบัญชีโดยกำหนดรหัสผ่านเริ่มต้นเอง แล้วปิดบัญชีทดสอบ",
+      "intro": "ถ้าไม่ส่งลิงก์ทางอีเมล ผู้ดูแลระบบกำหนดรหัสผ่านเริ่มต้นเองได้ ช่องรหัสผ่านถูกปิดบังในภาพ ขั้นตอนนี้สร้างบัญชีทดสอบแล้วปิดบัญชีเป็นขั้นตอนสุดท้าย บัญชีที่ปิดแล้วลบไม่ได้จากหน้าจอ",
+      "role": "admin",
+      "start": "/admin/users",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "heading",
+            "name": "เพิ่มผู้ใช้งาน"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อผู้ใช้งาน",
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "value": "{{marker}} รหัสเอง",
+          "say": "พิมพ์ชื่อของผู้ใช้ในช่อง \"ชื่อผู้ใช้งาน\"",
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมล",
+            "exact": true,
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "value": "manual-{{run_id}}-pw@example.test"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "role"
+            },
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "label": "ผู้ดูแลเว็บไซต์",
+          "say": "เลือกสิทธิ์ \"ผู้ดูแลเว็บไซต์\" ในช่อง \"สิทธิ์\""
+        },
+        {
+          "do": "uncheck",
+          "target": {
+            "label": "ส่งลิงก์ให้ผู้ใช้ตั้งรหัสผ่านเองทางอีเมล",
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "say": "เอาเครื่องหมายถูกออกจาก \"ส่งลิงก์ให้ผู้ใช้ตั้งรหัสผ่านเองทางอีเมล\" ช่องรหัสผ่านเริ่มต้นจึงแสดงขึ้น",
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสผ่านเริ่มต้น",
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "value": "Th{{run_id}}x9",
+          "mask": [
+            {
+              "label": "รหัสผ่านเริ่มต้น",
+              "within": {
+                "css": "form[action$=\"/admin/users\"]"
+              }
+            }
+          ],
+          "say": "พิมพ์รหัสผ่านเริ่มต้นในช่อง \"รหัสผ่านเริ่มต้น\" (ภาพปิดรหัสผ่านไว้)"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ยืนยันรหัสผ่าน",
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "value": "Th{{run_id}}x9",
+          "mask": [
+            {
+              "label": "ยืนยันรหัสผ่าน",
+              "within": {
+                "css": "form[action$=\"/admin/users\"]"
+              }
+            }
+          ],
+          "say": "พิมพ์รหัสผ่านเดิมอีกครั้งในช่อง \"ยืนยันรหัสผ่าน\""
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มบัญชีผู้ใช้งาน",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"เพิ่มบัญชีผู้ใช้งาน\" ระบบสร้างบัญชีโดยใช้รหัสผ่านที่กำหนด",
+          "shot": true,
+          "crop": "viewport",
+          "logins_ok": true,
+          "wait_after": {
+            "text": "เพิ่มบัญชี"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "details.account-user summary",
+            "has_text": "{{marker}} รหัสเอง"
+          },
+          "say": "แตะที่แถวของบัญชีทดสอบ",
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true,
+          "wait_after": {
+            "role": "button",
+            "name": "บันทึกบัญชี"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "is_active"
+            },
+            "within": {
+              "css": "details.account-user[open]"
+            }
+          },
+          "label": "ปิดบัญชี",
+          "say": "เลือก \"ปิดบัญชี\" เพื่อปิดบัญชีทดสอบเป็นขั้นตอนสุดท้าย"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกบัญชี",
+            "within": {
+              "css": "details.account-user[open]"
+            }
+          },
+          "wait_after": {
+            "text": "บันทึกบัญชีแล้ว"
+          }
+        }
+      ],
+      "expected": "ระบบแจ้งว่าเพิ่มบัญชีแล้ว และบัญชีทดสอบถูกปิดเมื่อจบขั้นตอน",
+      "verify": [
+        {
+          "title": "บัญชีที่เพิ่มอยู่ในรายการบัญชีที่ปิดใช้งาน",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/admin/users?inactive=1",
+              "wait_after": {
+                "role": "heading",
+                "name": "เพิ่มผู้ใช้งาน"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "ปิดบัญชี",
+                "in": {
+                  "css": "details.account-user summary",
+                  "has_text": "{{marker}} รหัสเอง"
+                }
+              },
+              "say": "รายการบัญชีที่ปิดใช้งานแสดงบัญชีทดสอบพร้อมป้าย \"ปิดบัญชี\"",
+              "shot": true,
+              "crop": "panel",
+              "logins_ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "teacher-account-with-room",
+      "title": "สร้างครูใหม่และบัญชีครูที่ผูกห้องประจำชั้น แล้วปิดบัญชีทดสอบ",
+      "intro": "บัญชีครูต้องเลือกครูเจ้าของบัญชีและห้องที่รับผิดชอบ ขั้นตอนนี้เพิ่มครูทดสอบในทะเบียนครูก่อน แล้วสร้างบัญชีครูให้ครูคนนั้น โดยไม่ส่งลิงก์ทางอีเมลและกำหนดรหัสผ่านเริ่มต้นเอง ปิดบัญชีเป็นขั้นตอนสุดท้าย ครูทดสอบที่เพิ่มยังคงอยู่ในทะเบียนครู",
+      "role": "admin",
+      "start": "/work#setup/teachers",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-form=teacher]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อ",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=teacher]"
+            }
+          },
+          "value": "ครูบัญชี"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "นามสกุล",
+            "within": {
+              "css": "form[data-form=teacher]"
+            }
+          },
+          "value": "{{marker}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "กลุ่มสาระ",
+            "within": {
+              "css": "form[data-form=teacher]"
+            }
+          },
+          "value": "วิทยาศาสตร์",
+          "say": "เพิ่มครูทดสอบหนึ่งคนในทะเบียนครู"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=teacher]"
+            }
+          },
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/admin/users",
+          "wait_after": {
+            "role": "heading",
+            "name": "เพิ่มผู้ใช้งาน"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อผู้ใช้งาน",
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "value": "{{marker}} ครูบัญชี",
+          "say": "พิมพ์ชื่อของบัญชีครูในช่อง \"ชื่อผู้ใช้งาน\"",
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมล",
+            "exact": true,
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "value": "manual-{{run_id}}-tch@example.test"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "role"
+            },
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "label": "ครู",
+          "say": "เลือกสิทธิ์ \"ครู\" ในช่อง \"สิทธิ์\""
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "details.account-teacher-links summary"
+          },
+          "say": "เปิดหัวข้อ \"ข้อมูลเพิ่มเติมสำหรับบัญชีครู\"",
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "teacher_id"
+            },
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "label": "ครูบัญชี {{marker}}",
+          "say": "เลือกครูเจ้าของบัญชีจากทะเบียนครู"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "classroom_id"
+            },
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "label": "ม.5/1",
+          "say": "เลือกห้องที่รับผิดชอบ ม.5/1"
+        },
+        {
+          "do": "uncheck",
+          "target": {
+            "label": "ส่งลิงก์ให้ผู้ใช้ตั้งรหัสผ่านเองทางอีเมล",
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "say": "เอาเครื่องหมายถูกออกจากการส่งลิงก์ เพื่อกำหนดรหัสผ่านเริ่มต้นเอง"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสผ่านเริ่มต้น",
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "value": "Th{{run_id}}x9",
+          "mask": [
+            {
+              "label": "รหัสผ่านเริ่มต้น",
+              "within": {
+                "css": "form[action$=\"/admin/users\"]"
+              }
+            }
+          ]
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ยืนยันรหัสผ่าน",
+            "within": {
+              "css": "form[action$=\"/admin/users\"]"
+            }
+          },
+          "value": "Th{{run_id}}x9",
+          "mask": [
+            {
+              "label": "ยืนยันรหัสผ่าน",
+              "within": {
+                "css": "form[action$=\"/admin/users\"]"
+              }
+            }
+          ]
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มบัญชีผู้ใช้งาน",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"เพิ่มบัญชีผู้ใช้งาน\" ระบบสร้างบัญชีครูที่ผูกกับครูและห้องที่เลือก",
+          "shot": true,
+          "crop": "viewport",
+          "logins_ok": true,
+          "wait_after": {
+            "text": "เพิ่มบัญชี"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "details.account-user summary",
+            "has_text": "{{marker}} ครูบัญชี"
+          },
+          "say": "แตะที่แถวของบัญชีครูทดสอบ",
+          "shot": true,
+          "crop": "panel",
+          "logins_ok": true,
+          "wait_after": {
+            "role": "button",
+            "name": "บันทึกบัญชี"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "is_active"
+            },
+            "within": {
+              "css": "details.account-user[open]"
+            }
+          },
+          "label": "ปิดบัญชี",
+          "say": "เลือก \"ปิดบัญชี\" เพื่อปิดบัญชีครูทดสอบเป็นขั้นตอนสุดท้าย"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกบัญชี",
+            "within": {
+              "css": "details.account-user[open]"
+            }
+          },
+          "wait_after": {
+            "text": "บันทึกบัญชีแล้ว"
+          }
+        }
+      ],
+      "expected": "บัญชีครูผูกกับครูและห้องที่เลือก และถูกปิดเมื่อจบขั้นตอน",
+      "verify": [
+        {
+          "title": "บัญชีครูทดสอบอยู่ในรายการบัญชีที่ปิดใช้งาน พร้อมสิทธิ์ครู",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/admin/users?inactive=1",
+              "wait_after": {
+                "role": "heading",
+                "name": "เพิ่มผู้ใช้งาน"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "ปิดบัญชี",
+                "in": {
+                  "css": "details.account-user summary",
+                  "has_text": "{{marker}} ครูบัญชี"
+                }
+              },
+              "say": "รายการบัญชีที่ปิดใช้งานแสดงบัญชีครูทดสอบ",
+              "shot": true,
+              "crop": "panel",
+              "logins_ok": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cleanup-disable",
+      "title": "ปิดบัญชีทดสอบที่ค้างอยู่ (ล้างข้อมูลทดสอบ)",
+      "intro": "ขั้นตอนนี้ใช้ตอนทดสอบเท่านั้น เพื่อให้บัญชีที่เพิ่มระหว่างทดสอบเป็นบัญชีปิด ระบบไม่มีปุ่มลบบัญชี",
+      "role": "admin",
+      "start": "/admin/users",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "heading",
+            "name": "เพิ่มผู้ใช้งาน"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "details.account-user summary",
+            "has_text": "{{marker}}"
+          },
+          "optional": true,
+          "wait_after": {
+            "role": "button",
+            "name": "บันทึกบัญชี"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "is_active"
+            },
+            "within": {
+              "css": "details.account-user[open]",
+              "has_text": "{{marker}}"
+            }
+          },
+          "label": "ปิดบัญชี",
+          "optional": true
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกบัญชี",
+            "within": {
+              "css": "details.account-user[open]",
+              "has_text": "{{marker}}"
+            }
+          },
+          "optional": true,
+          "wait_after": {
+            "text": "บันทึกบัญชีแล้ว"
+          }
+        }
+      ],
+      "verify": [
+        {
+          "title": "รายการเริ่มต้นไม่มีบัญชีทดสอบที่ใช้งานอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/admin/users"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "css": "details.account-user summary",
+                  "has_text": "{{marker}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": [
+    "การเปิดลิงก์ตั้งรหัสผ่านจากอีเมลและตั้งรหัสผ่านใหม่ ตัวรันเปิดกล่องจดหมายไม่ได้ จึงตรวจเฉพาะว่าระบบแจ้งว่าส่งลิงก์แล้ว",
+    "บัญชีที่เพิ่มระหว่างทดสอบลบไม่ได้ เพราะระบบไม่มีปุ่มลบบัญชี จึงเหลือเป็นบัญชีสถานะ \"ปิดบัญชี\" ที่มีชื่อขึ้นต้นด้วย \"ทดสอบคู่มือ\" และอีเมลขึ้นต้นด้วย manual- ลงท้าย @example.test",
+    "ครูทดสอบ (ชื่อขึ้นต้นด้วย \"ทดสอบคู่มือ\" ตามด้วยคำว่า \"ครูบัญชี\") ที่สร้างในขั้นตอนสร้างบัญชีครูพร้อมห้อง ยังอยู่ในทะเบียนครู (ลบครูไม่ได้เมื่อมีบัญชีผูกอยู่ และบัญชีลบไม่ได้จากหน้าจอ ปิดได้อย่างเดียว)"
+  ]
+}

@@ -1,0 +1,1792 @@
+{
+  "module": "learning-links",
+  "title": "ลิงก์การเรียนรู้",
+  "area": "งานวิชาการและงานนักเรียน",
+  "purpose": "ครูรวมลิงก์ระบบและแอปการเรียนรู้ภายนอก เช่น ห้องเรียนออนไลน์ วิดีโอ เอกสาร หรือเว็บที่โรงเรียนทำเอง ไว้ตามห้องเรียนหรือรายวิชา นักเรียนเปิดดูได้จากหน้าสาธารณะของห้อง (ที่อยู่ลงท้ายด้วย /learn/ ตามด้วยเลขห้อง) โดยกรอกรหัสห้องเรียน 8 ตัวที่ครูให้ หน้านักเรียนแสดงเฉพาะชื่อและลิงก์ ไม่แสดงข้อมูลของนักเรียน ลิงก์ต้องขึ้นต้นด้วย https เท่านั้น ครูประจำชั้น ผู้ดูแลระบบ และผู้อำนวยการสร้างหรือยกเลิกรหัสห้องได้",
+  "roles": [
+    "ครู (เพิ่ม แก้ไข ลบลิงก์ของห้องหรือรายวิชาที่ตนมีสิทธิ์)",
+    "ครูประจำชั้น ผู้ดูแลระบบ และผู้อำนวยการ (สร้างและยกเลิกรหัสห้อง)",
+    "นักเรียน (เปิดหน้าลิงก์ของห้องด้วยรหัสห้อง)"
+  ],
+  "menu": [
+    "ครู: เมนูด้านซ้าย \"งานโรงเรียน\" > \"ลิงก์การเรียนรู้\" (/work#learning)",
+    "นักเรียน: เปิดที่อยู่ของโรงเรียนต่อท้ายด้วย /learn/ และเลขห้อง ตามที่ครูแจ้ง (ไม่มีเมนูให้กด)"
+  ],
+  "prerequisites": [
+    {
+      "module": "academic",
+      "text": "ต้องมีห้องเรียนและรายวิชา ครูเห็นเฉพาะห้องและรายวิชาที่ตนมีสิทธิ์"
+    }
+  ],
+  "vars": {
+    "title1": "{{marker}} แบบฝึกคณิตศาสตร์",
+    "title2": "{{marker}} แบบฝึกคณิตศาสตร์ ชุดที่ 2",
+    "url1": "https://www.example.com/learning-{{run_id}}"
+  },
+  "workflows": [
+    {
+      "id": "add-link",
+      "title": "ครูเพิ่มลิงก์การเรียนรู้ของห้อง",
+      "intro": "ลิงก์ต้องขึ้นต้นด้วย https:// ลิงก์ที่ขึ้นต้นด้วย http:// หรือที่อยู่ภายในเครื่องระบบไม่รับ ช่อง \"ปลายทาง\" เลือกได้ว่าลิงก์นี้แสดงกับห้องใด รายวิชาใด หรือทั้งโรงเรียน (เฉพาะผู้ดูแลระบบและผู้อำนวยการ) ช่อง \"ลำดับ\" ใช้เรียงลิงก์ เลขน้อยแสดงก่อน",
+      "role": "admin",
+      "start": "/work",
+      "core": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ลิงก์การเรียนรู้",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ลิงก์การเรียนรู้\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "form[data-role=form]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "เลือกห้องหรือรายวิชา"
+          },
+          "label": "ห้อง ม.2/1",
+          "say": "เลือกห้องที่ต้องการในช่อง \"เลือกห้องหรือรายวิชา\" ระบบแสดงรหัสห้องและลิงก์ของห้องนั้น",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "เลือกห้องหรือรายวิชา"
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "รหัสให้นักเรียนเปิดดูลิงก์"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อลิงก์",
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          },
+          "value": "{{title1}}",
+          "say": "พิมพ์ชื่อลิงก์ในช่อง \"ชื่อลิงก์\" ในหัวข้อ \"เพิ่มลิงก์\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ชื่อลิงก์",
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ที่อยู่ลิงก์",
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          },
+          "value": "{{url1}}",
+          "say": "พิมพ์ที่อยู่ลิงก์ที่ขึ้นต้นด้วย https:// ในช่อง \"ที่อยู่ลิงก์ (https://)\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ที่อยู่ลิงก์",
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          },
+          "say": "ตรวจช่อง \"ชนิด\" และ \"ปลายทาง\" แล้วกดปุ่ม \"บันทึก\" ลิงก์ปรากฏในรายการ \"ลิงก์ทั้งหมด\" ท้ายหน้า และระบบแสดงข้อความ \"บันทึกแล้ว\" ที่ด้านบนของหน้า",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "li.lrn-item",
+            "has_text": "{{title1}}"
+          },
+          "expect_response": {
+            "url_contains": "/api/learning/links",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": "li.lrn-item",
+            "has_text": "{{title1}}"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "บันทึกแล้ว",
+            "in": {
+              "css": ".lrn-msg"
+            }
+          }
+        }
+      ],
+      "expected": "ลิงก์ใหม่อยู่ในรายการ \"ลิงก์ทั้งหมด\" พร้อมชนิด ห้อง และที่อยู่ลิงก์ ปุ่ม \"แก้ไข\" และ \"ลบ\" ใช้ได้",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ ลิงก์ที่เพิ่มต้องอยู่ในรายการ",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "form[data-role=form]"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "label": "เลือกห้องหรือรายวิชา"
+              },
+              "label": "ห้อง ม.2/1",
+              "wait_after": {
+                "css": "li.lrn-item",
+                "has_text": "{{title1}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "li.lrn-item",
+                    "has_text": "{{title1}}"
+                  }
+                },
+                {
+                  "text": "{{url1}}",
+                  "in": {
+                    "css": "li.lrn-item",
+                    "has_text": "{{title1}}"
+                  }
+                }
+              ],
+              "say": "เปิดหน้าใหม่และเลือกห้องเดิม ลิงก์ที่เพิ่มอยู่ในรายการพร้อมที่อยู่ลิงก์",
+              "shot": true,
+              "crop": "tight",
+              "highlight": {
+                "css": "li.lrn-item",
+                "has_text": "{{title1}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "https-only",
+      "title": "ระบบไม่รับลิงก์ที่ไม่ใช่ https",
+      "intro": "เพื่อความปลอดภัยของนักเรียน ระบบรับเฉพาะลิงก์ที่ขึ้นต้นด้วย https://",
+      "role": "admin",
+      "start": "/work#learning",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-role=form]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อลิงก์",
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          },
+          "value": "{{marker}} ลิงก์ไม่ปลอดภัย"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ที่อยู่ลิงก์",
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          },
+          "value": "http://www.example.com/insecure"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          },
+          "say": "พิมพ์ที่อยู่ลิงก์ที่ขึ้นต้นด้วย http:// แล้วกดปุ่ม \"บันทึก\" ระบบแสดงข้อความสีแดงและไม่บันทึกลิงก์",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "alert",
+            "first": true
+          },
+          "wait_after": {
+            "role": "alert",
+            "first": true
+          }
+        }
+      ],
+      "expected": "ระบบแสดงข้อความแจ้งว่าลิงก์ไม่ถูกต้อง และไม่มีลิงก์ใหม่ในรายการ",
+      "verify": [
+        {
+          "title": "ไม่มีลิงก์ที่ไม่ปลอดภัยในรายการ",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "alert",
+                    "first": true
+                  }
+                },
+                {
+                  "hidden": {
+                    "css": "li.lrn-item",
+                    "has_text": "ลิงก์ไม่ปลอดภัย"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-link",
+      "title": "ครูแก้ไขชื่อลิงก์",
+      "role": "admin",
+      "start": "/work#learning",
+      "depends_on": [
+        "add-link"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "li.lrn-item",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "แก้ไข",
+            "within": {
+              "css": "li.lrn-item",
+              "has_text": "{{title1}}"
+            }
+          },
+          "say": "กดปุ่ม \"แก้ไข\" ท้ายรายการลิงก์ ฟอร์มด้านบนเปลี่ยนเป็น \"แก้ไขลิงก์\" และแสดงข้อมูลเดิม",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "แก้ไขลิงก์"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อลิงก์",
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          },
+          "value": "{{title2}}",
+          "say": "แก้ชื่อในช่อง \"ชื่อลิงก์\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ชื่อลิงก์",
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกแล้ว\" และชื่อใหม่อยู่ในรายการ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "li.lrn-item",
+            "has_text": "{{title2}}"
+          },
+          "expect_response": {
+            "url_contains": "/api/learning/links/",
+            "method": "PUT"
+          },
+          "wait_after": {
+            "css": "li.lrn-item",
+            "has_text": "{{title2}}"
+          }
+        }
+      ],
+      "expected": "รายการแสดงชื่อใหม่ของลิงก์ ปุ่ม \"ยกเลิกการแก้ไข\" หายไป",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ ชื่อใหม่ยังอยู่",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "li.lrn-item",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "li.lrn-item",
+                  "has_text": "{{title2}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "issue-class-code",
+      "title": "ครูสร้างรหัสห้องให้นักเรียนเปิดดูลิงก์",
+      "intro": "รหัสห้องมี 8 ตัวอักษรและตัวเลข แสดงครั้งเดียวเมื่อสร้าง ให้จดไว้ก่อนปิดหน้านี้ ระบบเก็บเฉพาะค่าแฮช รหัสมีอายุตามจำนวนวันในช่อง \"อายุรหัส (วัน)\" (ค่าเริ่มต้น 180 วัน) การสร้างรหัสใหม่ทำให้รหัสเดิมใช้ไม่ได้ทันที ครูแจ้งรหัสและที่อยู่ของหน้านักเรียนให้นักเรียนในห้อง",
+      "role": "admin",
+      "start": "/work#learning",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-role=form]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "เลือกห้องหรือรายวิชา"
+          },
+          "label": "ห้อง ม.2/1",
+          "say": "เลือกห้องในช่อง \"เลือกห้องหรือรายวิชา\" หัวข้อ \"รหัสให้นักเรียนเปิดดูลิงก์\" แสดงที่อยู่หน้าของนักเรียนและสถานะรหัส",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "รหัสให้นักเรียนเปิดดูลิงก์"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างรหัส"
+          },
+          "say": "กดปุ่ม \"สร้างรหัส\" (ถ้าห้องมีรหัสอยู่แล้ว ปุ่มนี้ชื่อ \"สร้างรหัสใหม่ (รหัสเดิมใช้ไม่ได้)\" และมีกล่องยืนยัน) ระบบแสดงรหัสใหม่หนึ่งครั้ง (ภาพนี้ปิดรหัสไว้)",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".lrn-code"
+          },
+          "mask": {
+            "css": ".lrn-code strong"
+          },
+          "expect_response": {
+            "url_contains": "/access",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": ".lrn-code"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "สถานะ: เปิดใช้",
+            "in": {
+              "css": ".lrn-body"
+            }
+          }
+        }
+      ],
+      "expected": "ระบบแสดงรหัสใหม่พร้อมวันหมดอายุ และสถานะเป็น \"เปิดใช้\"",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ สถานะรหัสเป็น \"เปิดใช้\" และไม่แสดงรหัสซ้ำ",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "form[data-role=form]"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "label": "เลือกห้องหรือรายวิชา"
+              },
+              "label": "ห้อง ม.2/1",
+              "wait_after": {
+                "role": "heading",
+                "name": "รหัสให้นักเรียนเปิดดูลิงก์"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "สถานะ: เปิดใช้",
+                  "in": {
+                    "css": ".lrn-body"
+                  }
+                },
+                {
+                  "hidden": {
+                    "css": ".lrn-code"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "student-opens-links",
+      "title": "นักเรียนเปิดหน้าลิงก์ของห้องด้วยรหัสห้อง",
+      "intro": "นักเรียนเปิดที่อยู่ที่ครูให้บนโทรศัพท์ กรอกรหัสห้อง 8 ตัวแล้วเห็นลิงก์ของห้อง ไม่ต้องเข้าสู่ระบบและไม่เห็นข้อมูลนักเรียน กรอกรหัสผิดหลายครั้งระบบจำกัดจำนวนครั้ง ลิงก์เปิดในแท็บใหม่",
+      "role": "admin",
+      "start": "/work#learning",
+      "viewport": "390x844",
+      "depends_on": [
+        "edit-link"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-role=form]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "เลือกห้องหรือรายวิชา"
+          },
+          "label": "ห้อง ม.2/1",
+          "wait_after": {
+            "role": "heading",
+            "name": "รหัสให้นักเรียนเปิดดูลิงก์"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างรหัส"
+          },
+          "comment": "silent: the teacher makes a fresh class code for the student of this workflow",
+          "wait_after": {
+            "css": ".lrn-code"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": ".lrn-code strong"
+          },
+          "var": "code_a",
+          "regex": "^([A-Za-z0-9]{4})-"
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": ".lrn-code strong"
+          },
+          "var": "code_b",
+          "regex": "-([A-Za-z0-9]{4})$"
+        },
+        {
+          "do": "goto",
+          "url": "/learn/2",
+          "wait_after": {
+            "label": "รหัสห้องเรียน"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "role": "heading",
+              "name": "ลิงก์การเรียนรู้"
+            }
+          },
+          "say": "นักเรียนเปิดที่อยู่หน้าลิงก์ของห้อง (ลงท้ายด้วย /learn/ และเลขห้องที่ครูแจ้ง) ระบบขอรหัสห้องเรียน",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "{{code_a}}{{code_b}}",
+          "say": "พิมพ์รหัสห้องเรียน 8 ตัวที่ครูให้ในช่อง \"รหัสห้องเรียน\" (ภาพนี้ปิดรหัสไว้)",
+          "shot": true,
+          "crop": "viewport",
+          "mask": {
+            "css": "input[name=code]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "say": "กดปุ่ม \"เปิดดูลิงก์\" ระบบแสดงรายการลิงก์ของห้อง แตะชื่อลิงก์เพื่อเปิดในแท็บใหม่",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "link",
+            "name": "{{title2}}"
+          },
+          "wait_after": {
+            "role": "link",
+            "name": "{{title2}}"
+          }
+        }
+      ],
+      "expected": "หน้าแสดงชื่อห้องและลิงก์ที่ครูเพิ่มไว้ ไม่แสดงรายชื่อหรือข้อมูลของนักเรียน",
+      "verify": [
+        {
+          "title": "ลิงก์ที่ครูเพิ่มอยู่ในรายการ และลิงก์ชี้ไปยังที่อยู่ที่ตั้งไว้",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "link",
+                    "name": "{{title2}}"
+                  }
+                },
+                {
+                  "hidden": {
+                    "text": "69002"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wrong-code",
+      "title": "นักเรียนกรอกรหัสห้องผิด",
+      "role": "anonymous",
+      "start": "/learn/2",
+      "viewport": "390x844",
+      "intro": "ระบบไม่แสดงลิงก์เมื่อรหัสผิดหรือหมดอายุ และจำกัดจำนวนครั้งที่กรอกผิดต่อผู้เข้าชม",
+      "steps": [
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "say": "กรอกรหัสที่ไม่ถูกต้องแล้วกดปุ่ม \"เปิดดูลิงก์\" ระบบแสดงข้อความสีแดงและไม่แสดงลิงก์",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "alert",
+            "first": true
+          },
+          "wait_after": {
+            "role": "alert",
+            "first": true
+          }
+        }
+      ],
+      "expected": "ระบบแสดงข้อความแจ้งว่ารหัสไม่ถูกต้อง และไม่แสดงลิงก์ใด",
+      "verify": [
+        {
+          "title": "หน้ายังขอรหัสและไม่มีลิงก์",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "alert",
+                    "first": true
+                  }
+                },
+                {
+                  "visible": {
+                    "role": "button",
+                    "name": "เปิดดูลิงก์"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "subject-link-for-class",
+      "title": "ครูเพิ่มลิงก์ของรายวิชา แล้วนักเรียนในห้องเห็นลิงก์นั้น",
+      "role": "admin",
+      "start": "/work#learning",
+      "depends_on": [
+        "issue-class-code"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-role=form]"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "select[name=target] option",
+            "has_text": "(ม.2/1)",
+            "first": true,
+            "include_hidden": true
+          },
+          "var": "subj_label"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อลิงก์",
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          },
+          "value": "{{marker}} ลิงก์รายวิชา",
+          "say": "พิมพ์ชื่อลิงก์ในช่อง \"ชื่อลิงก์\" ในหัวข้อ \"เพิ่มลิงก์\""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ที่อยู่ลิงก์ (https://)",
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          },
+          "value": "https://www.example.com/subject-{{run_id}}",
+          "say": "พิมพ์ที่อยู่ลิงก์ที่ขึ้นต้นด้วย https://"
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ปลายทาง",
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          },
+          "label": "{{subj_label}}",
+          "say": "เลือกรายวิชาในช่อง \"ปลายทาง\" ลิงก์นี้จะแสดงกับนักเรียนของห้องที่เรียนวิชานี้",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ปลายทาง",
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ลิงก์ของรายวิชาปรากฏในรายการ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "li.lrn-item",
+            "has_text": "{{marker}} ลิงก์รายวิชา"
+          },
+          "expect_response": {
+            "url_contains": "/api/learning/links",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": "li.lrn-item",
+            "has_text": "{{marker}} ลิงก์รายวิชา"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "บันทึกแล้ว",
+            "in": {
+              "css": ".lrn-msg"
+            }
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "เลือกห้องหรือรายวิชา"
+          },
+          "label": "ห้อง ม.2/1",
+          "say": "เลือกห้อง ม.2/1 ในช่อง \"เลือกห้องหรือรายวิชา\" เพื่อสร้างรหัสให้นักเรียนของห้องนี้",
+          "wait_after": {
+            "role": "heading",
+            "name": "รหัสให้นักเรียนเปิดดูลิงก์"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างรหัส"
+          },
+          "comment": "silent: a fresh class code for the student check of this workflow",
+          "expect_response": {
+            "url_contains": "/access",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": ".lrn-code"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": ".lrn-code strong"
+          },
+          "var": "code_a",
+          "regex": "^([A-Za-z0-9]{4})-"
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": ".lrn-code strong"
+          },
+          "var": "code_b",
+          "regex": "-([A-Za-z0-9]{4})$"
+        }
+      ],
+      "expected": "ลิงก์ของรายวิชาปรากฏในรายการ และนักเรียนของห้องที่เรียนวิชานั้นเห็นลิงก์เมื่อกรอกรหัสห้อง",
+      "verify": [
+        {
+          "title": "นักเรียนของห้องที่เรียนวิชานี้เห็นลิงก์ของรายวิชา",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/learn/2",
+              "wait_after": {
+                "label": "รหัสห้องเรียน"
+              }
+            },
+            {
+              "do": "fill",
+              "target": {
+                "label": "รหัสห้องเรียน"
+              },
+              "value": "{{code_a}}{{code_b}}",
+              "mask": {
+                "css": "input[name=code]"
+              },
+              "say": "พิมพ์รหัสห้องเรียน 8 ตัวที่ครูให้ในช่อง \"รหัสห้องเรียน\" (ภาพนี้ปิดรหัสไว้)",
+              "shot": true,
+              "crop": "viewport"
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "เปิดดูลิงก์"
+              },
+              "say": "กดปุ่ม \"เปิดดูลิงก์\" ระบบแสดงลิงก์ที่ครูเพิ่มให้ห้องนี้ รวมลิงก์ของรายวิชาที่เลือก",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "role": "link",
+                "name": "{{marker}} ลิงก์รายวิชา"
+              },
+              "wait_after": {
+                "role": "link",
+                "name": "{{marker}} ลิงก์รายวิชา"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "link",
+                  "name": "{{marker}} ลิงก์รายวิชา"
+                }
+              }
+            }
+          ],
+          "as": "anonymous"
+        }
+      ]
+    },
+    {
+      "id": "school-wide-link",
+      "title": "ครูเพิ่มลิงก์ทั้งโรงเรียน แล้วนักเรียนทุกห้องเห็นลิงก์นั้น",
+      "role": "admin",
+      "start": "/work#learning",
+      "depends_on": [
+        "issue-class-code"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-role=form]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อลิงก์",
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          },
+          "value": "{{marker}} ลิงก์ทั้งโรงเรียน",
+          "say": "พิมพ์ชื่อลิงก์ทั้งโรงเรียนในช่อง \"ชื่อลิงก์\""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ที่อยู่ลิงก์ (https://)",
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          },
+          "value": "https://www.example.com/school-{{run_id}}"
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ปลายทาง",
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          },
+          "label": "ทั้งโรงเรียน",
+          "say": "เลือก \"ทั้งโรงเรียน\" ในช่อง \"ปลายทาง\" ลิงก์นี้แสดงกับนักเรียนทุกห้อง",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ปลายทาง",
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-role=form]"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ลิงก์ทั้งโรงเรียนปรากฏในรายการ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "li.lrn-item",
+            "has_text": "{{marker}} ลิงก์ทั้งโรงเรียน"
+          },
+          "expect_response": {
+            "url_contains": "/api/learning/links",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": "li.lrn-item",
+            "has_text": "{{marker}} ลิงก์ทั้งโรงเรียน"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "บันทึกแล้ว",
+            "in": {
+              "css": ".lrn-msg"
+            }
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "เลือกห้องหรือรายวิชา"
+          },
+          "label": "ห้อง ม.2/1",
+          "say": "เลือกห้อง ม.2/1 ในช่อง \"เลือกห้องหรือรายวิชา\" เพื่อสร้างรหัสให้นักเรียนของห้องนี้",
+          "wait_after": {
+            "role": "heading",
+            "name": "รหัสให้นักเรียนเปิดดูลิงก์"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างรหัส"
+          },
+          "comment": "silent: a fresh class code for the student check of this workflow",
+          "expect_response": {
+            "url_contains": "/access",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": ".lrn-code"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": ".lrn-code strong"
+          },
+          "var": "code_a",
+          "regex": "^([A-Za-z0-9]{4})-"
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": ".lrn-code strong"
+          },
+          "var": "code_b",
+          "regex": "-([A-Za-z0-9]{4})$"
+        }
+      ],
+      "expected": "ลิงก์ทั้งโรงเรียนปรากฏในรายการ และนักเรียนของห้องใดก็เห็นลิงก์เมื่อกรอกรหัสห้อง",
+      "verify": [
+        {
+          "title": "นักเรียนห้องใดก็เห็นลิงก์ทั้งโรงเรียน",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/learn/2",
+              "wait_after": {
+                "label": "รหัสห้องเรียน"
+              }
+            },
+            {
+              "do": "fill",
+              "target": {
+                "label": "รหัสห้องเรียน"
+              },
+              "value": "{{code_a}}{{code_b}}",
+              "mask": {
+                "css": "input[name=code]"
+              },
+              "say": "พิมพ์รหัสห้องเรียน 8 ตัวที่ครูให้ในช่อง \"รหัสห้องเรียน\" (ภาพนี้ปิดรหัสไว้)",
+              "shot": true,
+              "crop": "viewport"
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "เปิดดูลิงก์"
+              },
+              "say": "กดปุ่ม \"เปิดดูลิงก์\" ระบบแสดงลิงก์ที่ครูเพิ่มให้ห้องนี้ รวมลิงก์ของรายวิชาที่เลือก",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "role": "link",
+                "name": "{{marker}} ลิงก์ทั้งโรงเรียน"
+              },
+              "wait_after": {
+                "role": "link",
+                "name": "{{marker}} ลิงก์ทั้งโรงเรียน"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "link",
+                  "name": "{{marker}} ลิงก์ทั้งโรงเรียน"
+                }
+              }
+            }
+          ],
+          "as": "anonymous"
+        }
+      ]
+    },
+    {
+      "id": "code-retry-limit",
+      "title": "นักเรียนกรอกรหัสห้องผิดติดกันหลายครั้งจนระบบหยุดรับชั่วคราว",
+      "role": "anonymous",
+      "start": "/learn/2",
+      "viewport": "390x844",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสห้องเรียน"
+          },
+          "value": "AAAA1111",
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code, counted by the throttle; the form may be replaced once the limit is hit"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูลิงก์"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "comment": "wrong code submit"
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ส่งคำขอถี่เกินไป"
+          },
+          "say": "กรอกรหัสผิดติดกันหลายครั้งในเวลาสั้น ระบบแสดงหน้า \"ส่งคำขอถี่เกินไป\" และไม่แสดงลิงก์ใด ให้รอประมาณหนึ่งนาทีแล้วกด \"กลับไปหน้าเดิม\"",
+          "shot": true,
+          "crop": "viewport"
+        }
+      ],
+      "expected": "เมื่อกรอกผิดติดกันเกินกำหนดในเวลาสั้น ระบบหยุดรับคำขอชั่วคราวและแสดงหน้า \"ส่งคำขอถี่เกินไป\" โดยไม่แสดงลิงก์",
+      "verify": [
+        {
+          "title": "หน้าแจ้งว่าส่งคำขอถี่เกินไป และไม่มีลิงก์",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "text": "ส่งคำขอถี่เกินไป"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "delete-subject-link",
+      "title": "ล้างลิงก์รายวิชาทดสอบ (ผู้ดูแลระบบ)",
+      "role": "admin",
+      "start": "/work#learning",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-role=form]"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "select[name=target] option",
+            "has_text": "(ม.2/1)",
+            "first": true,
+            "include_hidden": true
+          },
+          "var": "subj_label"
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "เลือกห้องหรือรายวิชา"
+          },
+          "label": "{{subj_label}}",
+          "wait_after": {
+            "css": "li.lrn-item",
+            "has_text": "{{marker}} ลิงก์รายวิชา"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "li.lrn-item",
+              "has_text": "{{marker}} ลิงก์รายวิชา"
+            }
+          },
+          "say": "กดปุ่ม \"ลบ\" ท้ายรายการลิงก์ทดสอบของรายวิชา แล้วกดตกลงในกล่องยืนยัน",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "text": "ลบแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "li.lrn-item",
+              "has_text": "{{marker}} ลิงก์รายวิชา"
+            }
+          }
+        }
+      ],
+      "expected": "ลิงก์รายวิชาทดสอบถูกลบแล้ว",
+      "verify": [
+        {
+          "title": "ยืนยันหลังล้างข้อมูล",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "css": "li.lrn-item",
+                  "has_text": "{{marker}} ลิงก์รายวิชา"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "delete-school-link",
+      "title": "ล้างลิงก์ทั้งโรงเรียนทดสอบ (ผู้ดูแลระบบ)",
+      "role": "admin",
+      "start": "/work#learning",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-role=form]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "เลือกห้องหรือรายวิชา"
+          },
+          "label": "ทุกห้อง (ที่เข้าถึงได้)",
+          "wait_after": {
+            "css": "li.lrn-item",
+            "has_text": "{{marker}} ลิงก์ทั้งโรงเรียน"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "li.lrn-item",
+              "has_text": "{{marker}} ลิงก์ทั้งโรงเรียน"
+            }
+          },
+          "say": "กดปุ่ม \"ลบ\" ท้ายรายการลิงก์ทั้งโรงเรียนทดสอบ แล้วกดตกลงในกล่องยืนยัน",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "text": "ลบแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "li.lrn-item",
+              "has_text": "{{marker}} ลิงก์ทั้งโรงเรียน"
+            }
+          }
+        }
+      ],
+      "expected": "ลิงก์ทั้งโรงเรียนทดสอบถูกลบแล้ว",
+      "verify": [
+        {
+          "title": "ยืนยันหลังล้างข้อมูล",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "css": "li.lrn-item",
+                  "has_text": "{{marker}} ลิงก์ทั้งโรงเรียน"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "restore-clean",
+      "title": "ล้างข้อมูลทดสอบ (ยกเลิกรหัสห้องและลบลิงก์ที่สร้างไว้)",
+      "intro": "ขั้นตอนนี้ใช้ตอนทดสอบเท่านั้น ในการใช้งานจริงครูกดปุ่ม \"ยกเลิกรหัส\" เมื่อไม่ต้องการให้นักเรียนเปิดหน้าลิงก์ และกดปุ่ม \"ลบ\" ที่ลิงก์ที่ไม่ใช้แล้ว",
+      "role": "admin",
+      "start": "/work#learning",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-role=form]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "เลือกห้องหรือรายวิชา"
+          },
+          "label": "ห้อง ม.2/1",
+          "wait_after": {
+            "role": "heading",
+            "name": "รหัสให้นักเรียนเปิดดูลิงก์"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ยกเลิกรหัส"
+          },
+          "say": "กดปุ่ม \"ยกเลิกรหัส\" แล้วกดตกลงในกล่องยืนยัน ระบบแสดงข้อความ \"ยกเลิกรหัสแล้ว\" และนักเรียนเปิดหน้าลิงก์ด้วยรหัสเดิมไม่ได้อีก",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "role": "button",
+            "name": "ยกเลิกรหัส"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "wait_after": {
+            "text": "ยกเลิกรหัสแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "li.lrn-item",
+              "has_text": "{{marker}}",
+              "first": true
+            }
+          },
+          "say": "กดปุ่ม \"ลบ\" ท้ายรายการลิงก์ที่ไม่ใช้แล้ว แล้วกดตกลงในกล่องยืนยัน ระบบแสดงข้อความ \"ลบแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "li.lrn-item",
+            "has_text": "{{marker}}"
+          },
+          "optional": true,
+          "timeout": 4000,
+          "wait_after": {
+            "text": "ลบแล้ว"
+          }
+        }
+      ],
+      "verify": [
+        {
+          "title": "ลิงก์ทดสอบหายจากรายการ และห้องไม่มีรหัสที่ใช้ได้",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "form[data-role=form]"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "label": "เลือกห้องหรือรายวิชา"
+              },
+              "label": "ห้อง ม.2/1",
+              "wait_after": {
+                "role": "heading",
+                "name": "รหัสให้นักเรียนเปิดดูลิงก์"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "hidden": {
+                    "css": "li.lrn-item",
+                    "has_text": "{{marker}}"
+                  }
+                },
+                {
+                  "text": "สถานะ: ยังไม่มีรหัส",
+                  "in": {
+                    "css": ".lrn-body"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": [
+    "รหัสห้องที่หมดอายุแล้ว (ข้อความ \"รหัสหมดอายุแล้ว\") ยังไม่ได้ทดสอบ เพราะต้องรอให้รหัสหมดอายุ อายุขั้นต่ำคือ 1 วัน",
+    "ตัวเลือก \"แอปนี้ใช้บัญชีโรงเรียนเข้าสู่ระบบ\" และป้ายเข้าสู่ระบบด้วยบัญชีโรงเรียนยังไม่ได้ทดสอบ เพราะตัวเลือกนี้ไม่แสดงในฟอร์มเมื่อไม่มีแอปที่ลงทะเบียนเป็นระบบที่ใช้บัญชีโรงเรียน (ระบบทดลองไม่มีแอปดังกล่าว)"
+  ]
+}

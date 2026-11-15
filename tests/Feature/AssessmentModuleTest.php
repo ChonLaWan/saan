@@ -721,4 +721,14 @@ class AssessmentModuleTest extends TestCase
         $this->assertStringContainsString("SaanWork.register('scores'", $js);
         $this->assertStringContainsString("SaanWork.register('courses'", $js);
     }
+
+    public function test_pass_mark_is_shown_as_a_fixed_rule_not_an_editable_field(): void
+    {
+        $js = file_get_contents(public_path('assets/modules/assessment/assessment.js'));
+        $this->assertStringNotContainsString('data-p="pass_mark"', $js, 'the server ignores pass_mark, so no input may offer it');
+        $this->assertStringContainsString('data-pass-rule', $js);
+        $this->assertStringContainsString('pass_mark: DEFAULT_POLICY.pass_mark', $js);
+        $this->assertSame(GradePolicy::PASS_MARK, GradePolicy::normalize(['components' => GradePolicy::defaults()['components'], 'continuous_ratio' => 70, 'exam_ratio' => 30, 'pass_mark' => 40])['pass_mark']);
+        $this->assertSame(GradePolicy::PASS_MARK, GradePolicy::normalize(['components' => GradePolicy::defaults()['components'], 'continuous_ratio' => 70, 'exam_ratio' => 30, 'pass_mark' => null])['pass_mark']);
+    }
 }

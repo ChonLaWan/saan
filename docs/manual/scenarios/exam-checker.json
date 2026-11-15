@@ -1,0 +1,2411 @@
+{
+  "module": "exam-checker",
+  "title": "ตรวจข้อสอบและวิเคราะห์ข้อสอบ",
+  "area": "งานวิชาการและงานนักเรียน",
+  "purpose": "ครูสร้างชุดข้อสอบปรนัย ตั้งเฉลย แล้วกรอกคำตอบของนักเรียนทั้งห้องแบบพิมพ์ต่อกันหรือวางข้อมูลจากไฟล์ CSV และไฟล์ที่ส่งออกจากเครื่องสแกน OMR ระบบตรวจให้คะแนนทันทีและตรวจใหม่ทุกใบเมื่อแก้เฉลย จากนั้นดูการวิเคราะห์ข้อสอบรายข้อ (ร้อยละผู้ตอบถูก ค่าความยาก ค่าอำนาจจำแนก และการเลือกตัวลวง) สรุปผลรายห้อง ส่งออกเป็นไฟล์ CSV และพิมพ์ใบแจ้งผลรายคนขนาด A4",
+  "roles": [
+    "ผู้ดูแลระบบและผู้อำนวยการ (จัดการทุกข้อสอบและทุกห้อง)",
+    "ครู (สร้างข้อสอบของตนเอง กรอกคำตอบและดูผลของห้องที่ตนมีสิทธิ์ ข้อสอบของครูท่านอื่นที่เปิดรับใบตอบเห็นได้แต่ตั้งค่าไม่ได้)"
+  ],
+  "menu": [
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"ตรวจข้อสอบ\" (/work#exams)"
+  ],
+  "prerequisites": [
+    {
+      "module": "registry",
+      "text": "ต้องมีรายชื่อนักเรียนในห้อง เพราะระบบจับคู่ใบตอบกับรหัสนักเรียน"
+    },
+    {
+      "module": "academic",
+      "text": "ครูกรอกได้เฉพาะห้องที่ตนได้รับมอบหมาย"
+    }
+  ],
+  "vars": {
+    "exam_title": "{{marker}} ข้อสอบตัวอย่าง",
+    "key": "กขคงกขคงกข",
+    "key_changed": "กขคงกขคงขข",
+    "answers_full": "กขคงกขคงกข",
+    "answers_one_wrong": "กขคงกขคงขข",
+    "norm_full": "1234123412",
+    "norm_wrong": "1234123422",
+    "room": "ม.4/1"
+  },
+  "workflows": [
+    {
+      "id": "create-exam",
+      "title": "สร้างชุดข้อสอบ ตั้งเฉลย และเปิดรับใบตอบ",
+      "intro": "ชุดข้อสอบกำหนดจำนวนข้อ (1 ถึง 200) จำนวนตัวเลือกต่อข้อ (2 ถึง 6) คะแนนต่อข้อ และเฉลย พิมพ์เฉลยต่อกัน เช่น กขคงก หรือ 13241 วงเล็บ เช่น (คง) หมายถึงตอบข้อใดก็ได้ในวงเล็บ และตัวอักษร x หมายถึงยกคะแนนข้อนั้นให้ทุกคน ข้อสอบเริ่มต้นเป็นสถานะ \"ร่าง\" ต้องกด \"เปิดรับใบตอบ\" จึงกรอกคำตอบได้",
+      "role": "admin",
+      "start": "/work",
+      "core": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตรวจข้อสอบ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ตรวจข้อสอบ\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "button",
+            "name": "สร้างข้อสอบ",
+            "exact": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "text": "{{marker}}"
+            }
+          },
+          "comment": "precondition: no leftover exam of an earlier run"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างข้อสอบ",
+            "exact": true,
+            "within": {
+              "css": ".exm-head"
+            }
+          },
+          "say": "กดปุ่ม \"สร้างข้อสอบ\" ด้านขวาบนของหน้า แบบฟอร์มสร้างข้อสอบเปิดขึ้น",
+          "shot": true,
+          "crop": "tight",
+          "wait_after": {
+            "css": "#exm-new form.exm-form"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อข้อสอบ",
+            "exact": true,
+            "within": {
+              "css": "#exm-new"
+            }
+          },
+          "value": "{{exam_title}}",
+          "say": "พิมพ์ชื่อข้อสอบในช่อง \"ชื่อข้อสอบ\"",
+          "shot": true,
+          "crop": {
+            "css": "#exm-new form.exm-form"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "วิชา",
+            "exact": true,
+            "within": {
+              "css": "#exm-new"
+            }
+          },
+          "value": "คณิตศาสตร์",
+          "say": "พิมพ์ชื่อวิชาในช่อง \"วิชา\" (ไม่บังคับ)",
+          "shot": true,
+          "crop": {
+            "css": "#exm-new form.exm-form"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ระดับชั้น",
+            "exact": true,
+            "within": {
+              "css": "#exm-new"
+            }
+          },
+          "value": "ม.4",
+          "say": "พิมพ์ระดับชั้นในช่อง \"ระดับชั้น\" ระบบใช้ระดับชั้นกรองห้องที่เลือกกรอกคำตอบได้",
+          "shot": true,
+          "crop": {
+            "css": "#exm-new form.exm-form"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "จำนวนข้อ (1-200)",
+            "within": {
+              "css": "#exm-new"
+            }
+          },
+          "value": "10",
+          "say": "ตั้งจำนวนข้อในช่อง \"จำนวนข้อ (1-200)\"",
+          "shot": true,
+          "crop": {
+            "css": "#exm-new form.exm-form"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "answer_key"
+            },
+            "within": {
+              "css": "#exm-new"
+            }
+          },
+          "value": "{{key}}",
+          "say": "พิมพ์เฉลยต่อกันในช่อง \"เฉลย\" ข้อความใต้ช่องนับว่าเฉลย 10 / 10 ข้อ หากไม่ครบจะแจ้งว่ายังไม่ครบ",
+          "shot": true,
+          "crop": {
+            "css": "#exm-new form.exm-form"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "sections"
+            },
+            "within": {
+              "css": "#exm-new"
+            }
+          },
+          "value": "ส่วน ก: 1-5\nส่วน ข: 6-10",
+          "say": "ถ้าข้อสอบแบ่งเป็นส่วน พิมพ์ส่วนละบรรทัดในช่อง \"ส่วนย่อย\" เช่น \"ส่วน ก: 1-5\" ระบบสรุปคะแนนแยกตามส่วน",
+          "shot": true,
+          "crop": {
+            "css": "#exm-new form.exm-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างข้อสอบ",
+            "exact": true,
+            "within": {
+              "css": "#exm-new"
+            }
+          },
+          "say": "กดปุ่ม \"สร้างข้อสอบ\" ท้ายแบบฟอร์ม ระบบเปิดแท็บ \"ตั้งค่าและเฉลย\" ของข้อสอบใหม่ สถานะ \"ร่าง\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "button",
+            "name": "เปิดรับใบตอบ",
+            "exact": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดรับใบตอบ",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"เปิดรับใบตอบ\" สถานะของข้อสอบเปลี่ยนเป็น \"เปิดรับใบตอบ\" และแท็บ \"กรอกคำตอบ\" ใช้งานได้",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".exm-badge"
+          },
+          "wait_after": {
+            "role": "button",
+            "name": "ปิดข้อสอบ",
+            "exact": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "เปิดรับใบตอบ",
+            "in": {
+              "css": ".exm-sub .exm-badge"
+            }
+          }
+        }
+      ],
+      "expected": "หัวข้อข้อสอบแสดง \"10 ข้อ | เต็ม 10 คะแนน\" และป้ายสถานะ \"เปิดรับใบตอบ\"",
+      "verify": [
+        {
+          "title": "รายการข้อสอบแสดงข้อสอบใหม่พร้อมสถานะ \"เปิดรับใบตอบ\"",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#exams",
+              "wait_after": {
+                "css": "a.exm-card",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "a.exm-card",
+                    "has_text": "{{marker}}"
+                  }
+                },
+                {
+                  "text": "10 ข้อ",
+                  "in": {
+                    "css": "a.exm-card",
+                    "has_text": "{{marker}}"
+                  }
+                },
+                {
+                  "text": "เปิดรับใบตอบ",
+                  "in": {
+                    "css": "a.exm-card",
+                    "has_text": "{{marker}}"
+                  }
+                }
+              ],
+              "say": "เปิดหน้า \"ตรวจข้อสอบ\" ใหม่ การ์ดของข้อสอบแสดงชื่อ จำนวนข้อ คะแนนเต็ม และสถานะ \"เปิดรับใบตอบ\"",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "a.exm-card",
+                "has_text": "{{marker}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enter-answers",
+      "title": "กรอกคำตอบของนักเรียนทั้งห้องและดูคะแนนทันที",
+      "intro": "เลือกห้องแล้วพิมพ์คำตอบของนักเรียนแต่ละคนต่อกันในช่องเดียว ใช้ ก-ฉ หรือ 1-6 หรือ A-F เครื่องหมาย - แทนข้อที่ไม่ตอบ และ * แทนข้อที่ตอบหลายตัวเลือก ตัวเลขใต้ช่องบอกจำนวนข้อที่พิมพ์แล้ว และตัวเลขคะแนนที่ขึ้นต้นด้วย ~ เป็นคะแนนโดยประมาณก่อนบันทึก กด Enter เพื่อบันทึกแถวและไปคนถัดไป หรือกด \"บันทึกทั้งห้อง\"",
+      "role": "admin",
+      "start": "/work#exams",
+      "depends_on": [
+        "create-exam"
+      ],
+      "core": true,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "a.exm-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "a.exm-card",
+            "has_text": "{{marker}}"
+          },
+          "say": "กดการ์ดของข้อสอบในรายการ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "nav.exm-tabs"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "กรอกคำตอบ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "wait_after": {
+            "css": "#exm-room"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "#exm-room"
+          },
+          "label": "{{room}}",
+          "say": "เลือกห้องในช่อง \"ห้องเรียน\" ตารางรายชื่อนักเรียนของห้องแสดงพร้อมช่องคำตอบ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "input.exm-ans",
+            "first": true
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "input.exm-ans",
+            "nth": 0
+          },
+          "value": "{{answers_full}}",
+          "say": "พิมพ์คำตอบของนักเรียนคนแรกต่อกันในช่อง \"คำตอบ\" ช่อง \"จำนวน\" แสดง 10 / 10 และช่อง \"คะแนน\" แสดงคะแนนโดยประมาณ",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "input.exm-ans",
+            "nth": 1
+          },
+          "value": "{{answers_one_wrong}}",
+          "say": "พิมพ์คำตอบของคนถัดไป ข้อที่ผิดทำให้คะแนนโดยประมาณลดลง",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "input.exm-ans",
+            "nth": 2
+          },
+          "value": "กข",
+          "say": "หากพิมพ์ไม่ครบจำนวนข้อ ช่องเปลี่ยนเป็นสีแดงและแสดง \"2 / 10\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกทั้งห้อง",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"บันทึกทั้งห้อง\" ระบบบันทึกแถวที่ถูกต้อง ส่วนแถวที่ผิดพลาดมีข้อความสีแดงในช่อง \"คะแนน\" และไม่ถูกบันทึก",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "tr.err"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "input.exm-ans",
+            "nth": 2
+          },
+          "value": "",
+          "say": "ลบข้อความในช่องที่ผิดออกหรือพิมพ์ให้ครบ แถวนั้นไม่ถูกส่งอีก",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "10",
+              "in": {
+                "css": "tr[data-code] td.sc",
+                "nth": 0
+              }
+            },
+            {
+              "text": "9",
+              "in": {
+                "css": "tr[data-code] td.sc",
+                "nth": 1
+              }
+            },
+            {
+              "text": "บันทึก 2 แถว",
+              "in": {
+                "css": "#exm-state-msg"
+              }
+            }
+          ],
+          "say": "แถวที่บันทึกแล้วแสดงคะแนนจริงจากเซิร์ฟเวอร์ (10 และ 9) ระบบเก็บคำตอบเป็นตัวเลข ก-ฉ แทนด้วย 1-6 ช่องคำตอบจึงเปลี่ยนเป็นตัวเลข โดยไม่มีเครื่องหมาย ~ และมีข้อความ \"บันทึก 2 แถว มีข้อผิดพลาด 1 แถว\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "#exm-state-msg"
+          }
+        }
+      ],
+      "expected": "นักเรียนสองคนแรกมีคะแนน 10 และ 9 ส่วนแถวที่พิมพ์ไม่ครบไม่ถูกบันทึก",
+      "verify": [
+        {
+          "title": "เปิดหน้ากรอกคำตอบใหม่ คำตอบและคะแนนที่บันทึกต้องยังอยู่",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "select",
+              "target": {
+                "css": "#exm-room"
+              },
+              "label": "{{room}}",
+              "wait_after": {
+                "css": "input.exm-ans",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "value": "{{norm_full}}",
+                  "of": {
+                    "css": "input.exm-ans",
+                    "nth": 0
+                  }
+                },
+                {
+                  "value": "{{norm_wrong}}",
+                  "of": {
+                    "css": "input.exm-ans",
+                    "nth": 1
+                  }
+                },
+                {
+                  "text": "9",
+                  "in": {
+                    "css": "tr[data-code] td.sc",
+                    "nth": 1
+                  }
+                }
+              ],
+              "say": "เปิดหน้า \"กรอกคำตอบ\" ใหม่และเลือกห้องเดิม คำตอบและคะแนนที่บันทึกยังอยู่",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "tr[data-code] td.sc",
+                "nth": 1
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "import-csv",
+      "title": "นำเข้าคำตอบจากข้อมูล CSV หรือไฟล์จากเครื่องสแกน OMR",
+      "intro": "แท็บ \"นำเข้า CSV\" รับไฟล์ หรือรับข้อมูลที่วางลงในกล่องข้อความ แบบง่ายคือคอลัมน์แรกเป็นรหัสนักเรียน คอลัมน์ที่สองเป็นคำตอบทุกข้อต่อกัน แบบ OMR มีแถวหัวตารางและคอลัมน์คำตอบเป็นรายข้อ ปุ่ม \"ตรวจสอบก่อนนำเข้า\" แสดงผลโดยยังไม่บันทึก ใบตอบที่มีอยู่แล้วจะไม่ถูกเขียนทับเว้นแต่ติ๊ก \"เขียนทับใบตอบที่มีอยู่แล้ว\"",
+      "role": "admin",
+      "start": "/work#exams",
+      "depends_on": [
+        "enter-answers"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "a.exm-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "a.exm-card",
+            "has_text": "{{marker}}"
+          },
+          "wait_after": {
+            "css": "nav.exm-tabs"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "กรอกคำตอบ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "wait_after": {
+            "css": "#exm-room"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "#exm-room"
+          },
+          "label": "{{room}}",
+          "wait_after": {
+            "css": "input.exm-ans",
+            "first": true
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "tr[data-code]",
+            "nth": 3
+          },
+          "var": "student_code",
+          "from_attr": "data-code"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "นำเข้า CSV",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "say": "เลือกแท็บ \"นำเข้า CSV\" ในแถบเหนือเนื้อหาของข้อสอบ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "#exm-imp"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หรือวางข้อมูล CSV",
+            "within": {
+              "css": "#exm-imp"
+            }
+          },
+          "value": "student_code,answers\n{{student_code}},{{answers_full}}",
+          "say": "วางข้อมูลในช่อง \"หรือวางข้อมูล CSV\" บรรทัดแรกเป็นหัวตาราง บรรทัดถัดไปเป็นรหัสนักเรียนและคำตอบ หากมีไฟล์ ให้เลือกไฟล์ในช่อง \"ไฟล์ CSV (UTF-8)\" แทน",
+          "shot": true,
+          "crop": {
+            "css": "#exm-imp"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ตรวจสอบก่อนนำเข้า",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"ตรวจสอบก่อนนำเข้า\" ระบบแสดงรูปแบบไฟล์ จำนวนแถว ใหม่ อัปเดต ไม่เปลี่ยน และผิดพลาด โดยยังไม่บันทึก",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "#exm-imp-res .exm-card"
+          },
+          "wait_after": {
+            "css": "#exm-imp-res .exm-card"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ผลการตรวจสอบ (ยังไม่บันทึก)",
+            "in": {
+              "css": "#exm-imp-res"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "นำเข้า",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"นำเข้า\" ระบบบันทึกใบตอบและแสดง \"นำเข้าแล้ว\" พร้อมจำนวนที่เพิ่ม",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "#exm-imp-res .exm-card"
+          },
+          "wait_after": {
+            "text": "นำเข้าแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ใหม่ 1",
+            "in": {
+              "css": "#exm-imp-res"
+            }
+          }
+        }
+      ],
+      "expected": "กล่องผลลัพธ์แสดง \"นำเข้าแล้ว\" และ \"ใหม่ 1\" และนักเรียนคนที่นำเข้ามีใบตอบในหน้ากรอกคำตอบ",
+      "verify": [
+        {
+          "title": "กลับไปหน้ากรอกคำตอบ นักเรียนที่นำเข้ามีคำตอบและคะแนน 10",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "กรอกคำตอบ",
+                "exact": true,
+                "within": {
+                  "role": "navigation",
+                  "name": "ส่วนของข้อสอบ"
+                }
+              },
+              "wait_after": {
+                "css": "#exm-room"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "css": "#exm-room"
+              },
+              "label": "{{room}}",
+              "wait_after": {
+                "css": "input.exm-ans",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "value": "{{norm_full}}",
+                  "of": {
+                    "css": "input.exm-ans",
+                    "nth": 3
+                  }
+                },
+                {
+                  "text": "10",
+                  "in": {
+                    "css": "tr[data-code] td.sc",
+                    "nth": 3
+                  }
+                }
+              ],
+              "say": "แถวของนักเรียนคนที่ 4 มีคำตอบและคะแนน 10 ตามข้อมูลที่นำเข้า",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "tr[data-code]",
+                "nth": 3
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-key-rescore",
+      "title": "แก้เฉลยและตรวจใหม่ทุกใบอัตโนมัติ",
+      "intro": "เมื่อพบว่าเฉลยผิด แก้ที่แท็บ \"ตั้งค่าและเฉลย\" ระบบตรวจใหม่ทุกใบทันทีและบอกจำนวนใบที่คะแนนเปลี่ยน เมื่อมีใบตอบแล้ว จำนวนข้อและจำนวนตัวเลือกแก้ไม่ได้ ปุ่ม \"ตรวจใหม่ทุกใบ\" ใช้ตรวจใหม่โดยไม่แก้ค่าใด",
+      "role": "admin",
+      "start": "/work#exams",
+      "depends_on": [
+        "import-csv"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "a.exm-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "a.exm-card",
+            "has_text": "{{marker}}"
+          },
+          "wait_after": {
+            "css": "nav.exm-tabs"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตั้งค่าและเฉลย",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "say": "เลือกแท็บ \"ตั้งค่าและเฉลย\" ในแถบเหนือเนื้อหาของข้อสอบ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "attr": {
+              "name": "answer_key"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "answer_key"
+            }
+          },
+          "value": "{{key_changed}}",
+          "say": "แก้ตัวอักษรของข้อที่ผิดในช่อง \"เฉลย\" ที่นี่แก้ข้อ 9 จาก \"ก\" เป็น \"ข\"",
+          "shot": true,
+          "crop": {
+            "css": "#exm-edit form.exm-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่า",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"บันทึกการตั้งค่า\" ระบบแสดงข้อความ \"บันทึกแล้ว ตรวจใหม่ ... ใบ (คะแนนเปลี่ยน ... ใบ)\" ที่ด้านล่างของหน้าจอ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "toast"
+          },
+          "wait_after": {
+            "id": "toast"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ตรวจใหม่",
+            "in": {
+              "id": "toast"
+            }
+          }
+        }
+      ],
+      "expected": "ระบบแจ้งจำนวนใบที่ตรวจใหม่และจำนวนใบที่คะแนนเปลี่ยน",
+      "verify": [
+        {
+          "title": "แท็บ \"ตั้งค่าและเฉลย\" แสดงเฉลยที่แก้แล้ว และคะแนนในหน้ากรอกคำตอบเปลี่ยนตาม",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "กรอกคำตอบ",
+                "exact": true,
+                "within": {
+                  "role": "navigation",
+                  "name": "ส่วนของข้อสอบ"
+                }
+              },
+              "wait_after": {
+                "css": "#exm-room"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "css": "#exm-room"
+              },
+              "label": "{{room}}",
+              "wait_after": {
+                "css": "input.exm-ans",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "9",
+                  "in": {
+                    "css": "tr[data-code] td.sc",
+                    "nth": 0
+                  }
+                },
+                {
+                  "text": "10",
+                  "in": {
+                    "css": "tr[data-code] td.sc",
+                    "nth": 1
+                  }
+                }
+              ],
+              "say": "คะแนนในหน้า \"กรอกคำตอบ\" เปลี่ยนตามเฉลยใหม่ คนแรกเหลือ 9 และคนที่สองเพิ่มเป็น 10",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "tr[data-code] td.sc",
+                "nth": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "teacher-enters-answers",
+      "title": "ครูผู้สอนกรอกคำตอบของห้องที่ตนมีสิทธิ์",
+      "intro": "ข้อสอบที่เปิดรับใบตอบแล้วทุกครูเห็นได้ ครูกรอกคำตอบและดูผลได้เฉพาะห้องที่ได้รับมอบหมาย ครูที่ไม่ได้สร้างข้อสอบไม่เห็นแท็บ \"ตั้งค่าและเฉลย\" จึงแก้เฉลยไม่ได้",
+      "role": "subject",
+      "start": "/work",
+      "depends_on": [
+        "edit-key-rescore"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตรวจข้อสอบ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ตรวจข้อสอบ\" ที่แถบเมนูด้านซ้าย ครูเห็นข้อสอบที่สร้างเองและข้อสอบที่เปิดรับใบตอบ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "a.exm-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "a.exm-card",
+            "has_text": "{{marker}}"
+          },
+          "say": "กดการ์ดของข้อสอบ ระบบเปิดแท็บ \"กรอกคำตอบ\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "nav.exm-tabs"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "hidden": {
+                "role": "link",
+                "name": "ตั้งค่าและเฉลย",
+                "exact": true
+              }
+            },
+            {
+              "visible": {
+                "role": "link",
+                "name": "กรอกคำตอบ",
+                "exact": true
+              }
+            }
+          ],
+          "say": "แถบเหนือเนื้อหามี \"กรอกคำตอบ\" \"นำเข้า CSV\" \"วิเคราะห์ข้อสอบ\" \"สรุปผล\" และ \"ใบแจ้งผล\" แต่ไม่มี \"ตั้งค่าและเฉลย\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "nav.exm-tabs"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "#exm-room"
+          },
+          "label": "{{room}}",
+          "wait_after": {
+            "css": "input.exm-ans",
+            "first": true
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "input.exm-ans",
+            "nth": 4
+          },
+          "value": "{{answers_one_wrong}}",
+          "say": "เลือกห้องและพิมพ์คำตอบของนักเรียนในแถวที่ต้องการ",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกทั้งห้อง",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"บันทึกทั้งห้อง\"",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "text": "บันทึก 1 แถว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "บันทึก 1 แถว",
+            "in": {
+              "css": "#exm-state-msg"
+            }
+          }
+        }
+      ],
+      "expected": "ครูเห็นข้อความ \"บันทึก 1 แถว\" และคะแนนของนักเรียนคนนั้นในช่อง \"คะแนน\"",
+      "verify": [
+        {
+          "title": "ผู้ดูแลระบบเห็นคำตอบที่ครูกรอกในหน้ากรอกคำตอบ",
+          "as": "admin",
+          "start": "/work#exams",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "a.exm-card",
+                "first": true
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "css": "a.exm-card",
+                "has_text": "{{marker}}"
+              },
+              "wait_after": {
+                "css": "nav.exm-tabs"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "กรอกคำตอบ",
+                "exact": true,
+                "within": {
+                  "role": "navigation",
+                  "name": "ส่วนของข้อสอบ"
+                }
+              },
+              "wait_after": {
+                "css": "#exm-room"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "css": "#exm-room"
+              },
+              "label": "{{room}}",
+              "wait_after": {
+                "css": "input.exm-ans",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "value": "{{norm_wrong}}",
+                "of": {
+                  "css": "input.exm-ans",
+                  "nth": 4
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "view-analysis",
+      "title": "ดูการวิเคราะห์ข้อสอบรายข้อ สรุปผลรายห้อง และส่งออก CSV",
+      "intro": "แท็บ \"วิเคราะห์ข้อสอบ\" แสดงร้อยละผู้ตอบถูก ค่า p (สัดส่วนผู้ตอบถูก) ค่า D (อำนาจจำแนกจากกลุ่มสูงและกลุ่มต่ำ 27%) จำนวนผู้เลือกแต่ละตัวเลือก และเตือนข้อที่ควรทบทวน แท็บ \"สรุปผล\" แสดงค่าเฉลี่ย ส่วนเบี่ยงเบนมาตรฐาน มัธยฐาน การกระจายคะแนน และสรุปแยกห้อง ทั้งสองแท็บส่งออกเป็นไฟล์ CSV ได้",
+      "role": "admin",
+      "start": "/work#exams",
+      "depends_on": [
+        "edit-key-rescore"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "a.exm-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "a.exm-card",
+            "has_text": "{{marker}}"
+          },
+          "wait_after": {
+            "css": "nav.exm-tabs"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "วิเคราะห์ข้อสอบ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "say": "เลือกแท็บ \"วิเคราะห์ข้อสอบ\" ตารางแสดงข้อสอบทีละข้อ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "table.exm-table"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ใบตอบ",
+            "in": {
+              "css": "p.exm-count"
+            }
+          },
+          "say": "บรรทัดบนตารางบอกจำนวนใบตอบและขนาดกลุ่มสูงกลุ่มต่ำ คอลัมน์ \"เฉลย\" \"ถูก %\" \"p\" \"D\" และจำนวนผู้เลือกแต่ละตัวเลือกอยู่ในตาราง",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "table.exm-table"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ส่งออก CSV",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"ส่งออก CSV\" เบราว์เซอร์บันทึกไฟล์ผลของข้อสอบ",
+          "shot": true,
+          "crop": "tight",
+          "expect_download": {
+            "ext": ".csv",
+            "min_bytes": 50
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "สรุปผล",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "say": "เลือกแท็บ \"สรุปผล\" ระบบแสดงค่าเฉลี่ย ส่วนเบี่ยงเบนมาตรฐาน มัธยฐาน ต่ำสุด สูงสุด การกระจายคะแนน และตารางแยกตามห้อง",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "dl.exm-stats"
+          }
+        }
+      ],
+      "expected": "แท็บวิเคราะห์ข้อสอบแสดงข้อมูลรายข้อ และแท็บสรุปผลแสดงค่าสถิติของคะแนน",
+      "verify": [
+        {
+          "title": "แท็บสรุปผลแสดงค่าเฉลี่ยและจำนวนใบตอบ และแท็บวิเคราะห์ส่งออก CSV ได้จริง",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "ค่าเฉลี่ย",
+                  "in": {
+                    "css": "dl.exm-stats"
+                  }
+                },
+                {
+                  "text": "ใบตอบ",
+                  "in": {
+                    "css": "dl.exm-stats"
+                  }
+                }
+              ],
+              "say": "กล่องสถิติแสดงจำนวนใบตอบ ค่าเฉลี่ย ร้อยละเฉลี่ย S.D. มัธยฐาน ต่ำสุด สูงสุด และคะแนนเต็ม",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "dl.exm-stats"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "ส่งออก CSV",
+                "exact": true
+              },
+              "expect_download": {
+                "kind": "csv",
+                "ext": ".csv",
+                "min_bytes": 50
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "print-slips",
+      "title": "เปิดใบแจ้งผลรายคนขนาด A4 เพื่อพิมพ์",
+      "intro": "ใบแจ้งผลหนึ่งใบต่อหนึ่งหน้า A4 แสดงคะแนน คะแนนแต่ละส่วน และข้อที่ทำผิด พิมพ์ได้สูงสุด 300 ใบต่อครั้ง เลือกห้องก่อนเพื่อพิมพ์เฉพาะห้อง",
+      "role": "admin",
+      "start": "/work#exams",
+      "depends_on": [
+        "edit-key-rescore"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "a.exm-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "a.exm-card",
+            "has_text": "{{marker}}"
+          },
+          "wait_after": {
+            "css": "nav.exm-tabs"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ใบแจ้งผล",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "say": "เลือกแท็บ \"ใบแจ้งผล\" ในแถบเหนือเนื้อหาของข้อสอบ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "link",
+            "name": "เปิดใบแจ้งผล A4 เพื่อพิมพ์"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "#exm-room"
+          },
+          "label": "{{room}}",
+          "say": "เลือกห้องในช่อง \"ห้องเรียน\" เพื่อพิมพ์เฉพาะห้องนั้น",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "role": "link",
+            "name": "เปิดใบแจ้งผล A4 เพื่อพิมพ์"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เปิดใบแจ้งผล A4 เพื่อพิมพ์",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"เปิดใบแจ้งผล A4 เพื่อพิมพ์\" ระบบเปิดหน้าใบแจ้งผลในแท็บใหม่ ใช้ปุ่มพิมพ์ของเบราว์เซอร์เพื่อพิมพ์หรือบันทึกเป็น PDF",
+          "shot": true,
+          "crop": "viewport",
+          "expect_popup": {
+            "url_regex": "exam-checker/exams/\\d+/slips"
+          },
+          "settle_ms": 800
+        }
+      ],
+      "expected": "แท็บใหม่แสดงใบแจ้งผลของนักเรียนที่มีใบตอบในห้อง",
+      "verify": [
+        {
+          "title": "หน้าที่เปิดเป็นใบแจ้งผลของข้อสอบ",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "url": "exam-checker/exams/\\d+/slips"
+              }
+            },
+            {
+              "do": "close_tab"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "recheck-all-sheets",
+      "title": "ตรวจใหม่ทุกใบของข้อสอบ โดยไม่เปลี่ยนเฉลย",
+      "intro": "ปุ่ม \"ตรวจใหม่ทุกใบ\" ใช้เมื่อต้องการให้ระบบคำนวณคะแนนของทุกใบตอบใหม่ เช่นหลังแก้ไขการตั้งค่า ขั้นตอนนี้ไม่เปลี่ยนเฉลยหรือคำตอบ คะแนนที่อ่านกลับต้องเหมือนเดิม",
+      "role": "admin",
+      "start": "/work#exams",
+      "depends_on": [
+        "edit-key-rescore"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "a.exm-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "a.exm-card",
+            "has_text": "{{marker}}"
+          },
+          "say": "กดการ์ดของข้อสอบในรายการ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "nav.exm-tabs"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตั้งค่าและเฉลย",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "wait_after": {
+            "attr": {
+              "name": "answer_key"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ตรวจใหม่ทุกใบ",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"ตรวจใหม่ทุกใบ\" ระบบตรวจทุกใบตอบใหม่และแจ้งจำนวนใบที่ตรวจ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "id": "toast"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ตรวจใหม่",
+            "in": {
+              "id": "toast"
+            }
+          },
+          "say": "ข้อความแจ้งจำนวนใบที่ตรวจใหม่และจำนวนใบที่คะแนนเปลี่ยน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "toast"
+          }
+        }
+      ],
+      "expected": "ระบบแจ้งจำนวนใบที่ตรวจใหม่ และคะแนนของนักเรียนไม่เปลี่ยนเพราะเฉลยเดิม",
+      "verify": [
+        {
+          "title": "คะแนนหลังตรวจใหม่ยังเท่าเดิม",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "กรอกคำตอบ",
+                "exact": true,
+                "within": {
+                  "role": "navigation",
+                  "name": "ส่วนของข้อสอบ"
+                }
+              },
+              "wait_after": {
+                "css": "#exm-room"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "css": "#exm-room"
+              },
+              "label": "{{room}}",
+              "wait_after": {
+                "css": "input.exm-ans",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "9",
+                "in": {
+                  "css": "tr[data-code] td.sc",
+                  "nth": 0
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "overwrite-answers-by-paste",
+      "title": "เขียนทับคำตอบที่บันทึกแล้วด้วยการวางข้อมูล CSV แล้วคืนค่าเดิม",
+      "intro": "การนำเข้าไม่เขียนทับใบตอบที่มีอยู่แล้ว เว้นแต่ติ๊ก \"เขียนทับใบตอบที่มีอยู่แล้ว\" ขั้นตอนนี้เขียนทับคำตอบของนักเรียนคนแรกให้ผิดหนึ่งข้อ แล้วกลับไปใช้คำตอบเดิมเป็นขั้นตอนสุดท้าย",
+      "role": "admin",
+      "start": "/work#exams",
+      "depends_on": [
+        "import-csv"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "a.exm-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "a.exm-card",
+            "has_text": "{{marker}}"
+          },
+          "wait_after": {
+            "css": "nav.exm-tabs"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "นำเข้า CSV",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "wait_after": {
+            "css": "#exm-imp"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หรือวางข้อมูล CSV",
+            "within": {
+              "css": "#exm-imp"
+            }
+          },
+          "value": "student_code,answers\n66001,{{answers_one_wrong}}",
+          "say": "วางข้อมูลคำตอบใหม่ของนักเรียนคนแรก โดยข้อที่ 9 ตอบผิด"
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "เขียนทับใบตอบที่มีอยู่แล้ว",
+            "within": {
+              "css": "#exm-imp"
+            }
+          },
+          "say": "ติ๊ก \"เขียนทับใบตอบที่มีอยู่แล้ว\" เพื่อให้คำตอบใหม่แทนคำตอบเดิม",
+          "shot": true,
+          "crop": {
+            "css": "#exm-imp"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ตรวจสอบก่อนนำเข้า",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "#exm-imp-res .exm-card"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "นำเข้า",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"นำเข้า\" ระบบเขียนทับใบตอบของนักเรียนคนนั้น",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "text": "นำเข้าแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "กรอกคำตอบ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "wait_after": {
+            "css": "#exm-room"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "#exm-room"
+          },
+          "label": "{{room}}",
+          "wait_after": {
+            "css": "input.exm-ans",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "{{norm_wrong}}",
+            "of": {
+              "css": "input.exm-ans",
+              "nth": 0
+            }
+          },
+          "say": "คำตอบของนักเรียนคนแรกถูกเขียนทับเป็นคำตอบที่ผิดหนึ่งข้อ และคะแนนลดลงเป็น 9",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "tr[data-code]",
+            "nth": 0
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "นำเข้า CSV",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "wait_after": {
+            "css": "#exm-imp"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หรือวางข้อมูล CSV",
+            "within": {
+              "css": "#exm-imp"
+            }
+          },
+          "value": "student_code,answers\n66001,{{answers_full}}",
+          "say": "คืนค่าคำตอบเดิมของนักเรียนคนแรก"
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "เขียนทับใบตอบที่มีอยู่แล้ว",
+            "within": {
+              "css": "#exm-imp"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ตรวจสอบก่อนนำเข้า",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "#exm-imp-res .exm-card"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "นำเข้า",
+            "exact": true
+          },
+          "wait_after": {
+            "text": "นำเข้าแล้ว"
+          }
+        }
+      ],
+      "expected": "คำตอบที่เขียนทับแสดงในหน้ากรอกคำตอบ และคืนเป็นคำตอบเดิมเมื่อจบขั้นตอน",
+      "verify": [
+        {
+          "title": "คำตอบของนักเรียนคนแรกกลับเป็นคำตอบเดิม",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "กรอกคำตอบ",
+                "exact": true,
+                "within": {
+                  "role": "navigation",
+                  "name": "ส่วนของข้อสอบ"
+                }
+              },
+              "wait_after": {
+                "css": "#exm-room"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "css": "#exm-room"
+              },
+              "label": "{{room}}",
+              "wait_after": {
+                "css": "input.exm-ans",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "value": "{{norm_full}}",
+                "of": {
+                  "css": "input.exm-ans",
+                  "nth": 0
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "unknown-student-answers",
+      "title": "รับใบตอบของรหัสที่ไม่มีในทะเบียน (ผู้ดูแลระบบเท่านั้น)",
+      "intro": "ปกติระบบไม่รับใบตอบของรหัสที่ไม่มีในทะเบียน ผู้ดูแลระบบติ๊ก \"รับรหัสที่ไม่มีในทะเบียน (ผู้ดูแล)\" เพื่อรับใบตอบนั้นได้ ขั้นตอนนี้รับใบตอบของรหัสทดสอบหนึ่งใบ ใบตอบนี้ลบไม่ได้จากหน้าจอ",
+      "role": "admin",
+      "start": "/work#exams",
+      "depends_on": [
+        "import-csv"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "a.exm-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "a.exm-card",
+            "has_text": "{{marker}}"
+          },
+          "wait_after": {
+            "css": "nav.exm-tabs"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "นำเข้า CSV",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "wait_after": {
+            "css": "#exm-imp"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หรือวางข้อมูล CSV",
+            "within": {
+              "css": "#exm-imp"
+            }
+          },
+          "value": "student_code,answers\n99901,{{answers_full}}"
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "รับรหัสที่ไม่มีในทะเบียน (ผู้ดูแล)",
+            "within": {
+              "css": "#exm-imp"
+            }
+          },
+          "say": "ติ๊ก \"รับรหัสที่ไม่มีในทะเบียน (ผู้ดูแล)\" เพื่อรับใบตอบของรหัสที่ไม่มีในทะเบียนนักเรียน",
+          "shot": true,
+          "crop": {
+            "css": "#exm-imp"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ตรวจสอบก่อนนำเข้า",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "#exm-imp-res .exm-card"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "นำเข้า",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"นำเข้า\" ระบบรับใบตอบของรหัสนั้นและแสดงจำนวนใบใหม่",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "text": "นำเข้าแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ใหม่ 1",
+            "in": {
+              "css": "#exm-imp-res"
+            }
+          },
+          "say": "สรุปการนำเข้าแสดง \"ใหม่ 1\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "#exm-imp-res"
+          }
+        }
+      ],
+      "expected": "ระบบรับใบตอบของรหัสที่ไม่มีในทะเบียนเมื่อผู้ดูแลระบบติ๊กช่องนั้น และแสดง \"ใหม่ 1\"",
+      "verify": [
+        {
+          "title": "หลังนำเข้า ผู้ดูแลระบบเห็นการนำเข้าแล้วในหน้าเดิม",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "กรอกคำตอบ",
+                "exact": true,
+                "within": {
+                  "role": "navigation",
+                  "name": "ส่วนของข้อสอบ"
+                }
+              },
+              "wait_after": {
+                "css": "#exm-room"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "css": "#exm-room"
+              },
+              "label": "{{room}}",
+              "wait_after": {
+                "css": "input.exm-ans",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "input.exm-ans",
+                  "first": true
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-and-delete-empty-exam",
+      "title": "สร้างข้อสอบเปล่าแล้วลบ (ทำได้เมื่อยังไม่มีใบตอบ)",
+      "intro": "ข้อสอบที่ยังไม่มีใบตอบลบได้ด้วยปุ่ม \"ลบข้อสอบ\" ข้อสอบที่มีใบตอบแล้วลบไม่ได้ ขั้นตอนนี้สร้างข้อสอบทดสอบ 3 ข้อ แล้วลบทันที",
+      "role": "admin",
+      "start": "/work#exams",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "a.exm-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างข้อสอบ",
+            "exact": true,
+            "within": {
+              "css": ".exm-head"
+            }
+          },
+          "wait_after": {
+            "css": "#exm-new form.exm-form"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อข้อสอบ",
+            "exact": true,
+            "within": {
+              "css": "#exm-new"
+            }
+          },
+          "value": "{{marker}} ข้อสอบลบได้",
+          "say": "พิมพ์ชื่อข้อสอบทดสอบในช่อง \"ชื่อข้อสอบ\""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "จำนวนข้อ (1-200)",
+            "within": {
+              "css": "#exm-new"
+            }
+          },
+          "value": "3"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "answer_key"
+            },
+            "within": {
+              "css": "#exm-new"
+            }
+          },
+          "value": "กขค",
+          "say": "พิมพ์เฉลยสามข้อ เช่น \"กขค\" ในช่อง \"เฉลย\""
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างข้อสอบ",
+            "exact": true,
+            "within": {
+              "css": "#exm-new"
+            }
+          },
+          "say": "กดปุ่ม \"สร้างข้อสอบ\" ท้ายแบบฟอร์ม ระบบเปิดแท็บ \"ตั้งค่าและเฉลย\" ของข้อสอบใหม่",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "button",
+            "name": "ลบข้อสอบ",
+            "exact": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบข้อสอบ",
+            "exact": true
+          },
+          "dialog": "accept",
+          "say": "กดปุ่ม \"ลบข้อสอบ\" ระบบถามยืนยันแล้วลบข้อสอบที่ยังไม่มีใบตอบ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "a.exm-card",
+            "first": true
+          }
+        }
+      ],
+      "expected": "ข้อสอบทดสอบถูกลบและไม่อยู่ในรายการข้อสอบ",
+      "verify": [
+        {
+          "title": "รายการข้อสอบไม่มีข้อสอบทดสอบที่ลบแล้ว",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#exams",
+              "wait_after": {
+                "css": "a.exm-card",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "css": "a.exm-card",
+                  "has_text": "ข้อสอบลบได้"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "special-answer-key-rules",
+      "title": "เฉลยแบบ (กข) ตอบข้อใดก็ได้ในวงเล็บ และ x ยกคะแนนข้อนั้น แล้วคืนเฉลยเดิม",
+      "intro": "เฉลย (กข) รับคำตอบ ก หรือ ข ในข้อนั้น และ x ยกคะแนนข้อนั้นให้ทุกคน ขั้นตอนนี้เปลี่ยนเฉลยของข้อสอบทดสอบเป็นแบบพิเศษ ดูคะแนนที่เปลี่ยน และดูใบแจ้งผลที่แสดงคะแนนแยกตามส่วน แล้วคืนเฉลยเดิมเป็นขั้นตอนสุดท้าย",
+      "role": "admin",
+      "start": "/work#exams",
+      "depends_on": [
+        "edit-key-rescore"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "a.exm-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "a.exm-card",
+            "has_text": "{{marker}}"
+          },
+          "wait_after": {
+            "css": "nav.exm-tabs"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตั้งค่าและเฉลย",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "wait_after": {
+            "attr": {
+              "name": "answer_key"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "answer_key"
+            }
+          },
+          "value": "1234123(12)2x",
+          "say": "พิมพ์เฉลยแบบพิเศษ \"(12)\" ในข้อที่ 8 (ตอบ ก หรือ ข) และ \"x\" ในข้อที่ 10 ซึ่งยกคะแนนให้ทุกคน",
+          "shot": true,
+          "crop": {
+            "css": "#exm-edit form.exm-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่า",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"บันทึกการตั้งค่า\" ระบบตรวจใหม่ทุกใบ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "id": "toast"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "กรอกคำตอบ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "wait_after": {
+            "css": "#exm-room"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "#exm-room"
+          },
+          "label": "{{room}}",
+          "wait_after": {
+            "css": "input.exm-ans",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "8",
+              "in": {
+                "css": "tr[data-code] td.sc",
+                "nth": 0
+              }
+            },
+            {
+              "text": "9",
+              "in": {
+                "css": "tr[data-code] td.sc",
+                "nth": 1
+              }
+            }
+          ],
+          "say": "คะแนนเปลี่ยนตามเฉลยแบบพิเศษ คนแรกได้ 8 และคนที่สองได้ 9",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "tr[data-code] td.sc",
+            "nth": 0
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ใบแจ้งผล",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "wait_after": {
+            "role": "link",
+            "name": "เปิดใบแจ้งผล A4 เพื่อพิมพ์"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เปิดใบแจ้งผล A4 เพื่อพิมพ์",
+            "exact": true
+          },
+          "expect_popup": {
+            "url_regex": "exam-checker/exams/\\d+/slips"
+          },
+          "settle_ms": 800
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ส่วน ก"
+          },
+          "say": "ใบแจ้งผลแสดงคะแนนแยกตามส่วนของข้อสอบ เช่น \"ส่วน ก\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "text": "ส่วน ก"
+          }
+        },
+        {
+          "do": "close_tab"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตั้งค่าและเฉลย",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "wait_after": {
+            "attr": {
+              "name": "answer_key"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "answer_key"
+            }
+          },
+          "value": "1234123422",
+          "say": "คืนเฉลยเดิมของข้อสอบทดสอบ"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่า",
+            "exact": true
+          },
+          "wait_after": {
+            "id": "toast"
+          }
+        }
+      ],
+      "expected": "เฉลยแบบพิเศษทำให้คะแนนเปลี่ยนตามกฎ และเฉลยเดิมถูกคืนเมื่อจบขั้นตอน",
+      "verify": [
+        {
+          "title": "คะแนนกลับเป็นค่าเดิมหลังคืนเฉลย",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "กรอกคำตอบ",
+                "exact": true,
+                "within": {
+                  "role": "navigation",
+                  "name": "ส่วนของข้อสอบ"
+                }
+              },
+              "wait_after": {
+                "css": "#exm-room"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "css": "#exm-room"
+              },
+              "label": "{{room}}",
+              "wait_after": {
+                "css": "input.exm-ans",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "9",
+                "in": {
+                  "css": "tr[data-code] td.sc",
+                  "nth": 0
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "close-exam",
+      "title": "ปิดข้อสอบไม่ให้รับใบตอบเพิ่มและกลับเป็นร่าง",
+      "intro": "ปุ่ม \"ปิดข้อสอบ\" หยุดรับใบตอบ แต่ผลและรายงานยังดูได้ ปุ่ม \"เปิดอีกครั้ง\" รับใบตอบต่อ ส่วน \"กลับเป็นร่าง\" ซ่อนข้อสอบจากครูท่านอื่น ข้อสอบที่มีใบตอบแล้วไม่มีปุ่ม \"ลบข้อสอบ\"",
+      "role": "admin",
+      "start": "/work#exams",
+      "depends_on": [
+        "teacher-enters-answers",
+        "view-analysis",
+        "print-slips"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "a.exm-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "a.exm-card",
+            "has_text": "{{marker}}"
+          },
+          "wait_after": {
+            "css": "nav.exm-tabs"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตั้งค่าและเฉลย",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "wait_after": {
+            "role": "button",
+            "name": "ปิดข้อสอบ",
+            "exact": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ปิดข้อสอบ",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"ปิดข้อสอบ\" ในแท็บ \"ตั้งค่าและเฉลย\" สถานะเปลี่ยนเป็น \"ปิดแล้ว\" ปุ่มเปลี่ยนเป็น \"เปิดอีกครั้ง\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".exm-badge"
+          },
+          "wait_after": {
+            "role": "button",
+            "name": "เปิดอีกครั้ง",
+            "exact": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "กรอกคำตอบ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "say": "เลือกแท็บ \"กรอกคำตอบ\" ระบบแจ้งว่าข้อสอบนี้ปิดรับใบตอบแล้ว",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "p.exm-alert"
+          },
+          "wait_after": {
+            "css": "p.exm-alert"
+          }
+        }
+      ],
+      "expected": "แท็บกรอกคำตอบแสดงข้อความ \"ข้อสอบนี้ปิดรับใบตอบแล้ว\"",
+      "verify": [
+        {
+          "title": "ข้อสอบมีสถานะ \"ปิดแล้ว\" และไม่มีปุ่ม \"ลบข้อสอบ\" เพราะมีใบตอบแล้ว",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "text": "ข้อสอบนี้ปิดรับใบตอบแล้ว",
+                "in": {
+                  "css": "p.exm-alert"
+                }
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "ตั้งค่าและเฉลย",
+                "exact": true,
+                "within": {
+                  "role": "navigation",
+                  "name": "ส่วนของข้อสอบ"
+                }
+              },
+              "wait_after": {
+                "role": "button",
+                "name": "เปิดอีกครั้ง",
+                "exact": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "ปิดแล้ว",
+                  "in": {
+                    "css": ".exm-sub .exm-badge"
+                  }
+                },
+                {
+                  "hidden": {
+                    "role": "button",
+                    "name": "ลบข้อสอบ",
+                    "exact": true
+                  }
+                }
+              ],
+              "say": "แท็บ \"ตั้งค่าและเฉลย\" ไม่มีปุ่ม \"ลบข้อสอบ\" เพราะข้อสอบมีใบตอบแล้ว มีเพียงปุ่ม \"เปิดอีกครั้ง\" และ \"ตรวจใหม่ทุกใบ\"",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "css": ".exm-badge"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "draft-test-data",
+      "title": "เก็บข้อสอบทดสอบเป็นร่าง (ล้างข้อมูลทดสอบ)",
+      "intro": "ขั้นตอนนี้ใช้ตอนทดสอบเท่านั้น เพื่อซ่อนข้อสอบทดสอบจากครูท่านอื่น ข้อสอบที่มีใบตอบแล้วลบไม่ได้",
+      "role": "admin",
+      "start": "/work#exams",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "a.exm-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "a.exm-card",
+            "has_text": "{{marker}}"
+          },
+          "optional": true,
+          "wait_after": {
+            "css": "nav.exm-tabs"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตั้งค่าและเฉลย",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ส่วนของข้อสอบ"
+            }
+          },
+          "optional": true,
+          "wait_after": {
+            "role": "button",
+            "name": "กลับเป็นร่าง",
+            "exact": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดอีกครั้ง",
+            "exact": true
+          },
+          "optional": true,
+          "wait_after": {
+            "role": "button",
+            "name": "ปิดข้อสอบ",
+            "exact": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "กลับเป็นร่าง",
+            "exact": true
+          },
+          "optional": true,
+          "wait_after": {
+            "role": "button",
+            "name": "เปิดรับใบตอบ",
+            "exact": true
+          }
+        }
+      ],
+      "verify": [
+        {
+          "title": "ข้อสอบทดสอบมีสถานะ \"ร่าง\"",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#exams",
+              "wait_after": {
+                "css": "a.exm-card",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "ร่าง",
+                "in": {
+                  "css": "a.exm-card",
+                  "has_text": "{{marker}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": [
+    "การนำเข้าไฟล์จริงจากเครื่องสแกน OMR (เลือกไฟล์ในช่อง \"ไฟล์ CSV (UTF-8)\") ไม่ได้ทดสอบ เพราะไฟล์ตัวอย่างของตัวรันไม่ใช่รูปแบบ OMR ทดสอบเฉพาะการวางข้อมูล CSV แบบง่าย ซึ่งใช้ตัวนำเข้าเดียวกัน",
+    "ข้อสอบที่เพิ่มระหว่างทดสอบเหลืออยู่ในระบบ (สถานะร่าง มีใบตอบของนักเรียน ม.4/1 หลายคน) ชื่อขึ้นต้นด้วย \"ทดสอบคู่มือ\" และ \"ข้อสอบตัวอย่าง\"",
+    "การพิมพ์ใบแจ้งผลจริงจากหน้าต่างพิมพ์ของเบราว์เซอร์ และใบแจ้งผลของห้องอื่น ทดสอบเฉพาะการเปิดหน้าใบแจ้งผลของห้อง ม.4/1",
+    "การแก้ไขซ้อนกันของผู้ใช้สองคนในใบตอบเดียวกัน (ข้อความ \"โหลดข้อมูลล่าสุด\") ตัวรันใช้เบราว์เซอร์ผู้ใช้ครั้งละหนึ่งคน",
+    "ใบตอบของรหัส 99901 ที่รับเข้าในขั้นตอน unknown-student-answers เหลืออยู่ในข้อสอบทดสอบ เพราะหน้าจอไม่มีปุ่มลบใบตอบ (ไม่มีการเรียกลบใบตอบในหน้า exams.js) ระบบมีการลบข้อสอบที่ยังไม่มีใบตอบเท่านั้น"
+  ]
+}

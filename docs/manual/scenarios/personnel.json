@@ -1,0 +1,2708 @@
+{
+ "module": "personnel",
+ "title": "แฟ้มสะสมงานและทะเบียนบุคลากร",
+ "area": "งานบุคลากรและงานธุรการ",
+ "purpose": "ผู้อำนวยการและผู้ดูแลระบบกรอกทะเบียนประวัติของบุคลากรแต่ละคน (ตำแหน่ง วิทยฐานะ กลุ่มงาน ฝ่าย วันเริ่มงาน วุฒิการศึกษา รูป) และเลือกว่าจะให้ชื่อ ตำแหน่ง กลุ่มงาน และรูปขึ้นหน้ารายชื่อบุคลากรบนเว็บไซต์หรือไม่ ครูอัปโหลดเอกสารเข้าแฟ้มสะสมงานของตนเอง เช่น แผนการจัดการเรียนรู้ ข้อตกลงและรายงานผลการพัฒนางาน (PA) ผู้อำนวยการตรวจรับหรือขอให้แก้ไข ครูดาวน์โหลดแฟ้มทั้งปีเป็นไฟล์ zip และผู้อำนวยการตั้งโควตาพื้นที่และจัดหมวดแฟ้มของโรงเรียน",
+ "roles": [
+  "ครู (อัปโหลด ดู ดาวน์โหลด และลบไฟล์ในแฟ้มสะสมงานของตนเอง ไม่เห็นแฟ้มหรือทะเบียนของครูคนอื่น)",
+  "ผู้อำนวยการและผู้ดูแลระบบ (ดูและแก้ทะเบียนบุคลากรทุกคน ตรวจไฟล์ในแฟ้มของครูทุกคน ตั้งโควตาและจัดการหมวดแฟ้ม ตรวจแฟ้มของตนเองไม่ได้)",
+  "ผู้เยี่ยมชมเว็บไซต์ (เห็นรายชื่อบุคลากรที่ได้รับอนุญาตให้เผยแพร่ ไม่ต้องเข้าสู่ระบบ)"
+ ],
+ "menu": [
+  "เมนูด้านซ้าย \"งานโรงเรียน\" > \"แฟ้มสะสมงาน\" (/work#portfolio) สำหรับผู้ดูแลระบบ ผู้อำนวยการ และครู",
+  "เมนูด้านซ้าย \"งานโรงเรียน\" > \"ทะเบียนบุคลากร\" (/work#personnel) สำหรับผู้ดูแลระบบและผู้อำนวยการ มีปุ่ม \"แฟ้มและโควตา\" ที่มุมขวาบน",
+  "หน้าเว็บไซต์สาธารณะ \"บุคลากร\" (/portal/people) แสดงรายชื่อที่ทะเบียนนี้เผยแพร่"
+ ],
+ "prerequisites": [
+  {
+   "module": "admin-users",
+   "text": "รายชื่อบุคลากรมาจากบัญชีครูที่ผู้ดูแลระบบสร้างไว้ และบัญชีของครูต้องผูกกับรายชื่อครู มิฉะนั้นครูไม่มีแฟ้มสะสมงานของตนเอง"
+  }
+ ],
+ "vars": {},
+ "workflows": [
+  {
+   "id": "browse-register",
+   "title": "เปิดทะเบียนบุคลากรและค้นหาบุคลากร",
+   "intro": "ทะเบียนบุคลากรสำหรับผู้ดูแลระบบและผู้อำนวยการ ข้อมูลบุคลากรมาจากรายชื่อครูของโรงเรียน การเพิ่มหรือลบครูทำที่หน้าจัดการผู้ใช้ ส่วนที่นี่กรอกข้อมูลทะเบียนประวัติและดูแฟ้มสะสมงาน ครูทั่วไปไม่มีเมนูนี้",
+   "role": "principal",
+   "start": "/work",
+   "core": true,
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนบุคลากร",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": [
+      {
+       "role": "heading",
+       "name": "ทะเบียนบุคลากร",
+       "exact": true
+      },
+      {
+       "css": "article.per-file",
+       "first": true
+      }
+     ],
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"ทะเบียนบุคลากร\" หน้าแสดงบุคลากรทุกคน แต่ละคนมีตำแหน่ง กลุ่มงาน และพื้นที่แฟ้มสะสมงานที่ใช้ไป",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "note",
+     "say": "บรรทัดสรุปด้านบนบอกจำนวนไฟล์ที่รอตรวจ โควตาต่อคน และขนาดไฟล์แฟ้มสะสมงานรวมของโรงเรียน ถ้าบุคลากรคนใดมีไฟล์รอตรวจ จะมีป้าย \"รอตรวจ\" ที่รายการของคนนั้น",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "#per-summary"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา"
+     },
+     "value": "โจทย์ยาก",
+     "wait_after": {
+      "role": "link",
+      "name": "นายกันตภณ โจทย์ยาก"
+     },
+     "settle_ms": 1500,
+     "say": "พิมพ์ชื่อ ตำแหน่ง หรือกลุ่มงานในช่อง \"ค้นหา\" ระบบแสดงเฉพาะรายการที่ตรงกับคำค้น",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "label": "ค้นหา"
+     }
+    }
+   ],
+   "expected": "รายการเหลือเฉพาะบุคลากรที่ตรงกับคำค้น",
+   "verify": [
+    {
+     "title": "เหลือบุคลากร 1 คน",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "text": "พบ 1 คน",
+        "in": {
+         "css": "#per-count"
+        }
+       },
+       "say": "บรรทัด \"พบ ... คน\" เหนือรายการเปลี่ยนเป็น \"พบ 1 คน\"",
+       "shot": true,
+       "crop": "viewport",
+       "highlight": {
+        "css": "#per-count"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "edit-staff-profile",
+   "title": "กรอกและแก้ไขข้อมูลทะเบียนของบุคลากร",
+   "intro": "ผู้ดูแลระบบและผู้อำนวยการกรอกข้อมูลทะเบียนของบุคลากรแต่ละคนได้ครบทุกส่วนในแบบฟอร์มเดียว ครั้งแรกที่บันทึกระบบสร้างทะเบียนของคนนั้น ครั้งต่อไปเป็นการแก้ไข ถ้ามีผู้อื่นแก้ข้อมูลเดียวกันพร้อมกัน ระบบแจ้งให้โหลดข้อมูลล่าสุดก่อน",
+   "role": "principal",
+   "start": "/work#personnel",
+   "core": true,
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "ทะเบียนบุคลากร",
+      "exact": true
+     }
+    },
+    {
+     "do": "note",
+     "say": "ในรายการ ชื่อของบุคลากรแต่ละคนเป็นลิงก์ กดชื่อบุคลากรที่ต้องการแก้ข้อมูล",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "นายกันตภณ โจทย์ยาก"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "นายกันตภณ โจทย์ยาก"
+     },
+     "wait_after": {
+      "css": "form#per-profile"
+     }
+    },
+    {
+     "do": "note",
+     "say": "หน้าข้อมูลของบุคลากรคนนั้นเปิดขึ้น มีแบบฟอร์มข้อมูลทะเบียนและส่วนรูปบนเว็บไซต์",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "form#per-profile"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "value": "ครู",
+      "of": {
+       "label": "ตำแหน่ง (เช่น",
+       "within": {
+        "css": "form#per-profile"
+       }
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ตำแหน่ง (เช่น",
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "value": "ครูชำนาญการ {{marker}}",
+     "say": "พิมพ์ตำแหน่งในช่อง \"ตำแหน่ง\" เช่น ครู ครูชำนาญการ ครูชำนาญการพิเศษ",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "ตำแหน่ง (เช่น",
+      "within": {
+       "css": "form#per-profile"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วิทยฐานะ",
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "value": "ครูชำนาญการ",
+     "say": "พิมพ์ \"วิทยฐานะ\" ของบุคลากร",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "วิทยฐานะ",
+      "within": {
+       "css": "form#per-profile"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "กลุ่มสาระ / กลุ่มงาน",
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "value": "กลุ่มสาระการเรียนรู้คณิตศาสตร์",
+     "say": "พิมพ์กลุ่มสาระหรือกลุ่มงานในช่อง \"กลุ่มสาระ / กลุ่มงาน\" เว็บไซต์ใช้ช่องนี้จัดบุคลากรเป็นกลุ่มในหน้ารายชื่อ",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "กลุ่มสาระ / กลุ่มงาน",
+      "within": {
+       "css": "form#per-profile"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ฝ่าย / แผนก",
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "value": "ฝ่ายวิชาการ",
+     "say": "พิมพ์ฝ่ายหรือแผนกในช่อง \"ฝ่าย / แผนก\"",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "ฝ่าย / แผนก",
+      "within": {
+       "css": "form#per-profile"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วันที่เริ่มปฏิบัติงาน",
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "value": "2015-06-01",
+     "say": "เลือกวันที่เริ่มปฏิบัติงานในช่อง \"วันที่เริ่มปฏิบัติงาน\" ช่องนี้ใช้ภายในโรงเรียน ไม่แสดงบนเว็บไซต์",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "วันที่เริ่มปฏิบัติงาน",
+      "within": {
+       "css": "form#per-profile"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "การศึกษา (หนึ่งบรรทัด",
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "value": "ปริญญาตรี | ศึกษาศาสตรบัณฑิต | คณิตศาสตร์ | มหาวิทยาลัยสมมติแห่งต้นธาร | 2545\nปริญญาโท | ครุศาสตรมหาบัณฑิต | หลักสูตรและการสอน | มหาวิทยาลัยสมมติแห่งต้นธาร | 2552",
+     "say": "พิมพ์วุฒิการศึกษาในช่อง \"การศึกษา\" หนึ่งบรรทัดต่อหนึ่งวุฒิ แยกข้อมูลด้วยเครื่องหมาย | ตามลำดับ ระดับ ปริญญา สาขา สถาบัน ปี พ.ศ.",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "การศึกษา (หนึ่งบรรทัด",
+      "within": {
+       "css": "form#per-profile"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ลำดับในทำเนียบ",
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "value": "3",
+     "say": "พิมพ์ตัวเลขในช่อง \"ลำดับในทำเนียบ\" เลขน้อยแสดงก่อน ส่วนช่อง \"แสดงในทำเนียบบุคลากรบนเว็บไซต์\" ที่ติ๊กไว้ หมายถึงให้ชื่อ ตำแหน่ง กลุ่มงาน และรูปขึ้นหน้าเว็บสาธารณะ",
+     "shot": true,
+     "crop": "panel",
+     "highlight": [
+      {
+       "label": "ลำดับในทำเนียบ",
+       "within": {
+        "css": "form#per-profile"
+       }
+      },
+      {
+       "label": "แสดงในทำเนียบบุคลากรบนเว็บไซต์",
+       "within": {
+        "css": "form#per-profile"
+       }
+      }
+     ]
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกข้อมูล",
+      "exact": true,
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "wait_after": {
+      "css": "#toast.show"
+     },
+     "say": "กดปุ่ม \"บันทึกข้อมูล\" ระบบแสดงข้อความ \"บันทึกแล้ว\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "button",
+      "name": "บันทึกข้อมูล",
+      "exact": true,
+      "within": {
+       "css": "form#per-profile"
+      }
+     }
+    }
+   ],
+   "expected": "บันทึกสำเร็จ เปิดซ้ำเห็นค่าที่แก้ และหน้ารายชื่อบนเว็บไซต์แสดงตำแหน่งใหม่",
+   "verify": [
+    {
+     "title": "เปิดข้อมูลของบุคลากรใหม่ ทุกช่องต้องเป็นค่าที่แก้",
+     "steps": [
+      {
+       "do": "goto",
+       "url": "/work#personnel"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "ทะเบียนบุคลากร",
+        "exact": true
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "นายกันตภณ โจทย์ยาก"
+       },
+       "wait_after": {
+        "css": "form#per-profile"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "value": "ครูชำนาญการ {{marker}}",
+         "of": {
+          "label": "ตำแหน่ง (เช่น",
+          "within": {
+           "css": "form#per-profile"
+          }
+         }
+        },
+        {
+         "value": "ฝ่ายวิชาการ",
+         "of": {
+          "label": "ฝ่าย / แผนก",
+          "within": {
+           "css": "form#per-profile"
+          }
+         }
+        },
+        {
+         "value": "2015-06-01",
+         "of": {
+          "label": "วันที่เริ่มปฏิบัติงาน",
+          "within": {
+           "css": "form#per-profile"
+          }
+         }
+        },
+        {
+         "value": "2552",
+         "of": {
+          "label": "การศึกษา (หนึ่งบรรทัด",
+          "within": {
+           "css": "form#per-profile"
+          }
+         },
+         "contains": true
+        },
+        {
+         "value": "3",
+         "of": {
+          "label": "ลำดับในทำเนียบ",
+          "within": {
+           "css": "form#per-profile"
+          }
+         }
+        }
+       ],
+       "say": "เปิดข้อมูลของบุคลากรคนเดิมอีกครั้ง ทุกช่องเป็นค่าที่บันทึกไว้",
+       "shot": true,
+       "crop": "viewport",
+       "highlight": {
+        "css": "form#per-profile"
+       }
+      }
+     ]
+    },
+    {
+     "title": "หน้ารายชื่อบุคลากรบนเว็บไซต์แสดงตำแหน่งใหม่",
+     "as": "anonymous",
+     "start": "/portal/people",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "text": "ครูชำนาญการ {{marker}}"
+       },
+       "say": "หน้ารายชื่อ \"บุคลากร\" บนเว็บไซต์แสดงตำแหน่งที่แก้",
+       "shot": true,
+       "crop": "viewport",
+       "highlight": {
+        "text": "ครูชำนาญการ {{marker}}"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "upload-staff-photo",
+   "title": "เพิ่มรูปบุคลากรสำหรับหน้าเว็บไซต์",
+   "intro": "รูปที่อัปโหลดแสดงบนหน้ารายชื่อบุคลากรของเว็บไซต์ เฉพาะบุคลากรที่ติ๊ก \"แสดงในทำเนียบบุคลากรบนเว็บไซต์\" ต้องบันทึกข้อมูลของบุคลากรก่อน จึงเพิ่มรูปได้",
+   "role": "principal",
+   "start": "/work#personnel",
+   "depends_on": [
+    "edit-staff-profile"
+   ],
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/work#personnel"
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "link",
+      "name": "นายกันตภณ โจทย์ยาก"
+     }
+    },
+    {
+     "do": "note",
+     "say": "ที่หน้า \"ทะเบียนบุคลากร\" กดชื่อบุคลากรที่ต้องการ",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "นายกันตภณ โจทย์ยาก"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "นายกันตภณ โจทย์ยาก"
+     },
+     "wait_after": {
+      "css": "form#per-profile"
+     }
+    },
+    {
+     "do": "upload",
+     "target": {
+      "css": "form#per-photo input[type=file]",
+      "include_hidden": true
+     },
+     "file": "cover.png",
+     "say": "ในส่วน \"รูปบนเว็บไซต์\" กดปุ่มเลือกไฟล์ แล้วเลือกรูป JPG, PNG หรือ WebP ขนาดไม่เกิน 5 MB ระบบย่อรูปและตัดเป็นสี่เหลี่ยมจัตุรัสให้",
+     "shot": true,
+     "crop": {
+      "css": "form#per-photo"
+     },
+     "highlight": {
+      "css": "form#per-photo input[type=file]",
+      "include_hidden": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "อัปโหลดรูป",
+      "exact": true
+     },
+     "wait_after": {
+      "role": "img",
+      "name": "รูป นายกันตภณ โจทย์ยาก"
+     },
+     "say": "กดปุ่ม \"อัปโหลดรูป\" รูปแสดงในหน้าข้อมูลของบุคลากร",
+     "shot": true,
+     "crop": {
+      "css": "form#per-photo"
+     },
+     "highlight": {
+      "role": "img",
+      "name": "รูป นายกันตภณ โจทย์ยาก"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "เปิดข้อมูลของบุคลากรใหม่ รูปต้องอยู่",
+     "steps": [
+      {
+       "do": "goto",
+       "url": "/work#personnel"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "ทะเบียนบุคลากร",
+        "exact": true
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "นายกันตภณ โจทย์ยาก"
+       },
+       "wait_after": {
+        "css": "form#per-profile"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "visible": {
+         "role": "img",
+         "name": "รูป นายกันตภณ โจทย์ยาก"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "view-public-directory",
+   "title": "ดูรายชื่อบุคลากรบนเว็บไซต์โรงเรียน",
+   "intro": "หน้านี้ไม่ต้องเข้าสู่ระบบ ข้อมูลที่เผยแพร่มีเฉพาะชื่อ ตำแหน่ง กลุ่มงาน และรูป ข้อมูลภายใน เช่น วุฒิการศึกษา และวันเริ่มปฏิบัติงานไม่ถูกส่งออกไปหน้าเว็บ",
+   "role": "anonymous",
+   "start": "/portal/people",
+   "depends_on": [
+    "edit-staff-profile"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "text": "บุคลากร",
+      "first": true
+     }
+    },
+    {
+     "do": "note",
+     "say": "ผู้เยี่ยมชมเว็บไซต์เปิดหน้า \"บุคลากร\" เห็นรายชื่อจัดเป็นกลุ่มตามกลุ่มสาระหรือกลุ่มงาน แต่ละคนแสดงชื่อ ตำแหน่ง และรูป (ถ้ามี) เท่านั้น",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": false
+    },
+    {
+     "do": "goto",
+     "url": "/api/personnel/directory"
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "text": "position"
+      },
+      {
+       "not_text": "education"
+      },
+      {
+       "not_text": "start_date"
+      }
+     ]
+    }
+   ],
+   "expected": "เห็นรายชื่อบุคลากรที่เปิดเผยได้ ไม่เห็นข้อมูลภายใน",
+   "verify": [
+    {
+     "title": "หน้าสาธารณะและข้อมูลสาธารณะไม่มีวุฒิการศึกษาและวันเริ่มงาน",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "http_status": 200,
+        "url": "/api/personnel/directory",
+        "anonymous": true
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "hide-staff-from-directory",
+   "title": "ซ่อนบุคลากรจากรายชื่อบนเว็บไซต์",
+   "intro": "ชื่อ ตำแหน่ง กลุ่มงาน และรูปของบุคลากรที่ไม่ติ๊กช่องนี้ จะไม่ขึ้นหน้าเว็บสาธารณะ ข้อมูลในทะเบียนภายในยังอยู่ครบ",
+   "role": "principal",
+   "start": "/work#personnel",
+   "depends_on": [
+    "edit-staff-profile"
+   ],
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/work#personnel"
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "link",
+      "name": "นายกันตภณ โจทย์ยาก"
+     }
+    },
+    {
+     "do": "note",
+     "say": "ที่หน้า \"ทะเบียนบุคลากร\" กดชื่อบุคลากรที่ต้องการ",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "นายกันตภณ โจทย์ยาก"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "นายกันตภณ โจทย์ยาก"
+     },
+     "wait_after": {
+      "css": "form#per-profile"
+     }
+    },
+    {
+     "do": "uncheck",
+     "target": {
+      "label": "แสดงในทำเนียบบุคลากรบนเว็บไซต์",
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "say": "เอาเครื่องหมายออกจากช่อง \"แสดงในทำเนียบบุคลากรบนเว็บไซต์\" เมื่อบุคลากรไม่ประสงค์ให้เผยแพร่ชื่อ",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "แสดงในทำเนียบบุคลากรบนเว็บไซต์",
+      "within": {
+       "css": "form#per-profile"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกข้อมูล",
+      "exact": true,
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "wait_after": {
+      "css": "#toast.show"
+     },
+     "say": "กดปุ่ม \"บันทึกข้อมูล\" บุคลากรคนนั้นหายจากหน้ารายชื่อบนเว็บไซต์ทันที ในทะเบียนมีคำว่า \"ซ่อนจากเว็บไซต์\" กำกับ",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "button",
+      "name": "บันทึกข้อมูล",
+      "exact": true,
+      "within": {
+       "css": "form#per-profile"
+      }
+     }
+    }
+   ],
+   "expected": "บุคลากรไม่อยู่ในหน้ารายชื่อบนเว็บไซต์",
+   "verify": [
+    {
+     "title": "ทะเบียนบอกว่าซ่อนจากเว็บไซต์",
+     "steps": [
+      {
+       "do": "goto",
+       "url": "/work#personnel"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "ทะเบียนบุคลากร",
+        "exact": true
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.per-file",
+        "has_text": "นายกันตภณ โจทย์ยาก"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "ซ่อนจากเว็บไซต์",
+        "in": {
+         "css": "article.per-file",
+         "has_text": "นายกันตภณ โจทย์ยาก"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "title": "หน้ารายชื่อบนเว็บไซต์ไม่มีบุคลากรคนนี้",
+     "as": "anonymous",
+     "start": "/portal/people",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "text": "ต้นธาร เรียนดี",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "count": 0,
+        "of": {
+         "text": "กันตภณ"
+        }
+       },
+       "say": "ผู้เยี่ยมชมเปิดหน้า \"บุคลากร\" ไม่เห็นชื่อบุคลากรที่ซ่อน",
+       "shot": true,
+       "crop": "viewport",
+       "highlight": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "teacher-uploads-file",
+   "title": "ครูอัปโหลดไฟล์เข้าแฟ้มสะสมงาน",
+   "intro": "ครูอัปโหลดไฟล์เข้าแฟ้มของตนเองได้ ไฟล์ที่อัปโหลดมีสถานะ \"รอตรวจ\" จนกว่าผู้อำนวยการหรือผู้ดูแลระบบตรวจ ไฟล์ที่เหมือนกันอัปโหลดซ้ำในแฟ้มของตนเองไม่ได้ ไฟล์ใหญ่เกินกำหนดของแฟ้ม หรือพื้นที่เต็ม ระบบบอกให้บีบอัดหรือแบ่งไฟล์",
+   "role": "homeroom",
+   "start": "/work",
+   "core": true,
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แฟ้มสะสมงาน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": [
+      {
+       "role": "heading",
+       "name": "แฟ้มสะสมงาน",
+       "exact": true
+      },
+      {
+       "css": "form#per-upload"
+      }
+     ],
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"แฟ้มสะสมงาน\" หน้านี้เป็นแฟ้มของครูแต่ละคน ครูเห็นเฉพาะแฟ้มของตนเอง",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "expect",
+     "that": {
+      "count": 0,
+      "of": {
+       "css": "article.per-file",
+       "has_text": "sample.pdf"
+      }
+     }
+    },
+    {
+     "do": "note",
+     "say": "แถบด้านบนบอกพื้นที่แฟ้มสะสมงานที่ใช้ไปเทียบกับโควตาของครูแต่ละคน",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "#per-usage"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "แฟ้ม",
+      "within": {
+       "css": "form#per-upload"
+      }
+     },
+     "label": "แผนการจัดการเรียนรู้",
+     "say": "ในส่วน \"อัปโหลดไฟล์\" เลือกหมวดของเอกสารในช่อง \"แฟ้ม\" ในตัวอย่างนี้เลือก \"แผนการจัดการเรียนรู้\"",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "แฟ้ม",
+      "within": {
+       "css": "form#per-upload"
+      }
+     }
+    },
+    {
+     "do": "note",
+     "say": "ช่อง \"ปี (พ.ศ.)\" ตั้งเป็นปีปัจจุบันให้แล้ว ข้อความใต้ช่องเลือกไฟล์บอกขนาดไฟล์สูงสุดของแฟ้มนี้และพื้นที่ที่เหลือ",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "#per-limit"
+     }
+    },
+    {
+     "do": "upload",
+     "target": {
+      "css": "form#per-upload input[type=file]",
+      "include_hidden": true
+     },
+     "file": "sample.pdf",
+     "say": "กดปุ่มเลือกไฟล์ในช่อง \"ไฟล์\" แล้วเลือกเอกสาร รองรับ PDF, DOCX, XLSX, PPTX, JPG, PNG และ MP4 ระบบตรวจชนิดจากเนื้อไฟล์จริง",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "form#per-upload input[type=file]",
+      "include_hidden": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "อัปโหลด",
+      "exact": true,
+      "within": {
+       "css": "form#per-upload"
+      }
+     },
+     "wait_after": [
+      {
+       "css": "article.per-file",
+       "has_text": "sample.pdf"
+      },
+      {
+       "css": "#toast.show"
+      }
+     ],
+     "say": "กดปุ่ม \"อัปโหลด\" ระบบแสดงข้อความ \"อัปโหลดแล้ว\" และไฟล์อยู่ในรายการ สถานะ \"รอตรวจ\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": [
+      {
+       "css": "#toast.show"
+      },
+      {
+       "css": "article.per-file",
+       "has_text": "sample.pdf"
+      }
+     ]
+    }
+   ],
+   "expected": "ไฟล์อยู่ในรายการแฟ้มสะสมงานของครู สถานะ \"รอตรวจ\" และผู้อำนวยการเห็นไฟล์นี้",
+   "verify": [
+    {
+     "title": "เปิดแฟ้มสะสมงานใหม่ ไฟล์อยู่ในแฟ้มที่เลือก สถานะ รอตรวจ",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.per-file",
+        "has_text": "sample.pdf"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "รอตรวจ",
+         "in": {
+          "css": "article.per-file",
+          "has_text": "sample.pdf"
+         }
+        },
+        {
+         "text": "แผนการจัดการเรียนรู้",
+         "in": {
+          "css": "article.per-file",
+          "has_text": "sample.pdf"
+         }
+        }
+       ],
+       "say": "เปิดแฟ้มสะสมงานอีกครั้ง ไฟล์แสดงแฟ้ม ปี ขนาด และสถานะ \"รอตรวจ\"",
+       "shot": true,
+       "crop": {
+        "css": "article.per-file",
+        "has_text": "sample.pdf"
+       },
+       "highlight": {
+        "css": "article.per-file",
+        "has_text": "sample.pdf"
+       }
+      }
+     ]
+    },
+    {
+     "title": "ผู้อำนวยการเห็นไฟล์ในแฟ้มของครู",
+     "as": "principal",
+     "start": "/work#personnel",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "ทะเบียนบุคลากร",
+        "exact": true
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.per-file",
+        "has_text": "นางสาวพิมพ์ใจ ใฝ่รู้"
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "เปิดแฟ้มสะสมงาน",
+        "within": {
+         "css": "article.per-file",
+         "has_text": "นางสาวพิมพ์ใจ ใฝ่รู้"
+        }
+       },
+       "wait_after": {
+        "css": "article.per-file",
+        "has_text": "sample.pdf"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "รอตรวจ",
+        "in": {
+         "css": "article.per-file",
+         "has_text": "sample.pdf"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "filter-portfolio",
+   "title": "ค้นหาไฟล์ในแฟ้มสะสมงานตามแฟ้มและปี",
+   "role": "homeroom",
+   "start": "/work#portfolio",
+   "depends_on": [
+    "teacher-uploads-file"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "แฟ้ม",
+      "within": {
+       "css": "form#per-filter"
+      }
+     },
+     "label": "แผนการจัดการเรียนรู้",
+     "settle_ms": 1200,
+     "wait_after": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     },
+     "say": "ในส่วนตัวกรอง เลือกแฟ้มในช่อง \"แฟ้ม\" รายการแสดงเฉพาะไฟล์ในแฟ้มนั้น",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "label": "แฟ้ม",
+      "within": {
+       "css": "form#per-filter"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ปี (พ.ศ.)",
+      "within": {
+       "css": "form#per-filter"
+      }
+     },
+     "value": "2560",
+     "settle_ms": 1200,
+     "wait_after": {
+      "text": "ยังไม่มีไฟล์ตามเงื่อนไข"
+     },
+     "say": "พิมพ์ปี พ.ศ. ในช่อง \"ปี (พ.ศ.)\" ถ้าปีนั้นไม่มีไฟล์ ระบบบอกว่า \"ยังไม่มีไฟล์ตามเงื่อนไข\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "label": "ปี (พ.ศ.)",
+      "within": {
+       "css": "form#per-filter"
+      }
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "ล้างปี ไฟล์กลับมา",
+     "steps": [
+      {
+       "do": "fill",
+       "target": {
+        "label": "ปี (พ.ศ.)",
+        "within": {
+         "css": "form#per-filter"
+        }
+       },
+       "value": "",
+       "settle_ms": 1200,
+       "wait_after": {
+        "css": "article.per-file",
+        "has_text": "sample.pdf"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "พบ",
+        "in": {
+         "css": "#per-count"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "download-portfolio-file",
+   "title": "ครูดาวน์โหลดไฟล์และรวมแฟ้มทั้งปีเป็นไฟล์ zip",
+   "intro": "ปุ่ม zip รวมไฟล์ของปีที่พิมพ์ในช่อง \"ปี (พ.ศ.)\" ของตัวกรอง (ถ้าไม่พิมพ์ใช้ปีปัจจุบัน) และแฟ้มที่เลือก ถ้ารวมแล้วใหญ่เกินไป ให้เลือกทีละแฟ้ม",
+   "role": "homeroom",
+   "start": "/work#portfolio",
+   "depends_on": [
+    "teacher-uploads-file"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ดาวน์โหลด",
+      "exact": true,
+      "within": {
+       "css": "article.per-file",
+       "has_text": "sample.pdf"
+      }
+     },
+     "expect_download": {
+      "kind": "pdf",
+      "min_bytes": 100
+     },
+     "say": "กดปุ่ม \"ดาวน์โหลด\" ที่ไฟล์ ไฟล์ถูกบันทึกลงเครื่อง",
+     "shot": true,
+     "crop": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     },
+     "highlight": {
+      "role": "link",
+      "name": "ดาวน์โหลด",
+      "exact": true,
+      "within": {
+       "css": "article.per-file",
+       "has_text": "sample.pdf"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "เป็น zip"
+     },
+     "expect_download": {
+      "kind": "zip",
+      "min_bytes": 100
+     },
+     "say": "กดปุ่ม \"ดาวน์โหลดปี ... เป็น zip\" มุมขวาบน ระบบรวมไฟล์ทั้งหมดของปีที่เลือกเป็นไฟล์ zip แยกโฟลเดอร์ตามแฟ้ม ใช้ส่งหลักฐานประเมินผลงาน",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "เป็น zip"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "หน้ายังอยู่และไฟล์ยังอยู่",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "visible": {
+         "css": "article.per-file",
+         "has_text": "sample.pdf"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "review-file-revise",
+   "title": "ผู้อำนวยการขอให้ครูแก้ไขไฟล์",
+   "intro": "ผู้อำนวยการและผู้ดูแลระบบตรวจไฟล์ในแฟ้มของครูได้ทุกคน ผลการตรวจมี 3 แบบ คือ \"รอตรวจ\" \"ตรวจรับแล้ว\" และ \"ต้องแก้ไข\" ถ้าเลือก \"ต้องแก้ไข\" ต้องเขียนข้อความถึงครู ผู้ตรวจตรวจแฟ้มของตนเองไม่ได้",
+   "role": "principal",
+   "start": "/work#personnel",
+   "depends_on": [
+    "teacher-uploads-file"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "ทะเบียนบุคลากร",
+      "exact": true
+     }
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.per-file",
+      "has_text": "นางสาวพิมพ์ใจ ใฝ่รู้"
+     }
+    },
+    {
+     "do": "note",
+     "say": "ในทะเบียนบุคลากร ครูที่มีไฟล์รอตรวจมีป้าย \"รอตรวจ\" กำกับ",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "นางสาวพิมพ์ใจ ใฝ่รู้"
+     }
+    },
+    {
+     "do": "note",
+     "say": "กดปุ่ม \"เปิดแฟ้มสะสมงาน\" ของครูที่ต้องการตรวจ",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "เปิดแฟ้มสะสมงาน",
+      "within": {
+       "css": "article.per-file",
+       "has_text": "นางสาวพิมพ์ใจ ใฝ่รู้"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "เปิดแฟ้มสะสมงาน",
+      "within": {
+       "css": "article.per-file",
+       "has_text": "นางสาวพิมพ์ใจ ใฝ่รู้"
+      }
+     },
+     "wait_after": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     }
+    },
+    {
+     "do": "note",
+     "say": "หน้าแฟ้มของครูคนนั้นเปิดขึ้น ใต้ทุกไฟล์มีแบบฟอร์มตรวจ",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "form[data-review]",
+      "first": true
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ผลการตรวจ",
+      "within": {
+       "css": "article.per-file",
+       "has_text": "sample.pdf"
+      }
+     },
+     "label": "ต้องแก้ไข",
+     "crop_pad": 40,
+     "say": "ที่ไฟล์ที่ต้องแก้ เลือก \"ต้องแก้ไข\" ในช่อง \"ผลการตรวจ\"",
+     "shot": true,
+     "crop": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     },
+     "highlight": {
+      "label": "ผลการตรวจ",
+      "within": {
+       "css": "article.per-file",
+       "has_text": "sample.pdf"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกผลตรวจ",
+      "exact": true,
+      "within": {
+       "css": "article.per-file",
+       "has_text": "sample.pdf"
+      }
+     },
+     "wait_after": {
+      "text": "กรุณาระบุข้อความที่ต้องแก้ไข",
+      "within": {
+       "css": "#toast"
+      }
+     },
+     "say": "ถ้ากด \"บันทึกผลตรวจ\" โดยไม่เขียนข้อความ ระบบไม่บันทึกและแจ้งว่า \"กรุณาระบุข้อความที่ต้องแก้ไข\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "#toast"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ข้อความตรวจ",
+      "within": {
+       "css": "article.per-file",
+       "has_text": "sample.pdf"
+      }
+     },
+     "value": "{{marker}} ขอให้เพิ่มวันที่จัดทำเอกสาร",
+     "crop_pad": 40,
+     "say": "พิมพ์สิ่งที่ครูต้องแก้ในช่อง \"ข้อความถึงครู\" แล้วกดปุ่ม \"บันทึกผลตรวจ\"",
+     "shot": true,
+     "crop": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     },
+     "highlight": {
+      "label": "ข้อความตรวจ",
+      "within": {
+       "css": "article.per-file",
+       "has_text": "sample.pdf"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกผลตรวจ",
+      "exact": true,
+      "within": {
+       "css": "article.per-file",
+       "has_text": "sample.pdf"
+      }
+     },
+     "wait_after": {
+      "text": "ต้องแก้ไข",
+      "within": {
+       "css": "span.per-badge",
+       "within": {
+        "css": "article.per-file",
+        "has_text": "sample.pdf"
+       }
+      }
+     },
+     "crop_pad": 40,
+     "say": "ระบบแสดงข้อความ \"บันทึกผลตรวจแล้ว\" ไฟล์เปลี่ยนเป็น \"ต้องแก้ไข\" พร้อมชื่อผู้ตรวจ",
+     "shot": true,
+     "crop": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     },
+     "highlight": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     }
+    }
+   ],
+   "expected": "ไฟล์เป็น \"ต้องแก้ไข\" พร้อมข้อความถึงครู",
+   "verify": [
+    {
+     "title": "ไฟล์เป็นสถานะ ต้องแก้ไข พร้อมข้อความ",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.per-file",
+        "has_text": "sample.pdf"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "ต้องแก้ไข",
+         "in": {
+          "css": "article.per-file",
+          "has_text": "sample.pdf"
+         }
+        },
+        {
+         "text": "ขอให้เพิ่มวันที่จัดทำเอกสาร",
+         "in": {
+          "css": "article.per-file",
+          "has_text": "sample.pdf"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "teacher-sees-revision",
+   "title": "ครูเห็นผลตรวจที่ให้แก้ไข",
+   "role": "homeroom",
+   "start": "/work#portfolio",
+   "depends_on": [
+    "review-file-revise"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     }
+    },
+    {
+     "do": "note",
+     "crop_pad": 40,
+     "say": "ไฟล์ที่ผู้ตรวจให้แก้มีป้าย \"ต้องแก้ไข\" และข้อความจากผู้ตรวจใต้ชื่อไฟล์ ครูยังลบไฟล์นี้แล้วอัปโหลดฉบับแก้ไขได้",
+     "shot": true,
+     "crop": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     },
+     "highlight": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "เห็นข้อความและปุ่มลบ",
+     "steps": [
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "ต้องแก้ไข",
+         "in": {
+          "css": "article.per-file",
+          "has_text": "sample.pdf"
+         }
+        },
+        {
+         "text": "ขอให้เพิ่มวันที่จัดทำเอกสาร",
+         "in": {
+          "css": "article.per-file",
+          "has_text": "sample.pdf"
+         }
+        },
+        {
+         "visible": {
+          "role": "button",
+          "name": "ลบ",
+          "exact": true,
+          "within": {
+           "css": "article.per-file",
+           "has_text": "sample.pdf"
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "review-file-approve",
+   "title": "ผู้อำนวยการตรวจรับไฟล์",
+   "intro": "ไฟล์ที่ตรวจรับแล้วครูลบเองไม่ได้ ถ้าต้องการลบ ให้ผู้ตรวจเปลี่ยนสถานะกลับเป็น \"รอตรวจ\" ก่อน",
+   "role": "principal",
+   "start": "/work#personnel",
+   "depends_on": [
+    "review-file-revise"
+   ],
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/work#personnel"
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "ทะเบียนบุคลากร",
+      "exact": true
+     }
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.per-file",
+      "has_text": "นางสาวพิมพ์ใจ ใฝ่รู้"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "เปิดแฟ้มสะสมงาน",
+      "within": {
+       "css": "article.per-file",
+       "has_text": "นางสาวพิมพ์ใจ ใฝ่รู้"
+      }
+     },
+     "wait_after": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ผลการตรวจ",
+      "within": {
+       "css": "article.per-file",
+       "has_text": "sample.pdf"
+      }
+     },
+     "label": "ตรวจรับแล้ว",
+     "crop_pad": 40,
+     "say": "เลือก \"ตรวจรับแล้ว\" ในช่อง \"ผลการตรวจ\" ของไฟล์ที่ถูกต้อง",
+     "shot": true,
+     "crop": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     },
+     "highlight": {
+      "label": "ผลการตรวจ",
+      "within": {
+       "css": "article.per-file",
+       "has_text": "sample.pdf"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกผลตรวจ",
+      "exact": true,
+      "within": {
+       "css": "article.per-file",
+       "has_text": "sample.pdf"
+      }
+     },
+     "wait_after": {
+      "text": "ตรวจรับแล้ว",
+      "within": {
+       "css": "span.per-badge",
+       "within": {
+        "css": "article.per-file",
+        "has_text": "sample.pdf"
+       }
+      }
+     },
+     "crop_pad": 40,
+     "say": "กดปุ่ม \"บันทึกผลตรวจ\" ไฟล์เปลี่ยนเป็น \"ตรวจรับแล้ว\"",
+     "shot": true,
+     "crop": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     },
+     "highlight": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "ครูเห็นว่าไฟล์ตรวจรับแล้วและลบเองไม่ได้",
+     "as": "homeroom",
+     "start": "/work#portfolio",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.per-file",
+        "has_text": "sample.pdf"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "ตรวจรับแล้ว",
+         "in": {
+          "css": "article.per-file",
+          "has_text": "sample.pdf"
+         }
+        },
+        {
+         "count": 0,
+         "of": {
+          "role": "button",
+          "name": "ลบ",
+          "exact": true,
+          "within": {
+           "css": "article.per-file",
+           "has_text": "sample.pdf"
+          }
+         }
+        }
+       ],
+       "say": "ครูเปิดแฟ้มสะสมงาน ไฟล์แสดง \"ตรวจรับแล้ว\" และไม่มีปุ่ม \"ลบ\" แล้ว",
+       "shot": true,
+       "crop": {
+        "css": "article.per-file",
+        "has_text": "sample.pdf"
+       },
+       "highlight": {
+        "css": "article.per-file",
+        "has_text": "sample.pdf"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "upload-portfolio-phone",
+   "title": "ครูอัปโหลดรูปเข้าแฟ้มสะสมงานจากโทรศัพท์",
+   "intro": "ใช้ขั้นตอนเดียวกับคอมพิวเตอร์ ภาพในหัวข้อนี้เป็นหน้าจอขนาดโทรศัพท์ ครูถ่ายรูปเอกสารหรือเลือกรูปจากเครื่องส่งเข้าแฟ้มได้ทันที",
+   "role": "homeroom",
+   "start": "/work#portfolio",
+   "viewport": "390x844",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "form#per-upload"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "count": 0,
+      "of": {
+       "css": "article.per-file",
+       "has_text": "cover.png"
+      }
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "แฟ้ม",
+      "within": {
+       "css": "form#per-upload"
+      }
+     },
+     "label": "เกียรติบัตร",
+     "say": "เปิดหน้า \"แฟ้มสะสมงาน\" บนโทรศัพท์ เลือกแฟ้มในช่อง \"แฟ้ม\" ในตัวอย่างนี้เลือก \"เกียรติบัตร\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "label": "แฟ้ม",
+      "within": {
+       "css": "form#per-upload"
+      }
+     }
+    },
+    {
+     "do": "upload",
+     "target": {
+      "css": "form#per-upload input[type=file]",
+      "include_hidden": true
+     },
+     "file": "cover.png",
+     "say": "กดปุ่มเลือกไฟล์ ในโทรศัพท์ช่องนี้เปิดกล้องหรือคลังภาพให้เลือกถ่ายรูปเกียรติบัตรได้",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "form#per-upload input[type=file]",
+      "include_hidden": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "อัปโหลด",
+      "exact": true,
+      "within": {
+       "css": "form#per-upload"
+      }
+     },
+     "wait_after": {
+      "css": "article.per-file",
+      "has_text": "cover.png"
+     },
+     "say": "กดปุ่ม \"อัปโหลด\" ไฟล์อยู่ในรายการด้านล่าง สถานะ \"รอตรวจ\"",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "css": "article.per-file",
+      "has_text": "cover.png"
+     }
+    },
+    {
+     "do": "note",
+     "say": "เลื่อนลงดูรายการ ไฟล์ที่อัปโหลดแสดงชื่อ แฟ้ม ปี ขนาด และสถานะ",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.per-file",
+      "has_text": "cover.png"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "เปิดแฟ้มสะสมงานใหม่ ไฟล์รูปอยู่ในแฟ้ม เกียรติบัตร",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.per-file",
+        "has_text": "cover.png"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "เกียรติบัตร",
+         "in": {
+          "css": "article.per-file",
+          "has_text": "cover.png"
+         }
+        },
+        {
+         "text": "รอตรวจ",
+         "in": {
+          "css": "article.per-file",
+          "has_text": "cover.png"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "manage-folders-and-quota",
+   "title": "ตั้งโควตาและจัดการแฟ้มสะสมงานของโรงเรียน",
+   "intro": "ผู้อำนวยการและผู้ดูแลระบบตั้งโควตาพื้นที่ต่อครูและจัดแฟ้มสะสมงานของโรงเรียนได้ โควตารวมทั้งโรงเรียนตั้งที่การติดตั้งระบบ (ใช้ร่วมกับคลังสื่อ) แฟ้มที่มีไฟล์อยู่ลบไม่ได้ ให้เปลี่ยนชื่อแทน",
+   "role": "principal",
+   "start": "/work#personnel",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "ทะเบียนบุคลากร",
+      "exact": true
+     }
+    },
+    {
+     "do": "note",
+     "say": "ที่หน้า \"ทะเบียนบุคลากร\" กดปุ่ม \"แฟ้มและโควตา\" มุมขวาบน",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "แฟ้มและโควตา",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แฟ้มและโควตา",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form#per-quota"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "value": "2048",
+      "of": {
+       "css": "#per-quota input[name=teacher_quota_mb]"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "css": "#per-quota input[name=teacher_quota_mb]"
+     },
+     "value": "3000",
+     "say": "พิมพ์โควตารวมต่อครู 1 คนเป็น MB ในช่อง \"โควตารวมต่อครู 1 คน\" ค่า 0 คือไม่จำกัด",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "#per-quota input[name=teacher_quota_mb]"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกโควตา",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "#toast.show"
+     },
+     "say": "กดปุ่ม \"บันทึกโควตา\" ระบบแสดงข้อความ \"บันทึกโควตาแล้ว\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "button",
+      "name": "บันทึกโควตา",
+      "exact": true
+     }
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "css": "form#per-newfolder"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ชื่อแฟ้ม",
+      "within": {
+       "css": "form#per-newfolder"
+      }
+     },
+     "value": "แฟ้ม {{marker}}",
+     "say": "ในส่วน \"เพิ่มแฟ้ม\" พิมพ์ชื่อแฟ้มใหม่ในช่อง \"ชื่อแฟ้ม\"",
+     "shot": true,
+     "crop": {
+      "css": "form#per-newfolder"
+     },
+     "highlight": {
+      "label": "ชื่อแฟ้ม",
+      "within": {
+       "css": "form#per-newfolder"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ไฟล์ใหญ่สุด (MB)",
+      "within": {
+       "css": "form#per-newfolder"
+      }
+     },
+     "value": "80",
+     "say": "พิมพ์ขนาดไฟล์ใหญ่สุดที่รับได้ในช่อง \"ไฟล์ใหญ่สุด (MB)\"",
+     "shot": true,
+     "crop": {
+      "css": "form#per-newfolder"
+     },
+     "highlight": {
+      "label": "ไฟล์ใหญ่สุด (MB)",
+      "within": {
+       "css": "form#per-newfolder"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มแฟ้ม",
+      "exact": true,
+      "within": {
+       "css": "form#per-newfolder"
+      }
+     },
+     "wait_after": {
+      "css": "form.per-folder:has(input[name=label][value*=\"{{marker}}\"])"
+     },
+     "say": "กดปุ่ม \"เพิ่มแฟ้ม\" ระบบแสดงข้อความ \"เพิ่มแฟ้มแล้ว\" และแฟ้มใหม่อยู่ท้ายรายการแฟ้ม",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เก็บกี่ปี (ว่าง = ไม่ย้ายเข้าที่เก็บถาวร)",
+      "within": {
+       "css": "form.per-folder:has(input[name=label][value*=\"{{marker}}\"])"
+      }
+     },
+     "value": "2",
+     "say": "ที่กรอบของแฟ้ม พิมพ์จำนวนปีที่เก็บในช่อง \"เก็บกี่ปี\" ไฟล์ที่เก่ากว่านี้ระบบย้ายเข้าที่เก็บถาวรให้อัตโนมัติเดือนละครั้ง ไม่ลบไฟล์",
+     "shot": true,
+     "crop": {
+      "css": "form.per-folder:has(input[name=label][value*=\"{{marker}}\"])"
+     },
+     "highlight": {
+      "label": "เก็บกี่ปี (ว่าง = ไม่ย้ายเข้าที่เก็บถาวร)",
+      "within": {
+       "css": "form.per-folder:has(input[name=label][value*=\"{{marker}}\"])"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "โควตาแฟ้มต่อคน (MB, ว่าง = ไม่แยก)",
+      "within": {
+       "css": "form.per-folder:has(input[name=label][value*=\"{{marker}}\"])"
+      }
+     },
+     "value": "500",
+     "say": "พิมพ์ \"โควตาแฟ้มต่อคน\" ถ้าต้องการจำกัดพื้นที่ของแฟ้มนี้แยกจากโควตารวม",
+     "shot": true,
+     "crop": {
+      "css": "form.per-folder:has(input[name=label][value*=\"{{marker}}\"])"
+     },
+     "highlight": {
+      "label": "โควตาแฟ้มต่อคน (MB, ว่าง = ไม่แยก)",
+      "within": {
+       "css": "form.per-folder:has(input[name=label][value*=\"{{marker}}\"])"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "form.per-folder:has(input[name=label][value*=\"{{marker}}\"])"
+      }
+     },
+     "wait_after": {
+      "css": "#toast.show"
+     },
+     "say": "กดปุ่ม \"บันทึก\" ในกรอบของแฟ้ม ระบบแสดงข้อความ \"บันทึกแล้ว\"",
+     "shot": true,
+     "crop": {
+      "css": "form.per-folder:has(input[name=label][value*=\"{{marker}}\"])"
+     },
+     "highlight": {
+      "css": "form.per-folder:has(input[name=label][value*=\"{{marker}}\"])"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบแฟ้ม",
+      "exact": true,
+      "within": {
+       "css": "form.per-folder:has(input[name=label][value*=\"{{marker}}\"])"
+      }
+     },
+     "wait_after": {
+      "text": "ลบแฟ้มแล้ว",
+      "within": {
+       "css": "#toast"
+      }
+     },
+     "say": "กดปุ่ม \"ลบแฟ้ม\" และยืนยัน ลบได้เฉพาะแฟ้มที่ยังไม่มีไฟล์ ระบบแสดงข้อความ \"ลบแฟ้มแล้ว\"",
+     "shot": true,
+     "crop": "viewport"
+    }
+   ],
+   "expected": "โควตาใหม่ถูกบันทึก แฟ้มทดลองถูกเพิ่ม แก้ และลบ",
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ โควตาเป็นค่าที่ตั้ง และไม่มีแฟ้มที่ลบ",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "form#per-quota"
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "form.per-folder",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "value": "3000",
+         "of": {
+          "css": "#per-quota input[name=teacher_quota_mb]"
+         }
+        },
+        {
+         "count": 0,
+         "of": {
+          "css": "form.per-folder:has(input[name=label][value*=\"{{marker}}\"])"
+         }
+        }
+       ],
+       "say": "เปิดหน้า \"แฟ้มและโควตา\" ใหม่ โควตารวมเป็นค่าที่ตั้ง และแฟ้มที่ลบไม่อยู่ในรายการ",
+       "shot": true,
+       "crop": "viewport",
+       "highlight": {
+        "css": "#per-quota input[name=teacher_quota_mb]"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "teacher-permissions",
+   "title": "ครูทั่วไปเห็นเฉพาะแฟ้มของตนเอง",
+   "intro": "ครูทั่วไปดู อัปโหลด และลบไฟล์ในแฟ้มของตนเองเท่านั้น ไม่เห็นข้อมูลทะเบียนและแฟ้มของครูคนอื่น แม้พิมพ์ที่อยู่หน้าเว็บของครูคนอื่นเอง ระบบก็ตอบกลับเป็นแฟ้มของตนเองหรือปฏิเสธ",
+   "role": "homeroom",
+   "start": "/work#portfolio",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "แฟ้มสะสมงาน",
+      "exact": true
+     }
+    },
+    {
+     "do": "note",
+     "say": "ครูทั่วไปมีเมนู \"แฟ้มสะสมงาน\" ของตนเอง แต่ไม่มีเมนู \"ทะเบียนบุคลากร\" ซึ่งเป็นของผู้อำนวยการและผู้ดูแลระบบ",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "แฟ้มสะสมงาน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "hidden": {
+       "role": "link",
+       "name": "ทะเบียนบุคลากร",
+       "exact": true,
+       "within": {
+        "role": "navigation",
+        "name": "ระบบงานโรงเรียน"
+       }
+      }
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "http_status": 403,
+      "url": "/api/personnel/staff"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "http_status": 404,
+      "url": "/api/personnel/teachers/1/zip?year=2569"
+     }
+    },
+    {
+     "do": "goto",
+     "url": "/work#portfolio/1"
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "แฟ้มสะสมงาน",
+      "exact": true
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "เปิดแฟ้มของครูคนอื่นตามลิงก์ ก็ยังเห็นแฟ้มของตนเอง",
+     "steps": [
+      {
+       "do": "expect",
+       "that": [
+        {
+         "count": 0,
+         "of": {
+          "role": "heading",
+          "name": "แฟ้มสะสมงาน ของ"
+         }
+        },
+        {
+         "hidden": {
+          "role": "link",
+          "name": "ทะเบียนบุคลากร",
+          "exact": true,
+          "within": {
+           "role": "navigation",
+           "name": "ระบบงานโรงเรียน"
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cleanup-review-reset",
+   "title": "ล้างข้อมูลทดสอบ: ผู้อำนวยการคืนสถานะไฟล์เป็น รอตรวจ",
+   "role": "principal",
+   "start": "/work#personnel",
+   "cleanup": true,
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "ทะเบียนบุคลากร",
+      "exact": true
+     }
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.per-file",
+      "has_text": "นางสาวพิมพ์ใจ ใฝ่รู้"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "เปิดแฟ้มสะสมงาน",
+      "within": {
+       "css": "article.per-file",
+       "has_text": "นางสาวพิมพ์ใจ ใฝ่รู้"
+      }
+     },
+     "wait_after": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     },
+     "optional": true
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ผลการตรวจ",
+      "within": {
+       "css": "article.per-file",
+       "has_text": "sample.pdf"
+      }
+     },
+     "label": "รอตรวจ",
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกผลตรวจ",
+      "exact": true,
+      "within": {
+       "css": "article.per-file",
+       "has_text": "sample.pdf"
+      }
+     },
+     "wait_after": {
+      "text": "บันทึกผลตรวจแล้ว",
+      "within": {
+       "css": "#toast"
+      }
+     },
+     "optional": true
+    }
+   ],
+   "verify": [
+    {
+     "title": "ไฟล์ทดสอบไม่เหลือสถานะอื่นนอกจากรอตรวจ",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "แฟ้มสะสมงาน ของ"
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.per-file",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "count": 0,
+        "of": {
+         "text": "ตรวจรับแล้ว",
+         "within": {
+          "css": "article.per-file",
+          "has_text": "sample.pdf"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cleanup-portfolio-files",
+   "title": "ล้างข้อมูลทดสอบ: ครูลบไฟล์ทดสอบ",
+   "role": "homeroom",
+   "start": "/work#portfolio",
+   "cleanup": true,
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "แฟ้มสะสมงาน",
+      "exact": true
+     }
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.per-file",
+      "first": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบ",
+      "exact": true,
+      "within": {
+       "css": "article.per-file",
+       "has_text": "sample.pdf"
+      }
+     },
+     "wait_after": {
+      "text": "ลบไฟล์แล้ว",
+      "within": {
+       "css": "#toast"
+      }
+     },
+     "optional": true
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.per-file",
+      "has_text": "sample.pdf"
+     },
+     "state": "hidden",
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบ",
+      "exact": true,
+      "within": {
+       "css": "article.per-file",
+       "has_text": "cover.png"
+      }
+     },
+     "wait_after": {
+      "text": "ลบไฟล์แล้ว",
+      "within": {
+       "css": "#toast"
+      }
+     },
+     "optional": true
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.per-file",
+      "has_text": "cover.png"
+     },
+     "state": "hidden",
+     "optional": true
+    }
+   ],
+   "verify": [
+    {
+     "title": "ไม่มีไฟล์ทดสอบเหลือ",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "แฟ้มสะสมงาน",
+        "exact": true
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.per-file",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "count": 0,
+         "of": {
+          "css": "article.per-file",
+          "has_text": "sample.pdf"
+         }
+        },
+        {
+         "count": 0,
+         "of": {
+          "css": "article.per-file",
+          "has_text": "cover.png"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cleanup-profile",
+   "title": "ล้างข้อมูลทดสอบ: คืนข้อมูลทะเบียนและรูปของบุคลากร",
+   "role": "principal",
+   "start": "/work#personnel",
+   "cleanup": true,
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "ทะเบียนบุคลากร",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "นายกันตภณ โจทย์ยาก"
+     },
+     "wait_after": {
+      "css": "form#per-profile"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบรูป",
+      "exact": true
+     },
+     "wait_after": {
+      "text": "ลบรูปแล้ว",
+      "within": {
+       "css": "#toast"
+      }
+     },
+     "optional": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ตำแหน่ง (เช่น",
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "value": "ครู"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วิทยฐานะ",
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "value": "ครู"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "กลุ่มสาระ / กลุ่มงาน",
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "value": "กลุ่มบริหารวิชาการ"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ฝ่าย / แผนก",
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "value": "กลุ่มสาระการเรียนรู้คณิตศาสตร์"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วันที่เริ่มปฏิบัติงาน",
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "value": "2014-05-16"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "การศึกษา (หนึ่งบรรทัด",
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "value": "ปริญญาตรี | ศึกษาศาสตรบัณฑิต | คณิตศาสตร์ | มหาวิทยาลัยสมมติแห่งต้นธาร | 2545"
+    },
+    {
+     "do": "check",
+     "target": {
+      "label": "แสดงในทำเนียบบุคลากรบนเว็บไซต์",
+      "within": {
+       "css": "form#per-profile"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ลำดับในทำเนียบ",
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "value": "7"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกข้อมูล",
+      "exact": true,
+      "within": {
+       "css": "form#per-profile"
+      }
+     },
+     "wait_after": {
+      "css": "#toast.show"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "ข้อมูลกลับเป็นค่าเดิม",
+     "steps": [
+      {
+       "do": "goto",
+       "url": "/work#personnel"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "ทะเบียนบุคลากร",
+        "exact": true
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "นายกันตภณ โจทย์ยาก"
+       },
+       "wait_after": {
+        "css": "form#per-profile"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "value": "ครู",
+         "of": {
+          "label": "ตำแหน่ง (เช่น",
+          "within": {
+           "css": "form#per-profile"
+          }
+         }
+        },
+        {
+         "value": "กลุ่มบริหารวิชาการ",
+         "of": {
+          "label": "กลุ่มสาระ / กลุ่มงาน",
+          "within": {
+           "css": "form#per-profile"
+          }
+         }
+        },
+        {
+         "value": "กลุ่มสาระการเรียนรู้คณิตศาสตร์",
+         "of": {
+          "label": "ฝ่าย / แผนก",
+          "within": {
+           "css": "form#per-profile"
+          }
+         }
+        },
+        {
+         "value": "2014-05-16",
+         "of": {
+          "label": "วันที่เริ่มปฏิบัติงาน",
+          "within": {
+           "css": "form#per-profile"
+          }
+         }
+        },
+        {
+         "value": "ปริญญาตรี | ศึกษาศาสตรบัณฑิต | คณิตศาสตร์ | มหาวิทยาลัยสมมติแห่งต้นธาร | 2545",
+         "of": {
+          "label": "การศึกษา (หนึ่งบรรทัด",
+          "within": {
+           "css": "form#per-profile"
+          }
+         }
+        },
+        {
+         "value": "7",
+         "of": {
+          "label": "ลำดับในทำเนียบ",
+          "within": {
+           "css": "form#per-profile"
+          }
+         }
+        },
+        {
+         "checked": {
+          "label": "แสดงในทำเนียบบุคลากรบนเว็บไซต์",
+          "within": {
+           "css": "form#per-profile"
+          }
+         }
+        },
+        {
+         "visible": {
+          "text": "ยังไม่มีรูป"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cleanup-folders-quota",
+   "title": "ล้างข้อมูลทดสอบ: คืนโควตาและลบแฟ้มทดสอบที่ค้าง",
+   "role": "principal",
+   "start": "/work#personnel",
+   "cleanup": true,
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "ทะเบียนบุคลากร",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แฟ้มและโควตา",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form#per-quota"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "css": "#per-quota input[name=teacher_quota_mb]"
+     },
+     "value": "2048"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกโควตา",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "#toast.show"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบแฟ้ม",
+      "exact": true,
+      "within": {
+       "css": "form.per-folder:has(input[name=label][value*=\"แฟ้ม ทดสอบคู่มือ\"])",
+       "first": true
+      }
+     },
+     "wait_after": {
+      "text": "ลบแฟ้มแล้ว",
+      "within": {
+       "css": "#toast"
+      }
+     },
+     "optional": true
+    }
+   ],
+   "verify": [
+    {
+     "title": "โควตากลับเป็น 2048 และไม่มีแฟ้มทดสอบ",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "form#per-quota"
+       }
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "form.per-folder",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "value": "2048",
+         "of": {
+          "css": "#per-quota input[name=teacher_quota_mb]"
+         }
+        },
+        {
+         "count": 0,
+         "of": {
+          "css": "form.per-folder:has(input[name=label][value*=\"แฟ้ม ทดสอบคู่มือ\"])"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "skeleton": [],
+ "untested": [
+  "การย้ายไฟล์เก่าเข้าที่เก็บถาวรตามช่อง \"เก็บกี่ปี\": ทำโดยคำสั่งตั้งเวลาของเซิร์ฟเวอร์ (saan:personnel-retention เดือนละครั้ง) ไม่มีปุ่มหรือหน้าจอ จึงตรวจด้วยเบราว์เซอร์ไม่ได้ ตั้งค่าได้ที่ \"แฟ้มและโควตา\" แต่ผลของการย้ายไม่เห็นในหน้าจอ",
+  "โควตารวมทั้งโรงเรียน (SAAN_STORAGE_QUOTA_MB) และข้อจำกัดขนาดไฟล์ของเซิร์ฟเวอร์: กำหนดที่การติดตั้ง ไม่ใช่ในหน้าจอ และการอัปโหลดไฟล์ใหญ่หลายร้อย MB ไม่เหมาะกับการทดสอบอัตโนมัติ",
+  "ไฟล์ที่ผู้ใช้ลบแล้วจะถูกเก็บแถวประวัติไว้ในฐานข้อมูลแต่ไม่แสดงในหน้าจอ และไฟล์ที่ย้ายเข้าที่เก็บถาวรไม่มีตัวกรองสถานะในหน้าจอ",
+  "ทะเบียนบุคลากรไม่มีปุ่มเพิ่มหรือลบบุคลากร รายชื่อมาจากบัญชีครูที่สร้างที่หน้าจัดการผู้ใช้ ครูที่ยังไม่มีทะเบียนจะแสดง \"ยังไม่กรอกตำแหน่ง\" ในรายการ (บุคลากรทุกคนของโรงเรียนทดลองมีทะเบียนครบแล้ว จึงทดสอบการสร้างทะเบียนครั้งแรกไม่ได้)",
+  "ไม่มีการส่งออกทะเบียนบุคลากรเป็นไฟล์ ส่งออกได้เฉพาะแฟ้มสะสมงานรายคนเป็น zip",
+  "การทำซ้ำรูปบุคลากรในหน้ารายชื่อสาธารณะ (รูปเดียวกับที่อัปโหลด) ตรวจเฉพาะในหน้าข้อมูลของบุคลากร ภาพบนเว็บไซต์สาธารณะอาจใช้ชุดรูปที่แยกต่างหากของธีม"
+ ]
+}

@@ -1,7 +1,7 @@
 {
     "id": "guardian-portal",
     "name": "พอร์ทัลผู้ปกครอง",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "readiness": "beta",
     "requires": {
         "core": ">=0.6.0",

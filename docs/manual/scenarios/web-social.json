@@ -1,0 +1,674 @@
+{
+  "module": "web-social",
+  "title": "ข่าวจากเพจ Facebook",
+  "area": "เว็บไซต์โรงเรียน",
+  "purpose": "โมดูลนี้เป็นกล่องเล็กหนึ่งกล่องสำหรับหน้าแรกของเว็บไซต์ ผู้ดูแลเว็บไซต์ใส่ลิงก์เพจ Facebook ของโรงเรียน ตั้งหัวข้อและความสูงของกล่อง แล้วเปิดใช้ เมื่อกล่องปรากฏบนหน้าแรก ผู้เข้าชมต้องกดปุ่ม \"แสดงโพสต์ล่าสุดจาก Facebook\" ก่อน ระบบจึงโหลดโพสต์จาก Facebook (ไม่ใช้ access token และไม่ส่งข้อมูลผู้ชมให้ Facebook จนกว่าจะกด) โมดูลมีหน้าจอตั้งค่าเพียงหน้าเดียว ไม่ได้ดึงโพสต์มาเก็บ ไม่มีการเชื่อมบัญชี และไม่มีปุ่มซ่อนหรือลบโพสต์ ขั้นตอนที่ทดสอบจึงเป็นการบันทึกการตั้งค่า ไม่ได้เชื่อมต่อหรือโพสต์ไปยัง Facebook จริง",
+  "roles": [
+    "ผู้ดูแลเว็บไซต์ (ตั้งค่ากล่อง)",
+    "ผู้อำนวยการและผู้ดูแลระบบ (เข้าได้เช่นเดียวกัน)",
+    "ผู้เข้าชมทั่วไป (เห็นกล่องบนหน้าแรกเมื่อเปิดใช้และจัดไว้ในหน้าแรก)"
+  ],
+  "menu": [
+    "เมนูด้านซ้ายกลุ่ม \"เนื้อหาเว็บไซต์\" > \"ข่าวจากเพจ Facebook\" (/cms#social)",
+    "เมนูกลุ่ม \"ตั้งค่าเว็บไซต์\" > \"จัดหน้าแรก\" (/cms#homepage) ใช้เปิดบล็อก \"ข่าวจากเพจ Facebook\" บนหน้าแรก"
+  ],
+  "prerequisites": [],
+  "vars": {
+    "heading": "{{marker}} ข่าวจากเพจโรงเรียน",
+    "page_url": "https://www.facebook.com/tonthan.demo.school"
+  },
+  "workflows": [
+    {
+      "id": "reject-invalid-link",
+      "title": "ระบบปฏิเสธลิงก์ที่ไม่ใช่เพจ Facebook",
+      "role": "editor",
+      "start": "/cms",
+      "intro": "เมื่อติ๊ก \"เปิดบล็อก Facebook\" ลิงก์ต้องเป็น https ของ facebook.com หรือ fb.com เท่านั้น ระบบไม่รับลิงก์ที่มี access token",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ข่าวจากเพจ Facebook",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ข่าวจากเพจ Facebook\" ที่แถบเมนูด้านซ้าย (อยู่ในกลุ่ม \"เนื้อหาเว็บไซต์\")",
+          "shot": true,
+          "wait_after": {
+            "id": "social-form"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "unchecked": {
+                "label": "เปิดบล็อก Facebook"
+              }
+            },
+            {
+              "value": "",
+              "of": {
+                "label": "ลิงก์เพจ Facebook"
+              }
+            }
+          ],
+          "comment": "precondition: block off and empty link"
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "เปิดบล็อก Facebook"
+          },
+          "say": "ติ๊กช่อง \"เปิดบล็อก Facebook\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ลิงก์เพจ Facebook"
+          },
+          "value": "https://example.com/not-a-facebook-page",
+          "say": "พิมพ์ลิงก์ที่ไม่ใช่เพจ Facebook ในช่อง \"ลิงก์เพจ Facebook\" เพื่อดูข้อความเตือน",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"บันทึก\" ระบบปฏิเสธและแสดงข้อความสีแดงว่าให้กรอกลิงก์แบบ https://www.facebook.com/ชื่อเพจ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "social-error"
+          },
+          "wait_after": {
+            "css": "#social-error",
+            "has_text": "facebook.com"
+          }
+        }
+      ],
+      "expected": "ระบบแสดงข้อความ \"กรอกลิงก์เพจ Facebook แบบ https://www.facebook.com/ชื่อเพจ\" และไม่บันทึก",
+      "verify": [
+        {
+          "title": "เปิดหน้าตั้งค่าใหม่ ค่าเดิมยังไม่ถูกเปลี่ยน",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/cms#social",
+              "wait_after": {
+                "id": "social-form"
+              }
+            },
+            {
+              "do": "reload",
+              "comment": "hash route resets the screen"
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "unchecked": {
+                    "label": "เปิดบล็อก Facebook"
+                  }
+                },
+                {
+                  "value": "",
+                  "of": {
+                    "label": "ลิงก์เพจ Facebook"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "save-settings",
+      "title": "ตั้งค่ากล่องข่าวจากเพจ Facebook",
+      "core": true,
+      "role": "editor",
+      "start": "/cms#social",
+      "intro": "ลิงก์ในขั้นตอนนี้เป็นเพจสมมติ ระบบไม่ได้ติดต่อ Facebook ตอนบันทึก กล่องจะแสดงบนหน้าแรกก็ต่อเมื่อเปิดบล็อกนี้ในหน้า \"จัดหน้าแรก\" ด้วย",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "social-form"
+          },
+          "say": "เปิดหน้า \"ข่าวจากเพจ Facebook\" หน้านี้มีกรอบตั้งค่าเดียว",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "เปิดบล็อก Facebook"
+          },
+          "say": "ติ๊กช่อง \"เปิดบล็อก Facebook\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ลิงก์เพจ Facebook"
+          },
+          "value": "{{page_url}}",
+          "say": "พิมพ์ลิงก์เพจ Facebook ของโรงเรียนในช่อง \"ลิงก์เพจ Facebook\" (ตัวอย่างนี้เป็นเพจสมมติ)",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หัวข้อบล็อก"
+          },
+          "value": "{{heading}}",
+          "say": "พิมพ์หัวข้อที่จะแสดงเหนือกล่องในช่อง \"หัวข้อบล็อก\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ความสูง (พิกเซล)"
+          },
+          "value": "600",
+          "say": "ปรับความสูงของกล่องในช่อง \"ความสูง (พิกเซล)\" ค่าที่รับคือ 300 ถึง 1200",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true
+          },
+          "expect_response": {
+            "url_contains": "/api/social",
+            "method": "PUT",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกแล้ว\" เหนือกรอบตั้งค่า",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "social-status"
+          },
+          "wait_after": {
+            "css": "#social-status",
+            "has_text": "บันทึกแล้ว"
+          }
+        }
+      ],
+      "expected": "ระบบแสดงข้อความ \"บันทึกแล้ว\" ค่าที่กรอกยังอยู่ในฟอร์ม",
+      "verify": [
+        {
+          "title": "เปิดหน้าตั้งค่าใหม่ ค่าที่บันทึกต้องยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/cms#home",
+              "wait_after": {
+                "role": "heading",
+                "name": "ภาพรวมเว็บไซต์"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/cms#social",
+              "wait_after": {
+                "id": "social-form"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "checked": {
+                    "label": "เปิดบล็อก Facebook"
+                  }
+                },
+                {
+                  "value": "{{page_url}}",
+                  "of": {
+                    "label": "ลิงก์เพจ Facebook"
+                  }
+                },
+                {
+                  "value": "{{heading}}",
+                  "of": {
+                    "label": "หัวข้อบล็อก"
+                  }
+                },
+                {
+                  "value": "600",
+                  "of": {
+                    "label": "ความสูง (พิกเซล)"
+                  }
+                }
+              ],
+              "say": "เปิดหน้าตั้งค่าใหม่ ค่าที่บันทึกยังอยู่ครบ",
+              "shot": true,
+              "crop": "panel"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "visitor-home-without-block",
+      "title": "ผู้เข้าชมหน้าแรก: กล่อง Facebook ยังไม่ขึ้นถ้าไม่ได้จัดไว้ในหน้าแรก",
+      "role": "anonymous",
+      "start": "/portal",
+      "depends_on": [
+        "save-settings"
+      ],
+      "intro": "การเปิดบล็อกในหน้านี้อย่างเดียวไม่ทำให้กล่องปรากฏ ต้องไปที่ \"จัดหน้าแรก\" แล้วเปิดบล็อก \"ข่าวจากเพจ Facebook\" และเผยแพร่ด้วย ขั้นตอนนี้ตรวจว่าหน้าแรกปัจจุบันของโรงเรียนไม่เปลี่ยนไป",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "link",
+            "name": "ข่าวและกิจกรรม",
+            "first": true
+          },
+          "say": "ผู้เข้าชมเปิดหน้าแรกของเว็บไซต์ ไม่เห็นกล่อง Facebook เพราะหน้าแรกยังไม่ได้จัดบล็อกนี้ไว้",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "id": "facebook"
+            }
+          }
+        }
+      ],
+      "expected": "หน้าแรกไม่มีกล่อง Facebook",
+      "verify": [
+        {
+          "title": "ไม่มีปุ่ม \"แสดงโพสต์ล่าสุดจาก Facebook\" บนหน้าแรก",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "role": "button",
+                  "name": "แสดงโพสต์ล่าสุดจาก Facebook"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "show-facebook-box-on-home",
+      "title": "เปิดกล่อง Facebook บนหน้าแรกในหน้า \"จัดหน้าแรก\" แล้วปิด",
+      "role": "editor",
+      "start": "/cms",
+      "depends_on": [
+        "save-settings"
+      ],
+      "intro": "ตั้งลิงก์เพจในหน้า \"ข่าวจากเพจ Facebook\" แล้ว กล่องจะยังไม่แสดงบนหน้าแรกจนกว่าจะติ๊กแถว \"ข่าวจากเพจ Facebook\" ในหน้า \"จัดหน้าแรก\" และกด \"ใช้บนเว็บไซต์\" กล่องบนหน้าแรกไม่โหลดอะไรจาก Facebook จนกว่าผู้เข้าชมกดปุ่ม \"แสดงโพสต์ล่าสุดจาก Facebook\" เพื่อไม่ส่งข้อมูลผู้เข้าชมไปยัง Facebook โดยไม่ได้ยินยอม การจัดหน้าแรกเป็นค่าของทั้งเว็บไซต์ ขั้นตอนนี้ทดลองเปิดแล้วปิดคืนให้เอง",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "ตั้งค่าเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดหน้าแรก",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"ตั้งค่าเว็บไซต์\" แล้วเลือก \"จัดหน้าแรก\"",
+          "shot": true,
+          "wait_after": {
+            "id": "site-home-sections"
+          }
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "css": ".desk-home-section-row",
+            "has_text": "ข่าวจากเพจ Facebook"
+          }
+        },
+        {
+          "do": "check",
+          "target": {
+            "role": "checkbox",
+            "name": "ข่าวจากเพจ Facebook",
+            "exact": true
+          },
+          "say": "ติ๊กแถว \"ข่าวจากเพจ Facebook\" แถวนี้ปรากฏเมื่อเปิดโมดูลข่าวจากเพจ Facebook และตั้งลิงก์เพจแล้ว เลื่อนตำแหน่งด้วยปุ่ม \"ขึ้น\" \"ลง\" ได้",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".desk-home-section-row",
+            "has_text": "ข่าวจากเพจ Facebook"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/settings",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"ใช้บนเว็บไซต์\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#settings-status",
+            "has_text": "ใช้การตั้งค่าบนเว็บไซต์แล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal",
+          "wait_after": {
+            "css": "section#facebook"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "css": "section#facebook h2",
+                "has_text": "{{heading}}"
+              }
+            },
+            {
+              "visible": {
+                "role": "button",
+                "name": "แสดงโพสต์ล่าสุดจาก Facebook"
+              }
+            },
+            {
+              "text": "โพสต์จะโหลดจาก Facebook เมื่อกดปุ่ม",
+              "in": {
+                "css": "section#facebook"
+              }
+            },
+            {
+              "count": 0,
+              "of": {
+                "css": "section#facebook iframe",
+                "include_hidden": true
+              }
+            }
+          ],
+          "say": "เปิดหน้าแรกของเว็บไซต์แล้วเลื่อนลงมาถึงส่วน \"ติดตามโรงเรียน\" กล่องแสดงหัวข้อที่ตั้งไว้ และข้อความบอกว่าโพสต์จะโหลดจาก Facebook เมื่อกดปุ่มเท่านั้น ยังไม่มีเฟรมของ Facebook ในหน้า (ไม่กดปุ่ม \"แสดงโพสต์ล่าสุดจาก Facebook\" ในคู่มือ เพราะติดต่อ Facebook จริง)",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "section#facebook"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#homepage",
+          "wait_after": {
+            "id": "site-home-sections"
+          }
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "css": ".desk-home-section-row",
+            "has_text": "ข่าวจากเพจ Facebook"
+          }
+        },
+        {
+          "do": "uncheck",
+          "target": {
+            "role": "checkbox",
+            "name": "ข่าวจากเพจ Facebook",
+            "exact": true
+          },
+          "say": "เอาเครื่องหมายถูกออกจากแถว \"ข่าวจากเพจ Facebook\" แล้วกด \"ใช้บนเว็บไซต์\" อีกครั้ง",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".desk-home-section-row",
+            "has_text": "ข่าวจากเพจ Facebook"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/settings",
+            "status": 200,
+            "method": "PUT"
+          },
+          "wait_after": {
+            "css": "#settings-status",
+            "has_text": "ใช้การตั้งค่าบนเว็บไซต์แล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal"
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 0,
+            "of": {
+              "css": "section#facebook",
+              "include_hidden": true
+            }
+          }
+        }
+      ],
+      "expected": "กล่อง Facebook แสดงบนหน้าแรกพร้อมปุ่มขอความยินยอม แล้วหายไปเมื่อปิด",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมไม่เห็นกล่อง Facebook บนหน้าแรกแล้ว",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "count": 0,
+                "of": {
+                  "css": "section#facebook",
+                  "include_hidden": true
+                }
+              },
+              "say": "ผู้เข้าชมเปิดหน้าแรก ไม่มีกล่อง Facebook",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "restore-clean",
+      "title": "ปิดบล็อกและล้างค่าที่ตั้งไว้",
+      "cleanup": true,
+      "role": "editor",
+      "start": "/cms#social",
+      "intro": "คืนหน้านี้เป็นค่าเดิม คือไม่เปิดบล็อกและไม่มีลิงก์ ผู้ดูแลทำเช่นนี้เมื่อจะเลิกแสดงกล่องบนเว็บไซต์",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "social-form"
+          }
+        },
+        {
+          "do": "uncheck",
+          "target": {
+            "label": "เปิดบล็อก Facebook"
+          },
+          "say": "เอาเครื่องหมายออกจากช่อง \"เปิดบล็อก Facebook\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ลิงก์เพจ Facebook"
+          },
+          "value": "",
+          "say": "ลบข้อความในช่อง \"ลิงก์เพจ Facebook\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หัวข้อบล็อก"
+          },
+          "value": "ข่าวจากเพจ Facebook ของโรงเรียน"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ความสูง (พิกเซล)"
+          },
+          "value": "640"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true
+          },
+          "expect_response": {
+            "url_contains": "/api/social",
+            "method": "PUT",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"บันทึก\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "social-status"
+          },
+          "wait_after": {
+            "css": "#social-status",
+            "has_text": "บันทึกแล้ว"
+          }
+        }
+      ],
+      "expected": "หน้าตั้งค่ากลับเป็นค่าเริ่มต้น",
+      "verify": [
+        {
+          "title": "เปิดหน้าตั้งค่าใหม่ บล็อกปิดและลิงก์ว่าง",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/cms#home",
+              "wait_after": {
+                "role": "heading",
+                "name": "ภาพรวมเว็บไซต์"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/cms#social",
+              "wait_after": {
+                "id": "social-form"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "unchecked": {
+                    "label": "เปิดบล็อก Facebook"
+                  }
+                },
+                {
+                  "value": "",
+                  "of": {
+                    "label": "ลิงก์เพจ Facebook"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [
+    {
+      "id": "S1",
+      "promised": "ผู้ตรวจมอบหมายให้ตรวจ \"เชื่อมต่อเพจ Facebook\" \"ดึงโพสต์มาแสดงเป็นข่าว\" และ \"ซ่อนหรือลบโพสต์ที่ไม่ต้องการ\" (ฟังก์ชันที่คาดจากชื่อโมดูล \"ข่าวจากเพจ Facebook\")",
+      "where": "modules/web-social/module.json (description) และหน้า /cms#social",
+      "observed": "โมดูลเก็บเพียงลิงก์เพจ หัวข้อ ความสูง และสถานะเปิดปิด ไม่มีการเชื่อมบัญชี ไม่มีการดึงโพสต์เข้าฐานข้อมูล ไม่มีรายการโพสต์ให้ซ่อนหรือลบ กล่องบนหน้าแรกเป็นกรอบ iframe ของ Facebook ที่โหลดเมื่อผู้ชมกดปุ่ม ตามที่คำอธิบายโมดูลระบุไว้",
+      "evidence": "modules/web-social/routes/web.php (2 เส้นทาง: GET และ PUT /api/social) modules/web-social/src/SocialFeed.php (ตาราง social_feeds มีคอลัมน์ facebook_url heading height enabled version) modules/web-social/resources/views/home-section.blade.php (iframe โหลดเมื่อกดปุ่ม)",
+      "confirmed": true
+    }
+  ],
+  "untested": [
+    "การกดปุ่ม \"แสดงโพสต์ล่าสุดจาก Facebook\" ไม่ได้ทดสอบ เพราะติดต่อ Facebook จริง ซึ่งเป็นบริการภายนอก ส่วนการเปิดบล็อกในหน้า \"จัดหน้าแรก\" และกล่องที่แสดงพร้อมปุ่มขอความยินยอมทดสอบแล้ว",
+    "เนื้อหาในกล่อง (โพสต์) มาจาก Facebook โดยตรง ระบบไม่เก็บและไม่ควบคุม"
+  ]
+}

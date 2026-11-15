@@ -1,0 +1,2843 @@
+{
+  "module": "activities",
+  "title": "ชุมนุม เลือกตั้งสภานักเรียน และเกียรติบัตรกิจกรรม",
+  "area": "งานวิชาการและงานนักเรียน",
+  "purpose": "ผู้ดูแลระบบสร้างชุมนุมประจำภาคเรียน กำหนดจำนวนรับและครูที่ปรึกษา ครูลงทะเบียนนักเรียนเข้าชุมนุมทั้งห้องหรือเลือกรายคน เมื่อที่นั่งเต็มระบบเก็บเป็นรายชื่อสำรอง ครูที่ปรึกษาเพิ่มคาบกิจกรรม เช็คชื่อ และสรุปผล \"ผ\" หรือ \"มผ\" จากร้อยละการเข้าร่วม แล้วออกเกียรติบัตรที่มีเลขที่เฉพาะของแต่ละใบ การเลือกตั้งสภานักเรียนเป็นการลงคะแนนลับ ผู้ดูแลระบบสร้างการเลือกตั้งและผู้สมัคร เปิดและปิดการลงคะแนน ครูปลดล็อกคูหาทีละคนแล้วนักเรียนแตะเลือกเอง ระบบไม่เก็บว่าใครเลือกใคร และแสดงผลหลังปิดการลงคะแนนเท่านั้น",
+  "roles": [
+    "ผู้ดูแลระบบและผู้อำนวยการ (สร้างและแก้ชุมนุม ตั้งค่าเกณฑ์ สร้างและปิดการเลือกตั้ง)",
+    "ครูที่ปรึกษาชุมนุม (จัดการชุมนุมของตนเอง คาบกิจกรรม เช็คชื่อ สรุปผล ออกเกียรติบัตร)",
+    "ครูทุกคน (ลงทะเบียนนักเรียนเข้าชุมนุมที่เปิดรับ ปลดล็อกคูหา และดูผลการเลือกตั้งหลังปิด)"
+  ],
+  "menu": [
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"ชุมนุม\" (/work#clubs)",
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"เลือกตั้งสภานักเรียน\" (/work#elections)"
+  ],
+  "prerequisites": [
+    {
+      "module": "academic",
+      "text": "ต้องตั้งค่าภาคเรียนปัจจุบัน ห้องเรียน และครู"
+    },
+    {
+      "module": "registry",
+      "text": "ต้องมีรายชื่อนักเรียนและรหัสนักเรียนอยู่ในห้อง"
+    }
+  ],
+  "vars": {
+    "club": "{{marker}} ชุมนุมหุ่นยนต์",
+    "s2": "ชลธาร",
+    "s3": "จันทร์เจ้า",
+    "s4": "ณิชา",
+    "election": "{{marker}} เลือกตั้งสภานักเรียน",
+    "draft_election": "{{marker}} ร่างการเลือกตั้ง"
+  },
+  "workflows": [
+    {
+      "id": "create-club",
+      "title": "ผู้ดูแลระบบสร้างชุมนุมของภาคเรียน",
+      "intro": "ชุมนุมผูกกับภาคเรียนที่เลือกในช่อง \"ภาคเรียน\" ด้านบนของหน้า ชื่อชุมนุมซ้ำกันในภาคเรียนเดียวกันไม่ได้ ช่อง \"จำนวนรับ\" เว้นว่างได้ หมายถึงไม่จำกัด ช่อง \"ระดับชั้นที่รับ\" เว้นว่างได้ หมายถึงรับทุกระดับ ชุมนุมที่มีสมาชิก คาบกิจกรรม หรือเกียรติบัตรแล้วลบไม่ได้ ให้ปิดรับสมัครแทน",
+      "role": "admin",
+      "start": "/work",
+      "core": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ชุมนุม",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ชุมนุม\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "form[data-form=club-new]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อชุมนุม",
+            "within": {
+              "css": "form[data-form=club-new]"
+            }
+          },
+          "value": "{{club}}",
+          "say": "พิมพ์ชื่อชุมนุมในช่อง \"ชื่อชุมนุม\" ในหัวข้อ \"เพิ่มชุมนุม\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ชื่อชุมนุม",
+            "within": {
+              "css": "form[data-form=club-new]"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "จำนวนรับ",
+            "within": {
+              "css": "form[data-form=club-new]"
+            }
+          },
+          "value": "2",
+          "say": "พิมพ์จำนวนที่รับในช่อง \"จำนวนรับ\" ผู้ที่ลงทะเบียนเกินจำนวนจะอยู่ในรายชื่อสำรอง",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "จำนวนรับ",
+            "within": {
+              "css": "form[data-form=club-new]"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รายละเอียด",
+            "within": {
+              "css": "form[data-form=club-new]"
+            }
+          },
+          "value": "ฝึกประกอบและเขียนโปรแกรมหุ่นยนต์เบื้องต้น"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกชุมนุม"
+          },
+          "say": "กดปุ่ม \"บันทึกชุมนุม\" ระบบแสดงข้อความ \"บันทึกชุมนุมแล้ว\" และชุมนุมใหม่อยู่ในรายการด้านบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "article.act-card",
+            "has_text": "{{club}}"
+          },
+          "expect_response": {
+            "url_contains": "/api/activities/clubs",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": "article.act-card",
+            "has_text": "{{club}}"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "สมาชิก 0 / 2 คน",
+            "in": {
+              "css": "article.act-card",
+              "has_text": "{{club}}"
+            }
+          }
+        }
+      ],
+      "expected": "การ์ดของชุมนุมใหม่แสดงป้าย \"เปิดรับสมัคร\" จำนวนสมาชิก 0 / 2 คน และปุ่ม \"จัดการชุมนุม\" กับ \"ลงทะเบียนนักเรียน\"",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ ชุมนุมที่สร้างต้องอยู่ในรายการและเปิดรับสมัคร",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "form[data-form=club-new]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "article.act-card",
+                    "has_text": "{{club}}"
+                  }
+                },
+                {
+                  "text": "เปิดรับสมัคร",
+                  "in": {
+                    "css": "article.act-card",
+                    "has_text": "{{club}}"
+                  }
+                }
+              ],
+              "say": "เปิดหน้า \"ชุมนุม\" ใหม่ ชุมนุมที่สร้างอยู่ในรายการ พร้อมป้าย \"เปิดรับสมัคร\" ครูที่ปรึกษา และจำนวนสมาชิก",
+              "shot": true,
+              "crop": "tight",
+              "highlight": {
+                "css": "article.act-card",
+                "has_text": "{{club}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enroll-students",
+      "title": "ลงทะเบียนนักเรียนเข้าชุมนุม (ที่นั่งเต็มเป็นรายชื่อสำรอง)",
+      "intro": "ครูเลือกห้อง แล้วติ๊กนักเรียนที่ต้องการ หรือกดปุ่ม \"เลือกทั้งห้องที่ยังไม่มีชุมนุม\" นักเรียนหนึ่งคนอยู่ได้เพียงหนึ่งชุมนุมต่อภาคเรียน คนที่มีชุมนุมแล้วเลือกไม่ได้และแสดงชื่อชุมนุมเดิม เมื่อที่นั่งเต็ม ระบบเก็บคนที่เหลือเป็นรายชื่อสำรอง",
+      "role": "admin",
+      "start": "/work#clubs",
+      "depends_on": [
+        "create-club"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "article.act-card",
+            "has_text": "{{club}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลงทะเบียนนักเรียน",
+            "within": {
+              "css": "article.act-card",
+              "has_text": "{{club}}"
+            }
+          },
+          "say": "กดปุ่ม \"ลงทะเบียนนักเรียน\" ในการ์ดของชุมนุม ระบบแสดงหัวข้อ \"ลงทะเบียนเข้าชุมนุม\" ด้านล่างรายการ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "label": "เลือกห้อง"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "เลือกห้อง",
+            "within": {
+              "css": ".act-enroll"
+            }
+          },
+          "label": "ม.1/1",
+          "say": "เลือกห้องในช่อง \"เลือกห้อง\" ตารางแสดงรายชื่อนักเรียนของห้องพร้อมสถานะชุมนุมเดิม",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "เลือกห้อง",
+            "within": {
+              "css": ".act-enroll"
+            }
+          },
+          "wait_after": {
+            "role": "checkbox",
+            "name": "{{s2}}"
+          }
+        },
+        {
+          "do": "check",
+          "target": {
+            "role": "checkbox",
+            "name": "{{s2}}"
+          }
+        },
+        {
+          "do": "check",
+          "target": {
+            "role": "checkbox",
+            "name": "{{s4}}"
+          },
+          "say": "ติ๊กช่องหน้าชื่อนักเรียนที่ต้องการ ตัวอย่างนี้เลือก 2 คนเท่ากับจำนวนที่รับ",
+          "shot": true,
+          "crop": "panel",
+          "highlight": [
+            {
+              "role": "checkbox",
+              "name": "{{s2}}"
+            },
+            {
+              "role": "checkbox",
+              "name": "{{s4}}"
+            }
+          ]
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลงทะเบียนที่เลือก"
+          },
+          "say": "กดปุ่ม \"ลงทะเบียนที่เลือก\" ระบบแจ้งจำนวนที่ได้ที่นั่งและจำนวนที่เป็นรายชื่อสำรอง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".act-msg .act-notice"
+          },
+          "expect_response": {
+            "url_contains": "/enroll",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": ".act-msg .act-notice"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ได้ที่นั่ง 2 คน",
+            "in": {
+              "css": ".act-msg"
+            }
+          }
+        }
+      ],
+      "expected": "ระบบแจ้ง \"ได้ที่นั่ง 2 คน\" และการ์ดของชุมนุมแสดงสมาชิก 2 / 2 คน",
+      "verify": [
+        {
+          "title": "การ์ดของชุมนุมแสดงสมาชิก 2 / 2 คน",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "article.act-card",
+                "has_text": "{{club}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "สมาชิก 2 / 2 คน",
+                "in": {
+                  "css": "article.act-card",
+                  "has_text": "{{club}}"
+                }
+              },
+              "say": "เปิดหน้า \"ชุมนุม\" ใหม่ การ์ดของชุมนุมแสดง \"สมาชิก 2 / 2 คน\"",
+              "shot": true,
+              "crop": "tight",
+              "highlight": {
+                "css": "article.act-card",
+                "has_text": "{{club}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "club-sessions-attendance",
+      "title": "เพิ่มคาบกิจกรรมและเช็คชื่อสมาชิกชุมนุม",
+      "intro": "คาบกิจกรรมหนึ่งวันมีได้หนึ่งคาบต่อชุมนุม วันที่ต้องอยู่ในภาคเรียนของชุมนุม และเช็คชื่อล่วงหน้าไม่ได้ การเช็คชื่อใช้ช่องติ๊ก ติ๊กหมายถึงมา ไม่ติ๊กหมายถึงไม่มา ปุ่ม \"มาทั้งหมด\" ติ๊กให้ทุกคนก่อน แล้วเอาเครื่องหมายถูกออกจากคนที่ไม่มา เช็คชื่อได้เฉพาะสมาชิกที่ได้ที่นั่ง ไม่รวมรายชื่อสำรอง",
+      "role": "admin",
+      "start": "/work#clubs",
+      "depends_on": [
+        "enroll-students"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "article.act-card",
+            "has_text": "{{club}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการชุมนุม",
+            "within": {
+              "css": "article.act-card",
+              "has_text": "{{club}}"
+            }
+          },
+          "say": "กดปุ่ม \"จัดการชุมนุม\" ในการ์ดของชุมนุม",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "link",
+            "name": "จัดการชุมนุม",
+            "within": {
+              "css": "article.act-card",
+              "has_text": "{{club}}"
+            }
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "คาบกิจกรรม"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "วันที่",
+            "within": {
+              "css": "form[data-form=session-new]"
+            }
+          },
+          "value": "{{last_weekday:2}}",
+          "say": "ในหัวข้อ \"คาบกิจกรรม\" เลือกวันที่ในช่อง \"วันที่\" และพิมพ์หัวข้อกิจกรรมในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "วันที่",
+            "within": {
+              "css": "form[data-form=session-new]"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หัวข้อ",
+            "within": {
+              "css": "form[data-form=session-new]"
+            }
+          },
+          "value": "{{marker}} ประกอบหุ่นยนต์"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มคาบ"
+          },
+          "say": "กดปุ่ม \"เพิ่มคาบ\" คาบใหม่อยู่ในรายการใต้ฟอร์ม",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "li",
+            "has_text": "ประกอบหุ่นยนต์"
+          },
+          "expect_response": {
+            "url_contains": "/sessions",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": "li",
+            "has_text": "ประกอบหุ่นยนต์"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "วันที่",
+            "within": {
+              "css": "form[data-form=session-new]"
+            }
+          },
+          "value": "{{last_weekday}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หัวข้อ",
+            "within": {
+              "css": "form[data-form=session-new]"
+            }
+          },
+          "value": "{{marker}} เขียนโปรแกรมควบคุม"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มคาบ"
+          },
+          "wait_after": {
+            "css": "li",
+            "has_text": "เขียนโปรแกรมควบคุม"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "first": true,
+            "within": {
+              "css": "li",
+              "has_text": "ประกอบหุ่นยนต์"
+            }
+          },
+          "say": "ในรายการคาบกิจกรรม กดวันที่ของคาบที่ต้องการเช็คชื่อ",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "role": "button",
+            "name": "มาทั้งหมด"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "มาทั้งหมด"
+          },
+          "say": "เปิดคาบที่ต้องการเช็คชื่อ แล้วกดปุ่ม \"มาทั้งหมด\" ระบบติ๊กให้ทุกคน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "มาทั้งหมด"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการเช็คชื่อ"
+          },
+          "say": "กดปุ่ม \"บันทึกการเช็คชื่อ\" ระบบแสดงข้อความ \"บันทึกการเช็คชื่อแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".act-msg .act-notice"
+          },
+          "expect_response": {
+            "url_contains": "/attendance",
+            "method": "PUT"
+          },
+          "wait_after": {
+            "css": ".act-msg .act-notice"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "กลับ",
+            "exact": true
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "คาบกิจกรรม"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "first": true,
+            "within": {
+              "css": "li",
+              "has_text": "เขียนโปรแกรมควบคุม"
+            }
+          },
+          "wait_after": {
+            "role": "button",
+            "name": "มาทั้งหมด"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "มาทั้งหมด"
+          }
+        },
+        {
+          "do": "uncheck",
+          "target": {
+            "role": "checkbox",
+            "name": "{{s4}}"
+          },
+          "say": "ในคาบถัดไป กดปุ่ม \"มาทั้งหมด\" แล้วเอาเครื่องหมายถูกออกจากนักเรียนที่ไม่มา จากนั้นกดปุ่ม \"บันทึกการเช็คชื่อ\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "role": "checkbox",
+            "name": "{{s4}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการเช็คชื่อ"
+          },
+          "expect_response": {
+            "url_contains": "/attendance",
+            "method": "PUT"
+          },
+          "wait_after": {
+            "css": ".act-msg .act-notice"
+          }
+        }
+      ],
+      "expected": "ระบบแจ้งว่าบันทึกการเช็คชื่อแล้วทั้งสองคาบ และตารางสมาชิกแสดงจำนวนครั้งที่เข้าร่วมของแต่ละคน",
+      "verify": [
+        {
+          "title": "เปิดคาบที่สองใหม่ นักเรียนที่ไม่มาต้องไม่ถูกติ๊ก",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "role": "button",
+                "name": "มาทั้งหมด"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "unchecked": {
+                    "role": "checkbox",
+                    "name": "{{s4}}"
+                  }
+                },
+                {
+                  "checked": {
+                    "role": "checkbox",
+                    "name": "{{s2}}"
+                  }
+                }
+              ],
+              "say": "เปิดคาบที่เช็คชื่อไว้ใหม่ นักเรียนที่ไม่มาไม่มีเครื่องหมายถูก ส่วนคนอื่นมีเครื่องหมายถูก",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "role": "checkbox",
+                "name": "{{s4}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "compute-results-and-certificates",
+      "title": "สรุปผลการเข้าร่วม และออกเกียรติบัตรให้ผู้ที่ผ่าน",
+      "intro": "ระบบคิดร้อยละการเข้าร่วมจากคาบที่เช็คชื่อ นักเรียนที่ถึงเกณฑ์ (ค่าเริ่มต้นร้อยละ 80 ตั้งได้ที่หน้ารายการชุมนุม) ได้ \"ผ\" ที่เหลือได้ \"มผ\" ผลที่ครูแก้เองไม่ถูกทับเมื่อสรุปใหม่ เกียรติบัตรออกให้เฉพาะผู้ที่ผ่านและยังไม่มีเลขที่ แต่ละใบมีเลขที่เฉพาะ การออกซ้ำไม่สร้างใบใหม่ให้คนเดิม",
+      "role": "admin",
+      "start": "/work#clubs",
+      "depends_on": [
+        "club-sessions-attendance"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "article.act-card",
+            "has_text": "{{club}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการชุมนุม",
+            "within": {
+              "css": "article.act-card",
+              "has_text": "{{club}}"
+            }
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "สมาชิกและผล"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สรุปผลจากการเข้าร่วม"
+          },
+          "say": "ในหัวข้อ \"สมาชิกและผล\" กดปุ่ม \"สรุปผลจากการเข้าร่วม\" ระบบแสดงจำนวนคนที่ได้ \"ผ\" และ \"มผ\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "สรุปผลจากการเข้าร่วม"
+          },
+          "expect_response": {
+            "url_contains": "/results/compute",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": ".act-msg .act-notice"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "ผ",
+              "in": {
+                "css": "table.act-table tbody tr",
+                "has_text": "{{s2}}"
+              }
+            },
+            {
+              "text": "มผ",
+              "in": {
+                "css": "table.act-table tbody tr",
+                "has_text": "{{s4}}"
+              }
+            }
+          ],
+          "say": "ตารางสมาชิกแสดงร้อยละการเข้าร่วมและผลของแต่ละคน คนที่มาครบได้ \"ผ\" คนที่ขาดหนึ่งคาบได้ \"มผ\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": [
+            {
+              "css": "table.act-table tbody tr",
+              "has_text": "{{s2}}"
+            },
+            {
+              "css": "table.act-table tbody tr",
+              "has_text": "{{s4}}"
+            }
+          ]
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ออกเกียรติบัตรให้ผู้ที่ผ่าน"
+          },
+          "say": "กดปุ่ม \"ออกเกียรติบัตรให้ผู้ที่ผ่าน\" ระบบแจ้งจำนวนใบที่ออก และเลขที่เกียรติบัตรแสดงในตาราง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".act-msg .act-notice"
+          },
+          "expect_response": {
+            "url_contains": "/certificates",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": ".act-msg .act-notice"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ออกเกียรติบัตรใหม่ 1 ใบ",
+            "in": {
+              "css": ".act-msg"
+            }
+          }
+        }
+      ],
+      "expected": "นักเรียนที่ผ่าน 1 คนมีเลขที่เกียรติบัตรในตาราง ส่วนคนที่ \"มผ\" ไม่มี",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ ผู้ที่ผ่านมีเลขที่เกียรติบัตร ผู้ที่ไม่ผ่านไม่มี",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "role": "heading",
+                "name": "สมาชิกและผล"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "table.act-table tbody tr td[data-label=\"เกียรติบัตร\"]:not(:empty)",
+                    "first": true
+                  }
+                },
+                {
+                  "text": "มผ",
+                  "in": {
+                    "css": "table.act-table tbody tr",
+                    "has_text": "{{s4}}"
+                  }
+                }
+              ],
+              "say": "เปิดหน้าใหม่ คอลัมน์ \"เกียรติบัตร\" แสดงเลขที่ของผู้ที่ผ่าน",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "table.act-table"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "print-certificates",
+      "title": "พิมพ์เกียรติบัตรของชุมนุม",
+      "intro": "เกียรติบัตรเปิดในแท็บใหม่เป็นหน้าสำหรับสั่งพิมพ์ มีชื่อนักเรียน ชื่อชุมนุม เลขที่เกียรติบัตร และชื่อผู้ลงนามตามที่ตั้งไว้ที่หน้ารายการชุมนุม",
+      "role": "admin",
+      "start": "/work#clubs",
+      "depends_on": [
+        "compute-results-and-certificates"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "article.act-card",
+            "has_text": "{{club}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการชุมนุม",
+            "within": {
+              "css": "article.act-card",
+              "has_text": "{{club}}"
+            }
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "สมาชิกและผล"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "พิมพ์เกียรติบัตร"
+          },
+          "say": "กดปุ่ม \"พิมพ์เกียรติบัตร\" ระบบเปิดเกียรติบัตรของผู้ที่ผ่านในแท็บใหม่",
+          "shot": true,
+          "crop": "tight",
+          "expect_popup": {
+            "url_regex": "/activities/clubs/[0-9]+/certificates/print"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "{{club}}"
+          },
+          "say": "หน้าเกียรติบัตรแสดงชื่อนักเรียน ชื่อชุมนุม และเลขที่เกียรติบัตร พร้อมสำหรับสั่งพิมพ์",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "close_tab"
+        }
+      ],
+      "expected": "เกียรติบัตรเปิดในแท็บใหม่ ชื่อชุมนุมและเลขที่ถูกต้อง",
+      "verify": [
+        {
+          "title": "หน้าเกียรติบัตรมีชื่อนักเรียนที่ผ่าน",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "พิมพ์เกียรติบัตร"
+              },
+              "expect_popup": {
+                "url_regex": "/activities/clubs/[0-9]+/certificates/print"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "{{s2}}"
+              }
+            },
+            {
+              "do": "close_tab"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "override-member-result",
+      "title": "ผู้ดูแลระบบแก้ผลการเข้าร่วมของสมาชิกพร้อมเหตุผล",
+      "intro": "ใช้เมื่อผลที่คำนวณจากการเข้าร่วมไม่ตรงกับความเป็นจริง ระบบถามผลการประเมินเป็น \"ผ\" หรือ \"มผ\" แล้วถามเหตุผลที่จะบันทึกไว้ในประวัติ เหตุผลต้องมีอย่างน้อย 3 ตัวอักษร",
+      "role": "admin",
+      "start": "/work#clubs",
+      "depends_on": [
+        "print-certificates"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "article.act-card",
+            "has_text": "{{club}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการชุมนุม",
+            "within": {
+              "css": "article.act-card",
+              "has_text": "{{club}}"
+            }
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "สมาชิกและผล"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ผ",
+            "in": {
+              "css": "table.act-table tbody tr",
+              "has_text": "{{s2}}"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "แก้ผล",
+            "within": {
+              "css": "table.act-table tbody tr",
+              "has_text": "{{s2}}"
+            }
+          },
+          "say": "กดปุ่ม \"แก้ผล\" ท้ายแถวของสมาชิก ระบบถามผลการประเมิน พิมพ์ \"มผ\" แล้วกดตกลง ระบบถามเหตุผลต่อ พิมพ์เหตุผลแล้วกดตกลง",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "role": "button",
+            "name": "แก้ผล",
+            "within": {
+              "css": "table.act-table tbody tr",
+              "has_text": "{{s2}}"
+            }
+          },
+          "dialog_text": [
+            "มผ",
+            "{{marker}} แก้ผลตามบันทึกครู"
+          ],
+          "expect_response": {
+            "url_contains": "/result",
+            "method": "PUT"
+          },
+          "wait_after": {
+            "text": "(แก้เอง)",
+            "within": {
+              "css": "table.act-table tbody tr",
+              "has_text": "{{s2}}"
+            }
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "มผ",
+            "in": {
+              "css": "table.act-table tbody tr",
+              "has_text": "{{s2}}"
+            }
+          }
+        }
+      ],
+      "expected": "ผลของสมาชิกในตารางเปลี่ยนเป็น \"มผ\" ตามที่แก้ไข",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ ผลที่แก้ไขยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#clubs",
+              "wait_after": {
+                "css": "article.act-card",
+                "has_text": "{{club}}"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "จัดการชุมนุม",
+                "within": {
+                  "css": "article.act-card",
+                  "has_text": "{{club}}"
+                }
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "สมาชิกและผล"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "มผ",
+                "in": {
+                  "css": "table.act-table tbody tr",
+                  "has_text": "{{s2}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "club-settings",
+      "title": "ผู้ดูแลระบบตั้งเกณฑ์ผ่านและข้อมูลเกียรติบัตร",
+      "intro": "เกณฑ์ที่ตั้งใช้กับทุกชุมนุมของโรงเรียน ช่อง \"เวลาเข้าร่วมขั้นต่ำเพื่อผ่าน (%)\" คือร้อยละของคาบที่ต้องมา ช่อง \"อักษรนำเลขเกียรติบัตร\" ใช้ตัวอักษร A-Z และตัวเลข 0-9 ไม่เกิน 12 ตัว ช่อง \"ผู้ลงนาม\" และ \"ตำแหน่งผู้ลงนาม\" พิมพ์บนเกียรติบัตร การเปลี่ยนเกณฑ์มีผลกับการสรุปผลครั้งถัดไป",
+      "role": "admin",
+      "start": "/work#clubs",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-form=settings]"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "80",
+            "of": {
+              "label": "เวลาเข้าร่วมขั้นต่ำเพื่อผ่าน",
+              "within": {
+                "css": "form[data-form=settings]"
+              }
+            }
+          },
+          "comment": "precondition: the school keeps the default 80, otherwise an earlier run left dirty data (run activities.restore-clean)"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เวลาเข้าร่วมขั้นต่ำเพื่อผ่าน",
+            "within": {
+              "css": "form[data-form=settings]"
+            }
+          },
+          "value": "75",
+          "say": "ที่ท้ายหน้ารายการชุมนุม หัวข้อ \"เกณฑ์และเกียรติบัตร\" แก้ตัวเลขในช่อง \"เวลาเข้าร่วมขั้นต่ำเพื่อผ่าน (%)\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "เวลาเข้าร่วมขั้นต่ำเพื่อผ่าน",
+            "within": {
+              "css": "form[data-form=settings]"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่า"
+          },
+          "say": "กดปุ่ม \"บันทึกการตั้งค่า\" ระบบแสดงข้อความ \"บันทึกการตั้งค่าแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".act-msg .act-notice"
+          },
+          "expect_response": {
+            "url_contains": "/api/activities/settings",
+            "method": "PUT"
+          },
+          "wait_after": {
+            "css": ".act-msg .act-notice"
+          }
+        }
+      ],
+      "expected": "ระบบแจ้งว่าบันทึกการตั้งค่าแล้ว และค่าใหม่ยังอยู่เมื่อเปิดหน้าอีกครั้ง",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ ค่าที่ตั้งต้องยังอยู่",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "form[data-form=settings]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "value": "75",
+                "of": {
+                  "label": "เวลาเข้าร่วมขั้นต่ำเพื่อผ่าน",
+                  "within": {
+                    "css": "form[data-form=settings]"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-election",
+      "title": "ผู้ดูแลระบบสร้างการเลือกตั้งสภานักเรียนและเพิ่มผู้สมัคร",
+      "intro": "การเลือกตั้งเริ่มเป็นสถานะ \"ร่าง\" ช่วงที่ยังเป็นร่างเพิ่มและลบผู้สมัครได้ ช่อง \"ระดับชั้นที่มีสิทธิ์\" คั่นด้วยเครื่องหมายจุลภาค เช่น ม.1, ม.2 เว้นว่างหมายถึงทุกระดับ เวลาปิดต้องอยู่หลังเวลาเปิด ผู้สมัครเพิ่มด้วยรหัสนักเรียน และแต่ละหมายเลขใช้ได้เพียงครั้งเดียว",
+      "role": "admin",
+      "start": "/work",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เลือกตั้งสภานักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"เลือกตั้งสภานักเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "form[data-form=election-new]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อการเลือกตั้ง",
+            "within": {
+              "css": "form[data-form=election-new]"
+            }
+          },
+          "value": "{{election}}",
+          "say": "พิมพ์ชื่อในช่อง \"ชื่อการเลือกตั้ง\" ในหัวข้อ \"สร้างการเลือกตั้ง\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ชื่อการเลือกตั้ง",
+            "within": {
+              "css": "form[data-form=election-new]"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เปิดลงคะแนน",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=election-new]"
+            }
+          },
+          "value": "{{today}}T00:00"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ปิดลงคะแนน",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=election-new]"
+            }
+          },
+          "value": "{{today}}T23:59",
+          "say": "เลือกวันเวลาเปิดและปิดในช่อง \"เปิดลงคะแนน\" และ \"ปิดลงคะแนน\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": [
+            {
+              "label": "เปิดลงคะแนน",
+              "exact": true,
+              "within": {
+                "css": "form[data-form=election-new]"
+              }
+            },
+            {
+              "label": "ปิดลงคะแนน",
+              "exact": true,
+              "within": {
+                "css": "form[data-form=election-new]"
+              }
+            }
+          ]
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ระดับชั้นที่มีสิทธิ์",
+            "within": {
+              "css": "form[data-form=election-new]"
+            }
+          },
+          "value": "ม.1",
+          "say": "พิมพ์ระดับชั้นที่มีสิทธิ์ลงคะแนนในช่อง \"ระดับชั้นที่มีสิทธิ์\" เช่น ม.1",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้าง",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"สร้าง\" ระบบเปิดหน้าการเลือกตั้งที่เพิ่งสร้าง สถานะ \"ร่าง\"",
+          "shot": true,
+          "crop": "viewport",
+          "expect_response": {
+            "url_contains": "/api/activities/elections",
+            "method": "POST"
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "{{election}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หมายเลข",
+            "within": {
+              "css": "form[data-form=cand-new]"
+            }
+          },
+          "value": "1"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสนักเรียน",
+            "within": {
+              "css": "form[data-form=cand-new]"
+            }
+          },
+          "value": "69009"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "คำขวัญ",
+            "within": {
+              "css": "form[data-form=cand-new]"
+            }
+          },
+          "value": "ร่วมกันสร้างโรงเรียนน่าอยู่",
+          "say": "ในหัวข้อ \"ผู้สมัคร\" พิมพ์หมายเลข รหัสนักเรียน และคำขวัญของผู้สมัคร",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "form[data-form=cand-new]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มผู้สมัคร"
+          },
+          "say": "กดปุ่ม \"เพิ่มผู้สมัคร\" ผู้สมัครอยู่ในรายการ ทำซ้ำเพื่อเพิ่มคนต่อไป",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "li",
+            "has_text": "หมายเลข 1"
+          },
+          "expect_response": {
+            "url_contains": "/candidates",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": "li",
+            "has_text": "หมายเลข 1"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หมายเลข",
+            "within": {
+              "css": "form[data-form=cand-new]"
+            }
+          },
+          "value": "2"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสนักเรียน",
+            "within": {
+              "css": "form[data-form=cand-new]"
+            }
+          },
+          "value": "69010"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มผู้สมัคร"
+          },
+          "wait_after": {
+            "css": "li",
+            "has_text": "หมายเลข 2"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หมายเลข",
+            "within": {
+              "css": "form[data-form=cand-new]"
+            }
+          },
+          "value": "3"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสนักเรียน",
+            "within": {
+              "css": "form[data-form=cand-new]"
+            }
+          },
+          "value": "69011"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มผู้สมัคร"
+          },
+          "wait_after": {
+            "css": "li",
+            "has_text": "หมายเลข 3"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "li",
+              "has_text": "หมายเลข 3"
+            }
+          },
+          "say": "ผู้สมัครที่เพิ่มผิดลบได้ด้วยปุ่ม \"ลบ\" ท้ายรายการ ในช่วงที่การเลือกตั้งยังเป็นร่างเท่านั้น",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "li",
+            "has_text": "หมายเลข 3"
+          },
+          "expect_response": {
+            "url_contains": "/api/activities/candidates/",
+            "method": "DELETE"
+          },
+          "wait_after": {
+            "css": "li",
+            "has_text": "หมายเลข 2"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "li",
+              "has_text": "หมายเลข 3"
+            }
+          }
+        }
+      ],
+      "expected": "หน้าการเลือกตั้งแสดงสถานะ \"ร่าง\" และผู้สมัครหมายเลข 1 และ 2 ในรายการ",
+      "verify": [
+        {
+          "title": "เปิดหน้าการเลือกตั้งใหม่ สถานะเป็นร่าง และมีผู้สมัคร 2 คน",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "role": "heading",
+                "name": "{{election}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "li",
+                    "has_text": "หมายเลข 1"
+                  }
+                },
+                {
+                  "visible": {
+                    "css": "li",
+                    "has_text": "หมายเลข 2"
+                  }
+                },
+                {
+                  "visible": {
+                    "role": "button",
+                    "name": "เปิดลงคะแนน"
+                  }
+                }
+              ],
+              "say": "เปิดหน้าการเลือกตั้งใหม่ ผู้สมัครทั้งสองอยู่ในรายการ และมีปุ่ม \"เปิดลงคะแนน\"",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "role": "button",
+                "name": "เปิดลงคะแนน"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open-election",
+      "title": "เปิดการลงคะแนน",
+      "intro": "เปิดลงคะแนนได้เมื่อมีผู้สมัครอย่างน้อย 1 คน และเวลาปิดยังไม่ผ่านไป เมื่อเปิดแล้วแก้ผู้สมัครและกติกาไม่ได้ แก้ได้เฉพาะเวลาปิด ระบบแสดงจำนวนผู้ลงคะแนนของแต่ละห้อง และปรับตัวเลขเองทุก 10 วินาที",
+      "role": "admin",
+      "start": "/work#elections",
+      "depends_on": [
+        "create-election"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เปิดดู",
+            "within": {
+              "css": "article.act-card",
+              "has_text": "{{election}}"
+            }
+          },
+          "wait_after": {
+            "role": "button",
+            "name": "เปิดลงคะแนน"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดลงคะแนน"
+          },
+          "say": "กดปุ่ม \"เปิดลงคะแนน\" ป้ายสถานะเปลี่ยนเป็น \"เปิดลงคะแนน\" ตารางผู้มาลงคะแนนแสดงห้องที่มีสิทธิ์ และมีปุ่ม \"เปิดคูหา\"",
+          "shot": true,
+          "crop": "viewport",
+          "expect_response": {
+            "url_contains": "/status",
+            "method": "POST"
+          },
+          "wait_after": {
+            "role": "button",
+            "name": "ปิดการลงคะแนนและนับคะแนน"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "role": "link",
+              "name": "เปิดคูหา",
+              "within": {
+                "css": "tr",
+                "has_text": "ม.1/1"
+              }
+            }
+          }
+        }
+      ],
+      "expected": "สถานะเป็น \"เปิดลงคะแนน\" มีปุ่ม \"ปิดการลงคะแนนและนับคะแนน\" และปุ่ม \"เปิดคูหา\" ของแต่ละห้อง",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ สถานะยังเป็น \"เปิดลงคะแนน\"",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "role": "heading",
+                "name": "{{election}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "button",
+                    "name": "ปิดการลงคะแนนและนับคะแนน"
+                  }
+                },
+                {
+                  "hidden": {
+                    "role": "button",
+                    "name": "เปิดลงคะแนน",
+                    "exact": true
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vote-at-kiosk",
+      "title": "ครูปลดล็อกคูหาและนักเรียนลงคะแนนลับ",
+      "intro": "ครูเปิดคูหาของห้อง เลือกชื่อนักเรียนที่จะลงคะแนนทีละคน แล้วส่งอุปกรณ์ให้นักเรียนแตะหมายเลขที่ต้องการ ครูไม่ต้องดูหน้าจอ เมื่อนักเรียนแตะ ระบบบันทึกว่านักเรียนคนนั้นลงแล้ว แต่ไม่เก็บว่าเลือกใคร หน้าจอล็อกอีกครั้งและกลับไปรายชื่อ นักเรียนที่ลงแล้วเลือกซ้ำไม่ได้ ตั๋วปลดล็อกมีอายุ 5 นาที และใช้ได้ครั้งเดียว นักเรียนเลือก \"ไม่ประสงค์ลงคะแนน\" ได้",
+      "role": "homeroom",
+      "start": "/work#elections",
+      "depends_on": [
+        "open-election"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เปิดดู",
+            "within": {
+              "css": "article.act-card",
+              "has_text": "{{election}}"
+            }
+          },
+          "wait_after": {
+            "role": "link",
+            "name": "เปิดคูหา"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เปิดคูหา",
+            "within": {
+              "css": "tr",
+              "has_text": "ม.1/1"
+            }
+          },
+          "say": "ที่หน้าการเลือกตั้ง กดปุ่ม \"เปิดคูหา\" ในแถวของห้องที่ต้องการ",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "link",
+            "name": "เปิดคูหา",
+            "within": {
+              "css": "tr",
+              "has_text": "ม.1/1"
+            }
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "ครูเลือกชื่อนักเรียนที่จะลงคะแนน"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": ".act-students button",
+            "has_text": "{{s2}}"
+          },
+          "say": "ครูกดชื่อนักเรียนที่จะลงคะแนน ระบบปลดล็อกคูหาให้คนนั้นคนเดียว",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "เลือกผู้สมัคร"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": ".act-cand",
+              "has_text": "ร่วมกันสร้างโรงเรียนน่าอยู่"
+            }
+          },
+          "say": "หน้าจอแสดงหมายเลขและชื่อผู้สมัคร นักเรียนแตะหมายเลขที่ต้องการ หรือแตะ \"ไม่ประสงค์ลงคะแนน\" (ครูไม่ต้องดูหน้าจอ)",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".act-ballot"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": ".act-cand",
+            "has_text": "ร่วมกันสร้างโรงเรียนน่าอยู่"
+          },
+          "say": "นักเรียนแตะหมายเลขผู้สมัคร ระบบแสดงข้อความ \"บันทึกคะแนนแล้ว ขอบคุณ\" และกลับไปรายชื่อ นักเรียนที่ลงแล้วเป็นปุ่มสีจางและมีข้อความ \"(ลงแล้ว)\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".act-students button:disabled"
+          },
+          "expect_response": {
+            "url_contains": "/vote",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": ".act-msg .act-notice"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "บันทึกคะแนนแล้ว",
+            "in": {
+              "css": ".act-msg"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": ".act-students button",
+            "has_text": "{{s3}}"
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "เลือกผู้สมัคร"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ไม่ประสงค์ลงคะแนน"
+          },
+          "expect_response": {
+            "url_contains": "/vote",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": ".act-msg .act-notice"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 2,
+            "of": {
+              "css": ".act-students button:disabled"
+            }
+          }
+        }
+      ],
+      "expected": "นักเรียน 2 คนมีสถานะ \"(ลงแล้ว)\" และหัวข้อบนหน้าแสดง \"ลงคะแนนแล้ว 2 จาก 19 คน\"",
+      "verify": [
+        {
+          "title": "ผู้อำนวยการเปิดหน้าการเลือกตั้ง จำนวนผู้ลงคะแนนของ ม.1/1 ต้องเป็น 2",
+          "as": "admin",
+          "start": "/work#elections",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "เปิดดู",
+                "within": {
+                  "css": "article.act-card",
+                  "has_text": "{{election}}"
+                }
+              },
+              "wait_after": {
+                "role": "link",
+                "name": "เปิดคูหา"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "2 / 19",
+                "in": {
+                  "css": "tr",
+                  "has_text": "ม.1/1"
+                }
+              },
+              "say": "หน้าการเลือกตั้งแสดงจำนวนผู้ลงคะแนนของห้อง ม.1/1 เป็น 2 จาก 20 คน",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "tr",
+                "has_text": "ม.1/1"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "close-election-results",
+      "title": "ปิดการลงคะแนนและดูผลการเลือกตั้ง",
+      "intro": "เมื่อปิดการลงคะแนนแล้วเปิดใหม่ไม่ได้ และระบบลบกุญแจที่เชื่อมบัตรกับนักเรียน ทำให้ไม่มีใครตรวจย้อนได้ว่านักเรียนคนใดเลือกใคร ผลแสดงหลังปิดเท่านั้น ถ้าคะแนนสูงสุดเท่ากัน ระบบแจ้งเตือนให้ตัดสินตามระเบียบของสภานักเรียน การเลือกตั้งที่เลยเวลาปิดจะปิดเองเมื่อมีผู้เปิดดู",
+      "role": "admin",
+      "start": "/work#elections",
+      "depends_on": [
+        "vote-at-kiosk"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เปิดดู",
+            "within": {
+              "css": "article.act-card",
+              "has_text": "{{election}}"
+            }
+          },
+          "wait_after": {
+            "role": "button",
+            "name": "ปิดการลงคะแนนและนับคะแนน"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ผลจะแสดงหลังปิดการลงคะแนนเท่านั้น"
+          },
+          "say": "ระหว่างที่เปิดลงคะแนน หัวข้อ \"ผลการเลือกตั้ง\" แจ้งว่าผลจะแสดงหลังปิดการลงคะแนนเท่านั้น",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ปิดการลงคะแนนและนับคะแนน"
+          },
+          "say": "กดปุ่ม \"ปิดการลงคะแนนและนับคะแนน\" แล้วกดตกลงในกล่องยืนยัน ระบบแสดงผลการเลือกตั้ง",
+          "shot": true,
+          "crop": "viewport",
+          "expect_response": {
+            "url_contains": "/status",
+            "method": "POST"
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "ผลการเลือกตั้ง"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "บัตรทั้งหมด 2 ใบ"
+            },
+            {
+              "text": "ไม่ประสงค์ลงคะแนน",
+              "in": {
+                "css": "table.act-table",
+                "has_text": "ไม่ประสงค์ลงคะแนน"
+              }
+            }
+          ],
+          "say": "ตารางผลแสดงคะแนนของผู้สมัครแต่ละหมายเลข คะแนน \"ไม่ประสงค์ลงคะแนน\" และจำนวนบัตรทั้งหมดต่อผู้มีสิทธิ์",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "table.act-table",
+            "has_text": "ไม่ประสงค์ลงคะแนน"
+          }
+        }
+      ],
+      "expected": "ป้ายสถานะเป็น \"ปิดแล้ว\" ตารางผลมีผู้สมัครหมายเลข 1 ได้ 1 คะแนน หมายเลข 2 ได้ 0 คะแนน และ \"ไม่ประสงค์ลงคะแนน\" 1 บัตร",
+      "verify": [
+        {
+          "title": "ครูเปิดการเลือกตั้งที่ปิดแล้ว เห็นผลและไม่มีปุ่มเปิดใหม่",
+          "as": "homeroom",
+          "start": "/work#elections",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "เปิดดู",
+                "within": {
+                  "css": "article.act-card",
+                  "has_text": "{{election}}"
+                }
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "ผลการเลือกตั้ง"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "บัตรทั้งหมด 2 ใบ"
+                },
+                {
+                  "hidden": {
+                    "role": "button",
+                    "name": "เปิดลงคะแนน"
+                  }
+                },
+                {
+                  "hidden": {
+                    "role": "link",
+                    "name": "เปิดคูหา"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "delete-draft-election",
+      "title": "ผู้ดูแลระบบลบการเลือกตั้งที่ยังเป็นร่าง",
+      "intro": "ลบได้เฉพาะการเลือกตั้งที่ยังเป็นร่าง การเลือกตั้งที่เปิดหรือปิดแล้วลบไม่ได้ เพื่อเก็บหลักฐานการลงคะแนน",
+      "role": "admin",
+      "start": "/work#elections",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-form=election-new]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อการเลือกตั้ง",
+            "within": {
+              "css": "form[data-form=election-new]"
+            }
+          },
+          "value": "{{draft_election}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เปิดลงคะแนน",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=election-new]"
+            }
+          },
+          "value": "{{today}}T00:00"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ปิดลงคะแนน",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=election-new]"
+            }
+          },
+          "value": "{{today}}T23:59"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้าง",
+            "exact": true
+          },
+          "wait_after": {
+            "role": "button",
+            "name": "ลบร่าง"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบร่าง"
+          },
+          "say": "ในหน้าการเลือกตั้งที่ยังเป็นร่าง กดปุ่ม \"ลบร่าง\" แล้วกดตกลงในกล่องยืนยัน ระบบกลับไปหน้ารายการ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "ลบร่าง"
+          },
+          "expect_response": {
+            "url_contains": "/api/activities/elections/",
+            "method": "DELETE"
+          },
+          "wait_after": {
+            "css": "form[data-form=election-new]"
+          }
+        }
+      ],
+      "expected": "การเลือกตั้งร่างไม่อยู่ในรายการอีก",
+      "verify": [
+        {
+          "title": "เปิดรายการใหม่ ไม่มีการเลือกตั้งร่างที่ลบแล้ว",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "form[data-form=election-new]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "css": "article.act-card",
+                  "has_text": "{{draft_election}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phone-view",
+      "title": "ดูชุมนุมบนโทรศัพท์มือถือ",
+      "role": "homeroom",
+      "start": "/work#clubs",
+      "viewport": "390x844",
+      "intro": "หน้ารายการชุมนุมใช้บนมือถือได้ การ์ดของชุมนุมเรียงเป็นแถวเดียว และปุ่มลงทะเบียนนักเรียนกดได้ด้วยนิ้ว",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "article.act-card",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "article.act-card",
+              "has_text": "{{club}}"
+            }
+          },
+          "say": "เปิดหน้า \"ชุมนุม\" บนมือถือ ชุมนุมแต่ละแห่งแสดงเป็นการ์ด พร้อมปุ่ม \"ลงทะเบียนนักเรียน\" สำหรับชุมนุมที่เปิดรับ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "article.act-card",
+            "has_text": "{{club}}"
+          }
+        }
+      ],
+      "expected": "การ์ดของชุมนุมแสดงครบถ้วนโดยไม่ต้องเลื่อนไปทางขวา",
+      "verify": [
+        {
+          "title": "การ์ดของชุมนุมแสดงบนมือถือ",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "article.act-card",
+                  "has_text": "{{club}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "waitlist-and-promotion",
+      "title": "ชุมนุมที่เต็มเก็บนักเรียนที่เกินเป็นรายชื่อสำรอง และผู้สำรองได้ที่นั่งเมื่อมีคนออก",
+      "role": "admin",
+      "start": "/work#clubs",
+      "depends_on": [
+        "enroll-students"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "article.act-card",
+            "has_text": "ชุมนุมศิลปะและงานประดิษฐ์"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการชุมนุม",
+            "within": {
+              "css": "article.act-card",
+              "has_text": "ชุมนุมศิลปะและงานประดิษฐ์"
+            }
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "สมาชิกและผล"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "table.act-table tbody tr",
+              "has_text": "สำรอง",
+              "first": true
+            }
+          },
+          "say": "ชุมนุมที่รับเต็มแล้ว นักเรียนที่เกินจำนวนรับอยู่ในรายชื่อสำรอง ตารางสมาชิกแสดงสถานะ \"สำรอง\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "table.act-table tbody tr",
+            "has_text": "สำรอง",
+            "first": true
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/work#clubs",
+          "wait_after": {
+            "css": "article.act-card",
+            "has_text": "{{club}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลงทะเบียนนักเรียน",
+            "within": {
+              "css": "article.act-card",
+              "has_text": "{{club}}"
+            }
+          },
+          "wait_after": {
+            "label": "เลือกห้อง"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "เลือกห้อง",
+            "within": {
+              "css": ".act-enroll"
+            }
+          },
+          "label": "ม.2/1",
+          "say": "ชุมนุมของเราเต็มแล้ว (รับ 2 คน) เลือกห้องที่มีนักเรียนที่ยังไม่มีชุมนุม",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "form[data-form=enroll] tr:has(td:last-child:empty)"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "form[data-form=enroll] tr:has(td:last-child:empty) td:nth-child(3)",
+            "first": true
+          },
+          "var": "free_name",
+          "wait_after": {
+            "css": "form[data-form=enroll] tr:has(td:last-child:empty)"
+          }
+        },
+        {
+          "do": "check",
+          "target": {
+            "css": "form[data-form=enroll] tr:has(td:last-child:empty) input[type=checkbox]",
+            "first": true
+          },
+          "say": "ติ๊กนักเรียนที่ยังไม่มีชุมนุมหนึ่งคน ซึ่งจะเป็นผู้ที่รอคิวเพราะที่นั่งเต็ม",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "form[data-form=enroll] tr:has(td:last-child:empty) input[type=checkbox]",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลงทะเบียนที่เลือก"
+          },
+          "say": "กดปุ่ม \"ลงทะเบียนที่เลือก\" ระบบแจ้งว่าไม่ได้ที่นั่ง และนักเรียนอยู่ในรายชื่อสำรอง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".act-msg .act-notice"
+          },
+          "expect_response": {
+            "url_contains": "/enroll",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": ".act-msg .act-notice"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "สำรอง 1 คน",
+            "in": {
+              "css": ".act-msg"
+            }
+          }
+        }
+      ],
+      "expected": "นักเรียนที่เกินจำนวนรับอยู่ในรายชื่อสำรอง และเมื่อมีสมาชิกออก ผู้ที่รอคิวได้ที่นั่งโดยอัตโนมัติ",
+      "verify": [
+        {
+          "title": "รายชื่อสำรองของชุมนุมแสดงนักเรียนที่รอคิว",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#clubs",
+              "wait_after": {
+                "css": "article.act-card",
+                "has_text": "{{club}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "สำรอง 1",
+                "in": {
+                  "css": "article.act-card",
+                  "has_text": "{{club}}"
+                }
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "จัดการชุมนุม",
+                "within": {
+                  "css": "article.act-card",
+                  "has_text": "{{club}}"
+                }
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "สมาชิกและผล"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "สำรอง",
+                "in": {
+                  "css": "table.act-table tbody tr",
+                  "has_text": "{{free_name}}"
+                }
+              },
+              "say": "หน้าจัดการชุมนุมแสดงนักเรียนที่รอคิวในตารางสมาชิกพร้อมสถานะ \"สำรอง\"",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "table.act-table tbody tr",
+                "has_text": "{{free_name}}"
+              }
+            }
+          ]
+        },
+        {
+          "title": "นำสมาชิกออกแล้วผู้ที่รอคิวได้ที่นั่งโดยอัตโนมัติ",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "นำออก",
+                "within": {
+                  "css": "table.act-table tbody tr",
+                  "has_text": "{{s2}}"
+                }
+              },
+              "say": "กดปุ่ม \"นำออก\" ท้ายชื่อสมาชิก ระบบเลื่อนผู้ที่รอคิวคนแรกเข้าที่นั่งที่ว่างโดยอัตโนมัติ",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "table.act-table tbody tr",
+                "has_text": "{{s2}}"
+              },
+              "wait_after": {
+                "css": "table.act-table tbody tr",
+                "has_text": "{{free_name}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "สมาชิก",
+                  "in": {
+                    "css": "table.act-table tbody tr",
+                    "has_text": "{{free_name}}"
+                  }
+                },
+                {
+                  "not_text": "สำรอง",
+                  "in": {
+                    "css": "table.act-table tbody tr",
+                    "has_text": "{{free_name}}"
+                  }
+                }
+              ],
+              "say": "ตารางแสดงนักเรียนที่รอคิวเป็นสมาชิกแล้ว ไม่มีสถานะ \"สำรอง\"",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "table.act-table tbody tr",
+                "has_text": "{{free_name}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "certificate-signer-and-prefix",
+      "title": "ตั้งอักษรนำเลขเกียรติบัตรและชื่อผู้ลงนาม แล้วออกเกียรติบัตรใหม่",
+      "role": "admin",
+      "start": "/work#clubs",
+      "depends_on": [
+        "waitlist-and-promotion"
+      ],
+      "steps": [
+        {
+          "do": "goto",
+          "url": "/work#clubs",
+          "wait_after": {
+            "css": "form[data-form=settings]"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "form[data-form=settings] input[name=signer_name]"
+          },
+          "var": "orig_signer",
+          "from_attr": "value"
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "form[data-form=settings] input[name=signer_title]"
+          },
+          "var": "orig_title",
+          "from_attr": "value"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "form[data-form=settings] input[name=cert_prefix]"
+          },
+          "value": "TST",
+          "say": "ที่หัวข้อ \"เกณฑ์และเกียรติบัตร\" พิมพ์อักษรนำเลขเกียรติบัตรเป็น TST",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "อักษรนำเลขเกียรติบัตร (A-Z 0-9)",
+            "within": {
+              "css": "form[data-form=settings]"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "form[data-form=settings] input[name=signer_name]"
+          },
+          "value": "{{marker}} ผู้ลงนามทดสอบ",
+          "say": "พิมพ์ชื่อผู้ลงนามในช่อง \"ผู้ลงนาม\" ชื่อนี้จะพิมพ์บนเกียรติบัตร"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "form[data-form=settings] input[name=signer_title]"
+          },
+          "value": "{{marker}} ตำแหน่งทดสอบ"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่า"
+          },
+          "say": "กดปุ่ม \"บันทึกการตั้งค่า\" ระบบบันทึกอักษรนำและชื่อผู้ลงนาม",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".act-msg .act-notice"
+          },
+          "expect_response": {
+            "url_contains": "/settings",
+            "method": "PUT"
+          },
+          "wait_after": {
+            "css": ".act-msg .act-notice"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/work#clubs",
+          "wait_after": {
+            "css": "article.act-card",
+            "has_text": "{{club}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการชุมนุม",
+            "within": {
+              "css": "article.act-card",
+              "has_text": "{{club}}"
+            }
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "สมาชิกและผล"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "แก้ผล",
+            "within": {
+              "css": "table.act-table tbody tr",
+              "has_text": "{{s4}}"
+            }
+          },
+          "say": "ครูแก้ผลของสมาชิกที่เข้าร่วมไม่ครบเป็น \"ผ\" พร้อมเหตุผล เพื่อให้มีสิทธิ์รับเกียรติบัตร",
+          "shot": true,
+          "crop": "panel",
+          "dialog_text": [
+            "ผ",
+            "{{marker}} ทดสอบอักษรนำเกียรติบัตร"
+          ],
+          "expect_response": {
+            "url_contains": "/result",
+            "method": "PUT"
+          },
+          "wait_after": {
+            "text": "(แก้เอง)",
+            "within": {
+              "css": "table.act-table tbody tr",
+              "has_text": "{{s4}}"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ออกเกียรติบัตรให้ผู้ที่ผ่าน"
+          },
+          "say": "กดปุ่ม \"ออกเกียรติบัตรให้ผู้ที่ผ่าน\" เลขที่เกียรติบัตรใหม่ใช้อักษรนำที่ตั้งไว้",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".act-msg .act-notice"
+          },
+          "expect_response": {
+            "url_contains": "/certificates",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": ".act-msg .act-notice"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "TST-",
+            "in": {
+              "css": "table.act-table tbody tr",
+              "has_text": "{{s4}}"
+            }
+          },
+          "say": "เลขที่เกียรติบัตรของสมาชิกที่เพิ่งออกขึ้นต้นด้วย TST",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "table.act-table tbody tr",
+            "has_text": "{{s4}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "พิมพ์เกียรติบัตร"
+          },
+          "expect_popup": {
+            "url_regex": "/activities/clubs/[0-9]+/certificates/print"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "{{marker}} ผู้ลงนามทดสอบ"
+          },
+          "say": "หน้าเกียรติบัตรแสดงชื่อผู้ลงนามที่ตั้งไว้ พร้อมสำหรับสั่งพิมพ์",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "close_tab"
+        }
+      ],
+      "expected": "เกียรติบัตรที่ออกใหม่ใช้อักษรนำที่ตั้งไว้ และหน้าพิมพ์แสดงชื่อผู้ลงนามที่ตั้งไว้ เมื่อทดสอบเสร็จตั้งค่ากลับเป็นค่าเดิม",
+      "verify": [
+        {
+          "title": "เลขที่เกียรติบัตรใหม่มีอักษรนำที่ตั้งไว้",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#clubs",
+              "wait_after": {
+                "css": "article.act-card",
+                "has_text": "{{club}}"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "จัดการชุมนุม",
+                "within": {
+                  "css": "article.act-card",
+                  "has_text": "{{club}}"
+                }
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "สมาชิกและผล"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "TST-",
+                "in": {
+                  "css": "table.act-table tbody tr",
+                  "has_text": "{{s4}}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "คืนอักษรนำและชื่อผู้ลงนามเป็นค่าเดิม",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#clubs",
+              "wait_after": {
+                "css": "form[data-form=settings]"
+              }
+            },
+            {
+              "do": "fill",
+              "target": {
+                "css": "form[data-form=settings] input[name=cert_prefix]"
+              },
+              "value": ""
+            },
+            {
+              "do": "fill",
+              "target": {
+                "css": "form[data-form=settings] input[name=signer_name]"
+              },
+              "value": "{{orig_signer}}"
+            },
+            {
+              "do": "fill",
+              "target": {
+                "css": "form[data-form=settings] input[name=signer_title]"
+              },
+              "value": "{{orig_title}}"
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "บันทึกการตั้งค่า"
+              },
+              "expect_response": {
+                "url_contains": "/settings",
+                "method": "PUT"
+              },
+              "wait_after": {
+                "css": ".act-msg .act-notice"
+              }
+            },
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "form[data-form=settings]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "value": "{{orig_signer}}",
+                  "of": {
+                    "css": "form[data-form=settings] input[name=signer_name]"
+                  }
+                },
+                {
+                  "value": "",
+                  "of": {
+                    "css": "form[data-form=settings] input[name=cert_prefix]"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-club-with-advisor",
+      "title": "ครูที่ปรึกษาเลือกตอนสร้างชุมนุม",
+      "role": "admin",
+      "start": "/work#clubs",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-form=club-new]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อชุมนุม",
+            "within": {
+              "css": "form[data-form=club-new]"
+            }
+          },
+          "value": "{{marker}} ชุมนุมมีครูที่ปรึกษา",
+          "say": "พิมพ์ชื่อชุมนุมในหัวข้อ \"เพิ่มชุมนุม\""
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ครูที่ปรึกษา",
+            "within": {
+              "css": "form[data-form=club-new]"
+            }
+          },
+          "label": "นางสาวศิริน วาดฝัน",
+          "say": "เลือกครูที่ปรึกษาในช่อง \"ครูที่ปรึกษา\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ครูที่ปรึกษา",
+            "within": {
+              "css": "form[data-form=club-new]"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกชุมนุม"
+          },
+          "say": "กดปุ่ม \"บันทึกชุมนุม\" การ์ดของชุมนุมแสดงชื่อครูที่ปรึกษาที่เลือก",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "article.act-card",
+            "has_text": "{{marker}} ชุมนุมมีครูที่ปรึกษา"
+          },
+          "expect_response": {
+            "url_contains": "/api/activities/clubs",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": "article.act-card",
+            "has_text": "{{marker}} ชุมนุมมีครูที่ปรึกษา"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ครูที่ปรึกษา: นางสาวศิริน วาดฝัน",
+            "in": {
+              "css": "article.act-card",
+              "has_text": "{{marker}} ชุมนุมมีครูที่ปรึกษา"
+            }
+          }
+        }
+      ],
+      "expected": "การ์ดของชุมนุมใหม่แสดงชื่อครูที่ปรึกษาที่เลือก",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ ชุมนุมยังมีครูที่ปรึกษาที่เลือก",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#clubs",
+              "wait_after": {
+                "css": "article.act-card",
+                "has_text": "{{marker}} ชุมนุมมีครูที่ปรึกษา"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "ครูที่ปรึกษา: นางสาวศิริน วาดฝัน",
+                "in": {
+                  "css": "article.act-card",
+                  "has_text": "{{marker}} ชุมนุมมีครูที่ปรึกษา"
+                }
+              },
+              "say": "เปิดหน้า \"ชุมนุม\" ใหม่ การ์ดของชุมนุมที่สร้างแสดงครูที่ปรึกษาที่เลือก",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "article.act-card",
+                "has_text": "{{marker}} ชุมนุมมีครูที่ปรึกษา"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "restore-clean",
+      "title": "ล้างข้อมูลทดสอบ (นำสมาชิกออก ปิดรับสมัครชุมนุม และคืนเกณฑ์ผ่านเป็น 80)",
+      "intro": "ขั้นตอนนี้ใช้ตอนทดสอบเท่านั้น ในการใช้งานจริงผู้ดูแลระบบนำสมาชิกออกด้วยปุ่ม \"นำออก\" และเลือก \"ปิดรับ\" ในช่อง \"เปิดรับสมัคร\" เมื่อชุมนุมเต็มหรือสิ้นสุดแล้ว",
+      "role": "admin",
+      "start": "/work#clubs",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-form=settings]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เวลาเข้าร่วมขั้นต่ำเพื่อผ่าน",
+            "within": {
+              "css": "form[data-form=settings]"
+            }
+          },
+          "value": "80"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่า"
+          },
+          "expect_response": {
+            "url_contains": "/api/activities/settings",
+            "method": "PUT"
+          },
+          "wait_after": {
+            "css": ".act-msg .act-notice"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการชุมนุม",
+            "within": {
+              "css": "article.act-card",
+              "has_text": "{{club}}"
+            }
+          },
+          "optional": true,
+          "timeout": 4000,
+          "wait_after": {
+            "role": "heading",
+            "name": "สมาชิกและผล"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "นำออก",
+            "first": true
+          },
+          "say": "กดปุ่ม \"นำออก\" ท้ายชื่อสมาชิกแล้วกดตกลงในกล่องยืนยัน ทำซ้ำจนไม่มีสมาชิก",
+          "shot": true,
+          "crop": "panel",
+          "optional": true,
+          "timeout": 4000,
+          "settle_ms": 800
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "นำออก",
+            "first": true
+          },
+          "optional": true,
+          "timeout": 3000,
+          "settle_ms": 800
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "นำออก",
+            "first": true
+          },
+          "optional": true,
+          "timeout": 3000,
+          "settle_ms": 800
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "นำออก",
+            "first": true
+          },
+          "optional": true,
+          "timeout": 3000,
+          "settle_ms": 800
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "เปิดรับสมัคร"
+          },
+          "label": "ปิดรับ",
+          "optional": true,
+          "timeout": 4000
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=club-edit]"
+            }
+          },
+          "say": "เลือก \"ปิดรับ\" ในช่อง \"เปิดรับสมัคร\" แล้วกดปุ่ม \"บันทึก\" ชุมนุมจะไม่รับนักเรียนเพิ่ม",
+          "shot": true,
+          "crop": "panel",
+          "optional": true,
+          "timeout": 4000,
+          "expect_response": {
+            "url_contains": "/api/activities/clubs/",
+            "method": "PUT"
+          },
+          "wait_after": {
+            "css": ".act-msg .act-notice"
+          }
+        }
+      ],
+      "verify": [
+        {
+          "title": "ชุมนุมทดสอบปิดรับสมัคร และเกณฑ์ผ่านกลับเป็น 80",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#clubs",
+              "wait_after": {
+                "css": "form[data-form=settings]"
+              }
+            },
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "form[data-form=settings]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "value": "80",
+                  "of": {
+                    "label": "เวลาเข้าร่วมขั้นต่ำเพื่อผ่าน",
+                    "within": {
+                      "css": "form[data-form=settings]"
+                    }
+                  }
+                },
+                {
+                  "text": "ปิดรับ",
+                  "in": {
+                    "css": "article.act-card",
+                    "has_text": "{{club}}"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [
+    {
+      "id": "S1",
+      "promised": "ผลการตรวจเบื้องต้นของงานระบุว่าโมดูลนี้ \"ออก PIN เข้าแอปนักเรียน\"",
+      "where": "docs/manual/inventory.json รายการ first_look_workflows ของโมดูล activities และเมนูด้านซ้าย \"PIN เข้าแอปเรียนของนักเรียน\"",
+      "observed": "โมดูลชุมนุมและเลือกตั้งไม่มีฟังก์ชัน PIN ใด เมนู \"PIN เข้าแอปเรียนของนักเรียน\" เป็นของโมดูลอื่น ไม่ใช่โมดูลนี้",
+      "evidence": "ค้นคำว่า PIN ใน modules/activities พบเพียงคำในซอร์สที่ไม่เกี่ยวกับ PIN นักเรียน ไม่มีเส้นทางหรือหน้าจอ PIN ใน routes/web.php และ activities.js",
+      "confirmed": true
+    }
+  ],
+  "untested": [
+    "ตัวเลือกภาคเรียนย้อนหลังของรายการชุมนุม (ผู้ที่ไม่ใช่ผู้ดูแลระบบแก้ไม่ได้) ยังไม่ได้ทดสอบ เพราะข้อมูลทดลองมีชุมนุมเฉพาะภาคเรียนปัจจุบัน",
+    "การเลือกตั้งที่ปิดเองเมื่อเลยเวลาปิด ยังไม่ได้ทดสอบ เพราะต้องรอให้เวลาผ่านไป",
+    "การแก้เวลาปิดของการเลือกตั้งที่เปิดอยู่ ยังไม่ได้ทดสอบ เพราะไม่พบช่องแก้ไขในหน้าจอ (ตรวจจาก public/assets/modules/activities/act.js ซึ่งมีเฉพาะฟอร์มสร้างการเลือกตั้ง)",
+    "กรณีคะแนนสูงสุดเท่ากันของการเลือกตั้ง ยังไม่ได้ทดสอบ เพราะต้องสร้างการเลือกตั้งที่มีคะแนนเท่ากันเพิ่มอีกชุด",
+    "การลงทะเบียนชุมนุมของครูที่ไม่ใช่ครูที่ปรึกษา ยังไม่ได้ทดสอบ เพราะยังไม่ได้ตรวจว่าปุ่มลงทะเบียนแสดงให้ครูกลุ่มนี้หรือไม่",
+    "ชุมนุมที่มีสมาชิก คาบกิจกรรม หรือเกียรติบัตรแล้วลบไม่ได้ (ออกแบบไว้ ให้ปิดรับแทน) การเลือกตั้งที่เปิดหรือปิดแล้วลบไม่ได้ จึงเหลือข้อมูลทดสอบไว้ในรายการ",
+    "ชุมนุมที่ทดสอบสร้างแล้ว (รวมชุมนุมที่มีครูที่ปรึกษา) ยังคงอยู่ในรายการ เพราะระบบไม่มีปุ่มลบชุมนุมที่มีข้อมูลเพิ่มเติม"
+  ]
+}

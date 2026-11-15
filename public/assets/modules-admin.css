@@ -14,6 +14,7 @@
 .mods-error{color:var(--danger,#a72d1b)}
 .mods-dialog{max-width:min(92vw,28rem);border:1px solid var(--line,#c4ccbe);border-radius:14px;padding:1.2rem;background:var(--sheet,#fffdf5);color:var(--ink,#163b30)}
 .mods-dialog label{display:grid;gap:.3rem;margin:.6rem 0}
+.mods-dialog [hidden]{display:none} /* the label rule above would otherwise show the hidden confirm field */
 .mods-dialog input{min-height:44px;padding:.4rem .6rem;font:inherit}
 .mods-new ul,.mods-notes{padding-left:1.2rem}
 .mods-notes li{margin:.3rem 0}

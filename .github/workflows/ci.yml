@@ -65,7 +65,7 @@ jobs:
           coverage: none
       - run: composer audit --locked
 
-  The maintainer's DirectAdmin host runs MariaDB 10.6; other hosts run MySQL 8. Collation and unique-index rules
+  # Shared hosts run MariaDB 10.6 or newer, others MySQL 8. Collation and unique-index rules
   # differ, so the same suite must pass against each real server (RefreshDatabase runs all migrations on it).
   test-server-db:
     name: PHPUnit PHP ${{ matrix.php }} / ${{ matrix.db.name }}

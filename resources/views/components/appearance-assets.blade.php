@@ -9,3 +9,4 @@
 @if(!$website)<link rel="stylesheet" href="{{ \App\Support\WebsiteView::asset('assets/card-layout.css') }}">@endif
 @if(!$website)<link rel="stylesheet" href="{{ \App\Support\WebsiteView::asset('assets/saan-brand.css') }}"><link rel="icon" type="image/svg+xml" href="{{ \App\Support\WebsiteView::asset(config('saan.assets.favicon_svg')) }}"><link rel="icon" type="image/png" sizes="32x32" href="{{ \App\Support\WebsiteView::asset(config('saan.assets.favicon_png')) }}"><link rel="apple-touch-icon" href="{{ \App\Support\WebsiteView::asset(config('saan.assets.apple_touch')) }}">@endif
 @if(request()->is('cms'))<script defer src="{{ \App\Support\WebsiteView::asset('assets/compact-editors.js') }}"></script>@endif
+@if(!$website)<link rel="stylesheet" href="{{ \App\Support\WebsiteView::asset('assets/saan-glass.css') }}">@endif

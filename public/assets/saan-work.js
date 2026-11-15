@@ -27,6 +27,14 @@
         t.toggleAttribute('data-more-end', t.scrollLeft + t.clientWidth < t.scrollWidth - 4);
     }
 
+        // bring the current link into the visible part of the strip (the page itself is not scrolled)
+    function centerCurrent() {
+        const track = document.querySelector('.work-tabs-track');
+        const cur = track?.querySelector('[aria-current="page"]');
+        if (cur) track.scrollLeft += cur.getBoundingClientRect().left - track.getBoundingClientRect().left - (track.clientWidth - cur.offsetWidth) / 2;
+        stripEdges();
+    }
+
     function markCurrent(key) {
         document.querySelectorAll('.work-tabs a').forEach(a => {
             if (a.dataset.workKey === key) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
@@ -37,14 +45,11 @@
             stripWired = true;
             track.addEventListener('scroll', stripEdges, {passive: true});
             window.addEventListener('resize', stripEdges, {passive: true});
+            // the web font changes the widths of the links after the first layout: centre again once it is there
+            if (document.fonts?.ready) document.fonts.ready.then(centerCurrent);
+            window.addEventListener('load', centerCurrent, {once: true});
         }
-        // bring the current link into the visible part of the strip (the page itself is not scrolled)
-        const cur = track.querySelector('[aria-current="page"]');
-        if (cur) {
-            const shift = cur.getBoundingClientRect().left - track.getBoundingClientRect().left - (track.clientWidth - cur.offsetWidth) / 2;
-            track.scrollLeft += shift;
-        }
-        stripEdges();
+        centerCurrent();
     }
 
     // central service links (settings of the payslip module, https only): label + URL pairs rendered under the work home as "บริการบุคลากร"
@@ -59,13 +64,20 @@
         const items = menu();
         if (!items.length) return; // keep the server-rendered empty state
         const svc = services();
-        root.innerHTML = '<section class="work-home glass"><h1>งานโรงเรียน</h1><ul>'
-            + items.map(i => `<li><a href="#${esc(i.path.slice(6))}">${esc(i.label)}</a></li>`).join('') + '</ul></section>'
+        const icon = name => window.SchoolIcons ? window.SchoolIcons.render(name) : '';
+        let areas = {};
+        try { areas = JSON.parse(document.querySelector('#work-boot')?.textContent || '{}').areas || {}; } catch { areas = {}; }
+        // tiles grouped by area of school work, in the order the server lists the areas; a module without an area lands in "system"
+        const order = Object.keys(areas);
+        const groups = order.map(id => ({id, label: areas[id], items: items.filter(i => (order.includes(i.area) ? i.area : order[order.length - 1]) === id)})).filter(g => g.items.length);
+        root.innerHTML = '<section class="work-home glass"><div class="sg-pagehead"><div><h1>งานโรงเรียน</h1><p>เลือกงานที่ต้องการ จัดกลุ่มตามหน้าที่ในโรงเรียน</p></div></div>'
+            + groups.map(g => `<section class="work-area" aria-labelledby="work-area-${esc(g.id)}"><h2 id="work-area-${esc(g.id)}">${esc(g.label)} <small>${g.items.length}</small></h2><ul>`
+                + g.items.map(i => `<li><a href="#${esc(i.path.slice(6))}"><span class="sg-ico" aria-hidden="true">${icon(i.glyph || i.icon)}</span><span>${esc(i.label)}</span></a></li>`).join('') + '</ul></section>').join('')
+            + '</section>'
             + (svc.length ? '<section class="work-home glass work-services" aria-labelledby="work-services-h"><h2 id="work-services-h">บริการบุคลากร</h2><ul>'
-                + svc.map(s => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.label)}</a></li>`).join('') + '</ul></section>' : '');
+                + svc.map(s => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer"><span class="sg-ico" aria-hidden="true">${icon('external')}</span><span>${esc(s.label)}</span></a></li>`).join('') + '</ul></section>' : '');
     }
-
-    function showError(root, text) {
+function showError(root, text) {
         root.innerHTML = `<section class="work-error glass" role="alert">${esc(text)}</section>`;
     }
 

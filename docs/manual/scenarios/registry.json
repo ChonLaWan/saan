@@ -1,0 +1,2230 @@
+{
+  "module": "registry",
+  "title": "ทะเบียนนักเรียนและผู้ปกครอง",
+  "area": "งานวิชาการและงานนักเรียน",
+  "purpose": "ผู้ดูแลระบบและผู้อำนวยการเป็นผู้ดูแลทะเบียน เพิ่มนักเรียน ผูกผู้ปกครอง บันทึกว่าผู้ใดห้ามรับนักเรียนกลับบ้าน เก็บเลขประจำตัวและเอกสารยืนยันตัวตนอย่างปลอดภัย แก้ข้อมูล ย้ายห้อง จำหน่ายนักเรียน นำเข้าข้อมูลจากไฟล์ CSV แบบดูตัวอย่างก่อนและย้อนกลับได้ และส่งออกรายชื่อห้อง ทะเบียนรองรับนักเรียนไทย ต่างชาติ ไร้สัญชาติ และรอเอกสาร ครูเห็นรายชื่อนักเรียนในห้องประจำชั้นของตนเองแบบดูอย่างเดียว โดยไม่เห็นเลขประจำตัวและเอกสาร",
+  "roles": [
+    "ผู้ดูแลระบบและผู้อำนวยการ (เจ้าหน้าที่ทะเบียน เพิ่ม แก้ไข นำเข้า ส่งออก)",
+    "ครูประจำชั้น (ดูรายชื่อนักเรียนห้องตนเอง ส่งออกรายชื่อห้อง ดูอย่างเดียว)"
+  ],
+  "menu": [
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"ทะเบียนนักเรียน\" (/work#students)",
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"นำเข้าข้อมูลนักเรียน\" (/work#import) สำหรับผู้ดูแลระบบและผู้อำนวยการ"
+  ],
+  "prerequisites": [
+    {
+      "module": "academic",
+      "text": "ต้องมีห้องเรียนก่อนจึงจัดนักเรียนเข้าห้องได้"
+    }
+  ],
+  "vars": {
+    "student_code": "MN{{run_id}}",
+    "student_first": "ตัวอย่าง",
+    "student_last": "{{marker}}",
+    "student_name": "ตัวอย่าง {{marker}}",
+    "guardian_first": "ผู้ปกครองตัวอย่าง",
+    "guardian_name": "ผู้ปกครองตัวอย่าง {{marker}}",
+    "ident_value": "TM-{{run_id}}",
+    "room_a": "ม.4/1",
+    "room_b": "ม.5/1"
+  },
+  "workflows": [
+    {
+      "id": "browse-students",
+      "title": "ค้นหาและกรองรายชื่อนักเรียน และส่งออกรายชื่อห้องเป็น CSV",
+      "intro": "หน้า \"ทะเบียนนักเรียน\" แสดงนักเรียนที่กำลังศึกษาทั้งโรงเรียน กรองตามห้อง สถานะ สัญชาติ หรือค้นหาด้วยชื่อ ชื่อเล่น และรหัส เมื่อเลือกห้องจะมีลิงก์ \"ส่งออกรายชื่อห้อง (CSV)\" ไฟล์เปิดด้วย Excel ได้",
+      "role": "admin",
+      "start": "/work",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ทะเบียนนักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ทะเบียนนักเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "table.reg-table"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "#reg-filter"
+            }
+          },
+          "label": "{{room_a}}",
+          "say": "เลือกห้องในช่อง \"ห้องเรียน\" รายชื่อแสดงเฉพาะนักเรียนในห้องนั้น และบรรทัด \"พบ ... คน\" บอกจำนวน",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "role": "link",
+            "name": "ส่งออกรายชื่อห้อง (CSV)"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ค้นหา",
+            "within": {
+              "css": "#reg-filter"
+            }
+          },
+          "value": "ธารใส",
+          "say": "พิมพ์ชื่อหรือรหัสที่ต้องการในช่อง \"ค้นหา\" ระบบกรองรายชื่ออัตโนมัติ",
+          "shot": true,
+          "crop": "panel",
+          "settle_ms": 900
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ค้นหา",
+            "within": {
+              "css": "#reg-filter"
+            }
+          },
+          "value": ""
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ส่งออกรายชื่อห้อง (CSV)"
+          },
+          "say": "กดลิงก์ \"ส่งออกรายชื่อห้อง (CSV)\" เบราว์เซอร์บันทึกไฟล์รายชื่อของห้องที่เลือก",
+          "shot": true,
+          "crop": "panel",
+          "settle_ms": 800,
+          "expect_download": {
+            "ext": ".csv",
+            "name_regex": "^class-list-",
+            "min_bytes": 100
+          }
+        }
+      ],
+      "expected": "ได้ไฟล์ class-list-รหัสห้อง.csv ที่มีหัวตาราง เลขที่ รหัสนักเรียน คำนำหน้า ชื่อ นามสกุล และรายชื่อนักเรียนของห้อง",
+      "verify": [
+        {
+          "title": "ไฟล์ที่ดาวน์โหลดเป็น CSV จริง มีหัวตารางภาษาไทยและแถวนักเรียน",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "ส่งออกรายชื่อห้อง (CSV)"
+              },
+              "expect_download": {
+                "kind": "csv",
+                "ext": ".csv",
+                "min_bytes": 200,
+                "contains": "รหัสนักเรียน"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "add-student",
+      "title": "เพิ่มนักเรียนใหม่",
+      "intro": "ช่องที่ต้องกรอกคือ รหัสนักเรียนและชื่อ ส่วนช่องอื่นไม่บังคับ นักเรียนต่างชาติ ไร้สัญชาติ หรือรอเอกสาร เลือกที่ช่อง \"สถานะสัญชาติ\" รหัสนักเรียนซ้ำกับคนอื่นไม่ได้ เมื่อบันทึกแล้วระบบเปิดหน้ารายละเอียดของนักเรียนให้เพิ่มผู้ปกครองต่อ",
+      "role": "admin",
+      "start": "/work",
+      "core": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ทะเบียนนักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ทะเบียนนักเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "table.reg-table"
+          }
+        },
+        {
+          "do": "hover",
+          "target": {
+            "role": "link",
+            "name": "เพิ่มนักเรียน",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"เพิ่มนักเรียน\" ด้านขวาบนของหน้า",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เพิ่มนักเรียน",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "#student-form"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสนักเรียน",
+            "within": {
+              "css": "#student-form"
+            }
+          },
+          "value": "{{student_code}}",
+          "say": "พิมพ์รหัสนักเรียนในช่อง \"รหัสนักเรียน\"",
+          "shot": true,
+          "crop": {
+            "css": "#student-form"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "คำนำหน้า",
+            "within": {
+              "css": "#student-form"
+            }
+          },
+          "value": "ด.ช.",
+          "say": "พิมพ์คำนำหน้าในช่อง \"คำนำหน้า\" หรือเลือกจากรายการที่ระบบเสนอ",
+          "shot": true,
+          "crop": {
+            "css": "#student-form"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อ",
+            "exact": true,
+            "within": {
+              "css": "#student-form"
+            }
+          },
+          "value": "{{student_first}}",
+          "say": "พิมพ์ชื่อในช่อง \"ชื่อ\"",
+          "shot": true,
+          "crop": {
+            "css": "#student-form"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "นามสกุล",
+            "exact": true,
+            "within": {
+              "css": "#student-form"
+            }
+          },
+          "value": "{{student_last}}",
+          "say": "พิมพ์นามสกุลในช่อง \"นามสกุล\"",
+          "shot": true,
+          "crop": {
+            "css": "#student-form"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "สถานะสัญชาติ",
+            "within": {
+              "css": "#student-form"
+            }
+          },
+          "label": "ไทย",
+          "say": "ตรวจช่อง \"สถานะสัญชาติ\" ตัวเลือกคือ ไทย ต่างชาติ ไร้สัญชาติ และรอตรวจสอบ",
+          "shot": true,
+          "crop": {
+            "css": "#student-form"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "#student-form"
+            }
+          },
+          "label": "{{room_a}}",
+          "say": "เลือกห้องในช่อง \"ห้องเรียน\" หรือเลือก \"ยังไม่จัดห้อง\" หากยังไม่ทราบ",
+          "shot": true,
+          "crop": {
+            "css": "#student-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกนักเรียนใหม่",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"บันทึกนักเรียนใหม่\" (อยู่ท้ายแบบฟอร์ม) ระบบเปิดหน้ารายละเอียดของนักเรียน",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "{{marker}}"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "รหัส {{student_code}}"
+          }
+        }
+      ],
+      "expected": "หน้ารายละเอียดแสดงชื่อนักเรียน ป้าย \"ไทย\" และ \"กำลังศึกษา\" และบรรทัด \"รหัส ... · ห้อง ม.4/1\"",
+      "verify": [
+        {
+          "title": "ค้นหานักเรียนในหน้าทะเบียน ต้องพบนักเรียนที่เพิ่ม",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#students",
+              "wait_after": {
+                "css": "table.reg-table"
+              }
+            },
+            {
+              "do": "fill",
+              "target": {
+                "label": "ค้นหา",
+                "within": {
+                  "css": "#reg-filter"
+                }
+              },
+              "value": "{{marker}}",
+              "wait_after": {
+                "role": "link",
+                "name": "{{marker}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "{{room_a}}",
+                "in": {
+                  "css": "table.reg-table tbody tr",
+                  "has_text": "{{marker}}"
+                }
+              },
+              "say": "ค้นหาด้วยชื่อในหน้า \"ทะเบียนนักเรียน\" พบนักเรียนที่เพิ่ม พร้อมห้องและสถานะ \"กำลังศึกษา\"",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "table.reg-table tbody tr",
+                "has_text": "{{marker}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "add-guardian",
+      "title": "เพิ่มผู้ปกครองของนักเรียนและกำหนดห้ามรับนักเรียนกลับบ้าน",
+      "intro": "ผู้ปกครองหนึ่งคนผูกกับนักเรียนหลายคนได้ ระบบเก็บความสัมพันธ์ ผู้ปกครองหลัก และผู้ติดต่อฉุกเฉิน หากศาลหรือครอบครัวกำหนดว่าผู้ใดห้ามรับนักเรียน ให้ติ๊ก \"ห้ามรับนักเรียนกลับบ้าน\" และใส่เหตุผล ระบบแสดงป้ายเตือนสีแดงในหน้ารายละเอียดของนักเรียนและในรายชื่อ",
+      "role": "admin",
+      "start": "/work#students",
+      "depends_on": [
+        "add-student"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "table.reg-table"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ค้นหา",
+            "within": {
+              "css": "#reg-filter"
+            }
+          },
+          "value": "{{marker}}",
+          "wait_after": {
+            "role": "link",
+            "name": "{{marker}}"
+          }
+        },
+        {
+          "do": "hover",
+          "target": {
+            "role": "link",
+            "name": "{{marker}}",
+            "within": {
+              "css": "table.reg-table"
+            }
+          },
+          "say": "กดชื่อนักเรียนในรายชื่อเพื่อเปิดหน้ารายละเอียด",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{marker}}",
+            "within": {
+              "css": "table.reg-table"
+            }
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "ผู้ปกครอง",
+            "exact": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "details.reg-details summary",
+            "has_text": "เพิ่มผู้ปกครอง"
+          },
+          "say": "กดหัวข้อ \"เพิ่มผู้ปกครอง\" แบบฟอร์มเปิดออก",
+          "shot": true,
+          "crop": "tight",
+          "wait_after": {
+            "css": "#add-guardian"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อ",
+            "exact": true,
+            "within": {
+              "css": "#add-guardian"
+            }
+          },
+          "value": "{{guardian_first}}",
+          "say": "พิมพ์ชื่อผู้ปกครองในช่อง \"ชื่อ\"",
+          "shot": true,
+          "crop": {
+            "css": "#add-guardian"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "นามสกุล",
+            "exact": true,
+            "within": {
+              "css": "#add-guardian"
+            }
+          },
+          "value": "{{student_last}}",
+          "say": "พิมพ์นามสกุลในช่อง \"นามสกุล\"",
+          "shot": true,
+          "crop": {
+            "css": "#add-guardian"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "โทรศัพท์",
+            "within": {
+              "css": "#add-guardian"
+            }
+          },
+          "value": "000-000-0000",
+          "say": "พิมพ์เบอร์โทรศัพท์ในช่อง \"โทรศัพท์\" (ในภาพเป็นเบอร์สมมติ)",
+          "shot": true,
+          "crop": {
+            "css": "#add-guardian"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ความสัมพันธ์",
+            "within": {
+              "css": "#add-guardian"
+            }
+          },
+          "label": "มารดา",
+          "say": "เลือกความสัมพันธ์กับนักเรียนในช่อง \"ความสัมพันธ์\"",
+          "shot": true,
+          "crop": {
+            "css": "#add-guardian"
+          }
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "ผู้ปกครองหลัก",
+            "within": {
+              "css": "#add-guardian"
+            }
+          },
+          "say": "ติ๊ก \"ผู้ปกครองหลัก\" หากเป็นผู้ติดต่อหลักของโรงเรียน",
+          "shot": true,
+          "crop": {
+            "css": "#add-guardian"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มผู้ปกครอง",
+            "exact": true,
+            "within": {
+              "css": "#add-guardian"
+            }
+          },
+          "say": "กดปุ่ม \"เพิ่มผู้ปกครอง\" ระบบแสดงข้อความ \"เพิ่มผู้ปกครองแล้ว\" และแสดงบัตรของผู้ปกครองในหัวข้อ \"ผู้ปกครอง\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "toast"
+          },
+          "wait_after": {
+            "id": "toast"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "article.reg-card",
+              "has_text": "{{guardian_name}}"
+            }
+          },
+          "say": "บัตรของผู้ปกครองแสดงชื่อ ความสัมพันธ์ ป้าย \"ผู้ปกครองหลัก\" และเบอร์โทร",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "article.reg-card",
+            "has_text": "{{guardian_name}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "แก้ไขการรับนักเรียน",
+            "within": {
+              "css": "article.reg-card",
+              "has_text": "{{guardian_name}}"
+            }
+          },
+          "say": "หากต้องกำหนดสิทธิ์การรับนักเรียน กดปุ่ม \"แก้ไขการรับนักเรียน\" ในบัตรของผู้ปกครอง",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "label": "เหตุผลหรือคำแนะนำ"
+          }
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "ห้ามรับนักเรียนกลับบ้าน",
+            "within": {
+              "css": "article.reg-card",
+              "has_text": "{{guardian_name}}"
+            }
+          },
+          "say": "ติ๊ก \"ห้ามรับนักเรียนกลับบ้าน\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เหตุผลหรือคำแนะนำ",
+            "within": {
+              "css": "article.reg-card",
+              "has_text": "{{guardian_name}}"
+            }
+          },
+          "value": "ข้อมูลสมมติสำหรับทดสอบ",
+          "say": "พิมพ์เหตุผลในช่อง \"เหตุผลหรือคำแนะนำ\" (จำเป็นเมื่อห้ามรับ)",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "article.reg-card",
+              "has_text": "{{guardian_name}}"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ระบบแสดงกรอบเตือน \"ห้ามรับนักเรียนกลับบ้าน\" สีแดงที่ส่วนบนของหน้า",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "div.reg-alert"
+          },
+          "wait_after": {
+            "css": "div.reg-alert"
+          }
+        }
+      ],
+      "expected": "หน้ารายละเอียดแสดงบัตรผู้ปกครอง ป้าย \"ห้ามรับนักเรียน\" และกรอบเตือนสีแดงพร้อมชื่อผู้ปกครองและเหตุผล",
+      "verify": [
+        {
+          "title": "เปิดรายละเอียดนักเรียนใหม่ ผู้ปกครองและข้อห้ามต้องยังอยู่",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "article.reg-card",
+                    "has_text": "{{guardian_name}}"
+                  }
+                },
+                {
+                  "text": "ห้ามรับนักเรียนกลับบ้าน",
+                  "in": {
+                    "css": "div.reg-alert"
+                  }
+                }
+              ],
+              "say": "เปิดหน้ารายละเอียดใหม่ บัตรผู้ปกครองและกรอบเตือนยังอยู่",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "div.reg-alert"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "student-identifier",
+      "title": "บันทึกเลขประจำตัวของนักเรียน ตรวจรับ และดูเลขเต็ม",
+      "intro": "เลขประจำตัวและเอกสารดูและแก้ได้เฉพาะผู้ดูแลระบบและผู้อำนวยการ ระบบเก็บเลขแบบเข้ารหัสและแสดงเพียงบางส่วน การกดดูเลขเต็มทุกครั้งบันทึกประวัติและเลขแสดงให้เห็นเพียง 15 วินาที ชนิดเลขมี เลขประจำตัวประชาชน เลข G หนังสือเดินทาง เลขอื่น ๆ และรอเอกสาร",
+      "role": "admin",
+      "start": "/work#students",
+      "depends_on": [
+        "add-guardian"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "table.reg-table"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ค้นหา",
+            "within": {
+              "css": "#reg-filter"
+            }
+          },
+          "value": "{{marker}}",
+          "wait_after": {
+            "role": "link",
+            "name": "{{marker}}"
+          }
+        },
+        {
+          "do": "hover",
+          "target": {
+            "role": "link",
+            "name": "{{marker}}",
+            "within": {
+              "css": "table.reg-table"
+            }
+          },
+          "say": "เปิดหน้ารายละเอียดของนักเรียน",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{marker}}",
+            "within": {
+              "css": "table.reg-table"
+            }
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "เลขประจำตัว",
+            "exact": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "details.reg-details summary",
+            "has_text": "เพิ่มเลขประจำตัว"
+          },
+          "say": "เลื่อนลงที่หัวข้อ \"เลขประจำตัว\" แล้วกด \"เพิ่มเลขประจำตัว\" แบบฟอร์มเปิดออก",
+          "shot": true,
+          "crop": "tight",
+          "wait_after": {
+            "css": "form[data-add-ident][data-type=student]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ชนิด",
+            "within": {
+              "css": "form[data-add-ident][data-type=student]"
+            }
+          },
+          "label": "เลขอื่น ๆ",
+          "say": "เลือกชนิดเลขในช่อง \"ชนิด\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-add-ident][data-type=student]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เลข (เว้นว่างได้เมื่อรอเอกสาร)",
+            "within": {
+              "css": "form[data-add-ident][data-type=student]"
+            }
+          },
+          "value": "{{ident_value}}",
+          "say": "พิมพ์เลขในช่อง \"เลข\" (เว้นว่างได้เมื่อเลือกชนิด \"รอเอกสาร\")",
+          "shot": true,
+          "crop": {
+            "css": "form[data-add-ident][data-type=student]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกเลข",
+            "exact": true,
+            "within": {
+              "css": "form[data-add-ident][data-type=student]"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึกเลข\" ระบบแสดงข้อความ \"บันทึกเลขแล้ว\" และเพิ่มรายการเลขแบบแสดงบางส่วน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "toast"
+          },
+          "wait_after": {
+            "css": "#reg-idents li[data-ident]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ตรวจแล้ว",
+            "exact": true,
+            "within": {
+              "css": "#reg-idents li[data-ident]",
+              "has_text": "เลขอื่น ๆ"
+            }
+          },
+          "say": "กดปุ่ม \"ตรวจแล้ว\" หลังตรวจเอกสารจริงแล้ว ป้ายสถานะเปลี่ยนเป็น \"ตรวจแล้ว\" และปุ่มเปลี่ยนเป็น \"ยกเลิกการตรวจ\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "#reg-idents li[data-ident]",
+            "has_text": "เลขอื่น ๆ"
+          },
+          "wait_after": {
+            "role": "button",
+            "name": "ยกเลิกการตรวจ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "แสดงเลขเต็ม (บันทึกประวัติ)",
+            "within": {
+              "css": "#reg-idents li[data-ident]",
+              "has_text": "เลขอื่น ๆ"
+            }
+          },
+          "say": "กดปุ่ม \"แสดงเลขเต็ม (บันทึกประวัติ)\" ระบบบันทึกว่าใครดูเลขและแสดงเลขเต็มข้างรายการ 15 วินาที",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "#reg-idents li[data-ident]",
+            "has_text": "เลขอื่น ๆ"
+          },
+          "wait_after": {
+            "css": "#reg-idents li[data-ident] [data-out]",
+            "has_text": "TM-"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "{{ident_value}}",
+            "in": {
+              "css": "#reg-idents li[data-ident] [data-out]"
+            }
+          }
+        }
+      ],
+      "expected": "รายการเลขประจำตัวมีป้าย \"ตรวจแล้ว\" และเมื่อกดดูเลขเต็ม เลขที่บันทึกแสดงข้างรายการชั่วคราว",
+      "verify": [
+        {
+          "title": "เปิดรายละเอียดนักเรียนใหม่ เลขประจำตัวและสถานะ \"ตรวจแล้ว\" ต้องยังอยู่",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "#reg-idents li[data-ident]",
+                    "has_text": "เลขอื่น ๆ"
+                  }
+                },
+                {
+                  "text": "ตรวจแล้ว",
+                  "in": {
+                    "css": "#reg-idents li[data-ident]",
+                    "has_text": "เลขอื่น ๆ"
+                  }
+                }
+              ],
+              "say": "เปิดหน้ารายละเอียดใหม่ รายการเลขประจำตัวยังอยู่ในสถานะ \"ตรวจแล้ว\" และแสดงเลขเพียงบางส่วนอีกครั้ง",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "#reg-idents li[data-ident]",
+                "has_text": "เลขอื่น ๆ"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "student-document",
+      "title": "อัปโหลดเอกสารยืนยันตัวตนของนักเรียนและตรวจรับเอกสาร",
+      "intro": "รับไฟล์ PDF JPG PNG และ WebP เอกสารเก็บเป็นไฟล์ส่วนตัวที่ดาวน์โหลดได้เฉพาะผู้ดูแลระบบและผู้อำนวยการที่เข้าสู่ระบบ เลือกสถานะการตรวจเอกสารได้ว่า รอตรวจ รับแล้ว หรือไม่รับ",
+      "role": "admin",
+      "start": "/work#students",
+      "depends_on": [
+        "student-identifier"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "table.reg-table"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ค้นหา",
+            "within": {
+              "css": "#reg-filter"
+            }
+          },
+          "value": "{{marker}}",
+          "wait_after": {
+            "role": "link",
+            "name": "{{marker}}"
+          }
+        },
+        {
+          "do": "hover",
+          "target": {
+            "role": "link",
+            "name": "{{marker}}",
+            "within": {
+              "css": "table.reg-table"
+            }
+          },
+          "say": "เปิดหน้ารายละเอียดของนักเรียน แล้วเลื่อนลงที่หัวข้อ \"เอกสาร\"",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{marker}}",
+            "within": {
+              "css": "table.reg-table"
+            }
+          },
+          "wait_after": {
+            "css": "#doc-form"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ชนิดเอกสาร",
+            "within": {
+              "css": "#doc-form"
+            }
+          },
+          "label": "สูติบัตร",
+          "say": "เลือกชนิดเอกสารในช่อง \"ชนิดเอกสาร\"",
+          "shot": true,
+          "crop": {
+            "css": "#doc-form"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อเรียก",
+            "within": {
+              "css": "#doc-form"
+            }
+          },
+          "value": "{{marker}} เอกสารตัวอย่าง",
+          "say": "พิมพ์ชื่อเรียกของเอกสารในช่อง \"ชื่อเรียก\"",
+          "shot": true,
+          "crop": {
+            "css": "#doc-form"
+          }
+        },
+        {
+          "do": "upload",
+          "target": {
+            "attr": {
+              "name": "file"
+            },
+            "within": {
+              "css": "#doc-form"
+            },
+            "include_hidden": true
+          },
+          "file": "sample.pdf",
+          "say": "กดปุ่มเลือกไฟล์ในช่อง \"ไฟล์ (PDF, JPG, PNG, WebP)\" แล้วเลือกไฟล์เอกสาร",
+          "shot": true,
+          "crop": {
+            "css": "#doc-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "อัปโหลด",
+            "exact": true,
+            "within": {
+              "css": "#doc-form"
+            }
+          },
+          "say": "กดปุ่ม \"อัปโหลด\" ระบบแสดงข้อความ \"อัปโหลดแล้ว\" และเพิ่มเอกสารในรายการ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "toast"
+          },
+          "wait_after": {
+            "css": "#reg-docs li[data-doc]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "role": "combobox",
+            "name": "สถานะการตรวจเอกสาร",
+            "within": {
+              "css": "#reg-docs li[data-doc]",
+              "has_text": "{{marker}}"
+            }
+          },
+          "label": "รับแล้ว",
+          "say": "เลือกสถานะการตรวจเอกสารที่ช่องท้ายรายการ ระบบบันทึกทันที",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "#reg-docs li[data-doc]",
+            "has_text": "{{marker}}"
+          },
+          "settle_ms": 800
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ดาวน์โหลด",
+            "within": {
+              "css": "#reg-docs li[data-doc]",
+              "has_text": "{{marker}}"
+            }
+          },
+          "say": "กดลิงก์ \"ดาวน์โหลด\" เพื่อเปิดไฟล์เอกสารเดิม",
+          "shot": true,
+          "crop": "panel",
+          "expect_download": {
+            "kind": "pdf",
+            "min_bytes": 100
+          }
+        }
+      ],
+      "expected": "รายการเอกสารมีไฟล์ที่อัปโหลด สถานะ \"รับแล้ว\" และดาวน์โหลดกลับมาเป็นไฟล์ PDF ได้",
+      "verify": [
+        {
+          "title": "เปิดรายละเอียดนักเรียนใหม่ เอกสารและสถานะ \"รับแล้ว\" ต้องยังอยู่",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "#reg-docs li[data-doc]",
+                    "has_text": "{{marker}}"
+                  }
+                },
+                {
+                  "value": "accepted",
+                  "of": {
+                    "css": "#reg-docs li[data-doc] select[data-review]"
+                  }
+                }
+              ],
+              "say": "เปิดหน้ารายละเอียดใหม่ เอกสารที่อัปโหลดยังอยู่พร้อมสถานะ \"รับแล้ว\"",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "#reg-docs li[data-doc]",
+                "has_text": "{{marker}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-student-move-room",
+      "title": "แก้ข้อมูลนักเรียนและย้ายห้อง",
+      "intro": "แบบฟอร์ม \"แก้ไขข้อมูลนักเรียน\" อยู่ท้ายหน้ารายละเอียด ย้ายห้องโดยเปลี่ยนช่อง \"ห้องเรียน\" ครูของห้องใหม่เห็นนักเรียนในห้องทันที ระบบป้องกันการแก้ไขซ้อนกันโดยตรวจเลขเวอร์ชันของข้อมูล",
+      "role": "admin",
+      "start": "/work#students",
+      "depends_on": [
+        "student-document"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "table.reg-table"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ค้นหา",
+            "within": {
+              "css": "#reg-filter"
+            }
+          },
+          "value": "{{marker}}",
+          "wait_after": {
+            "role": "link",
+            "name": "{{marker}}"
+          }
+        },
+        {
+          "do": "hover",
+          "target": {
+            "role": "link",
+            "name": "{{marker}}",
+            "within": {
+              "css": "table.reg-table"
+            }
+          },
+          "say": "เปิดหน้ารายละเอียดของนักเรียน แล้วเลื่อนลงที่หัวข้อ \"แก้ไขข้อมูลนักเรียน\"",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{marker}}",
+            "within": {
+              "css": "table.reg-table"
+            }
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "แก้ไขข้อมูลนักเรียน",
+            "exact": true
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อเล่น",
+            "within": {
+              "css": "#student-form"
+            }
+          },
+          "value": "ตัวอย่าง",
+          "say": "พิมพ์ชื่อเล่นในช่อง \"ชื่อเล่น\"",
+          "shot": true,
+          "crop": {
+            "css": "#student-form"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "#student-form"
+            }
+          },
+          "label": "{{room_b}}",
+          "say": "เลือกห้องใหม่ในช่อง \"ห้องเรียน\"",
+          "shot": true,
+          "crop": {
+            "css": "#student-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการแก้ไข",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"บันทึกการแก้ไข\" ระบบแสดงข้อความ \"บันทึกแล้ว\" และบรรทัดใต้ชื่อเปลี่ยนเป็นห้องใหม่",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "toast"
+          },
+          "wait_after": {
+            "id": "toast"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ห้อง {{room_b}}",
+            "in": {
+              "css": "p.reg-sub"
+            }
+          }
+        }
+      ],
+      "expected": "บรรทัดใต้ชื่อนักเรียนแสดง \"ห้อง ม.5/1\" และชื่อเล่นที่กรอก",
+      "verify": [
+        {
+          "title": "กรองรายชื่อตามห้องใหม่ ต้องพบนักเรียน",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#students",
+              "wait_after": {
+                "css": "table.reg-table"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "label": "ห้องเรียน",
+                "within": {
+                  "css": "#reg-filter"
+                }
+              },
+              "label": "{{room_b}}",
+              "wait_after": {
+                "role": "link",
+                "name": "ส่งออกรายชื่อห้อง (CSV)"
+              }
+            },
+            {
+              "do": "fill",
+              "target": {
+                "label": "ค้นหา",
+                "within": {
+                  "css": "#reg-filter"
+                }
+              },
+              "value": "{{marker}}",
+              "wait_after": {
+                "role": "link",
+                "name": "{{marker}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "ตัวอย่าง",
+                "in": {
+                  "css": "table.reg-table tbody tr",
+                  "has_text": "{{marker}}"
+                }
+              },
+              "say": "เลือกห้องใหม่ในหน้าทะเบียนและค้นหาชื่อ พบนักเรียนในห้อง ม.5/1 พร้อมชื่อเล่น",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "table.reg-table tbody tr",
+                "has_text": "{{marker}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "discharge-student",
+      "title": "จำหน่ายนักเรียน (ย้ายออกหรือลาออก)",
+      "intro": "การจำหน่ายไม่ลบประวัติ ระบบเปลี่ยนสถานะนักเรียนเป็น \"ย้ายออก\" \"จบการศึกษา\" หรือ \"ลาออก\" นักเรียนที่จำหน่ายแล้วไม่ปรากฏในรายชื่อห้องและรายชื่อค้นหาเริ่มต้น ซึ่งแสดงเฉพาะผู้ที่กำลังศึกษา เลือกสถานะ \"ทุกสถานะ\" เพื่อค้นหานักเรียนที่จำหน่ายแล้ว",
+      "role": "admin",
+      "start": "/work#students",
+      "depends_on": [
+        "edit-student-move-room"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "table.reg-table"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ค้นหา",
+            "within": {
+              "css": "#reg-filter"
+            }
+          },
+          "value": "{{marker}}",
+          "wait_after": {
+            "role": "link",
+            "name": "{{marker}}"
+          }
+        },
+        {
+          "do": "hover",
+          "target": {
+            "role": "link",
+            "name": "{{marker}}",
+            "within": {
+              "css": "table.reg-table"
+            }
+          },
+          "say": "เปิดหน้ารายละเอียดของนักเรียนที่ต้องการจำหน่าย แล้วเลื่อนลงที่แบบฟอร์ม \"แก้ไขข้อมูลนักเรียน\"",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{marker}}",
+            "within": {
+              "css": "table.reg-table"
+            }
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "แก้ไขข้อมูลนักเรียน",
+            "exact": true
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "สถานะนักเรียน",
+            "within": {
+              "css": "#student-form"
+            }
+          },
+          "label": "ย้ายออก",
+          "say": "เลือก \"ย้ายออก\" (หรือ \"ลาออก\" \"จบการศึกษา\") ในช่อง \"สถานะนักเรียน\"",
+          "shot": true,
+          "crop": {
+            "css": "#student-form"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "#student-form"
+            }
+          },
+          "label": "ยังไม่จัดห้อง",
+          "say": "เปลี่ยนช่อง \"ห้องเรียน\" เป็น \"ยังไม่จัดห้อง\" เพื่อไม่ให้นักเรียนอยู่ในรายชื่อห้อง",
+          "shot": true,
+          "crop": {
+            "css": "#student-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการแก้ไข",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"บันทึกการแก้ไข\" ป้ายสถานะที่ส่วนหัวของหน้าเปลี่ยนเป็น \"ย้ายออก\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".reg-head"
+          },
+          "wait_after": {
+            "id": "toast"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ย้ายออก",
+            "in": {
+              "css": ".reg-head"
+            }
+          }
+        }
+      ],
+      "expected": "ส่วนหัวของหน้าแสดงสถานะ \"ย้ายออก\" และบรรทัดใต้ชื่อแสดง \"ห้อง ยังไม่จัดห้อง\"",
+      "verify": [
+        {
+          "title": "รายชื่อเริ่มต้นไม่พบนักเรียน แต่พบเมื่อเลือกสถานะ \"ทุกสถานะ\"",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#students",
+              "wait_after": {
+                "css": "table.reg-table"
+              }
+            },
+            {
+              "do": "fill",
+              "target": {
+                "label": "ค้นหา",
+                "within": {
+                  "css": "#reg-filter"
+                }
+              },
+              "value": "{{marker}}",
+              "wait_after": {
+                "css": "p.reg-empty"
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "label": "สถานะ",
+                "within": {
+                  "css": "#reg-filter"
+                }
+              },
+              "label": "ทุกสถานะ",
+              "wait_after": {
+                "role": "link",
+                "name": "{{marker}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "ย้ายออก",
+                "in": {
+                  "css": "table.reg-table tbody tr",
+                  "has_text": "{{marker}}"
+                }
+              },
+              "say": "รายชื่อเริ่มต้นไม่พบนักเรียนที่จำหน่าย เมื่อเลือกสถานะ \"ทุกสถานะ\" จึงพบพร้อมสถานะ \"ย้ายออก\"",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "table.reg-table tbody tr",
+                "has_text": "{{marker}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "import-csv",
+      "title": "นำเข้ารายชื่อผู้ปกครองจากไฟล์ CSV แล้วย้อนกลับ",
+      "intro": "การนำเข้าทำสามขั้น เลือกชนิดข้อมูลและไฟล์ CSV (UTF-8) ตรวจตัวอย่างและข้อผิดพลาดรายแถว แล้วยืนยันนำเข้า นำเข้าตามลำดับ นักเรียน ผู้ปกครอง แล้วการผูกผู้ปกครองกับนักเรียน ช่องว่างในไฟล์ไม่ลบข้อมูลเดิม ชุดที่นำเข้าแล้วกด \"ย้อนกลับชุดนี้\" ได้ถ้าแถวนั้นยังไม่ถูกแก้ไขหรือมีข้อมูลเกี่ยวข้อง",
+      "role": "admin",
+      "start": "/work",
+      "core": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "นำเข้าข้อมูลนักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"นำเข้าข้อมูลนักเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "#import-form"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ชนิดข้อมูล",
+            "within": {
+              "css": "#import-form"
+            }
+          },
+          "label": "ผู้ปกครอง",
+          "say": "เลือกชนิดข้อมูลในช่อง \"ชนิดข้อมูล\" ตัวเลือกคือ นักเรียน ผู้ปกครอง และการผูกนักเรียนกับผู้ปกครอง",
+          "shot": true,
+          "crop": {
+            "css": "#import-form"
+          }
+        },
+        {
+          "do": "upload",
+          "target": {
+            "attr": {
+              "name": "file"
+            },
+            "within": {
+              "css": "#import-form"
+            },
+            "include_hidden": true
+          },
+          "file": "sample.csv",
+          "say": "กดปุ่มเลือกไฟล์ในช่อง \"ไฟล์ CSV\" แล้วเลือกไฟล์ที่เตรียมไว้",
+          "shot": true,
+          "crop": {
+            "css": "#import-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างตัวอย่างก่อนนำเข้า",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"สร้างตัวอย่างก่อนนำเข้า\" ระบบเปิดหน้าชุดนำเข้า แสดงจำนวนแถวที่จะเพิ่ม อัปเดต ข้าม และแถวที่มีข้อผิดพลาด โดยยังไม่เขียนข้อมูลจริง",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "ul.reg-summary"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "ทั้งหมด 2 แถว",
+              "in": {
+                "css": "ul.reg-summary"
+              }
+            },
+            {
+              "text": "ตัวอย่าง",
+              "in": {
+                "css": "p.reg-sub"
+              }
+            }
+          ],
+          "say": "สรุปบอกจำนวนแถวทั้งหมด เพิ่มใหม่ อัปเดต ข้าม และข้อผิดพลาด สถานะของชุดคือ \"ตัวอย่าง (ยังไม่เขียนข้อมูล)\" ส่วนคอลัมน์ที่ระบบไม่ใช้ถูกแจ้งไว้เหนือปุ่ม",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "ul.reg-summary"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ยืนยันนำเข้า",
+            "has_text": "ยืนยันนำเข้า"
+          },
+          "say": "ตรวจแถวในตาราง แล้วกดปุ่ม \"ยืนยันนำเข้า (เฉพาะแถวที่ไม่มีข้อผิดพลาด)\" ระบบแสดงข้อความ \"นำเข้าแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "toast"
+          },
+          "wait_after": {
+            "role": "button",
+            "name": "ย้อนกลับชุดนี้"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "นำเข้าแล้ว",
+            "in": {
+              "css": "p.reg-sub"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้อนกลับชุดนี้",
+            "exact": true
+          },
+          "say": "หากนำเข้าผิด กดปุ่ม \"ย้อนกลับชุดนี้\" ระบบถามยืนยัน แล้วนำข้อมูลที่เพิ่มจากชุดนี้ออก",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "toast"
+          },
+          "wait_after": {
+            "id": "toast"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ย้อนกลับแล้ว",
+            "in": {
+              "css": "p.reg-sub"
+            }
+          }
+        }
+      ],
+      "expected": "สถานะของชุดนำเข้าเป็น \"ย้อนกลับแล้ว\" และข้อมูลที่เพิ่มจากชุดนี้ถูกนำออก",
+      "verify": [
+        {
+          "title": "หน้านำเข้าแสดงชุดนี้ในรายการชุดนำเข้าล่าสุดด้วยสถานะ \"ย้อนกลับแล้ว\"",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "กลับหน้านำเข้า"
+              },
+              "wait_after": {
+                "css": "ul.reg-batches"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "ย้อนกลับแล้ว",
+                "in": {
+                  "css": "ul.reg-batches li",
+                  "first": true
+                }
+              },
+              "say": "ที่หน้า \"นำเข้าข้อมูลนักเรียน\" หัวข้อ \"ชุดนำเข้าล่าสุด\" แสดงชุดนี้พร้อมสถานะ \"ย้อนกลับแล้ว\"",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "ul.reg-batches li",
+                "first": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "import-students-commit",
+      "title": "นำเข้ารายชื่อนักเรียนจากไฟล์ CSV จริง และดูรายชื่อในทะเบียน",
+      "intro": "ไฟล์นำเข้าต้องมีคอลัมน์รหัสนักเรียนและห้องเรียน ระบบแสดงตัวอย่างก่อนทุกครั้ง แถวที่ไม่มีข้อผิดพลาดจึงบันทึกจริงเมื่อกดยืนยัน นักเรียนที่นำเข้าปรากฏในทะเบียนทันที ชุดที่นำเข้าย้อนกลับได้ในขั้นตอนถัดไป",
+      "role": "admin",
+      "start": "/work",
+      "core": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "นำเข้าข้อมูลนักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"นำเข้าข้อมูลนักเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "#import-form"
+          }
+        },
+        {
+          "do": "upload",
+          "target": {
+            "attr": {
+              "name": "file"
+            },
+            "within": {
+              "css": "#import-form"
+            },
+            "include_hidden": true
+          },
+          "file": "registry-students-ok.csv",
+          "say": "กดปุ่ม \"เลือกไฟล์\" ในช่อง \"ไฟล์ CSV\" แล้วเลือกไฟล์รายชื่อนักเรียน 3 คน",
+          "shot": true,
+          "crop": {
+            "css": "#import-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างตัวอย่างก่อนนำเข้า",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"สร้างตัวอย่างก่อนนำเข้า\" ระบบแสดงจำนวนแถวที่จะเพิ่ม โดยยังไม่เขียนข้อมูลจริง",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "ul.reg-summary"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "เพิ่มใหม่ 3",
+            "in": {
+              "css": "ul.reg-summary"
+            }
+          },
+          "say": "สรุปของชุดนำเข้าแสดง \"เพิ่มใหม่ 3\" และไม่มีข้อผิดพลาด",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "ul.reg-summary"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ยืนยันนำเข้า",
+            "has_text": "ยืนยันนำเข้า"
+          },
+          "say": "กดปุ่ม \"ยืนยันนำเข้า\" ระบบบันทึกนักเรียนลงทะเบียนและแสดงสถานะ \"นำเข้าแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "text": "นำเข้าแล้ว"
+          }
+        }
+      ],
+      "expected": "ชุดนำเข้าแสดงสถานะ \"นำเข้าแล้ว\" และนักเรียนสามคนอยู่ในทะเบียนของห้องที่ระบุ",
+      "verify": [
+        {
+          "title": "นักเรียนที่นำเข้าอยู่ในทะเบียนและอยู่ในห้องที่ระบุ",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "ทะเบียนนักเรียน",
+                "exact": true,
+                "within": {
+                  "role": "navigation",
+                  "name": "ระบบงานโรงเรียน"
+                }
+              },
+              "wait_after": {
+                "css": "table.reg-table, #reg-filter"
+              }
+            },
+            {
+              "do": "fill",
+              "target": {
+                "label": "ค้นหา",
+                "within": {
+                  "css": "#reg-filter"
+                }
+              },
+              "value": "88101",
+              "settle_ms": 900
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "table.reg-table tbody tr",
+                    "has_text": "88101"
+                  }
+                },
+                {
+                  "text": "ม.5/1",
+                  "in": {
+                    "css": "table.reg-table tbody tr",
+                    "has_text": "88101"
+                  }
+                }
+              ],
+              "say": "ค้นหารหัสนักเรียนที่นำเข้าในทะเบียน พบนักเรียนพร้อมห้อง ม.5/1",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "table.reg-table tbody tr",
+                "has_text": "88101"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "import-students-rollback",
+      "title": "ย้อนกลับชุดนำเข้านักเรียนและตรวจว่านักเรียนหายจากทะเบียน",
+      "intro": "ย้อนกลับชุดนำเข้าได้เมื่อยังไม่มีผู้แก้ไขรายการที่นำเข้า ระบบลบนักเรียนที่เพิ่มจากชุดนั้น และคืนค่าเดิมของรายการที่อัปเดต",
+      "role": "admin",
+      "start": "/work",
+      "depends_on": [
+        "import-students-commit"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "นำเข้าข้อมูลนักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"นำเข้าข้อมูลนักเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "#import-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "registry-students-ok.csv",
+            "first": true,
+            "within": {
+              "css": "ul.reg-batches li",
+              "has_text": "registry-students-ok.csv"
+            }
+          },
+          "say": "เลือกชุดนำเข้า \"registry-students-ok.csv\" ในรายการชุดนำเข้าล่าสุด",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้อนกลับชุดนี้",
+            "exact": true
+          },
+          "dialog": "accept",
+          "say": "กดปุ่ม \"ย้อนกลับชุดนี้\" ระบบถามยืนยันและแสดงสถานะ \"ย้อนกลับแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "text": "ย้อนกลับแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ทะเบียนนักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "css": "table.reg-table, #reg-filter"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ค้นหา",
+            "within": {
+              "css": "#reg-filter"
+            }
+          },
+          "value": "88101",
+          "settle_ms": 900
+        }
+      ],
+      "expected": "ชุดนำเข้าแสดงสถานะ \"ย้อนกลับแล้ว\" และไม่พบนักเรียนที่นำเข้าในทะเบียน",
+      "verify": [
+        {
+          "title": "หลังย้อนกลับ ทะเบียนไม่มีนักเรียนจากชุดนั้น",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "ทะเบียนนักเรียน",
+                "exact": true,
+                "within": {
+                  "role": "navigation",
+                  "name": "ระบบงานโรงเรียน"
+                }
+              },
+              "wait_after": {
+                "css": "table.reg-table, #reg-filter"
+              }
+            },
+            {
+              "do": "fill",
+              "target": {
+                "label": "ค้นหา",
+                "within": {
+                  "css": "#reg-filter"
+                }
+              },
+              "value": "88101",
+              "settle_ms": 900
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "css": "table.reg-table tbody tr",
+                  "has_text": "88101"
+                }
+              },
+              "say": "ค้นหารหัสนักเรียนเดิมอีกครั้ง ไม่พบนักเรียนแล้ว",
+              "shot": true,
+              "crop": "panel"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "import-students-errors",
+      "title": "ตรวจไฟล์นำเข้าที่มีแถวผิดพลาด (รหัสซ้ำในไฟล์ และห้องที่ไม่มี)",
+      "intro": "ไฟล์ที่มีแถวผิดพลาดแสดงสาเหตุในแต่ละแถว ขั้นตอนนี้หยุดที่ตัวอย่างและไม่กดยืนยันนำเข้า จึงไม่มีนักเรียนถูกบันทึก",
+      "role": "admin",
+      "start": "/work",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "นำเข้าข้อมูลนักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"นำเข้าข้อมูลนักเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "#import-form"
+          }
+        },
+        {
+          "do": "upload",
+          "target": {
+            "attr": {
+              "name": "file"
+            },
+            "within": {
+              "css": "#import-form"
+            },
+            "include_hidden": true
+          },
+          "file": "registry-students-errors.csv",
+          "say": "เลือกไฟล์รายชื่อที่มีแถวผิดพลาดในช่อง \"ไฟล์ CSV\"",
+          "shot": true,
+          "crop": {
+            "css": "#import-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างตัวอย่างก่อนนำเข้า",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"สร้างตัวอย่างก่อนนำเข้า\" ระบบแสดงจำนวนแถวที่มีข้อผิดพลาด",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "ul.reg-summary"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "มีข้อผิดพลาด 2",
+              "in": {
+                "css": "ul.reg-summary"
+              }
+            },
+            {
+              "text": "ไม่พบห้องเรียน: ม.9/9"
+            }
+          ],
+          "say": "แถวที่รหัสซ้ำกับแถวก่อนหน้าในไฟล์ และแถวที่ระบุห้อง ม.9/9 ซึ่งไม่มีในระบบ แสดงข้อความสาเหตุ",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "text": "ไม่พบห้องเรียน: ม.9/9"
+          }
+        }
+      ],
+      "expected": "ระบบแสดง \"มีข้อผิดพลาด 2\" พร้อมสาเหตุของแต่ละแถว และยังไม่บันทึกนักเรียนของชุดนี้",
+      "verify": [
+        {
+          "title": "ตัวอย่างนี้ยังไม่บันทึกนักเรียนในทะเบียน",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "ทะเบียนนักเรียน",
+                "exact": true,
+                "within": {
+                  "role": "navigation",
+                  "name": "ระบบงานโรงเรียน"
+                }
+              },
+              "wait_after": {
+                "css": "table.reg-table, #reg-filter"
+              }
+            },
+            {
+              "do": "fill",
+              "target": {
+                "label": "ค้นหา",
+                "within": {
+                  "css": "#reg-filter"
+                }
+              },
+              "value": "88111",
+              "settle_ms": 900
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "css": "table.reg-table tbody tr",
+                  "has_text": "88111"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "teacher-views-homeroom",
+      "title": "ครูประจำชั้นดูรายชื่อนักเรียนในห้องของตนเอง (ดูอย่างเดียว)",
+      "intro": "ครูเห็นเฉพาะนักเรียนในห้องประจำชั้นของตนเอง ไม่มีปุ่ม \"เพิ่มนักเรียน\" ไม่เห็นเลขประจำตัวและเอกสาร และไม่มีเมนู \"นำเข้าข้อมูลนักเรียน\"",
+      "role": "homeroom",
+      "start": "/work",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ทะเบียนนักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ทะเบียนนักเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "table.reg-table"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "css": "table.reg-table tbody tr",
+                "first": true
+              }
+            },
+            {
+              "hidden": {
+                "role": "link",
+                "name": "เพิ่มนักเรียน",
+                "exact": true
+              }
+            },
+            {
+              "hidden": {
+                "role": "link",
+                "name": "นำเข้าข้อมูลนักเรียน",
+                "exact": true
+              }
+            }
+          ],
+          "say": "รายชื่อแสดงนักเรียนของห้องประจำชั้น ไม่มีปุ่ม \"เพิ่มนักเรียน\" และไม่มีเมนู \"นำเข้าข้อมูลนักเรียน\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "table.reg-table tbody tr",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "table.reg-table tbody tr td a",
+            "first": true
+          },
+          "say": "กดชื่อนักเรียนเพื่อเปิดหน้ารายละเอียด ครูเห็นข้อมูลทั่วไปและผู้ปกครอง แต่เลขประจำตัวและเอกสารมีข้อความแจ้งว่าดูได้เฉพาะผู้ดูแลระบบและผู้อำนวยการ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "p.reg-sub"
+          }
+        }
+      ],
+      "expected": "ครูเห็นรายละเอียดนักเรียนแบบอ่านอย่างเดียว ไม่มีแบบฟอร์มแก้ไข",
+      "verify": [
+        {
+          "title": "หน้ารายละเอียดไม่มีแบบฟอร์มแก้ไข และแจ้งว่าเลขประจำตัวดูได้เฉพาะผู้ดูแล",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "hidden": {
+                    "role": "heading",
+                    "name": "แก้ไขข้อมูลนักเรียน",
+                    "exact": true
+                  }
+                },
+                {
+                  "text": "เลขประจำตัวและเอกสารดูได้เฉพาะผู้ดูแลระบบและผู้อำนวยการ"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trash-test-data",
+      "title": "ลบข้อมูลทดสอบ (ผู้ปกครองและรายการที่เกี่ยวข้อง)",
+      "intro": "ขั้นตอนนี้ใช้ล้างข้อมูลทดสอบ ในการใช้งานจริงกด \"เอาออก\" ในบัตรผู้ปกครองเพื่อยกเลิกการผูกกับนักเรียน แล้วลบผู้ปกครองที่ไม่ผูกกับนักเรียนคนใดที่หน้า \"นำเข้าข้อมูลนักเรียน\" ระบบไม่มีปุ่มลบนักเรียน นักเรียนที่จำหน่ายแล้วจึงยังอยู่ในทะเบียนด้วยสถานะ \"ย้ายออก\"",
+      "role": "admin",
+      "start": "/work#students",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "table.reg-table"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "สถานะ",
+            "within": {
+              "css": "#reg-filter"
+            }
+          },
+          "label": "ทุกสถานะ"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ค้นหา",
+            "within": {
+              "css": "#reg-filter"
+            }
+          },
+          "value": "{{marker}}",
+          "settle_ms": 900
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{marker}}",
+            "within": {
+              "css": "table.reg-table"
+            }
+          },
+          "optional": true,
+          "wait_after": {
+            "css": "p.reg-sub"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เอาออก",
+            "exact": true,
+            "within": {
+              "css": "article.reg-card",
+              "has_text": "{{guardian_name}}"
+            }
+          },
+          "optional": true,
+          "say": "กดปุ่ม \"เอาออก\" ในบัตรของผู้ปกครอง ระบบถามยืนยันและยกเลิกการผูกกับนักเรียน",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "p.reg-empty"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "นำเข้าข้อมูลนักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "css": "#import-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบผู้ปกครอง",
+            "exact": true,
+            "within": {
+              "css": "li[data-gid]",
+              "has_text": "{{marker}}"
+            }
+          },
+          "optional": true,
+          "say": "ที่หัวข้อ \"ผู้ปกครองที่ไม่ผูกนักเรียน\" กดปุ่ม \"ลบผู้ปกครอง\" ท้ายรายการของผู้ปกครองที่ไม่ใช้แล้ว ระบบถามยืนยันและลบถาวร",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "role": "heading",
+            "name": "ผู้ปกครองที่ไม่ผูกนักเรียน"
+          },
+          "wait_after": {
+            "id": "toast"
+          }
+        }
+      ],
+      "verify": [
+        {
+          "title": "ไม่มีผู้ปกครองทดสอบค้างอยู่ในรายการผู้ปกครองที่ไม่ผูกนักเรียน",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "css": "li[data-gid]",
+                  "has_text": "{{marker}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": [
+    "การเพิ่มนักเรียนสัญชาติต่างชาติ ไร้สัญชาติ และรอเอกสาร (เลขชนิดเลข G หนังสือเดินทาง รอเอกสาร) และตัวกรอง \"รอเอกสาร\" ไม่ได้ทดสอบ ทดสอบเฉพาะนักเรียนไทยและเลขชนิด \"เลขอื่น ๆ\"",
+    "การแก้ไขข้อมูลผู้ปกครอง (ปุ่ม \"แก้ไขผู้ปกครอง\") และการลบเลขประจำตัว/เอกสาร (ปุ่ม \"ลบ\") ไม่ได้ทดสอบเป็นขั้นตอนแยก ส่วนการลบผู้ปกครองทดสอบในขั้นตอนล้างข้อมูล",
+    "การแก้ไขซ้อนกันของผู้ใช้สองคน (ข้อความ \"โหลดข้อมูลล่าสุด\") ตัวรันใช้เบราว์เซอร์ผู้ใช้ครั้งละหนึ่งคน",
+    "นักเรียนที่เพิ่มระหว่างทดสอบลบไม่ได้ เพราะระบบไม่มีปุ่มลบนักเรียน จึงเหลืออยู่ในทะเบียนด้วยสถานะ \"ย้ายออก\" และนามสกุลขึ้นต้นด้วย \"ทดสอบคู่มือ\" เลขประจำตัวและเอกสารของนักเรียนนี้ยังอยู่ในระบบ",
+    "ชุดนำเข้าตัวอย่างจากขั้นตอน import-students-errors (ไฟล์ registry-students-errors.csv ยังไม่ยืนยันนำเข้า) ค้างในรายการ \"ชุดนำเข้าล่าสุด\" ในสถานะ \"ตัวอย่าง\" เพราะหน้าจอไม่มีปุ่มยกเลิกหรือลบชุดตัวอย่าง (ImportService.php มีเพียง preview, commit และ rollback) ไม่มีนักเรียนถูกบันทึกจากชุดนี้"
+  ]
+}

@@ -1,0 +1,1717 @@
+{
+  "module": "behavior",
+  "title": "พฤติกรรมนักเรียน (บันทึกคะแนนความดีและความควรปรับปรุง)",
+  "area": "งานวิชาการและงานนักเรียน",
+  "purpose": "ครูบันทึกคะแนนพฤติกรรมของนักเรียนรายคนหรือหลายคนพร้อมกัน โดยเลือกตามกติกาที่โรงเรียนกำหนดหรือให้คะแนนเอง ระบบเก็บชื่อผู้บันทึกและวันที่ รวมคะแนนความดีและความควรปรับปรุงเป็นรายภาคเรียน ครูดูสรุปรายห้องและประวัติรายบุคคลได้ รายการที่บันทึกผิดยกเลิกได้โดยต้องระบุเหตุผล และระบบยังเก็บประวัติไว้ ผู้อำนวยการและผู้ดูแลระบบดูรายงานทั้งโรงเรียนและแก้กติกาได้ ผู้ปกครองเห็นเฉพาะรายการที่ครูเปิดให้เห็นและกดรับทราบในพอร์ทัลผู้ปกครอง",
+  "roles": [
+    "ครูประจำชั้นและครูผู้สอน (บันทึกและดูห้องที่ตนมีสิทธิ์)",
+    "ผู้อำนวยการและผู้ดูแลระบบ (ดูทุกห้อง รายงานทั้งโรงเรียน และแก้กติกา)",
+    "ผู้ปกครอง (ดูและรับทราบรายการที่ครูเปิดให้เห็นในพอร์ทัลผู้ปกครอง)"
+  ],
+  "menu": [
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"พฤติกรรมนักเรียน\" (/work#behavior) มีแท็บ \"บันทึกคะแนน\" และ \"สรุปรายห้อง\" ส่วนแท็บ \"รายงานโรงเรียน\" และ \"กติกาและคะแนน\" แสดงเฉพาะผู้อำนวยการและผู้ดูแลระบบ"
+  ],
+  "prerequisites": [
+    {
+      "module": "academic",
+      "text": "ต้องตั้งค่าภาคเรียนปัจจุบัน ห้องเรียน และมอบหมายครูประจำชั้นหรือครูผู้สอนของห้อง"
+    },
+    {
+      "module": "registry",
+      "text": "ต้องมีรายชื่อนักเรียนอยู่ในห้อง"
+    },
+    {
+      "module": "guardian-portal",
+      "text": "ผู้ปกครองจะเห็นรายการได้เมื่อมีบัญชีหรือลิงก์ที่ผูกกับนักเรียน และครูติ๊ก \"ให้ผู้ปกครองเห็น\""
+    }
+  ],
+  "vars": {
+    "stu": "ชนก ลานข้าวหอม",
+    "stu2": "ชนิดา ปลายฟ้าคราม",
+    "gstu": "ทอฝัน",
+    "rule_label": "{{marker}} ช่วยงานโรงเรียน",
+    "note1": "{{marker}} ช่วยจัดห้องเรียน",
+    "note_g": "{{marker}} เป็นผู้นำกิจกรรม"
+  },
+  "workflows": [
+    {
+      "id": "record-behavior",
+      "title": "บันทึกคะแนนพฤติกรรมของนักเรียนหนึ่งคน (ให้คะแนนเอง)",
+      "intro": "ใช้เมื่อพฤติกรรมไม่ตรงกับกติกาที่มีอยู่ ครูกรอกคะแนนเองเป็นเลขบวก (ความดี) หรือเลขลบ (ควรปรับปรุง) และต้องเขียนหมายเหตุ เลือกวันที่ได้เฉพาะวันนี้หรือวันที่ผ่านมาแล้ว เมื่อเลือกนักเรียนคนเดียว ช่อง \"ให้ผู้ปกครองเห็น\" จะถูกติ๊กให้โดยอัตโนมัติ",
+      "role": "homeroom",
+      "start": "/work",
+      "core": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "พฤติกรรมนักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"พฤติกรรมนักเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "ul.bhv-students li",
+            "first": true
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          },
+          "label": "ม.1/1",
+          "say": "ตรวจว่าช่อง \"ห้องเรียน\" เป็นห้องที่ต้องการ ระบบเลือกห้องประจำชั้นของครูให้ก่อน",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          },
+          "wait_after": {
+            "role": "checkbox",
+            "name": "{{stu}}"
+          }
+        },
+        {
+          "do": "check",
+          "target": {
+            "role": "checkbox",
+            "name": "{{stu}}"
+          },
+          "say": "ติ๊กช่องหน้าชื่อนักเรียนที่ต้องการบันทึก",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "checkbox",
+            "name": "{{stu}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "คะแนนเอง (บวกหรือลบ)",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          },
+          "value": "7",
+          "say": "พิมพ์คะแนนในช่อง \"คะแนนเอง (บวกหรือลบ)\" ใช้เลขบวกสำหรับความดี และเลขลบสำหรับสิ่งที่ควรปรับปรุง",
+          "shot": true,
+          "crop": "tight"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "note"
+            },
+            "within": {
+              "css": "section.bhv-page"
+            }
+          },
+          "value": "{{note1}}",
+          "say": "พิมพ์เหตุผลในช่อง \"หมายเหตุ\" ช่องนี้จำเป็นเมื่อให้คะแนนเอง",
+          "shot": true,
+          "crop": "tight"
+        },
+        {
+          "do": "check",
+          "target": {
+            "role": "checkbox",
+            "name": "ให้ผู้ปกครองเห็น"
+          },
+          "say": "ตรวจว่าช่อง \"ให้ผู้ปกครองเห็น\" มีเครื่องหมายถูก หากไม่ต้องการให้ผู้ปกครองเห็น ให้เอาเครื่องหมายถูกออก",
+          "shot": true,
+          "crop": "tight"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกคะแนน",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึกคะแนน\" ระบบแสดงข้อความ \"บันทึกแล้ว 1 รายการ\" ที่ด้านบนของฟอร์ม",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".bhv-msg .bhv-notice"
+          },
+          "expect_response": {
+            "url_contains": "/api/behavior/records",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": ".bhv-msg .bhv-notice"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "บันทึกแล้ว 1 รายการ",
+            "in": {
+              "css": ".bhv-msg"
+            }
+          }
+        }
+      ],
+      "expected": "ระบบแจ้งว่าบันทึกแล้ว 1 รายการ และคะแนนสุทธิของนักเรียนในรายชื่อเพิ่มขึ้น 7 คะแนน",
+      "verify": [
+        {
+          "title": "เปิดประวัติของนักเรียน รายการที่บันทึกต้องอยู่ในประวัติพร้อมชื่อผู้บันทึก",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "ประวัติ",
+                "within": {
+                  "css": "ul.bhv-students li",
+                  "has_text": "{{stu}}"
+                }
+              },
+              "wait_after": {
+                "css": "ol.bhv-timeline"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "ol.bhv-timeline li",
+                    "has_text": "{{note1}}"
+                  }
+                },
+                {
+                  "text": "บันทึกโดย",
+                  "in": {
+                    "css": "ol.bhv-timeline li",
+                    "has_text": "{{note1}}"
+                  }
+                }
+              ],
+              "say": "เปิดประวัติของนักเรียน รายการใหม่อยู่ในประวัติ พร้อมคะแนน +7 หมายเหตุ และชื่อผู้บันทึก",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "ol.bhv-timeline li",
+                "has_text": "{{note1}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "manage-rules",
+      "title": "เพิ่มกติกาพฤติกรรมใหม่ (ผู้ดูแลระบบ)",
+      "intro": "กติกาคือรายการพฤติกรรมที่มีคะแนนกำหนดไว้ล่วงหน้า ครูเลือกจากรายการแทนการกรอกคะแนนเอง เฉพาะผู้อำนวยการและผู้ดูแลระบบเพิ่มหรือแก้กติกาได้ การแก้คะแนนมีผลกับรายการที่บันทึกใหม่เท่านั้น รายการเดิมยังคงคะแนนเดิม ระบบไม่มีปุ่มลบกติกา ให้ปิดการใช้งานแทน",
+      "role": "admin",
+      "start": "/work",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "พฤติกรรมนักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"พฤติกรรมนักเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "nav.bhv-nav"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "กติกาและคะแนน",
+            "within": {
+              "css": "nav.bhv-nav"
+            }
+          },
+          "say": "เลือกแท็บ \"กติกาและคะแนน\" แท็บนี้แสดงเฉพาะผู้อำนวยการและผู้ดูแลระบบ",
+          "shot": true,
+          "crop": "tight",
+          "wait_after": {
+            "css": "form[data-form=new]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัส (ไม่ซ้ำ)",
+            "within": {
+              "css": "form[data-form=new]"
+            }
+          },
+          "value": "t-{{run_id}}",
+          "say": "พิมพ์รหัสกติกาในช่อง \"รหัส (ไม่ซ้ำ)\" ในหัวข้อ \"เพิ่มกติกาใหม่\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "รหัส (ไม่ซ้ำ)",
+            "within": {
+              "css": "form[data-form=new]"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อกติกา",
+            "within": {
+              "css": "form[data-form=new]"
+            }
+          },
+          "value": "{{rule_label}}"
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "หมวด",
+            "within": {
+              "css": "form[data-form=new]"
+            }
+          },
+          "label": "ความดี",
+          "say": "พิมพ์ชื่อกติกาในช่อง \"ชื่อกติกา\" และเลือก \"ความดี\" ในช่อง \"หมวด\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": [
+            {
+              "label": "ชื่อกติกา",
+              "within": {
+                "css": "form[data-form=new]"
+              }
+            },
+            {
+              "label": "หมวด",
+              "within": {
+                "css": "form[data-form=new]"
+              }
+            }
+          ]
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "คะแนน",
+            "within": {
+              "css": "form[data-form=new]"
+            }
+          },
+          "value": "4",
+          "say": "พิมพ์คะแนนในช่อง \"คะแนน\" ความดีใช้เลขบวก ควรปรับปรุงใช้เลขลบ",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มกติกา"
+          },
+          "say": "กดปุ่ม \"เพิ่มกติกา\" ระบบแสดงข้อความ \"เพิ่มกติกาแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".bhv-msg .bhv-notice"
+          },
+          "expect_response": {
+            "url_contains": "/api/behavior/rules",
+            "method": "POST",
+            "status": 201
+          },
+          "wait_after": {
+            "css": ".bhv-msg .bhv-notice"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "เพิ่มกติกาแล้ว",
+            "in": {
+              "css": ".bhv-msg"
+            }
+          }
+        }
+      ],
+      "expected": "กติกาใหม่อยู่ในรายการกติกาด้านบนของหน้า และครูเลือกใช้ได้ในหน้าบันทึกคะแนน",
+      "verify": [
+        {
+          "title": "เปิดหน้ากติกาใหม่ กติกาที่เพิ่มต้องอยู่ในรายการและเปิดใช้งาน",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "form.bhv-rule",
+                    "has_text": "ชื่อกติกา (t-{{run_id}})"
+                  }
+                },
+                {
+                  "checked": {
+                    "role": "checkbox",
+                    "name": "เปิดใช้งาน",
+                    "within": {
+                      "css": "form.bhv-rule",
+                      "has_text": "ชื่อกติกา (t-{{run_id}})"
+                    }
+                  }
+                }
+              ],
+              "say": "เปิดหน้า \"กติกาและคะแนน\" ใหม่ กติกาที่เพิ่มอยู่ในรายการ พร้อมช่อง \"เปิดใช้งาน\" ที่ติ๊กไว้",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "form.bhv-rule",
+                "has_text": "ชื่อกติกา (t-{{run_id}})"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "record-with-rule",
+      "title": "บันทึกคะแนนตามกติกาให้นักเรียนหลายคนพร้อมกัน",
+      "intro": "เลือกนักเรียนหลายคนแล้วเลือกกติกา ระบบบันทึกให้ทุกคนพร้อมกันด้วยคะแนนของกติกานั้น เมื่อบันทึกหลายคนพร้อมกัน ระบบไม่ติ๊ก \"ให้ผู้ปกครองเห็น\" ให้เอง เพราะหมายเหตุจะถูกส่งให้ผู้ปกครองของทุกคน",
+      "role": "homeroom",
+      "start": "/work",
+      "depends_on": [
+        "manage-rules"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "พฤติกรรมนักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"พฤติกรรมนักเรียน\" ที่แถบเมนูด้านซ้าย",
+          "wait_after": {
+            "css": "ul.bhv-students li",
+            "first": true
+          }
+        },
+        {
+          "do": "check",
+          "target": {
+            "role": "checkbox",
+            "name": "{{stu}}"
+          },
+          "say": "ติ๊กช่องหน้าชื่อนักเรียนคนแรก",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "checkbox",
+            "name": "{{stu}}"
+          }
+        },
+        {
+          "do": "check",
+          "target": {
+            "role": "checkbox",
+            "name": "{{stu2}}"
+          },
+          "say": "ติ๊กช่องหน้าชื่อนักเรียนคนต่อไป เลือกได้หลายคน หรือติ๊ก \"เลือกทั้งห้อง\" เพื่อเลือกทุกคน",
+          "shot": true,
+          "crop": "tight",
+          "highlight": [
+            {
+              "role": "checkbox",
+              "name": "{{stu}}"
+            },
+            {
+              "role": "checkbox",
+              "name": "{{stu2}}"
+            }
+          ]
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "กติกา",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          },
+          "label": "{{rule_label}} (+4)",
+          "say": "เลือกกติกาในช่อง \"กติกา\" ระบบใช้คะแนนของกติกานี้กับทุกคนที่เลือก ช่อง \"คะแนนเอง\" จะถูกซ่อน",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "กติกา",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกคะแนน",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึกคะแนน\" ระบบแสดงข้อความ \"บันทึกแล้ว 2 รายการ\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".bhv-msg .bhv-notice"
+          },
+          "expect_response": {
+            "url_contains": "/api/behavior/records",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": ".bhv-msg .bhv-notice"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "บันทึกแล้ว 2 รายการ",
+            "in": {
+              "css": ".bhv-msg"
+            }
+          }
+        }
+      ],
+      "expected": "ระบบแจ้งว่าบันทึกแล้ว 2 รายการ นักเรียนแต่ละคนมีรายการใหม่ในประวัติโดยใช้ชื่อกติกาเป็นหัวข้อ",
+      "verify": [
+        {
+          "title": "ประวัติของนักเรียนคนที่สองมีรายการตามกติกา",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "ประวัติ",
+                "within": {
+                  "css": "ul.bhv-students li",
+                  "has_text": "{{stu2}}"
+                }
+              },
+              "wait_after": {
+                "css": "ol.bhv-timeline"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "ol.bhv-timeline li",
+                  "has_text": "{{rule_label}}"
+                }
+              },
+              "say": "เปิดประวัติของนักเรียนคนที่สอง รายการตามกติกาอยู่ในประวัติ พร้อมคะแนน +4 และหมวด \"ความดี\"",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "ol.bhv-timeline li",
+                "has_text": "{{rule_label}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "class-summary",
+      "title": "ดูสรุปคะแนนพฤติกรรมของห้อง",
+      "intro": "ตารางสรุปเรียงตามคะแนนสุทธิจากมากไปน้อย แสดงคะแนนความดี คะแนนควรปรับปรุง และจำนวนรายการ เลือกภาคเรียนย้อนหลังได้ ลิงก์ \"ส่งออก CSV\" ดาวน์โหลดตารางนี้เป็นไฟล์",
+      "role": "homeroom",
+      "start": "/work",
+      "depends_on": [
+        "record-with-rule"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "พฤติกรรมนักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "css": "nav.bhv-nav"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "สรุปรายห้อง",
+            "within": {
+              "css": "nav.bhv-nav"
+            }
+          },
+          "say": "เลือกแท็บ \"สรุปรายห้อง\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "table.bhv-table tbody tr",
+            "first": true
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          },
+          "label": "ม.1/1",
+          "say": "เลือกห้องในช่อง \"ห้องเรียน\" และภาคเรียนในช่อง \"ภาคเรียน\" ตารางแสดงนักเรียนทุกคนของห้อง",
+          "shot": true,
+          "crop": "panel",
+          "highlight": [
+            {
+              "label": "ห้องเรียน",
+              "within": {
+                "css": "section.bhv-page"
+              }
+            },
+            {
+              "label": "ภาคเรียน",
+              "within": {
+                "css": "section.bhv-page"
+              }
+            }
+          ],
+          "wait_after": {
+            "css": "table.bhv-table tbody tr",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "table.bhv-table tbody tr",
+              "has_text": "{{stu}}"
+            }
+          },
+          "say": "ตรวจแถวของนักเรียน คะแนนสุทธิรวมรายการที่เพิ่งบันทึกแล้ว",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "css": "table.bhv-table tbody tr",
+            "has_text": "{{stu}}"
+          }
+        }
+      ],
+      "expected": "ตารางมีนักเรียนทุกคนของห้อง พร้อมอันดับ คะแนนความดี คะแนนควรปรับปรุง คะแนนสุทธิ และจำนวนรายการ",
+      "verify": [
+        {
+          "title": "แถวของนักเรียนที่บันทึกไว้มีจำนวนรายการอย่างน้อย 2",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "text": "ชนก",
+                "in": {
+                  "css": "table.bhv-table tbody tr",
+                  "has_text": "{{stu}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "export-csv",
+      "title": "ส่งออกคะแนนพฤติกรรมของห้องเป็นไฟล์ CSV",
+      "intro": "ไฟล์เป็น UTF-8 เปิดด้วย Excel ได้ ปุ่ม \"ส่งออก CSV\" มีทั้งในหน้า \"บันทึกคะแนน\" และ \"สรุปรายห้อง\"",
+      "role": "homeroom",
+      "start": "/work",
+      "depends_on": [
+        "record-with-rule"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "พฤติกรรมนักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "css": "nav.bhv-nav"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "สรุปรายห้อง",
+            "within": {
+              "css": "nav.bhv-nav"
+            }
+          },
+          "wait_after": {
+            "css": "table.bhv-table tbody tr",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ส่งออก CSV"
+          },
+          "say": "กดลิงก์ \"ส่งออก CSV\" เหนือตาราง เบราว์เซอร์บันทึกไฟล์ให้",
+          "shot": true,
+          "crop": "panel",
+          "expect_download": {
+            "ext": ".csv",
+            "min_bytes": 50
+          }
+        }
+      ],
+      "expected": "ได้ไฟล์ CSV ที่มีรายการคะแนนพฤติกรรมของห้อง",
+      "verify": [
+        {
+          "title": "ไฟล์ที่ดาวน์โหลดเป็น CSV จริงและมีรายการของนักเรียน",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "ส่งออก CSV"
+              },
+              "expect_download": {
+                "kind": "csv",
+                "ext": ".csv",
+                "min_bytes": 100,
+                "contains": "{{note1}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "void-record",
+      "title": "ยกเลิกรายการที่บันทึกผิดพร้อมระบุเหตุผล",
+      "intro": "ระบบไม่มีปุ่มลบรายการ ครูต้องยกเลิกรายการและระบุเหตุผลอย่างน้อย 3 ตัวอักษร รายการที่ยกเลิกยังอยู่ในประวัติพร้อมป้าย \"ยกเลิกแล้ว\" และไม่ถูกนับในคะแนนรวม",
+      "role": "homeroom",
+      "start": "/work",
+      "depends_on": [
+        "record-with-rule"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "พฤติกรรมนักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "css": "nav.bhv-nav"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "สรุปรายห้อง",
+            "within": {
+              "css": "nav.bhv-nav"
+            }
+          },
+          "wait_after": {
+            "css": "table.bhv-table tbody tr",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{stu}}",
+            "within": {
+              "css": "table.bhv-table"
+            }
+          },
+          "say": "ในหน้า \"สรุปรายห้อง\" กดที่ชื่อนักเรียนเพื่อเปิดประวัติ",
+          "shot": true,
+          "crop": "tight",
+          "wait_after": {
+            "css": "ol.bhv-timeline"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เหตุผลที่ยกเลิก",
+            "first": true,
+            "within": {
+              "css": "ol.bhv-timeline li",
+              "has_text": "{{marker}}"
+            }
+          },
+          "value": "{{marker}} บันทึกผิดคน",
+          "say": "พิมพ์เหตุผลในช่อง \"เหตุผลที่ยกเลิก\" ใต้รายการที่ต้องการยกเลิก",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ยกเลิกรายการนี้",
+            "first": true,
+            "within": {
+              "css": "ol.bhv-timeline li",
+              "has_text": "{{marker}}"
+            }
+          },
+          "say": "กดปุ่ม \"ยกเลิกรายการนี้\" ระบบแสดงข้อความ \"ยกเลิกรายการแล้ว (ยังเก็บประวัติไว้)\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".bhv-msg .bhv-notice"
+          },
+          "expect_response": {
+            "url_contains": "/void",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": ".bhv-msg .bhv-notice"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "ol.bhv-timeline li.is-voided"
+            }
+          }
+        }
+      ],
+      "expected": "รายการที่ยกเลิกแสดงป้าย \"ยกเลิกแล้ว\" พร้อมเหตุผล และไม่มีฟอร์มยกเลิกซ้ำ",
+      "verify": [
+        {
+          "title": "เปิดประวัติใหม่ รายการที่ยกเลิกต้องมีป้าย \"ยกเลิกแล้ว\" และเหตุผล",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "ol.bhv-timeline li.is-voided"
+                  }
+                },
+                {
+                  "text": "บันทึกผิดคน",
+                  "in": {
+                    "css": "ol.bhv-timeline li.is-voided",
+                    "first": true
+                  }
+                }
+              ],
+              "say": "เปิดประวัติใหม่ รายการที่ยกเลิกยังอยู่ พร้อมป้าย \"ยกเลิกแล้ว\" และเหตุผลที่ระบุ",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "ol.bhv-timeline li.is-voided",
+                "first": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "school-report",
+      "title": "ผู้อำนวยการดูรายงานพฤติกรรมทั้งโรงเรียน",
+      "intro": "รายงานรวมทุกห้องตามประเภท ตามกติกา และตามห้องเรียน เลือกภาคเรียนและส่งออก CSV ได้ แท็บนี้แสดงเฉพาะผู้อำนวยการและผู้ดูแลระบบ",
+      "role": "principal",
+      "start": "/work",
+      "depends_on": [
+        "record-with-rule"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "พฤติกรรมนักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"พฤติกรรมนักเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "nav.bhv-nav"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "รายงานโรงเรียน",
+            "within": {
+              "css": "nav.bhv-nav"
+            }
+          },
+          "say": "เลือกแท็บ \"รายงานโรงเรียน\"",
+          "shot": true,
+          "crop": "tight",
+          "wait_after": {
+            "role": "heading",
+            "name": "ตามห้องเรียน"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "role": "heading",
+                "name": "ตามประเภท"
+              }
+            },
+            {
+              "visible": {
+                "role": "heading",
+                "name": "ตามกติกา"
+              }
+            },
+            {
+              "visible": {
+                "css": "table.bhv-table tbody tr",
+                "has_text": "{{rule_label}}"
+              }
+            }
+          ],
+          "say": "รายงานแสดงรายการรวม ตามประเภท ตามกติกา และตามห้องเรียน แถวของกติกาที่ใช้ปรากฏในตาราง \"ตามกติกา\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "table.bhv-table tbody tr",
+            "has_text": "{{rule_label}}"
+          }
+        }
+      ],
+      "expected": "หน้ารายงานมีตัวเลขรวมของโรงเรียนและตารางสามตาราง และมีลิงก์ \"ส่งออก CSV\"",
+      "verify": [
+        {
+          "title": "ครูประจำชั้นไม่เห็นแท็บรายงานโรงเรียน",
+          "as": "homeroom",
+          "start": "/work#behavior",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "nav.bhv-nav"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "link",
+                    "name": "สรุปรายห้อง",
+                    "within": {
+                      "css": "nav.bhv-nav"
+                    }
+                  }
+                },
+                {
+                  "hidden": {
+                    "role": "link",
+                    "name": "รายงานโรงเรียน",
+                    "within": {
+                      "css": "nav.bhv-nav"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "record-for-guardian",
+      "title": "บันทึกคะแนนให้ผู้ปกครองเห็นในพอร์ทัลผู้ปกครอง",
+      "intro": "รายการที่ติ๊ก \"ให้ผู้ปกครองเห็น\" จะแสดงในแท็บ \"พฤติกรรม\" ของพอร์ทัลผู้ปกครองพร้อมปุ่ม \"รับทราบ\" ส่วนรายการที่ไม่ติ๊กจะไม่แสดง ผู้ดูแลระบบและผู้อำนวยการเลือกบันทึกได้ทุกห้อง",
+      "role": "admin",
+      "start": "/work",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "พฤติกรรมนักเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "css": "ul.bhv-students li",
+            "first": true
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          },
+          "label": "ม.2/1",
+          "say": "เลือกห้อง \"ม.2/1\" ในช่อง \"ห้องเรียน\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          },
+          "wait_after": {
+            "role": "checkbox",
+            "name": "{{gstu}}"
+          }
+        },
+        {
+          "do": "check",
+          "target": {
+            "role": "checkbox",
+            "name": "{{gstu}}"
+          },
+          "say": "ติ๊กช่องหน้าชื่อนักเรียน",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "checkbox",
+            "name": "{{gstu}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "คะแนนเอง (บวกหรือลบ)",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          },
+          "value": "6"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "name": "note"
+            },
+            "within": {
+              "css": "section.bhv-page"
+            }
+          },
+          "value": "{{note_g}}",
+          "say": "พิมพ์คะแนน 6 และหมายเหตุ แล้วตรวจว่าช่อง \"ให้ผู้ปกครองเห็น\" มีเครื่องหมายถูก",
+          "shot": true,
+          "crop": "panel",
+          "highlight": [
+            {
+              "attr": {
+                "name": "note"
+              },
+              "within": {
+                "css": "section.bhv-page"
+              }
+            },
+            {
+              "role": "checkbox",
+              "name": "ให้ผู้ปกครองเห็น"
+            }
+          ]
+        },
+        {
+          "do": "check",
+          "target": {
+            "role": "checkbox",
+            "name": "ให้ผู้ปกครองเห็น"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกคะแนน",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึกคะแนน\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".bhv-msg .bhv-notice"
+          },
+          "expect_response": {
+            "url_contains": "/api/behavior/records",
+            "method": "POST"
+          },
+          "wait_after": {
+            "css": ".bhv-msg .bhv-notice"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "บันทึกแล้ว 1 รายการ",
+            "in": {
+              "css": ".bhv-msg"
+            }
+          }
+        }
+      ],
+      "expected": "ระบบแจ้งว่าบันทึกแล้ว 1 รายการ และผู้ปกครองของนักเรียนเห็นรายการในพอร์ทัล",
+      "verify": [
+        {
+          "title": "ผู้ปกครองเปิดพอร์ทัล แท็บ \"พฤติกรรม\" ต้องมีรายการและปุ่ม \"รับทราบ\"",
+          "as": "guardian2",
+          "start": "/guardian",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "พฤติกรรม",
+                "exact": true
+              },
+              "wait_after": {
+                "css": "li.gp-item",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "li.gp-item",
+                    "has_text": "{{note_g}}"
+                  }
+                },
+                {
+                  "visible": {
+                    "role": "button",
+                    "name": "รับทราบ",
+                    "exact": true,
+                    "within": {
+                      "css": "li.gp-item",
+                      "has_text": "{{note_g}}"
+                    }
+                  }
+                }
+              ],
+              "say": "ผู้ปกครองเปิดแท็บ \"พฤติกรรม\" ในพอร์ทัลผู้ปกครอง รายการใหม่แสดงคะแนน +6 หมายเหตุ และปุ่ม \"รับทราบ\"",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "li.gp-item",
+                "has_text": "{{note_g}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phone-view",
+      "title": "บันทึกคะแนนพฤติกรรมบนโทรศัพท์มือถือ",
+      "role": "homeroom",
+      "start": "/work#behavior",
+      "viewport": "390x844",
+      "intro": "หน้าบันทึกคะแนนและสรุปรายห้องใช้บนมือถือได้ รายชื่อนักเรียนเรียงเป็นแถวเดียว ตารางสรุปเปลี่ยนเป็นการ์ดรายคน",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "ul.bhv-students li",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "role": "checkbox",
+              "name": "{{stu}}"
+            }
+          },
+          "say": "เปิดหน้า \"บันทึกคะแนน\" บนมือถือ รายชื่อนักเรียนเรียงเป็นแถวเดียว ติ๊กนักเรียนที่ต้องการได้ด้วยนิ้ว",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "checkbox",
+            "name": "{{stu}}"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/work#behavior/class",
+          "wait_after": {
+            "css": "table.bhv-table tbody tr",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "table.bhv-table tbody tr",
+              "has_text": "{{stu}}"
+            }
+          },
+          "say": "เปิดแท็บ \"สรุปรายห้อง\" บนมือถือ นักเรียนแต่ละคนแสดงเป็นการ์ดพร้อมคะแนน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "table.bhv-table tbody tr",
+            "has_text": "{{stu}}"
+          }
+        }
+      ],
+      "expected": "หน้าจอบนมือถือแสดงรายชื่อและตารางสรุปครบถ้วนโดยไม่ต้องเลื่อนไปทางขวา",
+      "verify": [
+        {
+          "title": "การ์ดสรุปของนักเรียนแสดงบนมือถือ",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "table.bhv-table tbody tr",
+                  "has_text": "{{stu}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "subject-teacher-room-choice",
+      "title": "ครูผู้สอนที่ไม่ได้สอนห้องเห็นเฉพาะห้องของตนในการบันทึกคะแนน",
+      "role": "subject",
+      "start": "/work#behavior",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 0,
+            "of": {
+              "css": "section.bhv-page select option",
+              "has_text": "ม.1/1",
+              "include_hidden": true
+            }
+          },
+          "say": "ครูผู้สอนที่ไม่ได้สอนห้อง ม.1/1 เปิดหน้า \"บันทึกคะแนน\" ช่อง \"ห้องเรียน\" ไม่มีห้องนี้ จึงบันทึกคะแนนให้ห้องนั้นไม่ได้",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          }
+        }
+      ],
+      "expected": "ช่องห้องเรียนของครูผู้สอนแสดงเฉพาะห้องที่ตนสอน",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ รายการห้องยังไม่มี ม.1/1",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "label": "ห้องเรียน",
+                "within": {
+                  "css": "section.bhv-page"
+                }
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "count": 0,
+                "of": {
+                  "css": "section.bhv-page select option",
+                  "has_text": "ม.1/1",
+                  "include_hidden": true
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "restore-clean",
+      "title": "ล้างข้อมูลทดสอบ (ยกเลิกรายการและปิดกติกาที่สร้างไว้)",
+      "intro": "ขั้นตอนนี้ใช้ตอนทดสอบเท่านั้น ในการใช้งานจริงครูยกเลิกรายการด้วยวิธีเดียวกับหัวข้อ \"ยกเลิกรายการที่บันทึกผิดพร้อมระบุเหตุผล\" และผู้ดูแลระบบปิดกติกาด้วยการเอาเครื่องหมายถูกออกจาก \"เปิดใช้งาน\"",
+      "role": "admin",
+      "start": "/work",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "goto",
+          "url": "/work#behavior/class",
+          "wait_after": {
+            "css": "table.bhv-table tbody tr",
+            "first": true
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          },
+          "label": "ม.1/1",
+          "wait_after": {
+            "css": "table.bhv-table tbody tr",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{stu}}",
+            "within": {
+              "css": "table.bhv-table"
+            }
+          },
+          "wait_after": {
+            "css": "ol.bhv-timeline"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เหตุผลที่ยกเลิก",
+            "first": true,
+            "within": {
+              "css": "ol.bhv-timeline li",
+              "has_text": "{{marker}}"
+            }
+          },
+          "value": "{{marker}} ล้างข้อมูลทดสอบ",
+          "optional": true,
+          "timeout": 3000
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ยกเลิกรายการนี้",
+            "first": true,
+            "within": {
+              "css": "ol.bhv-timeline li",
+              "has_text": "{{marker}}"
+            }
+          },
+          "optional": true,
+          "timeout": 3000,
+          "settle_ms": 800
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เหตุผลที่ยกเลิก",
+            "first": true,
+            "within": {
+              "css": "ol.bhv-timeline li",
+              "has_text": "{{marker}}"
+            }
+          },
+          "value": "{{marker}} ล้างข้อมูลทดสอบ",
+          "optional": true,
+          "timeout": 3000
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ยกเลิกรายการนี้",
+            "first": true,
+            "within": {
+              "css": "ol.bhv-timeline li",
+              "has_text": "{{marker}}"
+            }
+          },
+          "optional": true,
+          "timeout": 3000,
+          "settle_ms": 800
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เหตุผลที่ยกเลิก",
+            "first": true,
+            "within": {
+              "css": "ol.bhv-timeline li",
+              "has_text": "{{marker}}"
+            }
+          },
+          "value": "{{marker}} ล้างข้อมูลทดสอบ",
+          "optional": true,
+          "timeout": 3000
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ยกเลิกรายการนี้",
+            "first": true,
+            "within": {
+              "css": "ol.bhv-timeline li",
+              "has_text": "{{marker}}"
+            }
+          },
+          "optional": true,
+          "timeout": 3000,
+          "settle_ms": 800
+        },
+        {
+          "do": "goto",
+          "url": "/work#behavior/class",
+          "wait_after": {
+            "css": "table.bhv-table tbody tr",
+            "first": true
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          },
+          "label": "ม.1/1",
+          "wait_after": {
+            "css": "table.bhv-table tbody tr",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{stu2}}",
+            "within": {
+              "css": "table.bhv-table"
+            }
+          },
+          "wait_after": {
+            "css": "ol.bhv-timeline"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เหตุผลที่ยกเลิก",
+            "first": true,
+            "within": {
+              "css": "ol.bhv-timeline li",
+              "has_text": "{{marker}}"
+            }
+          },
+          "value": "{{marker}} ล้างข้อมูลทดสอบ",
+          "optional": true,
+          "timeout": 3000
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ยกเลิกรายการนี้",
+            "first": true,
+            "within": {
+              "css": "ol.bhv-timeline li",
+              "has_text": "{{marker}}"
+            }
+          },
+          "optional": true,
+          "timeout": 3000,
+          "settle_ms": 800
+        },
+        {
+          "do": "goto",
+          "url": "/work#behavior/class",
+          "wait_after": {
+            "css": "table.bhv-table tbody tr",
+            "first": true
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          },
+          "label": "ม.2/1",
+          "wait_after": {
+            "css": "table.bhv-table tbody tr",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{gstu}}",
+            "within": {
+              "css": "table.bhv-table"
+            }
+          },
+          "wait_after": {
+            "css": "ol.bhv-timeline"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เหตุผลที่ยกเลิก",
+            "first": true,
+            "within": {
+              "css": "ol.bhv-timeline li",
+              "has_text": "{{marker}}"
+            }
+          },
+          "value": "{{marker}} ล้างข้อมูลทดสอบ",
+          "optional": true,
+          "timeout": 3000
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ยกเลิกรายการนี้",
+            "first": true,
+            "within": {
+              "css": "ol.bhv-timeline li",
+              "has_text": "{{marker}}"
+            }
+          },
+          "optional": true,
+          "timeout": 3000,
+          "settle_ms": 800
+        },
+        {
+          "do": "goto",
+          "url": "/work#behavior/rules",
+          "wait_after": {
+            "css": "form[data-form=new]"
+          }
+        },
+        {
+          "do": "uncheck",
+          "target": {
+            "role": "checkbox",
+            "name": "เปิดใช้งาน",
+            "within": {
+              "css": "form.bhv-rule",
+              "has_text": "ชื่อกติกา (t-{{run_id}})"
+            }
+          },
+          "say": "เอาเครื่องหมายถูกออกจากช่อง \"เปิดใช้งาน\" ของกติกาที่ไม่ใช้แล้ว",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "form.bhv-rule",
+            "has_text": "ชื่อกติกา (t-{{run_id}})"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form.bhv-rule",
+              "has_text": "ชื่อกติกา (t-{{run_id}})"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ของกติกานั้น ระบบแสดงข้อความ \"บันทึกกติกาแล้ว\" กติกาที่ปิดใช้งานจะไม่ปรากฏในรายการให้ครูเลือก",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".bhv-msg .bhv-notice"
+          },
+          "wait_after": {
+            "css": ".bhv-msg .bhv-notice"
+          }
+        }
+      ],
+      "verify": [
+        {
+          "title": "กติกาถูกปิดใช้งาน และรายการของนักเรียนถูกยกเลิกหมดแล้ว",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "unchecked": {
+                  "role": "checkbox",
+                  "name": "เปิดใช้งาน",
+                  "within": {
+                    "css": "form.bhv-rule",
+                    "has_text": "ชื่อกติกา (t-{{run_id}})"
+                  }
+                }
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#behavior/class",
+              "wait_after": {
+                "css": "table.bhv-table tbody tr",
+                "first": true
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "label": "ห้องเรียน",
+                "within": {
+                  "css": "section.bhv-page"
+                }
+              },
+              "label": "ม.1/1",
+              "wait_after": {
+                "css": "table.bhv-table tbody tr",
+                "first": true
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{stu}}",
+                "within": {
+                  "css": "table.bhv-table"
+                }
+              },
+              "wait_after": {
+                "css": "ol.bhv-timeline"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "role": "button",
+                  "name": "ยกเลิกรายการนี้",
+                  "within": {
+                    "css": "ol.bhv-timeline li",
+                    "has_text": "{{marker}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": [
+    "การแก้ไขซ้อนกันของผู้ใช้สองคน (ข้อความ 409 พร้อมปุ่ม \"โหลดข้อมูลล่าสุด\") ยังไม่ได้ทดสอบ เพราะตัวรันทดสอบเปิดหน้าเบราว์เซอร์ได้หนึ่งหน้าต่อขั้นตอน จึงเปิดฟอร์มสองชุดแก้ไขพร้อมกันไม่ได้",
+    "กติกาที่เพิ่มแล้วลบไม่ได้ เพราะระบบไม่มีปุ่มลบกติกา การล้างข้อมูลทดสอบทำได้เพียงปิดการใช้งาน กติกาที่สร้างระหว่างทดสอบจึงเหลืออยู่ในรายการ (ชื่อขึ้นต้นด้วยข้อความทดสอบคู่มือ)",
+    "รายการพฤติกรรมที่ยกเลิกแล้วลบออกจากประวัติไม่ได้ตามออกแบบ รายการทดสอบจึงเหลืออยู่ในประวัติพร้อมป้าย \"ยกเลิกแล้ว\""
+  ]
+}

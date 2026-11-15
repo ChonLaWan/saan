@@ -68,7 +68,7 @@
 
             function accessBox(cid) {
                 const a = st.access;
-                const link = location.origin + base() + '/learn/' + cid;
+                const link = base() + '/learn/' + cid;
                 const manage = !!st.opts.classrooms.find(c => c.id === cid)?.can_manage_code;
                 return `<div class="lrn-box"><h2>รหัสให้นักเรียนเปิดดูลิงก์</h2>
                     <p class="lrn-lead">หน้าสำหรับนักเรียน: <span class="lrn-url">${esc(link)}</span> นักเรียนกรอกรหัสห้อง 8 ตัวเพื่อดูชื่อและลิงก์เท่านั้น ไม่เห็นข้อมูลนักเรียน</p>

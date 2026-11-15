@@ -1,0 +1,3672 @@
+{
+ "module": "complaints",
+ "title": "ร้องเรียนและรับเรื่อง",
+ "area": "เว็บไซต์โรงเรียน",
+ "purpose": "ช่องทางร้องเรียนและรับเรื่องตามเกณฑ์ ITA ข้อ O13 และ O14 ผู้เข้าชมเว็บไซต์ส่งเรื่องได้โดยไม่ต้องเข้าสู่ระบบ และไม่ต้องระบุชื่อ ระบบออกเลขรับเรื่องและรหัสติดตาม ผู้ร้องตรวจสถานะด้วยเลขและรหัส เจ้าหน้าที่มอบหมาย กำหนดเวลา บันทึกภายใน ตอบผู้ร้อง และปิดเรื่อง เรื่องทุจริตเห็นเฉพาะผู้บริหารที่กำหนด ผู้ถูกร้องมองไม่เห็นเรื่องของตนเอง และมีรายงานสรุปรายปีงบประมาณที่เผยแพร่บนเว็บไซต์ได้",
+ "roles": [
+  "ผู้เข้าชมเว็บไซต์ (ส่งเรื่องและตรวจสถานะ ไม่ต้องเข้าสู่ระบบ)",
+  "ผู้ดูแลระบบและผู้อำนวยการ (เจ้าหน้าที่รับเรื่อง)",
+  "ผู้อำนวยการที่อยู่ในรายชื่อผู้บริหาร (เรื่องทุจริต)",
+  "ครูและผู้ดูแลเว็บไซต์ที่ผู้ดูแลระบบเลือกเป็นเจ้าหน้าที่"
+ ],
+ "menu": [
+  "เมนูด้านซ้าย \"งานโรงเรียน\" > \"ร้องเรียนและรับเรื่อง\" (/work#complaints) แท็บ \"รายการเรื่อง\" และ \"รายงานประจำปีงบประมาณ\"",
+  "หน้าเว็บสาธารณะ: ร้องเรียนและแจ้งเรื่อง (/portal/complaints) และตรวจสอบสถานะเรื่อง (/portal/complaints/status)",
+  "การกำหนดเจ้าหน้าที่ ผู้บริหาร และกำหนดเวลาตอบ: \"ตั้งค่าโมดูล\" (/work#module-settings) ของผู้ดูแลระบบ"
+ ],
+ "prerequisites": [
+  {
+   "module": "web-cms",
+   "text": "เว็บไซต์โรงเรียนต้องเปิดอยู่ จึงมีหน้าสาธารณะให้ผู้ร้องส่งเรื่อง"
+  }
+ ],
+ "vars": {},
+ "workflows": [
+  {
+   "id": "submit-complaint",
+   "title": "ผู้ร้องส่งเรื่องร้องเรียนจากหน้าเว็บไซต์โรงเรียนและตรวจสอบสถานะ",
+   "role": "anonymous",
+   "start": "/portal/complaints",
+   "core": true,
+   "intro": "ใครก็ส่งเรื่องได้โดยไม่ต้องเข้าสู่ระบบ เมื่อส่งแล้วระบบแสดงเลขรับเรื่องและรหัสติดตามเพียงครั้งเดียว ผู้ร้องต้องจดไว้ เว็บไซต์ไม่เก็บรหัสนี้ไว้ที่ใดและเรียกดูย้อนหลังไม่ได้ ผู้ร้องใช้เลขและรหัสตรวจสถานะและอ่านคำตอบของโรงเรียนที่หน้า \"ตรวจสอบสถานะเรื่อง\"",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/portal/complaints",
+     "crop": "viewport",
+     "wait_after": {
+      "css": "form.cmp-form"
+     },
+     "say": "เปิดหน้า \"ร้องเรียนและแจ้งเรื่อง\" ของเว็บไซต์โรงเรียน (ที่อยู่ลงท้ายด้วย /portal/complaints) ไม่ต้องเข้าสู่ระบบ",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "radio",
+      "name": "เรื่องร้องเรียนทั่วไป"
+     },
+     "crop": "panel",
+     "say": "เลือกประเภทเรื่อง ในที่นี้เลือก \"เรื่องร้องเรียนทั่วไป\" ประเภทอื่นคือ ทุจริตและประพฤติมิชอบ ข้อเสนอแนะ และขอข้อมูลข่าวสาร",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ชื่อ-สกุล",
+      "within": {
+       "id": "cmp-contact"
+      }
+     },
+     "value": "นายทดสอบ ตัวอย่าง",
+     "crop": "panel",
+     "say": "พิมพ์ชื่อ-สกุลของผู้แจ้งในช่อง \"ชื่อ-สกุล\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "อีเมล",
+      "within": {
+       "id": "cmp-contact"
+      }
+     },
+     "value": "tester-{{run_id}}@example.invalid",
+     "crop": "panel",
+     "say": "พิมพ์อีเมลหรือโทรศัพท์อย่างน้อยหนึ่งช่องทางในช่อง \"อีเมล\" หรือ \"โทรศัพท์\" เพื่อให้โรงเรียนติดต่อกลับได้",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "checkbox",
+      "name": "ยินยอมให้โรงเรียนใช้ข้อมูลติดต่อ"
+     },
+     "crop": "panel",
+     "say": "ติ๊กช่องยินยอมให้โรงเรียนใช้ข้อมูลติดต่อ ถ้าไม่ต้องการให้ข้อมูลติดต่อ ให้ติ๊ก \"ส่งโดยไม่ระบุชื่อ\" แทน",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หัวข้อเรื่อง"
+     },
+     "value": "{{marker}} ขอให้ซ่อมหลังคาโรงอาหาร",
+     "crop": "panel",
+     "say": "พิมพ์หัวข้อเรื่องในช่อง \"หัวข้อเรื่อง\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รายละเอียด"
+     },
+     "value": "หลังคาโรงอาหารรั่วเมื่อฝนตกตั้งแต่ต้นเดือนนี้ นักเรียนนั่งรับประทานอาหารไม่ได้ ขอให้โรงเรียนตรวจสอบและซ่อมแซม ข้อมูลสมมติสำหรับทดสอบ {{marker}}",
+     "crop": "panel",
+     "say": "พิมพ์รายละเอียดในช่อง \"รายละเอียด\" ควรบอกว่าใคร ทำอะไร เมื่อไร ที่ไหน อย่างน้อย 10 ตัวอักษร",
+     "shot": true
+    },
+    {
+     "do": "upload",
+     "target": {
+      "label": "ไฟล์แนบ"
+     },
+     "file": "sample.txt",
+     "crop": "panel",
+     "highlight": {
+      "label": "ไฟล์แนบ"
+     },
+     "say": "กดปุ่มเลือกไฟล์ในช่อง \"ไฟล์แนบ\" ถ้ามีหลักฐาน แนบได้ไม่เกิน 5 ไฟล์",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งเรื่อง",
+      "exact": true
+     },
+     "crop": "panel",
+     "mask": [
+      {
+       "css": "dl.cmp-codes dd code",
+       "nth": 1
+      }
+     ],
+     "highlight": {
+      "css": "dl.cmp-codes"
+     },
+     "wait_after": {
+      "css": "dl.cmp-codes"
+     },
+     "say": "กดปุ่ม \"ส่งเรื่อง\" ระบบแสดงหน้า \"รับเรื่องแล้ว\" พร้อมเลขรับเรื่องและรหัสติดตาม (ภาพนี้ปิดรหัสติดตามไว้) จดทั้งสองอย่างไว้ทันที",
+     "shot": true
+    },
+    {
+     "do": "capture",
+     "target": {
+      "css": "dl.cmp-codes dd code",
+      "nth": 0
+     },
+     "var": "receipt"
+    },
+    {
+     "do": "capture",
+     "target": {
+      "css": "dl.cmp-codes dd code",
+      "nth": 1
+     },
+     "var": "code"
+    },
+    {
+     "do": "goto",
+     "url": "/portal/complaints/status",
+     "crop": "panel",
+     "wait_after": {
+      "css": "form.cmp-form"
+     },
+     "say": "เปิดหน้า \"ตรวจสอบสถานะเรื่อง\" (ที่อยู่ลงท้ายด้วย /portal/complaints/status) แล้วพิมพ์เลขรับเรื่องในช่อง \"เลขรับเรื่อง\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เลขรับเรื่อง"
+     },
+     "value": "{{receipt}}"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสติดตาม"
+     },
+     "value": "{{code}}",
+     "secret": true,
+     "crop": "panel",
+     "mask": [
+      {
+       "label": "รหัสติดตาม"
+      }
+     ],
+     "say": "พิมพ์รหัสติดตามในช่อง \"รหัสติดตาม\" (ภาพนี้ปิดรหัสไว้)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ตรวจสอบสถานะ"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": ".cmp-result"
+     },
+     "wait_after": {
+      "css": ".cmp-result"
+     },
+     "say": "กดปุ่ม \"ตรวจสอบสถานะ\" ระบบแสดงประเภท สถานะ วันที่รับเรื่อง และคำตอบของโรงเรียน (ยังไม่มีคำตอบ)",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "รับเรื่องแล้ว",
+      "in": {
+       "css": ".cmp-result"
+      }
+     }
+    }
+   ],
+   "expected": "หน้าตรวจสอบสถานะแสดง \"เรื่อง\" ตามด้วยเลขรับเรื่อง สถานะ \"รับเรื่องแล้ว\" และข้อความ \"ยังไม่มีคำตอบ\"",
+   "verify": [
+    {
+     "title": "เจ้าหน้าที่เห็นเรื่องที่ส่งในรายการของหน้า \"ร้องเรียนและรับเรื่อง\"",
+     "as": "admin",
+     "start": "/work#complaints",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "form.cmp-filter"
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form.cmp-filter"
+        }
+       },
+       "value": "{{marker}}"
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "กรอง",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "table.cmp-table tbody tr",
+        "has_text": "{{marker}}"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "table.cmp-table tbody tr",
+        "has_text": "{{marker}}"
+       },
+       "that": [
+        {
+         "visible": {
+          "css": "table.cmp-table tbody tr",
+          "has_text": "{{marker}}"
+         }
+        },
+        {
+         "text": "รับเรื่องแล้ว",
+         "in": {
+          "css": "table.cmp-table tbody tr",
+          "has_text": "{{marker}}"
+         }
+        }
+       ],
+       "say": "ผู้ดูแลระบบเปิดหน้า \"ร้องเรียนและรับเรื่อง\" ค้นหาด้วยหัวข้อ เรื่องที่ผู้ร้องส่งอยู่ในรายการ สถานะ \"รับเรื่องแล้ว\"",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "handle-case",
+   "title": "เจ้าหน้าที่รับเรื่อง มอบหมาย บันทึกภายใน และตอบผู้ร้อง",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "submit-complaint"
+   ],
+   "intro": "ผู้ดูแลระบบและผู้อำนวยการดูแลเรื่องทั่วไป ข้อเสนอแนะ และขอข้อมูลข่าวสาร (หรือครูที่ผู้ดูแลระบบกำหนดเป็นเจ้าหน้าที่) เรื่องทุจริตเห็นเฉพาะผู้บริหารที่กำหนด คำตอบถึงผู้ร้องแสดงต่อสาธารณะที่หน้าตรวจสอบสถานะ จึงห้ามใส่ชื่อบุคคลหรือข้อมูลส่วนตัว บันทึกภายในไม่แสดงต่อผู้ร้อง",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ร้องเรียนและรับเรื่อง",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "form.cmp-filter"
+     },
+     "say": "เลือกเมนู \"ร้องเรียนและรับเรื่อง\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form.cmp-filter"
+      }
+     },
+     "value": "{{marker}}",
+     "crop": "panel",
+     "say": "พิมพ์เลขรับเรื่องหรือส่วนหนึ่งของหัวข้อในช่อง \"ค้นหา\" แล้วกดปุ่ม \"กรอง\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "กรอง",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "table.cmp-table tbody tr",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "a",
+      "within": {
+       "css": "table.cmp-table tbody tr",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "role": "heading",
+      "name": "เรื่องที่แจ้ง"
+     },
+     "say": "กดที่เลขรับเรื่องของเรื่องที่ต้องการ ระบบเปิดหน้าของเรื่องนั้น",
+     "shot": true
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ผู้รับผิดชอบ",
+      "within": {
+       "css": "form[data-role=assign]"
+      }
+     },
+     "label": "ดร.ต้นธาร เรียนดี (สมมติ)",
+     "crop": "panel",
+     "say": "เลือกผู้รับผิดชอบในช่อง \"ผู้รับผิดชอบ\" แล้วกดปุ่ม \"บันทึกผู้รับผิดชอบ\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกผู้รับผิดชอบ"
+     },
+     "wait_after": {
+      "css": ".cmp-msg .cmp-ok"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "กำหนดตอบ",
+      "within": {
+       "css": "form[data-role=due]"
+      }
+     },
+     "value": "{{due_date}}",
+     "crop": "panel",
+     "say": "ถ้าต้องการเปลี่ยนวันครบกำหนดตอบ เลือกวันที่ในช่อง \"กำหนดตอบ\" แล้วกดปุ่ม \"เปลี่ยนกำหนด\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปลี่ยนกำหนด"
+     },
+     "wait_after": {
+      "css": ".cmp-msg .cmp-ok"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เพิ่มบันทึก"
+     },
+     "value": "{{marker}} ตรวจหลังคาแล้ว ต้องซ่อม",
+     "crop": "panel",
+     "say": "พิมพ์บันทึกสำหรับเจ้าหน้าที่ในช่อง \"เพิ่มบันทึก\" บันทึกนี้ไม่แสดงต่อผู้ร้อง",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มบันทึก",
+      "exact": true
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "ul.cmp-notes"
+     },
+     "wait_after": {
+      "css": "ul.cmp-notes li",
+      "has_text": "ตรวจหลังคาแล้ว"
+     },
+     "say": "กดปุ่ม \"เพิ่มบันทึก\" บันทึกปรากฏในรายการและประวัติการดำเนินการ",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ข้อความ",
+      "within": {
+       "css": "form[data-role=reply]"
+      }
+     },
+     "value": "โรงเรียนรับเรื่องแล้ว ฝ่ายอาคารสถานที่จะซ่อมหลังคาโรงอาหารภายในเดือนนี้ {{marker}}",
+     "crop": "panel",
+     "say": "พิมพ์คำตอบถึงผู้ร้องในช่อง \"ข้อความ\" ในกล่อง \"คำตอบถึงผู้ร้อง\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกและเผยแพร่คำตอบ"
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": ".cmp-msg"
+     },
+     "expect_response": {
+      "url_contains": "/reply",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "css": ".cmp-msg .cmp-ok"
+     },
+     "say": "กดปุ่ม \"บันทึกและเผยแพร่คำตอบ\" ระบบแสดงข้อความ \"บันทึกคำตอบแล้ว ผู้ร้องเห็นได้ที่หน้าตรวจสอบสถานะ\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "บันทึกคำตอบแล้ว",
+      "in": {
+       "css": ".cmp-msg"
+      }
+     }
+    }
+   ],
+   "vars": {
+    "due_date": "{{today}}"
+   },
+   "expected": "หน้าเรื่องแสดงชื่อผู้รับผิดชอบ กำหนดตอบ บันทึกภายใน และคำตอบที่เผยแพร่ สถานะของเรื่องเปลี่ยนเป็น \"ตอบกลับแล้ว\" ประวัติการดำเนินการมีรายการของแต่ละขั้น",
+   "verify": [
+    {
+     "title": "เปิดหน้าของเรื่องใหม่ คำตอบและบันทึกต้องยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "เรื่องที่แจ้ง"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "ol.cmp-log"
+       },
+       "that": [
+        {
+         "value": "โรงเรียนรับเรื่องแล้ว",
+         "of": {
+          "label": "ข้อความ",
+          "within": {
+           "css": "form[data-role=reply]"
+          }
+         },
+         "contains": true
+        },
+        {
+         "text": "ตรวจหลังคาแล้ว",
+         "in": {
+          "css": "ul.cmp-notes"
+         }
+        },
+        {
+         "visible": {
+          "css": "ol.cmp-log li",
+          "first": true
+         }
+        }
+       ],
+       "say": "เปิดหน้าของเรื่องใหม่ คำตอบถึงผู้ร้อง บันทึกภายใน และประวัติการดำเนินการยังอยู่",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "reissue-tracking-code",
+   "title": "ออกรหัสติดตามใหม่ให้ผู้ร้องที่ทำรหัสหาย",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "handle-case"
+   ],
+   "intro": "ระบบไม่เก็บรหัสติดตามเดิม ถ้าผู้ร้องที่ให้ช่องทางติดต่อทำรหัสหาย เจ้าหน้าที่ออกรหัสใหม่ได้ รหัสเดิมใช้ไม่ได้ทันที รหัสใหม่แสดงครั้งเดียวบนหน้าจอให้แจ้งผู้ร้อง ผู้ร้องที่ไม่ระบุชื่อไม่มีช่องทางติดต่อ ต้องแจ้งให้ส่งเรื่องใหม่",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ร้องเรียนและรับเรื่อง",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "form.cmp-filter"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form.cmp-filter"
+      }
+     },
+     "value": "{{marker}}",
+     "crop": "panel"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "กรอง",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "table.cmp-table tbody tr",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "a",
+      "within": {
+       "css": "table.cmp-table tbody tr",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "role": "heading",
+      "name": "เรื่องที่แจ้ง"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ออกรหัสติดตามใหม่"
+     },
+     "crop": "panel",
+     "highlight": {
+      "role": "button",
+      "name": "ออกรหัสติดตามใหม่"
+     },
+     "expect_response": {
+      "url_contains": "/track-code",
+      "method": "POST",
+      "status": 200
+     },
+     "mask": [
+      {
+       "css": ".cmp-msg"
+      }
+     ],
+     "wait_after": {
+      "css": ".cmp-msg .cmp-ok"
+     },
+     "say": "เลื่อนไปที่กล่อง \"รหัสติดตาม\" แล้วกดปุ่ม \"ออกรหัสติดตามใหม่\" ระบบถามยืนยัน",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "crop": "viewport",
+     "highlight": {
+      "css": ".cmp-msg"
+     },
+     "mask": [
+      {
+       "css": ".cmp-msg"
+      }
+     ],
+     "that": {
+      "text": "รหัสติดตามใหม่คือ",
+      "in": {
+       "css": ".cmp-msg"
+      }
+     },
+     "say": "ระบบแสดงข้อความ \"รหัสติดตามใหม่คือ ...\" ที่ด้านบนของหน้า (ภาพนี้ปิดรหัสไว้) จดรหัสแล้วแจ้งผู้ร้องทันที เพราะแสดงครั้งเดียว",
+     "shot": true
+    }
+   ],
+   "expected": "ที่ด้านบนของหน้ามีข้อความแจ้งรหัสติดตามใหม่ และประวัติการดำเนินการมีรายการออกรหัสใหม่",
+   "verify": [
+    {
+     "title": "ประวัติการดำเนินการบันทึกการออกรหัสใหม่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "เรื่องที่แจ้ง"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "visible": {
+         "css": "ol.cmp-log li",
+         "first": true
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "hide-case-from-accused",
+   "title": "ซ่อนเรื่องจากบัญชีของผู้ถูกร้อง",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "handle-case"
+   ],
+   "intro": "ผู้ที่ถูกร้องต้องไม่เห็นเรื่องของตนเอง เจ้าหน้าที่เลือกบัญชีผู้ถูกร้องในกล่อง \"ผู้ถูกร้อง\" บัญชีนั้นจะมองไม่เห็น ค้นไม่พบ ส่งออกไม่ได้ และมอบหมายเรื่องให้ไม่ได้ แม้มีสิทธิ์เจ้าหน้าที่",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ร้องเรียนและรับเรื่อง",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "form.cmp-filter"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form.cmp-filter"
+      }
+     },
+     "value": "{{marker}}",
+     "crop": "panel"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "กรอง",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "table.cmp-table tbody tr",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "a",
+      "within": {
+       "css": "table.cmp-table tbody tr",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "role": "heading",
+      "name": "เรื่องที่แจ้ง"
+     }
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "checkbox",
+      "name": "ดร.ต้นธาร เรียนดี",
+      "within": {
+       "css": "form[data-role=accused]"
+      }
+     },
+     "crop": "panel",
+     "say": "ในกล่อง \"ผู้ถูกร้อง\" ติ๊กชื่อบัญชีของผู้ถูกร้อง ในที่นี้ติ๊ก \"ดร.ต้นธาร เรียนดี\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกรายชื่อผู้ถูกร้อง"
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": ".cmp-msg"
+     },
+     "expect_response": {
+      "url_contains": "/accused",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "css": ".cmp-msg .cmp-ok"
+     },
+     "say": "กดปุ่ม \"บันทึกรายชื่อผู้ถูกร้อง\" ระบบแสดงข้อความ \"บันทึกรายชื่อผู้ถูกร้องแล้ว\"",
+     "shot": true
+    }
+   ],
+   "expected": "ช่องของผู้ถูกร้องมีเครื่องหมายถูกและบัญชีนั้นไม่เห็นเรื่องนี้อีก",
+   "verify": [
+    {
+     "title": "บัญชีผู้ถูกร้อง (ผู้อำนวยการ) ค้นเรื่องนี้ไม่พบ",
+     "as": "principal",
+     "start": "/work#complaints",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "form.cmp-filter"
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form.cmp-filter"
+        }
+       },
+       "value": "{{marker}}"
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "กรอง",
+        "exact": true
+       }
+      },
+      {
+       "do": "wait_for",
+       "text": "ไม่พบเรื่องตามเงื่อนไข"
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "p.cmp-count"
+       },
+       "that": [
+        {
+         "text": "ไม่พบเรื่องตามเงื่อนไข"
+        },
+        {
+         "hidden": {
+          "css": "table.cmp-table tbody tr",
+          "has_text": "{{marker}}"
+         }
+        }
+       ],
+       "say": "ผู้อำนวยการซึ่งถูกตั้งเป็นผู้ถูกร้องค้นด้วยหัวข้อเดิม ระบบแสดง \"ไม่พบเรื่องตามเงื่อนไข\" ทั้งที่เรื่องมีอยู่",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "filter-and-export",
+   "title": "กรองรายการเรื่องและส่งออก CSV",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "submit-complaint"
+   ],
+   "intro": "รายการเรื่องกรองได้ด้วยคำค้น ประเภท สถานะ และเฉพาะเรื่องที่เกินกำหนดตอบ ไฟล์ CSV ที่ส่งออกมีเฉพาะข้อมูลรหัสและสถานะ ไม่มีเนื้อเรื่องหรือข้อมูลผู้ร้อง ระบบบันทึกการส่งออกทุกครั้ง",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ร้องเรียนและรับเรื่อง",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "form.cmp-filter"
+     },
+     "say": "เลือกเมนู \"ร้องเรียนและรับเรื่อง\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ประเภท",
+      "within": {
+       "css": "form.cmp-filter"
+      }
+     },
+     "label": "เรื่องร้องเรียนทั่วไป",
+     "crop": "panel",
+     "say": "เลือกประเภทในช่อง \"ประเภท\" ในที่นี้เลือก \"เรื่องร้องเรียนทั่วไป\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form.cmp-filter"
+      }
+     },
+     "value": "{{marker}}",
+     "crop": "panel",
+     "say": "พิมพ์คำค้นในช่อง \"ค้นหา\" แล้วกดปุ่ม \"กรอง\" รายการแสดงเฉพาะเรื่องที่ตรงเงื่อนไข",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "กรอง",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "table.cmp-table tbody tr",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ส่งออก CSV"
+     },
+     "crop": "panel",
+     "expect_download": {
+      "ext": ".csv",
+      "kind": "csv",
+      "min_bytes": 30
+     },
+     "say": "กดลิงก์ \"ส่งออก CSV (ข้อมูลรหัสเท่านั้น)\" เบราว์เซอร์บันทึกไฟล์รายการที่กรองไว้",
+     "shot": true
+    }
+   ],
+   "expected": "ตารางแสดงเฉพาะเรื่องที่ตรงเงื่อนไข และได้ไฟล์ CSV",
+   "verify": [
+    {
+     "title": "เรื่องที่ค้นอยู่ในตารางที่กรอง และไฟล์ CSV ไม่มีเนื้อเรื่อง",
+     "steps": [
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "table.cmp-table tbody tr",
+        "has_text": "{{marker}}"
+       },
+       "that": {
+        "visible": {
+         "css": "table.cmp-table tbody tr",
+         "has_text": "{{marker}}"
+        }
+       },
+       "say": "ตารางที่กรองแสดงเรื่องที่ส่งไว้ พร้อมเลขรับเรื่อง ประเภท หัวข้อ สถานะ กำหนดตอบ และผู้รับผิดชอบ",
+       "shot": true
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ส่งออก CSV"
+       },
+       "expect_download": {
+        "ext": ".csv",
+        "kind": "csv",
+        "min_bytes": 30
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "annual-report",
+   "title": "ดูรายงานประจำปีงบประมาณและเผยแพร่บนเว็บไซต์",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "submit-complaint"
+   ],
+   "intro": "รายงานนับจำนวนเรื่องตามปีงบประมาณ (1 ตุลาคม ถึง 30 กันยายน) แยกประเภทและสถานะ พร้อมเวลาดำเนินการเฉลี่ย ไม่มีข้อมูลส่วนบุคคล เมื่อเผยแพร่แล้ว เว็บไซต์โรงเรียนแสดงรายงานให้ทุกคนอ่านได้ และหัวข้อ ITA ข้อ O14 ลิงก์มาที่รายงานนี้",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ร้องเรียนและรับเรื่อง",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "form.cmp-filter"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "รายงานประจำปีงบประมาณ"
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "table.cmp-table"
+     },
+     "say": "เลือกแท็บ \"รายงานประจำปีงบประมาณ\" ใต้ชื่อหน้า",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ดูรายงาน",
+      "within": {
+       "css": "table.cmp-table tbody tr",
+       "first": true
+      }
+     },
+     "crop": "panel",
+     "wait_after": {
+      "css": ".cmp-report table"
+     },
+     "say": "กดปุ่ม \"ดูรายงาน\" ของปีงบประมาณปัจจุบัน ตารางแสดงจำนวนเรื่องแยกประเภทและสถานะ และเวลาเฉลี่ย (วัน)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "CSV",
+      "within": {
+       "css": "table.cmp-table tbody tr",
+       "first": true
+      }
+     },
+     "crop": "panel",
+     "expect_download": {
+      "ext": ".csv",
+      "kind": "csv",
+      "min_bytes": 30
+     },
+     "say": "กดลิงก์ \"CSV\" ของปีงบประมาณ เพื่อบันทึกตัวเลขเป็นไฟล์",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "button[data-act=publish]",
+      "within": {
+       "css": "table.cmp-table tbody tr",
+       "first": true
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": ".cmp-msg"
+     },
+     "expect_response": {
+      "url_contains": "/publish",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "css": ".cmp-msg .cmp-ok"
+     },
+     "say": "กดปุ่ม \"เผยแพร่รายงาน\" (ถ้าเผยแพร่ไว้แล้วปุ่มชื่อ \"อัปเดตรายงานที่เผยแพร่\") ระบบถามยืนยัน แล้วแสดงข้อความ \"เผยแพร่รายงานแล้ว\" ตัวเลขล่าสุดขึ้นเว็บไซต์",
+     "shot": true
+    }
+   ],
+   "expected": "ปีงบประมาณนั้นมีสถานะ \"เผยแพร่แล้ว\" พร้อมเวลาที่เผยแพร่ และมีปุ่ม \"อัปเดตรายงานที่เผยแพร่\" กับ \"เลิกเผยแพร่\"",
+   "verify": [
+    {
+     "title": "เปิดแท็บรายงานใหม่ สถานะต้องเป็นเผยแพร่แล้ว",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "table.cmp-table"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "table.cmp-table tbody tr",
+        "first": true
+       },
+       "that": {
+        "text": "เผยแพร่แล้ว",
+        "in": {
+         "css": "table.cmp-table tbody tr",
+         "first": true
+        }
+       },
+       "say": "เปิดแท็บ \"รายงานประจำปีงบประมาณ\" ใหม่ ปีงบประมาณแสดง \"เผยแพร่แล้ว\"",
+       "shot": true
+      }
+     ]
+    },
+    {
+     "title": "ผู้เข้าชมเว็บไซต์เปิดอ่านรายงานได้โดยไม่ต้องเข้าสู่ระบบ",
+     "as": "anonymous",
+     "start": "/portal/complaints",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "รายงานสรุปปีงบประมาณ 2570",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "table"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "viewport",
+       "highlight": {
+        "css": "table",
+        "first": true
+       },
+       "that": {
+        "visible": {
+         "css": "table",
+         "first": true
+        }
+       },
+       "say": "ผู้เข้าชมกดลิงก์ \"รายงานสรุปปีงบประมาณ 2570\" ที่หน้าร้องเรียน และอ่านรายงานจำนวนเรื่องแยกประเภทได้",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "set-other-category-deadlines",
+   "title": "ตั้งกำหนดเวลาตอบของทุจริต ข้อเสนอแนะ และขอข้อมูลข่าวสาร",
+   "role": "admin",
+   "start": "/work#module-settings",
+   "depends_on": [
+    "annual-report"
+   ],
+   "intro": "เรื่องแต่ละประเภทมีกำหนดเวลาตอบของตนเอง (ค่าเริ่มต้น ทุจริต 30 วัน อย่างอื่น 15 วัน) การเปลี่ยนค่ามีผลกับเรื่องที่ส่งเข้ามาใหม่หลังจากนั้น เรื่องที่รับไว้แล้วเจ้าหน้าที่ยังแก้วันครบกำหนดรายเรื่องได้",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/work#module-settings",
+     "crop": "viewport",
+     "wait_after": {
+      "css": "div.ms-item",
+      "has_text": "complaints.sla_corruption"
+     },
+     "say": "เปิดหน้า \"ตั้งค่าโมดูล\" (/work#module-settings) หาหัวข้อของโมดูลร้องเรียนและรับเรื่อง ซึ่งมีกำหนดเวลาตอบแยกตามประเภทเรื่อง",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "css": "input[type=number]",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_corruption"
+      }
+     },
+     "value": "21",
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "complaints.sla_corruption"
+     },
+     "say": "เปลี่ยน \"กำหนดเวลาตอบ: ทุจริตและประพฤติมิชอบ (วัน)\" เป็น 21",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_corruption"
+      }
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "css": "input[type=number]",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_suggestion"
+      }
+     },
+     "value": "25",
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "complaints.sla_suggestion"
+     },
+     "say": "เปลี่ยน \"กำหนดเวลาตอบ: ข้อเสนอแนะ (วัน)\" เป็น 25",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_suggestion"
+      }
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "css": "input[type=number]",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_info_request"
+      }
+     },
+     "value": "26",
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "complaints.sla_info_request"
+     },
+     "say": "เปลี่ยน \"กำหนดเวลาตอบ: ขอข้อมูลข่าวสาร (วัน)\" เป็น 26",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_info_request"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"บันทึก\" ของแต่ละรายการ ระบบแสดงข้อความ \"บันทึกการตั้งค่าแล้ว\" ตัวเลขใหม่ใช้กับเรื่องที่ส่งเข้ามาหลังจากนี้",
+     "shot": true,
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     }
+    }
+   ],
+   "expected": "ทั้งสามรายการแสดงค่า 21, 25 และ 26",
+   "verify": [
+    {
+     "title": "เปิดหน้าตั้งค่าใหม่ ค่าที่บันทึกยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "div.ms-item",
+        "has_text": "complaints.sla_info_request"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "value": "21",
+         "of": {
+          "css": "input[type=number]",
+          "within": {
+           "css": "div.ms-item",
+           "has_text": "complaints.sla_corruption"
+          }
+         }
+        },
+        {
+         "value": "25",
+         "of": {
+          "css": "input[type=number]",
+          "within": {
+           "css": "div.ms-item",
+           "has_text": "complaints.sla_suggestion"
+          }
+         }
+        },
+        {
+         "value": "26",
+         "of": {
+          "css": "input[type=number]",
+          "within": {
+           "css": "div.ms-item",
+           "has_text": "complaints.sla_info_request"
+          }
+         }
+        }
+       ],
+       "crop": "panel",
+       "highlight": {
+        "css": "div.ms-item",
+        "has_text": "complaints.sla_info_request"
+       },
+       "say": "เปิดหน้า \"ตั้งค่าโมดูล\" ใหม่ ทั้งสามรายการแสดงค่าที่บันทึกไว้",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "submit-corruption-anonymous",
+   "title": "ผู้ร้องส่งเรื่องทุจริตโดยไม่ระบุชื่อ",
+   "role": "anonymous",
+   "start": "/portal/complaints",
+   "intro": "เรื่องทุจริตและประพฤติมิชอบส่งโดยไม่ระบุชื่อได้ เมื่อติ๊ก \"ส่งโดยไม่ระบุชื่อ\" ช่องชื่อและช่องทางติดต่อหายไป ระบบไม่มีทางติดต่อผู้ร้อง ผู้ร้องติดตามผลได้จากหน้าตรวจสอบสถานะเท่านั้น และเลขรับเรื่องกับรหัสติดตามแสดงครั้งเดียว",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/portal/complaints",
+     "crop": "viewport",
+     "wait_after": {
+      "css": "form.cmp-form"
+     },
+     "say": "เปิดหน้า \"ร้องเรียนและแจ้งเรื่อง\" ของเว็บไซต์โรงเรียน",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "radio",
+      "name": "ทุจริตและประพฤติมิชอบ"
+     },
+     "crop": "panel",
+     "say": "เลือกประเภทเรื่อง \"ทุจริตและประพฤติมิชอบ\"",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "checkbox",
+      "name": "ส่งโดยไม่ระบุชื่อ"
+     },
+     "crop": "panel",
+     "say": "ติ๊ก \"ส่งโดยไม่ระบุชื่อ\" ช่องชื่อ อีเมล และโทรศัพท์หายไปจากแบบฟอร์ม",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หัวข้อเรื่อง"
+     },
+     "value": "{{marker}} แจ้งเรื่องทุจริตการจัดซื้อ",
+     "crop": "panel",
+     "say": "พิมพ์หัวข้อเรื่องในช่อง \"หัวข้อเรื่อง\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รายละเอียด"
+     },
+     "value": "ขอให้ตรวจสอบการจัดซื้อวัสดุอุปกรณ์ของโรงเรียนในเดือนนี้ว่าเป็นไปตามระเบียบหรือไม่ ข้อมูลสมมติสำหรับทดสอบ {{marker}}",
+     "crop": "panel",
+     "say": "พิมพ์รายละเอียดในช่อง \"รายละเอียด\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งเรื่อง",
+      "exact": true
+     },
+     "crop": "panel",
+     "mask": [
+      {
+       "css": "dl.cmp-codes dd code",
+       "nth": 1
+      }
+     ],
+     "highlight": {
+      "css": "dl.cmp-codes"
+     },
+     "wait_after": {
+      "css": "dl.cmp-codes"
+     },
+     "say": "กดปุ่ม \"ส่งเรื่อง\" ระบบแสดงเลขรับเรื่องและรหัสติดตาม (ภาพนี้ปิดรหัสติดตามไว้)",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ไม่ระบุชื่อ",
+      "in": {
+       "css": "section.cmp-receipt"
+      }
+     }
+    }
+   ],
+   "expected": "หน้า \"รับเรื่องแล้ว\" แสดงเลขรับเรื่องและรหัสติดตาม พร้อมข้อความว่าโรงเรียนจะไม่สามารถติดต่อผู้ร้องได้",
+   "verify": [
+    {
+     "title": "ผู้ดูแลระบบที่ไม่อยู่ในรายชื่อผู้บริหารค้นไม่พบเรื่องทุจริต",
+     "as": "admin",
+     "start": "/work#complaints",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "form.cmp-filter"
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form.cmp-filter"
+        }
+       },
+       "value": "{{marker}} แจ้งเรื่องทุจริต"
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "กรอง",
+        "exact": true
+       }
+      },
+      {
+       "do": "wait_for",
+       "text": "ไม่พบเรื่องตามเงื่อนไข"
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "p.cmp-count"
+       },
+       "that": [
+        {
+         "text": "ไม่พบเรื่องตามเงื่อนไข"
+        }
+       ],
+       "say": "ผู้ดูแลระบบค้นหัวข้อของเรื่องทุจริต ระบบแสดง \"ไม่พบเรื่องตามเงื่อนไข\" เพราะผู้ดูแลระบบไม่อยู่ในรายชื่อผู้บริหารที่เห็นเรื่องทุจริต",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "view-executive-setting",
+   "title": "ดูรายชื่อผู้บริหารที่เห็นเรื่องทุจริต",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "submit-corruption-anonymous"
+   ],
+   "intro": "เรื่องทุจริตและประพฤติมิชอบเห็นได้เฉพาะบัญชีในรายชื่อ \"ผู้บริหารที่เห็นเรื่องทุจริตและประพฤติมิชอบ\" ซึ่งผู้ดูแลระบบกำหนดในหน้า \"ตั้งค่าโมดูล\" ถ้ารายชื่อว่างจะไม่มีใครเห็นเรื่องกลุ่มนี้ แม้เป็นผู้ดูแลระบบ ผู้ดูแลระบบที่ไม่อยู่ในรายชื่อจึงไม่เห็นเรื่องทุจริต เพื่อให้ผู้บริหารเป็นผู้ดูแลเรื่องที่เกี่ยวกับบุคลากรโดยตรง เพิ่มหรือถอนผู้บริหารโดยติ๊กชื่อในรายชื่อแล้วกดปุ่ม \"บันทึก\" ของหัวข้อนั้น คู่มือนี้ไม่เปลี่ยนรายชื่อ",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/work#module-settings",
+     "crop": "viewport",
+     "wait_after": {
+      "css": "div.ms-item",
+      "has_text": "complaints.executive_user_ids"
+     },
+     "say": "เปิดหน้า \"ตั้งค่าโมดูล\" ของผู้ดูแลระบบ (/work#module-settings) แล้วเลื่อนไปหัวข้อ \"ผู้บริหารที่เห็นเรื่องทุจริตและประพฤติมิชอบ\" ของโมดูลร้องเรียนและรับเรื่อง",
+     "shot": true
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "css": "div.ms-item",
+      "has_text": "complaints.executive_user_ids"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "complaints.executive_user_ids"
+     },
+     "say": "รายชื่อบัญชีที่ติ๊กไว้คือผู้บริหารที่เห็นเรื่องทุจริต ในระบบทดลองนี้คือผู้อำนวยการ",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "checked": {
+       "css": "input[data-user]",
+       "first": true,
+       "within": {
+        "css": "div.ms-item",
+        "has_text": "complaints.executive_user_ids"
+       }
+      }
+     }
+    }
+   ],
+   "expected": "รายชื่อมีผู้อำนวยการติ๊กอยู่ และผู้อำนวยการเห็นเรื่องทุจริตในรายการของหน้า \"ร้องเรียนและรับเรื่อง\"",
+   "verify": [
+    {
+     "title": "ผู้ดูแลระบบที่ไม่อยู่ในรายชื่อไม่เห็นเรื่องทุจริต แต่รายชื่อมีผู้อำนวยการ",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "checked": {
+         "css": "input[data-user]",
+         "first": true,
+         "within": {
+          "css": "div.ms-item",
+          "has_text": "complaints.executive_user_ids"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "check-corruption-deadline",
+   "title": "ผู้บริหารดูกำหนดเวลาตอบของเรื่องทุจริตที่เพิ่งส่ง",
+   "role": "principal",
+   "start": "/work",
+   "depends_on": [
+    "submit-corruption-anonymous",
+    "set-other-category-deadlines"
+   ],
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ร้องเรียนและรับเรื่อง",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "ร้องเรียนและรับเรื่อง",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "css": "form.cmp-filter"
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"ร้องเรียนและรับเรื่อง\" แล้วค้นหาเรื่องทุจริตที่เพิ่งส่ง",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form.cmp-filter"
+      }
+     },
+     "value": "{{marker}} แจ้งเรื่องทุจริตการจัดซื้อ"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "กรอง",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "table.cmp-table tbody tr",
+      "has_text": "{{marker}} แจ้งเรื่องทุจริตการจัดซื้อ"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "a",
+      "within": {
+       "css": "table.cmp-table tbody tr",
+       "has_text": "{{marker}} แจ้งเรื่องทุจริตการจัดซื้อ"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "เรื่องที่แจ้ง"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "เกณฑ์ 21 วัน"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "p",
+      "has_text": "เกณฑ์ 21 วัน",
+      "first": true
+     },
+     "say": "เปิดเรื่อง แถว \"กำหนดตอบ\" บอกวันครบกำหนดและเกณฑ์ของประเภทเรื่อง เรื่องทุจริตขึ้น \"เกณฑ์ 21 วัน\" ตามที่ตั้งไว้",
+     "shot": true
+    }
+   ],
+   "expected": "หน้าเรื่องแสดงประเภท \"ทุจริตและประพฤติมิชอบ\" และ \"เกณฑ์ 21 วัน\"",
+   "verify": [
+    {
+     "title": "หน้าเรื่องแสดงเกณฑ์ตามที่ตั้ง",
+     "steps": [
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "เกณฑ์ 21 วัน"
+        },
+        {
+         "text": "ทุจริตและประพฤติมิชอบ"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "executive-closes-corruption-case",
+   "title": "ผู้อำนวยการดูและปิดเรื่องทุจริต",
+   "role": "principal",
+   "start": "/work",
+   "depends_on": [
+    "view-executive-setting"
+   ],
+   "intro": "ผู้บริหารที่อยู่ในรายชื่อเห็นเรื่องทุจริตในรายการเดียวกับเรื่องอื่น ผู้ที่ถูกร้องในเรื่องนั้นไม่เห็นเรื่องนั้น เรื่องที่ปิดแล้วเปิดใหม่ได้",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ร้องเรียนและรับเรื่อง",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "form.cmp-filter"
+     },
+     "say": "เลือกเมนู \"ร้องเรียนและรับเรื่อง\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form.cmp-filter"
+      }
+     },
+     "value": "{{marker}} แจ้งเรื่องทุจริต",
+     "crop": "panel",
+     "say": "พิมพ์หัวข้อของเรื่องในช่อง \"ค้นหา\" แล้วกดปุ่ม \"กรอง\" เรื่องทุจริตแสดงให้เฉพาะผู้บริหารที่กำหนด",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "กรอง",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "table.cmp-table tbody tr",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "visible": {
+       "css": "table.cmp-table tbody tr",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "table.cmp-table tbody tr",
+      "has_text": "{{marker}}"
+     },
+     "say": "เรื่องทุจริตแสดงในรายการของผู้อำนวยการ ซึ่งอยู่ในรายชื่อผู้บริหาร",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "a",
+      "within": {
+       "css": "table.cmp-table tbody tr",
+       "has_text": "{{marker}}"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "เรื่องที่แจ้ง"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดเรื่อง",
+      "exact": true
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": ".cmp-msg"
+     },
+     "expect_response": {
+      "url_contains": "/close",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "css": ".cmp-msg .cmp-ok"
+     },
+     "say": "เลื่อนไปที่กล่อง \"สถานะ\" แล้วกดปุ่ม \"ปิดเรื่อง\" ระบบถามยืนยัน แล้วแสดงข้อความ \"ปิดเรื่องแล้ว\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "visible": {
+       "role": "button",
+       "name": "เปิดเรื่องใหม่"
+      }
+     }
+    }
+   ],
+   "expected": "สถานะของเรื่องเป็น \"ปิดแล้ว\" ช่องคำตอบใช้ไม่ได้ และมีปุ่ม \"เปิดเรื่องใหม่\"",
+   "verify": [
+    {
+     "title": "เปิดหน้าของเรื่องใหม่ สถานะต้องเป็นปิดแล้ว",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "เรื่องที่แจ้ง"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "viewport",
+       "highlight": {
+        "role": "button",
+        "name": "เปิดเรื่องใหม่"
+       },
+       "that": {
+        "visible": {
+         "role": "button",
+         "name": "เปิดเรื่องใหม่"
+        }
+       },
+       "say": "เปิดหน้าของเรื่องใหม่ สถานะ \"ปิดแล้ว\" ยังอยู่และมีปุ่ม \"เปิดเรื่องใหม่\"",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "close-and-reopen-case",
+   "title": "ปิดเรื่องที่ตอบแล้ว และเปิดเรื่องใหม่เมื่อมีความคืบหน้า",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "reissue-tracking-code"
+   ],
+   "intro": "เมื่อดำเนินการเสร็จ เจ้าหน้าที่ปิดเรื่อง ช่องคำตอบและปุ่มบันทึกคำตอบใช้ไม่ได้ขณะปิด เปิดเรื่องใหม่ได้ทุกเมื่อ ระบบนับรายงานประจำปีจากสถานะของเรื่อง",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ร้องเรียนและรับเรื่อง",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "form.cmp-filter"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form.cmp-filter"
+      }
+     },
+     "value": "{{marker}}",
+     "crop": "panel"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "กรอง",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "table.cmp-table tbody tr",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "a",
+      "within": {
+       "css": "table.cmp-table tbody tr",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "role": "heading",
+      "name": "เรื่องที่แจ้ง"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดเรื่อง",
+      "exact": true
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": ".cmp-msg"
+     },
+     "expect_response": {
+      "url_contains": "/close",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "css": ".cmp-msg .cmp-ok"
+     },
+     "say": "กดปุ่ม \"ปิดเรื่อง\" ในกล่อง \"สถานะ\" ระบบถามยืนยัน แล้วแสดงข้อความ \"ปิดเรื่องแล้ว\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปิดเรื่องใหม่"
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": ".cmp-msg"
+     },
+     "expect_response": {
+      "url_contains": "/reopen",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "css": ".cmp-msg .cmp-ok"
+     },
+     "say": "กดปุ่ม \"เปิดเรื่องใหม่\" เมื่อต้องการทำงานต่อ สถานะกลับเป็นกำลังดำเนินการ",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดเรื่อง",
+      "exact": true
+     },
+     "expect_response": {
+      "url_contains": "/close",
+      "method": "POST",
+      "status": 200
+     }
+    }
+   ],
+   "expected": "ขั้นสุดท้ายเรื่องอยู่ในสถานะ \"ปิดแล้ว\" ประวัติการดำเนินการมีรายการปิดและเปิดเรื่อง",
+   "verify": [
+    {
+     "title": "เปิดหน้าของเรื่องใหม่ สถานะต้องเป็นปิดแล้ว",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "เรื่องที่แจ้ง"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "visible": {
+         "role": "button",
+         "name": "เปิดเรื่องใหม่"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "track-answered-complaint",
+   "title": "ผู้ร้องอ่านคำตอบของโรงเรียนที่หน้าตรวจสอบสถานะ",
+   "role": "anonymous",
+   "start": "/portal/complaints/status",
+   "intro": "ผู้ร้องที่ได้รับคำตอบแล้วเปิดหน้านี้ ใส่เลขรับเรื่องและรหัสติดตามเดิม ระบบแสดงเฉพาะสถานะ วันที่ และคำตอบ ถ้าเลขหรือรหัสผิด ระบบตอบข้อความเดียวกันทุกกรณีเพื่อไม่บอกว่าเลขรับเรื่องมีอยู่หรือไม่",
+   "steps": [
+    {
+     "do": "fill",
+     "target": {
+      "label": "เลขรับเรื่อง"
+     },
+     "value": "{{secret:complaint.login}}",
+     "secret": true,
+     "crop": "viewport",
+     "mask": [
+      {
+       "label": "เลขรับเรื่อง"
+      }
+     ],
+     "say": "พิมพ์เลขรับเรื่องในช่อง \"เลขรับเรื่อง\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสติดตาม"
+     },
+     "value": "{{secret:complaint.password}}",
+     "secret": true,
+     "crop": "panel",
+     "mask": [
+      {
+       "label": "เลขรับเรื่อง"
+      },
+      {
+       "label": "รหัสติดตาม"
+      }
+     ],
+     "say": "พิมพ์รหัสติดตามในช่อง \"รหัสติดตาม\" (ภาพนี้ปิดเลขและรหัสไว้)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ตรวจสอบสถานะ"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": ".cmp-result"
+     },
+     "wait_after": {
+      "css": ".cmp-result"
+     },
+     "say": "กดปุ่ม \"ตรวจสอบสถานะ\" ระบบแสดงสถานะและคำตอบจากโรงเรียน",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "คำตอบจากโรงเรียน",
+      "in": {
+       "css": ".cmp-result"
+      }
+     }
+    }
+   ],
+   "expected": "ผลแสดงเลขเรื่อง ประเภท สถานะ \"ตอบกลับแล้ว\" หรือ \"ปิดแล้ว\" วันที่ และข้อความคำตอบของโรงเรียน",
+   "verify": [
+    {
+     "title": "รหัสผิดได้ข้อความปฏิเสธ ไม่บอกว่าเลขมีอยู่หรือไม่",
+     "steps": [
+      {
+       "do": "goto",
+       "url": "/portal/complaints/status",
+       "wait_after": {
+        "css": "form.cmp-form"
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "เลขรับเรื่อง"
+       },
+       "value": "C00-ZZZZZZZZ"
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "รหัสติดตาม"
+       },
+       "value": "AAAA-BBBB-CCCC"
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ตรวจสอบสถานะ"
+       },
+       "wait_after": {
+        "css": ".cmp-error"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "visible": {
+         "css": ".cmp-error"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "teacher-without-access",
+   "title": "ครูที่ไม่ได้เป็นเจ้าหน้าที่เปิดหน้าร้องเรียนและรับเรื่อง",
+   "role": "homeroom",
+   "start": "/work",
+   "intro": "ครูและผู้ดูแลเว็บไซต์เห็นเมนู \"ร้องเรียนและรับเรื่อง\" แต่ใช้ได้เมื่อผู้ดูแลระบบเลือกเป็นเจ้าหน้าที่รับเรื่องร้องเรียนในหน้า \"ตั้งค่าโมดูล\" เท่านั้น บัญชีอื่นเห็นข้อความแจ้งแทนรายการเรื่อง",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/work#complaints",
+     "crop": "viewport",
+     "highlight": {
+      "css": ".cmp-note"
+     },
+     "wait_after": {
+      "css": ".cmp-note"
+     },
+     "say": "ครูที่ไม่ได้เป็นเจ้าหน้าที่เปิดหน้า \"ร้องเรียนและรับเรื่อง\" และเห็นข้อความ \"บัญชีนี้ไม่ได้รับสิทธิ์ดูแลเรื่องร้องเรียน\" แทนรายการเรื่อง",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ไม่ได้รับสิทธิ์ดูแลเรื่องร้องเรียน",
+      "in": {
+       "css": ".cmp-note"
+      }
+     }
+    }
+   ],
+   "expected": "หน้าแสดงเฉพาะข้อความแจ้งสิทธิ์ ไม่มีรายการเรื่อง",
+   "verify": [
+    {
+     "title": "ไม่มีรายการเรื่องในหน้า",
+     "steps": [
+      {
+       "do": "expect",
+       "that": [
+        {
+         "hidden": {
+          "css": "table.cmp-table"
+         }
+        },
+        {
+         "text": "ไม่ได้รับสิทธิ์ดูแลเรื่องร้องเรียน"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "set-complaint-deadline",
+   "title": "ตั้งกำหนดเวลาตอบเรื่องทั่วไปเป็น 20 วันในหน้าตั้งค่าโมดูล",
+   "role": "admin",
+   "start": "/work#module-settings",
+   "intro": "ผู้ดูแลระบบกำหนดจำนวนวันตอบของแต่ละประเภทเรื่องได้ในหน้า \"ตั้งค่าโมดูล\" มีผลกับเรื่องที่รับหลังบันทึก เรื่องเดิมคงกำหนดเดิมไว้",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "div.ms-item",
+      "has_text": "complaints.sla_general"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "css": "input[type=number]",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_general"
+      }
+     },
+     "value": "20",
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "complaints.sla_general"
+     },
+     "say": "ในหัวข้อ \"กำหนดเวลาตอบ: เรื่องทั่วไป (วัน)\" พิมพ์ 20 ในช่องตัวเลข"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_general"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"บันทึก\" ของรายการนั้น ระบบแสดงข้อความ \"บันทึกการตั้งค่าแล้ว\"",
+     "shot": true
+    }
+   ],
+   "expected": "ช่อง \"กำหนดเวลาตอบ: เรื่องทั่วไป (วัน)\" แสดง 20",
+   "verify": [
+    {
+     "title": "เปิดหน้าตั้งค่าใหม่ ค่าต้องเป็น 20",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "div.ms-item",
+        "has_text": "complaints.sla_general"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "value": "20",
+        "of": {
+         "css": "input[type=number]",
+         "within": {
+          "css": "div.ms-item",
+          "has_text": "complaints.sla_general"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "submit-after-deadline-change",
+   "title": "ผู้ร้องส่งเรื่องหลังตั้งกำหนดเวลาใหม่ และผู้ดูแลเห็นกำหนดตอบ 20 วัน",
+   "role": "anonymous",
+   "start": "/portal/complaints",
+   "depends_on": [
+    "set-complaint-deadline"
+   ],
+   "intro": "เรื่องที่รับหลังเปลี่ยนกำหนดเวลาจะมีกำหนดตอบตามค่าใหม่ ในที่นี้ส่งเรื่องทั่วไปหนึ่งเรื่องแล้วตรวจที่หน้าของเจ้าหน้าที่",
+   "steps": [
+    {
+     "do": "check",
+     "target": {
+      "role": "radio",
+      "name": "เรื่องร้องเรียนทั่วไป"
+     },
+     "crop": "panel",
+     "say": "เลือกประเภท \"เรื่องร้องเรียนทั่วไป\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ชื่อ-สกุล",
+      "within": {
+       "id": "cmp-contact"
+      }
+     },
+     "value": "นายทดสอบ ตัวอย่าง"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "อีเมล",
+      "within": {
+       "id": "cmp-contact"
+      }
+     },
+     "value": "tester-{{run_id}}@example.invalid"
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "checkbox",
+      "name": "ยินยอมให้โรงเรียนใช้ข้อมูลติดต่อ"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หัวข้อเรื่อง"
+     },
+     "value": "{{marker}} ทดสอบกำหนดเวลาตอบ"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รายละเอียด"
+     },
+     "value": "ข้อมูลสมมติสำหรับทดสอบกำหนดเวลาตอบ {{marker}}",
+     "crop": "panel",
+     "say": "พิมพ์หัวข้อและรายละเอียดของเรื่อง"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งเรื่อง",
+      "exact": true
+     },
+     "crop": "panel",
+     "mask": [
+      {
+       "css": "dl.cmp-codes dd code",
+       "nth": 1
+      }
+     ],
+     "highlight": {
+      "css": "dl.cmp-codes"
+     },
+     "wait_after": {
+      "css": "dl.cmp-codes"
+     },
+     "say": "กดปุ่ม \"ส่งเรื่อง\" ระบบแสดงเลขรับเรื่อง (ภาพนี้ปิดรหัสติดตามไว้)",
+     "shot": true
+    }
+   ],
+   "expected": "ระบบรับเรื่องแล้วพร้อมเลขรับเรื่อง",
+   "verify": [
+    {
+     "title": "เจ้าหน้าที่เห็นเรื่องที่รับหลังตั้งค่าใหม่ พร้อม \"เกณฑ์ 20 วัน\"",
+     "as": "admin",
+     "start": "/work#complaints",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "form.cmp-filter"
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form.cmp-filter"
+        }
+       },
+       "value": "{{marker}} ทดสอบกำหนดเวลาตอบ"
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "กรอง",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "table.cmp-table tbody tr",
+        "has_text": "{{marker}} ทดสอบกำหนดเวลาตอบ"
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "css": "a",
+        "within": {
+         "css": "table.cmp-table tbody tr",
+         "has_text": "{{marker}} ทดสอบกำหนดเวลาตอบ"
+        }
+       },
+       "wait_after": {
+        "role": "heading",
+        "name": "เรื่องที่แจ้ง"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "p",
+        "has_text": "เกณฑ์ 20 วัน"
+       },
+       "that": {
+        "text": "เกณฑ์ 20 วัน"
+       },
+       "say": "เปิดเรื่องนั้น ใต้หัวเรื่องแสดงกำหนดตอบและ \"เกณฑ์ 20 วัน\" ตามค่าที่ตั้งไว้",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "submit-suggestion",
+   "title": "ส่งข้อเสนอแนะ (ไม่ระบุชื่อ) หลังตั้งกำหนดเวลาใหม่",
+   "role": "anonymous",
+   "start": "/portal/complaints",
+   "depends_on": [
+    "set-other-category-deadlines"
+   ],
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/portal/complaints",
+     "crop": "viewport",
+     "wait_after": {
+      "role": "button",
+      "name": "ส่งเรื่อง",
+      "exact": true
+     },
+     "say": "เปิดหน้า \"ร้องเรียนและรับเรื่อง\" ของเว็บไซต์โรงเรียน (ที่อยู่ลงท้ายด้วย /portal/complaints)",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "radio",
+      "name": "ข้อเสนอแนะ"
+     },
+     "crop": "panel",
+     "highlight": {
+      "role": "radio",
+      "name": "ข้อเสนอแนะ"
+     },
+     "say": "เลือกประเภทเรื่อง \"ข้อเสนอแนะ\"",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "checkbox",
+      "name": "ส่งโดยไม่ระบุชื่อ"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หัวข้อเรื่อง"
+     },
+     "value": "{{marker}} ข้อเสนอแนะเรื่องมุมอ่านหนังสือ"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รายละเอียด"
+     },
+     "value": "ขอเสนอให้จัดมุมอ่านหนังสือในห้องสมุดเพิ่ม ข้อมูลสมมติสำหรับทดสอบ {{marker}}"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งเรื่อง",
+      "exact": true
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": "section.cmp-receipt"
+     },
+     "wait_after": {
+      "css": "section.cmp-receipt"
+     },
+     "say": "กดปุ่ม \"ส่งเรื่อง\" ระบบออกเลขรับเรื่องและรหัสติดตาม (ภาพนี้ปิดรหัสติดตามไว้)",
+     "shot": true,
+     "mask": [
+      {
+       "css": "dl.cmp-codes dd code",
+       "nth": 1
+      }
+     ]
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ไม่ระบุชื่อ",
+      "in": {
+       "css": "section.cmp-receipt"
+      }
+     }
+    }
+   ],
+   "expected": "หน้าตอบรับแสดงเลขรับเรื่องและรหัสติดตาม",
+   "verify": [
+    {
+     "title": "เจ้าหน้าที่เห็นเรื่องใหม่ในรายการ",
+     "steps": [
+      {
+       "do": "goto",
+       "url": "/work#complaints",
+       "crop": "viewport",
+       "wait_after": {
+        "css": "form.cmp-filter"
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form.cmp-filter"
+        }
+       },
+       "value": "{{marker}} ข้อเสนอแนะเรื่องมุมอ่านหนังสือ"
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "กรอง",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "table.cmp-table tbody tr",
+        "has_text": "{{marker}} ข้อเสนอแนะเรื่องมุมอ่านหนังสือ"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "รับเรื่องแล้ว",
+        "in": {
+         "css": "table.cmp-table tbody tr",
+         "has_text": "{{marker}} ข้อเสนอแนะเรื่องมุมอ่านหนังสือ"
+        }
+       },
+       "crop": "panel",
+       "highlight": {
+        "css": "table.cmp-table tbody tr",
+        "has_text": "{{marker}} ข้อเสนอแนะเรื่องมุมอ่านหนังสือ"
+       },
+       "say": "เจ้าหน้าที่เปิดรายการเรื่อง พบเรื่องที่เพิ่งส่ง สถานะ \"รับเรื่องแล้ว\"",
+       "shot": true
+      }
+     ],
+     "as": "admin",
+     "start": "/work#complaints"
+    }
+   ]
+  },
+  {
+   "id": "submit-info-request",
+   "title": "ส่งคำขอข้อมูลข่าวสาร (ไม่ระบุชื่อ) หลังตั้งกำหนดเวลาใหม่",
+   "role": "anonymous",
+   "start": "/portal/complaints",
+   "depends_on": [
+    "set-other-category-deadlines"
+   ],
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/portal/complaints",
+     "crop": "viewport",
+     "wait_after": {
+      "role": "button",
+      "name": "ส่งเรื่อง",
+      "exact": true
+     },
+     "say": "เปิดหน้า \"ร้องเรียนและรับเรื่อง\" ของเว็บไซต์โรงเรียน (ที่อยู่ลงท้ายด้วย /portal/complaints)",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "radio",
+      "name": "ขอข้อมูลข่าวสาร"
+     },
+     "crop": "panel",
+     "highlight": {
+      "role": "radio",
+      "name": "ขอข้อมูลข่าวสาร"
+     },
+     "say": "เลือกประเภทเรื่อง \"ขอข้อมูลข่าวสาร\"",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "checkbox",
+      "name": "ส่งโดยไม่ระบุชื่อ"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หัวข้อเรื่อง"
+     },
+     "value": "{{marker}} ขอข้อมูลงบประมาณกิจกรรม"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รายละเอียด"
+     },
+     "value": "ขอทราบงบประมาณที่ใช้จัดกิจกรรมของโรงเรียนในภาคเรียนนี้ ข้อมูลสมมติสำหรับทดสอบ {{marker}}"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งเรื่อง",
+      "exact": true
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": "section.cmp-receipt"
+     },
+     "wait_after": {
+      "css": "section.cmp-receipt"
+     },
+     "say": "กดปุ่ม \"ส่งเรื่อง\" ระบบออกเลขรับเรื่องและรหัสติดตาม (ภาพนี้ปิดรหัสติดตามไว้)",
+     "shot": true,
+     "mask": [
+      {
+       "css": "dl.cmp-codes dd code",
+       "nth": 1
+      }
+     ]
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ไม่ระบุชื่อ",
+      "in": {
+       "css": "section.cmp-receipt"
+      }
+     }
+    }
+   ],
+   "expected": "หน้าตอบรับแสดงเลขรับเรื่องและรหัสติดตาม",
+   "verify": [
+    {
+     "title": "เจ้าหน้าที่เห็นเรื่องใหม่ในรายการ",
+     "steps": [
+      {
+       "do": "goto",
+       "url": "/work#complaints",
+       "crop": "viewport",
+       "wait_after": {
+        "css": "form.cmp-filter"
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form.cmp-filter"
+        }
+       },
+       "value": "{{marker}} ขอข้อมูลงบประมาณกิจกรรม"
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "กรอง",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "table.cmp-table tbody tr",
+        "has_text": "{{marker}} ขอข้อมูลงบประมาณกิจกรรม"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "รับเรื่องแล้ว",
+        "in": {
+         "css": "table.cmp-table tbody tr",
+         "has_text": "{{marker}} ขอข้อมูลงบประมาณกิจกรรม"
+        }
+       },
+       "crop": "panel",
+       "highlight": {
+        "css": "table.cmp-table tbody tr",
+        "has_text": "{{marker}} ขอข้อมูลงบประมาณกิจกรรม"
+       },
+       "say": "เจ้าหน้าที่เปิดรายการเรื่อง พบเรื่องที่เพิ่งส่ง สถานะ \"รับเรื่องแล้ว\"",
+       "shot": true
+      }
+     ],
+     "as": "admin",
+     "start": "/work#complaints"
+    }
+   ]
+  },
+  {
+   "id": "check-suggestion-and-info-deadlines",
+   "title": "เจ้าหน้าที่ดูกำหนดเวลาตอบของข้อเสนอแนะและคำขอข้อมูลข่าวสาร",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "submit-suggestion",
+    "submit-info-request"
+   ],
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ร้องเรียนและรับเรื่อง",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "ร้องเรียนและรับเรื่อง",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "css": "form.cmp-filter"
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"ร้องเรียนและรับเรื่อง\" แล้วเปิดเรื่องข้อเสนอแนะที่เพิ่งส่ง",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form.cmp-filter"
+      }
+     },
+     "value": "{{marker}} ข้อเสนอแนะเรื่องมุมอ่านหนังสือ"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "กรอง",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "table.cmp-table tbody tr",
+      "has_text": "{{marker}} ข้อเสนอแนะเรื่องมุมอ่านหนังสือ"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "a",
+      "within": {
+       "css": "table.cmp-table tbody tr",
+       "has_text": "{{marker}} ข้อเสนอแนะเรื่องมุมอ่านหนังสือ"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "เรื่องที่แจ้ง"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "เกณฑ์ 25 วัน"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "p",
+      "has_text": "เกณฑ์ 25 วัน",
+      "first": true
+     },
+     "say": "แถว \"กำหนดตอบ\" ของข้อเสนอแนะขึ้น \"เกณฑ์ 25 วัน\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ร้องเรียนและรับเรื่อง",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "ร้องเรียนและรับเรื่อง",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "css": "form.cmp-filter"
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"ร้องเรียนและรับเรื่อง\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form.cmp-filter"
+      }
+     },
+     "value": "{{marker}} ขอข้อมูลงบประมาณกิจกรรม"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "กรอง",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "table.cmp-table tbody tr",
+      "has_text": "{{marker}} ขอข้อมูลงบประมาณกิจกรรม"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "a",
+      "within": {
+       "css": "table.cmp-table tbody tr",
+       "has_text": "{{marker}} ขอข้อมูลงบประมาณกิจกรรม"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "เรื่องที่แจ้ง"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "เกณฑ์ 26 วัน"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "p",
+      "has_text": "เกณฑ์ 26 วัน",
+      "first": true
+     },
+     "say": "เปิดเรื่องขอข้อมูลข่าวสารที่เพิ่งส่ง \"กำหนดตอบ\" ขึ้น \"เกณฑ์ 26 วัน\"",
+     "shot": true
+    }
+   ],
+   "expected": "เรื่องแต่ละประเภทแสดงเกณฑ์วันตามที่ตั้ง",
+   "verify": [
+    {
+     "title": "หน้าเรื่องแสดงเกณฑ์",
+     "steps": [
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "เกณฑ์ 26 วัน"
+        },
+        {
+         "text": "ขอข้อมูลข่าวสาร"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "download-case-attachment",
+   "title": "ดาวน์โหลดไฟล์แนบของเรื่อง",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "submit-complaint"
+   ],
+   "intro": "ไฟล์แนบของเรื่องเก็บแบบส่วนตัว เปิดไม่ได้จากที่อยู่ตรงของไฟล์ ต้องเข้าระบบด้วยบัญชีที่มีสิทธิ์ดูเรื่องนั้น และระบบบันทึกการเปิดไฟล์",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ร้องเรียนและรับเรื่อง",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "ร้องเรียนและรับเรื่อง",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "css": "form.cmp-filter"
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"ร้องเรียนและรับเรื่อง\" แล้วเปิดเรื่องที่ผู้ร้องแนบไฟล์มา",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form.cmp-filter"
+      }
+     },
+     "value": "{{marker}} ขอให้ซ่อมหลังคาโรงอาหาร"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "กรอง",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "table.cmp-table tbody tr",
+      "has_text": "{{marker}} ขอให้ซ่อมหลังคาโรงอาหาร"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "a",
+      "within": {
+       "css": "table.cmp-table tbody tr",
+       "has_text": "{{marker}} ขอให้ซ่อมหลังคาโรงอาหาร"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "เรื่องที่แจ้ง"
+     }
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "role": "link",
+      "name": "sample.txt"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "sample.txt"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "ul.cmp-files"
+     },
+     "say": "ส่วน \"ไฟล์แนบ\" ของเรื่องแสดงชื่อไฟล์ ชนิด และขนาด กดชื่อไฟล์ เบราว์เซอร์บันทึกไฟล์ที่ผู้ร้องแนบมา ไฟล์เปิดได้เฉพาะเจ้าหน้าที่ที่มีสิทธิ์ดูเรื่องนี้",
+     "shot": true,
+     "expect_download": {
+      "ext": ".txt",
+      "kind": "text",
+      "min_bytes": 10,
+      "contains": "ไฟล์ตัวอย่าง"
+     }
+    }
+   ],
+   "expected": "ได้ไฟล์ที่ผู้ร้องแนบมา",
+   "verify": [
+    {
+     "title": "ชื่อไฟล์และขนาดแสดงในส่วนไฟล์แนบ",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "text": "sample.txt",
+        "in": {
+         "css": "ul.cmp-files"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "add-complaint-officer",
+   "title": "เลือกครูเป็นเจ้าหน้าที่รับเรื่องร้องเรียน แล้วครูเปิดหน้าเรื่องได้",
+   "role": "admin",
+   "start": "/work#module-settings",
+   "depends_on": [
+    "teacher-without-access"
+   ],
+   "intro": "ผู้ดูแลระบบติ๊กชื่อครูในหัวข้อ \"เจ้าหน้าที่รับเรื่องร้องเรียน\" ครูคนนั้นเปิดหน้าร้องเรียนและรับเรื่องได้ทันที ขั้นตอนถัดไปคืนค่าเดิม",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "div.ms-item",
+      "has_text": "complaints.officer_user_ids"
+     }
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "checkbox",
+      "name": "พิมพ์ใจ",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.officer_user_ids"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "complaints.officer_user_ids"
+     },
+     "say": "ในหัวข้อ \"เจ้าหน้าที่รับเรื่องร้องเรียน\" ติ๊กชื่อครู \"นางสาวพิมพ์ใจ ใฝ่รู้\""
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.officer_user_ids"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"บันทึก\" ของรายการนั้น ระบบแสดงข้อความ \"บันทึกการตั้งค่าแล้ว\"",
+     "shot": true
+    }
+   ],
+   "expected": "ครูที่ถูกเลือกเปิดหน้าร้องเรียนและรับเรื่องได้",
+   "verify": [
+    {
+     "title": "ครูที่ถูกเลือกเปิดหน้าร้องเรียนและรับเรื่องได้",
+     "as": "homeroom",
+     "start": "/work#complaints",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "form.cmp-filter"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "viewport",
+       "highlight": {
+        "css": "form.cmp-filter"
+       },
+       "that": [
+        {
+         "visible": {
+          "css": "form.cmp-filter"
+         }
+        },
+        {
+         "hidden": {
+          "text": "ไม่ได้รับสิทธิ์ดูแลเรื่องร้องเรียน"
+         }
+        }
+       ],
+       "say": "เมื่อครูคนนั้นเปิดหน้า \"ร้องเรียนและรับเรื่อง\" จะเห็นตัวกรองรายการเรื่อง และไม่มีข้อความแจ้งสิทธิ์",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "visitor-rate-limit",
+   "title": "ผู้ส่งเรื่องส่งถี่เกินไปจนระบบหยุดรับชั่วคราว (ไม่เกิน 5 ครั้งต่อ 10 นาทีต่อเครือข่าย)",
+   "role": "anonymous",
+   "start": "/portal/complaints",
+   "intro": "เพื่อกันการส่งซ้ำและการส่งเรื่องรบกวน ระบบจำกัดจำนวนครั้งที่ส่งจากเครือข่ายเดียวกัน ผู้ส่งต้องรอประมาณ 10 นาทีแล้วลองใหม่ ผู้ที่ส่งเรื่องจริงทันทีหลังจากมีคนในเครือข่ายเดียวกันส่งหลายเรื่อง (เช่นในโรงเรียนที่ใช้ที่อยู่เครือข่ายร่วมกัน) อาจเจอข้อความนี้ รอสักครู่แล้วส่งใหม่ได้ ข้อความที่พิมพ์ยังอยู่ในแบบฟอร์ม",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/portal/complaints",
+     "crop": "viewport",
+     "wait_after": {
+      "role": "button",
+      "name": "ส่งเรื่อง",
+      "exact": true
+     },
+     "say": "เปิดหน้า \"ร้องเรียนและรับเรื่อง\" ของเว็บไซต์โรงเรียน แบบฟอร์มรับได้ไม่เกิน 5 ครั้งต่อ 10 นาทีต่อเครือข่าย นับทุกครั้งที่กดส่ง แม้ข้อมูลไม่ครบ",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หัวข้อเรื่อง"
+     },
+     "value": "ทดสอบส่งถี่"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รายละเอียด"
+     },
+     "value": "ทดสอบส่งซ้ำหลายครั้ง ข้อมูลสมมติ ไม่ระบุชื่อผู้ติดต่อ"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งเรื่อง",
+      "exact": true
+     },
+     "wait_after": {
+      "role": "alert",
+      "first": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งเรื่อง",
+      "exact": true
+     },
+     "wait_after": {
+      "role": "alert",
+      "first": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งเรื่อง",
+      "exact": true
+     },
+     "wait_after": {
+      "role": "alert",
+      "first": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งเรื่อง",
+      "exact": true
+     },
+     "wait_after": {
+      "role": "alert",
+      "first": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งเรื่อง",
+      "exact": true
+     },
+     "wait_after": {
+      "role": "alert",
+      "first": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งเรื่อง",
+      "exact": true
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "div.cmp-error"
+     },
+     "wait_after": {
+      "css": "div.cmp-error",
+      "has_text": "ส่งเรื่องถี่เกินไป"
+     },
+     "say": "กดปุ่ม \"ส่งเรื่อง\" ซ้ำหลายครั้งภายใน 10 นาที (ในที่นี้ข้อมูลไม่ครบจึงไม่มีเรื่องถูกสร้าง) เมื่อเกินเกณฑ์ ระบบแจ้ง \"ส่งเรื่องถี่เกินไป กรุณารอสักครู่แล้วลองใหม่\" และไม่รับเรื่อง",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ส่งเรื่องถี่เกินไป",
+      "in": {
+       "css": "div.cmp-error"
+      }
+     }
+    }
+   ],
+   "expected": "ระบบแสดง \"ส่งเรื่องถี่เกินไป\" และไม่รับเรื่องจนกว่าจะพ้น 10 นาที",
+   "verify": [
+    {
+     "title": "ยังส่งไม่ได้",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "text": "ส่งเรื่องถี่เกินไป",
+        "in": {
+         "css": "div.cmp-error"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restore-complaint-deadline",
+   "title": "คืนกำหนดเวลาตอบเรื่องทั่วไปเป็นค่าเริ่มต้น 15 วัน (ล้างข้อมูลทดสอบ)",
+   "role": "admin",
+   "start": "/work#module-settings",
+   "cleanup": true,
+   "depends_on": [
+    "set-complaint-deadline"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "div.ms-item",
+      "has_text": "complaints.sla_general"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ใส่ค่าเริ่มต้น",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_general"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_general"
+      }
+     },
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "เปิดหน้าตั้งค่าใหม่ ค่าต้องเป็น 15",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "div.ms-item",
+        "has_text": "complaints.sla_general"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "value": "15",
+        "of": {
+         "css": "input[type=number]",
+         "within": {
+          "css": "div.ms-item",
+          "has_text": "complaints.sla_general"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restore-other-category-deadlines",
+   "title": "คืนกำหนดเวลาตอบของทุจริต ข้อเสนอแนะ และขอข้อมูลข่าวสารเป็นค่าเริ่มต้น (ล้างข้อมูลทดสอบ)",
+   "role": "admin",
+   "start": "/work#module-settings",
+   "cleanup": true,
+   "depends_on": [
+    "set-other-category-deadlines"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "div.ms-item",
+      "has_text": "complaints.sla_corruption"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ใส่ค่าเริ่มต้น",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_corruption"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "complaints.sla_corruption"
+     },
+     "say": "กดปุ่ม \"ใส่ค่าเริ่มต้น\" ของ \"กำหนดเวลาตอบ: ทุจริตและประพฤติมิชอบ (วัน)\" แล้วกดปุ่ม \"บันทึก\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_corruption"
+      }
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ใส่ค่าเริ่มต้น",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_suggestion"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "complaints.sla_suggestion"
+     },
+     "say": "กดปุ่ม \"ใส่ค่าเริ่มต้น\" ของ \"กำหนดเวลาตอบ: ข้อเสนอแนะ (วัน)\" แล้วกดปุ่ม \"บันทึก\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_suggestion"
+      }
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ใส่ค่าเริ่มต้น",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_info_request"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "complaints.sla_info_request"
+     },
+     "say": "กดปุ่ม \"ใส่ค่าเริ่มต้น\" ของ \"กำหนดเวลาตอบ: ขอข้อมูลข่าวสาร (วัน)\" แล้วกดปุ่ม \"บันทึก\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_info_request"
+      }
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     }
+    }
+   ],
+   "expected": "ทั้งสามรายการกลับเป็น 30, 15 และ 15",
+   "verify": [
+    {
+     "title": "เปิดหน้าตั้งค่าใหม่ ค่าเป็นค่าเริ่มต้น",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "div.ms-item",
+        "has_text": "complaints.sla_info_request"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "value": "30",
+         "of": {
+          "css": "input[type=number]",
+          "within": {
+           "css": "div.ms-item",
+           "has_text": "complaints.sla_corruption"
+          }
+         }
+        },
+        {
+         "value": "15",
+         "of": {
+          "css": "input[type=number]",
+          "within": {
+           "css": "div.ms-item",
+           "has_text": "complaints.sla_suggestion"
+          }
+         }
+        },
+        {
+         "value": "15",
+         "of": {
+          "css": "input[type=number]",
+          "within": {
+           "css": "div.ms-item",
+           "has_text": "complaints.sla_info_request"
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restore-complaint-officer",
+   "title": "คืนรายชื่อเจ้าหน้าที่รับเรื่องร้องเรียนเป็นค่าเดิม (ล้างข้อมูลทดสอบ)",
+   "role": "admin",
+   "start": "/work#module-settings",
+   "cleanup": true,
+   "depends_on": [
+    "add-complaint-officer"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "div.ms-item",
+      "has_text": "complaints.officer_user_ids"
+     }
+    },
+    {
+     "do": "uncheck",
+     "target": {
+      "role": "checkbox",
+      "name": "พิมพ์ใจ",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.officer_user_ids"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.officer_user_ids"
+      }
+     },
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "ครูคนนั้นไม่อยู่ในรายชื่อเจ้าหน้าที่แล้ว",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "div.ms-item",
+        "has_text": "complaints.officer_user_ids"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "unchecked": {
+         "role": "checkbox",
+         "name": "พิมพ์ใจ",
+         "within": {
+          "css": "div.ms-item",
+          "has_text": "complaints.officer_user_ids"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cleanup-accused",
+   "title": "ถอนชื่อผู้ถูกร้องออกจากเรื่องทดสอบ (ล้างข้อมูลทดสอบ)",
+   "role": "admin",
+   "start": "/work",
+   "cleanup": true,
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ร้องเรียนและรับเรื่อง",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "form.cmp-filter"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form.cmp-filter"
+      }
+     },
+     "value": "{{marker}} ขอให้ซ่อมหลังคาโรงอาหาร",
+     "crop": "panel"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "กรอง",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "table.cmp-table tbody tr",
+      "has_text": "{{marker}} ขอให้ซ่อมหลังคาโรงอาหาร"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "a",
+      "within": {
+       "css": "table.cmp-table tbody tr",
+       "has_text": "{{marker}} ขอให้ซ่อมหลังคาโรงอาหาร"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "role": "heading",
+      "name": "เรื่องที่แจ้ง"
+     }
+    },
+    {
+     "do": "uncheck",
+     "target": {
+      "role": "checkbox",
+      "name": "ดร.ต้นธาร เรียนดี",
+      "within": {
+       "css": "form[data-role=accused]"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกรายชื่อผู้ถูกร้อง"
+     },
+     "expect_response": {
+      "url_contains": "/accused",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "css": ".cmp-msg .cmp-ok"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "ผู้อำนวยการเห็นเรื่องอีกครั้ง",
+     "as": "principal",
+     "start": "/work#complaints",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "form.cmp-filter"
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form.cmp-filter"
+        }
+       },
+       "value": "{{marker}} ขอให้ซ่อม"
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "กรอง",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "table.cmp-table tbody tr",
+        "has_text": "{{marker}} ขอให้ซ่อมหลังคาโรงอาหาร"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "visible": {
+         "css": "table.cmp-table tbody tr",
+         "has_text": "{{marker}} ขอให้ซ่อมหลังคาโรงอาหาร"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "skeleton": [],
+ "untested": [
+  "การสร้างเรื่องโดยเจ้าหน้าที่ (เรื่องที่รับทางโทรศัพท์หรือกระดาษ) ยังไม่มีในระบบ รุ่นนี้รับเรื่องจากแบบฟอร์มสาธารณะเท่านั้น (modules/complaints/README.md หัวข้อ Notes)",
+  "เรื่องที่ส่งจากเว็บไซต์ไม่มีปุ่มลบ ข้อมูลทดสอบที่ส่งไว้ในการรันแต่ละครั้งจึงเหลืออยู่ในรายการ (เรื่องทุจริตปิดแล้ว เรื่องทั่วไปปิดแล้ว) และมีเครื่องหมายทดสอบในหัวข้อ",
+  "การทำงานข้ามระบบหน้าบ้านกับระบบภายใน (กรณีติดตั้งแยกสองเครื่อง ระบบหน้าบ้านส่งเรื่องเข้ารหัสให้ระบบภายในดึงไปสร้างเรื่อง) ติดตั้งบนระบบทดลองเป็นระบบรวมเครื่องเดียว จึงไม่ได้ทดสอบ",
+  "การป้องกันส่งซ้ำของแบบฟอร์มเดียวกัน การตรวจ Turnstile และการลบข้อมูลผู้สร้างในไฟล์แนบของเรื่องไม่ระบุชื่อ มีโค้ดใน modules/complaints/src แต่ไม่ได้ทดสอบด้วยเบราว์เซอร์ (Turnstile ต้องมีคีย์และการตรวจจริงของผู้ให้บริการภายนอก) ส่วนการจำกัดความถี่ไม่เกิน 5 ครั้งต่อ 10 นาทีต่อเครือข่ายทดสอบแล้วด้วยการกดส่งแบบฟอร์มที่ข้อมูลไม่ครบ",
+  "ตัวเลข \"เกณฑ์ N วัน\" ในหน้าเรื่องคำนวณจากค่าตั้งค่าขณะเปิดดู ไม่ได้เก็บตอนรับเรื่อง ส่วนวันครบกำหนดของแต่ละเรื่องคำนวณตอนรับเรื่อง คู่มือตรวจเฉพาะตัวเลขเกณฑ์ที่หน้าจอแสดง ไม่ได้ตรวจการบวกวันของวันครบกำหนด"
+ ]
+}

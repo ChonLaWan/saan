@@ -61,3 +61,9 @@ h3{font-size:1rem;margin:1rem 0 .4rem}
   @page{size:A4 landscape;margin:12mm}
 }
 .gp-form select,.gp-form textarea{width:100%;min-height:44px;padding:8px 12px;border:1px solid var(--gp-line);border-radius:10px;font:inherit;color:inherit;background:var(--gp-bg)}
+/* control edges reach 3:1 against the card (the decorative --gp-line is only 1.5:1) */
+:root{--gp-control:#66786c}
+@media (prefers-color-scheme:dark){:root{--gp-control:#869b8e}}
+.gp-form input,.gp-form select,.gp-form textarea,.gp-pick select,.gp-btn.gp-quiet,.gp-tabs button,.gp-note textarea{border-color:var(--gp-control)}
+.gp-tabs button[aria-current=true]{border-color:var(--gp-ink)}
+.gp-wrap a:not(.gp-btn){color:var(--gp-accent)}

@@ -55,22 +55,26 @@
         const sig = ts => JSON.stringify(ts.map(t => [t.code, t.title, t.items.map(i => [i.title, i.url || null, i.media_id || null, i.note || '', i.source || null, i.source_opts || null])]));
         let savedSig = sig(topics);
         const collect = () => { const out = []; root.querySelectorAll('[data-topic]').forEach(tb => { const t = {code: tb.querySelector('[data-t=code]').value.trim(), title: tb.querySelector('[data-t=title]').value.trim(), items: []}; tb.querySelectorAll('.ita-item-row').forEach(r => { const g = f => r.querySelector(`[data-f=${f}]`).value.trim(); const src = g('source') || null, optEl = r.querySelector('[data-f=opt]'), optName = optEl.dataset.optName, optVal = optEl.value.trim(); t.items.push({title: g('title'), url: g('url') || null, media_id: /^\d+$/.test(g('media_id')) ? Number(g('media_id')) : null, note: g('note'), source: src, source_opts: src && optName && optVal ? {[optName]: optVal} : null, media: topics[Number(r.dataset.item.split('.')[0])]?.items[Number(r.dataset.item.split('.')[1])]?.media || null}); }); out.push(t); }); return out; };
+        // A redraw rebuilds the form from saved state; recollect() also keeps the typed page title for the next draw().
+        let titleDraft = null;
+        const recollect = () => { titleDraft = root.querySelector('#ita-form')?.elements.title.value ?? null; return collect(); };
         const draw = () => {
             const y = state.year, published = y.status === 'published';
             root.innerHTML = `<div class="cms-heading"><div><h1>ITA ปีงบประมาณ ${y.fiscal_year}</h1><p>${published ? 'เผยแพร่แล้ว การบันทึกจะแสดงบนเว็บไซต์ทันที' : 'ฉบับร่าง ผู้ชมยังไม่เห็น'}</p></div><div class="cms-heading-actions"><a class="quiet-button" href="#ita">กลับรายการปี</a><a class="quiet-button" href="${CMS.base}/portal/ita/${y.fiscal_year}" target="_blank" rel="noopener">ดูหน้าเว็บ</a></div></div>
-                <p id="ita-error" class="desk-error" role="alert"></p><form id="ita-form"><section class="desk-editor-card glass"><label class="desk-field"><span>ชื่อหน้า</span><input name="title" value="${esc(y.title)}" maxlength="200" required></label></section>
+                <p id="ita-error" class="desk-error" role="alert"></p><form id="ita-form"><section class="desk-editor-card glass"><label class="desk-field"><span>ชื่อหน้า</span><input name="title" value="${esc(titleDraft ?? y.title)}" maxlength="200" required></label></section>
                 <div id="ita-topics">${topics.map(topicBlock).join('')}</div>
                 <div class="desk-form-actions"><button type="button" id="ita-add-topic">เพิ่มหัวข้อ</button><button type="submit" class="primary">บันทึก</button><label class="desk-field ita-check-year"><span>ปีที่ตรวจ</span><select id="ita-check-year"><option value="${y.fiscal_year}" selected>ปีงบประมาณ ${y.fiscal_year}</option></select></label><button type="button" id="ita-check">ตรวจความครบ O1-O18 (ที่บันทึกแล้ว)</button><button type="button" id="ita-status">${published ? 'หยุดเผยแพร่' : 'เผยแพร่ปีนี้'}</button></div></form>
                 <section class="desk-editor-card glass" id="ita-check-result" aria-live="polite" hidden></section>`;
+            titleDraft = null;
             const form = root.querySelector('#ita-form');
-            root.querySelector('#ita-add-topic').onclick = () => { topics = collect(); topics.push({code: '', title: '', items: []}); draw(); };
+            root.querySelector('#ita-add-topic').onclick = () => { topics = recollect(); topics.push({code: '', title: '', items: []}); draw(); };
             root.querySelectorAll('[data-topic]').forEach(tb => { const ti = Number(tb.dataset.topic);
-                tb.querySelector('[data-add-item]').onclick = () => { topics = collect(); topics[ti].items.push({title: '', url: null, media_id: null, note: ''}); draw(); };
-                tb.querySelector('[data-remove-topic]').onclick = () => { if (!confirm('ลบหัวข้อนี้และรายการทั้งหมดในหัวข้อ?')) return; topics = collect(); topics.splice(ti, 1); draw(); };
-                tb.querySelectorAll('[data-move]').forEach(b => b.onclick = () => { topics = collect(); const j = ti + Number(b.dataset.move); if (j < 0 || j >= topics.length) return; [topics[ti], topics[j]] = [topics[j], topics[ti]]; draw(); });
+                tb.querySelector('[data-add-item]').onclick = () => { topics = recollect(); topics[ti].items.push({title: '', url: null, media_id: null, note: ''}); draw(); };
+                tb.querySelector('[data-remove-topic]').onclick = () => { if (!confirm('ลบหัวข้อนี้และรายการทั้งหมดในหัวข้อ?')) return; topics = recollect(); topics.splice(ti, 1); draw(); };
+                tb.querySelectorAll('[data-move]').forEach(b => b.onclick = () => { topics = recollect(); const j = ti + Number(b.dataset.move); if (j < 0 || j >= topics.length) return; [topics[ti], topics[j]] = [topics[j], topics[ti]]; draw(); });
                 tb.querySelectorAll('.ita-item-row').forEach(r => { const ii = Number(r.dataset.item.split('.')[1]);
                     r.querySelector('[data-f=source]').onchange = e => { const opt = (SOURCE_FIELDS[e.target.value] || [])[0] || '', el = r.querySelector('[data-f=opt]'); el.dataset.optName = opt; el.value = ''; r.querySelector('[data-opt-label]').textContent = OPT_LABEL[opt] || ''; r.querySelector('[data-opt-wrap]').hidden = !opt; const n = r.querySelector('[data-source-note]'); n.hidden = !e.target.value; n.textContent = e.target.value ? 'บันทึกแล้วกด "ตรวจความครบ" เพื่อดูว่าลิงก์อัตโนมัติมีข้อมูลหรือไม่ ถ้ากรอกลิงก์หรือแนบไฟล์ ระบบจะใช้ที่กรอกเองก่อนเสมอ' : ''; };
-                    r.querySelector('[data-remove-item]').onclick = () => { topics = collect(); topics[ti].items.splice(ii, 1); draw(); };
+                    r.querySelector('[data-remove-item]').onclick = () => { topics = recollect(); topics[ti].items.splice(ii, 1); draw(); };
                     r.querySelector('[data-clear-file]').onclick = () => { r.querySelector('[data-f=media_id]').value = ''; r.querySelector('[data-file-label]').textContent = 'ยังไม่แนบไฟล์'; r.querySelector('[data-clear-file]').hidden = true; };
                     r.querySelector('[data-pick]').onclick = () => window.CmsComplete.pickMedia('document', mediaId => { if (!r.isConnected || !Number.isInteger(mediaId)) return; r.querySelector('[data-f=media_id]').value = String(mediaId); r.querySelector('[data-file-label]').textContent = 'ไฟล์ #' + mediaId + ' (จะแสดงชื่อหลังบันทึก)'; r.querySelector('[data-clear-file]').hidden = false; });
                 });

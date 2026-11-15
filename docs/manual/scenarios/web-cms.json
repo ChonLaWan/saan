@@ -1,0 +1,6685 @@
+{
+  "module": "web-cms",
+  "title": "เว็บไซต์โรงเรียน",
+  "area": "เว็บไซต์โรงเรียน",
+  "purpose": "ผู้ดูแลเว็บไซต์เขียนข่าวและประกาศของโรงเรียนในหน้าเดียว ใส่รูปปก เก็บเป็นฉบับร่าง ดูตัวอย่าง แล้วเผยแพร่ให้ผู้เข้าชมเห็นบนเว็บไซต์ของโรงเรียนและในการค้นหา แก้ไขหรือถอนออกได้ในภายหลัง โมดูลนี้ยังมีเนื้อหาอีก 11 ประเภท (หน้าเนื้อหา รับสมัครงาน จัดซื้อจัดจ้าง อัลบั้มภาพ เอกสารดาวน์โหลด บุคลากร ปฏิทินกิจกรรม แบนเนอร์ ลิงก์และบริการ วิดีโอ จดหมายข่าว) คลังสื่อ และหน้ากลุ่มงาน/กลุ่มสาระ คู่มือหน้านี้ครอบคลุมงานข่าวซึ่งเป็นงานหลัก การสร้างและเผยแพร่เนื้อหาทุกประเภท ประวัติการเผยแพร่ คลังสื่อ และหน้ากลุ่มงาน ส่วนการปรับหน้าตาและโครงสร้างของเว็บไซต์ (ชื่อและตรา ส่วนหัว hero สไลด์ ประกาศไว้ทุกข์ จัดหน้าแรก ข้อมูลโรงเรียน หมวดเนื้อหา redirect อีเมล ตรวจความพร้อมระบบ) อยู่ในหน่วย \"ตั้งค่าและออกแบบเว็บไซต์\"",
+  "roles": [
+    "ผู้ดูแลเว็บไซต์ (เขียนและเผยแพร่)",
+    "ผู้อำนวยการและผู้ดูแลระบบ (เข้าได้เช่นเดียวกัน)",
+    "ผู้เข้าชมทั่วไป (อ่านข่าวและค้นหา ไม่ต้องเข้าสู่ระบบ)",
+    "ผู้ดูแลระบบ (สร้างหน้ากลุ่มงาน หัวหน้ากลุ่มจัดการหน้าของกลุ่มตนเอง)"
+  ],
+  "menu": [
+    "เมนูด้านซ้ายกลุ่ม \"เว็บไซต์โรงเรียน\" > \"เขียนข่าวใหม่\" (/cms#compose)",
+    "เมนูด้านซ้ายกลุ่ม \"เว็บไซต์โรงเรียน\" > \"ข่าวทั้งหมด\" (/cms#posts)",
+    "เมนูกลุ่ม \"ตั้งค่าเว็บไซต์\" > \"ถังขยะ\" (/cms#trash)",
+    "หน้าเว็บสาธารณะ: ข่าวและกิจกรรม (/portal/news) และค้นหาข้อมูล (/portal/search)",
+    "เมนูด้านซ้ายกลุ่ม \"เนื้อหาเว็บไซต์\" > \"หน้าเนื้อหาโรงเรียน\" \"ประกาศรับสมัครงาน\" \"จัดซื้อจัดจ้าง\" \"อัลบั้มภาพ\" \"เอกสารดาวน์โหลด\" \"วิดีโอโรงเรียน\" \"จดหมายข่าว\" \"บุคลากรบนเว็บไซต์\" \"ปฏิทินกิจกรรม\" \"แบนเนอร์และประกาศด่วน\" \"ลิงก์และบริการ\"",
+    "เมนูด้านซ้ายกลุ่ม \"เว็บไซต์โรงเรียน\" > \"ปรับธีมหน้าบ้าน\" \"ออกแบบ hero\" \"สไลด์หน้าแรก\" (/cms#theme /cms#hero-design /cms#slides)",
+    "เมนูด้านซ้ายกลุ่ม \"ตั้งค่าเว็บไซต์\" > \"เมนูเว็บไซต์\" \"คลังสื่อและเอกสาร\" (/cms#menus /cms#media)",
+    "เมนูด้านซ้ายของหน้า \"งานโรงเรียน\" > \"หน้ากลุ่มงาน/กลุ่มสาระ\" (/work#hubs)"
+  ],
+  "prerequisites": [],
+  "vars": {
+    "title": "{{marker}} ข่าวกิจกรรมวันวิทยาศาสตร์",
+    "title2": "{{marker}} ข่าวกิจกรรมวันวิทยาศาสตร์ (แก้ไขแล้ว)"
+  },
+  "workflows": [
+    {
+      "id": "write-draft",
+      "title": "เขียนข่าวใหม่ ใส่รูปปก และเก็บเป็นฉบับร่าง",
+      "core": true,
+      "role": "editor",
+      "start": "/cms",
+      "intro": "ข่าวที่เก็บเป็นฉบับร่างจะยังไม่แสดงต่อผู้เข้าชมเว็บไซต์ ผู้ดูแลเว็บไซต์เขียนต่อหรือแก้ไขภายหลังได้",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เขียนข่าวใหม่",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"เขียนข่าวใหม่\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "wait_after": {
+            "id": "rich-body"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หัวข้อ",
+            "exact": true
+          },
+          "value": "{{title}}",
+          "say": "พิมพ์หัวข้อข่าวในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "type",
+          "target": {
+            "role": "textbox",
+            "name": "เนื้อหา"
+          },
+          "value": "นักเรียนชั้นมัธยมศึกษาปีที่ 1 ร่วมกิจกรรมทดลองวิทยาศาสตร์ในวันวิทยาศาสตร์ของโรงเรียน ข้อมูลสมมติสำหรับทดสอบ {{marker}}",
+          "say": "คลิกในกรอบเนื้อหาแล้วพิมพ์เนื้อข่าว ปุ่ม B, I, H2, รายการ, ลิงก์ ด้านบนใช้จัดรูปแบบข้อความ",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "select",
+          "target": {
+            "role": "combobox",
+            "name": "หมวดเนื้อหา"
+          },
+          "label": "ข่าวประชาสัมพันธ์",
+          "say": "เลือกหมวดในช่อง \"หมวดเนื้อหา\" ทางขวา",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "แท็ก (คั่นด้วย comma)"
+          },
+          "value": "ทดสอบคู่มือ, วิทยาศาสตร์",
+          "say": "พิมพ์แท็กที่เกี่ยวข้อง คั่นด้วยเครื่องหมายจุลภาค (ไม่บังคับ)",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "upload",
+          "target": {
+            "id": "content-cover-file",
+            "include_hidden": true
+          },
+          "file": "cover.png",
+          "say": "กดปุ่ม \"อัปโหลดรูป\" ในกล่อง \"รูปปก\" แล้วเลือกไฟล์ภาพ ระบบแสดงรูปปกและสถานะการอัปโหลด",
+          "shot": true,
+          "highlight": {
+            "css": "section.desk-editor-card",
+            "has_text": "รูปปก",
+            "first": true
+          },
+          "crop": "viewport",
+          "wait_after": {
+            "id": "content-cover-preview"
+          }
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "[data-upload-summary]",
+            "has_text": "อัปโหลด 1 / 1 ไฟล์"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "#school-upload-tray > summary"
+          },
+          "comment": "collapse the upload tray: it is open by default and covers the save bar on the right"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เก็บร่าง",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "method": "POST",
+            "status": 201
+          },
+          "say": "กดปุ่ม \"เก็บร่าง\" มุมขวาบน ระบบแสดงข้อความ \"บันทึกฉบับร่างแล้ว\"",
+          "shot": true,
+          "wait_after": {
+            "text": "บันทึกฉบับร่างแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ฉบับร่าง",
+            "in": {
+              "id": "content-status-tag"
+            }
+          }
+        }
+      ],
+      "expected": "สถานะในกล่อง \"การเผยแพร่\" เป็น \"ฉบับร่าง\" และมีลิงก์ \"ดูตัวอย่างร่างที่บันทึก\" เพิ่มขึ้น ข่าวยังไม่แสดงต่อผู้เข้าชม",
+      "verify": [
+        {
+          "title": "ข่าวอยู่ในรายการ \"ข่าวทั้งหมด\" เป็นฉบับร่าง",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "ข่าวทั้งหมด",
+                "exact": true,
+                "within": {
+                  "role": "navigation",
+                  "name": "ระบบงานโรงเรียน"
+                }
+              },
+              "wait_after": {
+                "id": "desk-content-search"
+              }
+            },
+            {
+              "do": "fill",
+              "target": {
+                "id": "desk-content-search"
+              },
+              "value": "{{title}}"
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "article.desk-content-row",
+                    "has_text": "{{title}}"
+                  }
+                },
+                {
+                  "text": "ฉบับร่าง",
+                  "in": {
+                    "css": "article.desk-content-row",
+                    "has_text": "{{title}}"
+                  }
+                }
+              ],
+              "say": "เปิดเมนู \"ข่าวทั้งหมด\" แล้วค้นหาด้วยหัวข้อ ข่าวที่เขียนอยู่ในรายการและมีป้าย \"ฉบับร่าง\"",
+              "shot": true,
+              "crop": "tight",
+              "highlight": {
+                "css": "article.desk-content-row",
+                "has_text": "{{title}}"
+              },
+              "crop_pad": 30
+            }
+          ]
+        },
+        {
+          "title": "ผู้เข้าชมทั่วไปยังไม่เห็นฉบับร่างในหน้าข่าวสาธารณะ",
+          "as": "anonymous",
+          "start": "/portal/search?q={{marker}}",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "พบ 0 รายการ"
+                },
+                {
+                  "not_text": "{{title}}"
+                }
+              ],
+              "say": "ผู้เข้าชมที่ค้นหาหัวข้อนี้ในหน้า \"ค้นหาข้อมูล\" ของเว็บไซต์จะไม่พบรายการ เพราะข่าวยังเป็นฉบับร่าง",
+              "shot": true,
+              "crop": "viewport"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "preview-draft",
+      "title": "ดูตัวอย่างข่าวก่อนเผยแพร่",
+      "role": "editor",
+      "start": "/cms",
+      "depends_on": [
+        "write-draft"
+      ],
+      "intro": "ตัวอย่างแสดงหน้าข่าวเหมือนที่ผู้เข้าชมจะเห็น เปิดดูได้เฉพาะผู้ที่เข้าสู่ระบบ ผู้เข้าชมทั่วไปเปิดไม่ได้",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ข่าวทั้งหมด",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "id": "desk-content-search"
+          },
+          "say": "เลือกเมนู \"ข่าวทั้งหมด\" ที่แถบเมนูด้านซ้าย",
+          "shot": true
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{title}}",
+          "say": "พิมพ์ส่วนหนึ่งของหัวข้อข่าวในช่อง \"ค้นหาเนื้อหา\" รายการจะกรองให้เห็นเฉพาะข่าวที่ตรงกัน",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{title}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตัวอย่าง",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{title}}"
+            }
+          },
+          "expect_popup": {
+            "url_regex": "/content-preview/\\d+"
+          },
+          "say": "กดปุ่ม \"ตัวอย่าง\" ที่แถวของข่าว ระบบเปิดแท็บใหม่แสดงหน้าข่าวพร้อมข้อความ \"ตัวอย่างก่อนเผยแพร่\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "text": "{{title}}"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "ร่างนี้ยังไม่แสดงต่อผู้ชม"
+            },
+            {
+              "text": "{{title}}"
+            }
+          ]
+        },
+        {
+          "do": "close_tab"
+        }
+      ],
+      "expected": "แท็บตัวอย่างมีแถบ \"ตัวอย่างก่อนเผยแพร่ · ร่างนี้ยังไม่แสดงต่อผู้ชม\" และหัวข้อข่าว",
+      "verify": [
+        {
+          "title": "เปิดตัวอย่างซ้ำได้ และแสดงหัวข้อและเนื้อหาที่เขียนไว้",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "ตัวอย่าง",
+                "within": {
+                  "css": "article.desk-content-row",
+                  "has_text": "{{title}}"
+                }
+              },
+              "expect_popup": {
+                "url_regex": "/content-preview/\\d+"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "{{title}}"
+                },
+                {
+                  "text": "นักเรียนชั้นมัธยมศึกษาปีที่ 1 ร่วมกิจกรรมทดลองวิทยาศาสตร์"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "publish",
+      "title": "เผยแพร่ข่าวและตรวจว่าผู้เข้าชมเห็น",
+      "core": true,
+      "role": "editor",
+      "start": "/cms",
+      "depends_on": [
+        "write-draft"
+      ],
+      "intro": "เมื่อกด \"เผยแพร่\" ข่าวขึ้นหน้าข่าวของเว็บไซต์และปรากฏในการค้นหาทันที",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ข่าวทั้งหมด",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "id": "desk-content-search"
+          },
+          "say": "เลือกเมนู \"ข่าวทั้งหมด\" ที่แถบเมนูด้านซ้าย",
+          "shot": true
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{title}}",
+          "say": "พิมพ์ส่วนหนึ่งของหัวข้อข่าวในช่อง \"ค้นหาเนื้อหา\" รายการจะกรองให้เห็นเฉพาะข่าวที่ตรงกัน",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{title}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "แก้ไข",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{title}}"
+            }
+          },
+          "say": "กดปุ่ม \"แก้ไข\" ที่แถวของข่าว",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "button",
+            "name": "แก้ไข",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{title}}"
+            }
+          },
+          "wait_after": {
+            "id": "rich-body"
+          },
+          "crop_pad": 30
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "method": "PUT",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"เผยแพร่\" มุมขวาบน ระบบแสดงข้อความ \"เผยแพร่เนื้อหาแล้ว\"",
+          "shot": true,
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "เผยแพร่แล้ว",
+              "in": {
+                "id": "content-status-tag"
+              }
+            },
+            {
+              "visible": {
+                "role": "link",
+                "name": "เปิดรายการที่เผยแพร่"
+              }
+            }
+          ],
+          "say": "สถานะเปลี่ยนเป็น \"เผยแพร่แล้ว\" และมีลิงก์ \"เปิดรายการที่เผยแพร่\" ให้กดไปดูหน้าข่าวจริง",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "id": "content-status-tag"
+          }
+        }
+      ],
+      "expected": "ข่าวแสดงในหน้า \"ข่าวและกิจกรรม\" และในการค้นหาของเว็บไซต์ พร้อมรูปปกที่อัปโหลด",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมทั่วไปค้นหาแล้วพบข่าว และเปิดอ่านได้",
+          "as": "anonymous",
+          "start": "/portal/search?q={{marker}}",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "พบ 1 รายการ"
+                },
+                {
+                  "visible": {
+                    "role": "link",
+                    "name": "{{title}}",
+                    "first": true
+                  }
+                }
+              ],
+              "say": "ผู้เข้าชมที่ค้นหาในหน้า \"ค้นหาข้อมูล\" พบข่าวที่เผยแพร่ พร้อมรูปปก",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "css": "main article, main .card",
+                "has_text": "{{title}}",
+                "first": true
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{title}}",
+                "first": true
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "{{title}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "heading",
+                    "name": "{{title}}"
+                  }
+                },
+                {
+                  "text": "นักเรียนชั้นมัธยมศึกษาปีที่ 1 ร่วมกิจกรรมทดลองวิทยาศาสตร์"
+                },
+                {
+                  "visible": {
+                    "css": "main img",
+                    "first": true
+                  }
+                }
+              ],
+              "say": "กดที่ข่าวเพื่ออ่านหน้าเต็ม หน้าข่าวแสดงหัวข้อ เนื้อหา และรูปปก",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "role": "heading",
+                "name": "{{title}}"
+              }
+            }
+          ]
+        },
+        {
+          "title": "ข่าวอยู่บนหน้า \"ข่าวและกิจกรรม\" ของเว็บไซต์",
+          "as": "anonymous",
+          "start": "/portal/news",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "link",
+                  "name": "{{title}}",
+                  "first": true
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-published",
+      "title": "แก้ไขข่าวที่เผยแพร่แล้ว",
+      "role": "editor",
+      "start": "/cms",
+      "depends_on": [
+        "publish"
+      ],
+      "intro": "แก้หัวข้อหรือเนื้อหาแล้วกด \"เผยแพร่การแก้ไข\" ระบบเก็บประวัติเวอร์ชันของข่าวไว้ในส่วน \"ประวัติการเผยแพร่\" ท้ายหน้าแก้ไข",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ข่าวทั้งหมด",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "id": "desk-content-search"
+          },
+          "say": "เลือกเมนู \"ข่าวทั้งหมด\" ที่แถบเมนูด้านซ้าย",
+          "shot": true
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{title}}",
+          "say": "พิมพ์ส่วนหนึ่งของหัวข้อข่าวในช่อง \"ค้นหาเนื้อหา\" รายการจะกรองให้เห็นเฉพาะข่าวที่ตรงกัน",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{title}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "แก้ไข",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{title}}"
+            }
+          },
+          "say": "กดปุ่ม \"แก้ไข\" ที่แถวของข่าว",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "button",
+            "name": "แก้ไข",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{title}}"
+            }
+          },
+          "wait_after": {
+            "id": "rich-body"
+          },
+          "crop_pad": 30
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หัวข้อ",
+            "exact": true
+          },
+          "value": "{{title2}}",
+          "say": "แก้หัวข้อในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "type",
+          "target": {
+            "role": "textbox",
+            "name": "เนื้อหา"
+          },
+          "value": " เพิ่มเติม: ผลการทดลองสรุปว่านักเรียนทุกกลุ่มทำสำเร็จ",
+          "say": "พิมพ์ข้อความที่ต้องการเพิ่มต่อท้ายในกรอบเนื้อหา",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่การแก้ไข",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "method": "PUT",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"เผยแพร่การแก้ไข\" มุมขวาบน",
+          "shot": true,
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        }
+      ],
+      "expected": "หน้าข่าวสาธารณะแสดงหัวข้อและเนื้อหาใหม่",
+      "verify": [
+        {
+          "title": "เปิดหน้าแก้ไขใหม่ หัวข้อใหม่ต้องยังอยู่",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "ข่าวทั้งหมด",
+                "exact": true,
+                "within": {
+                  "role": "navigation",
+                  "name": "ระบบงานโรงเรียน"
+                }
+              },
+              "wait_after": {
+                "id": "desk-content-search"
+              }
+            },
+            {
+              "do": "fill",
+              "target": {
+                "id": "desk-content-search"
+              },
+              "value": "{{title2}}"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "article.desk-content-row",
+                  "has_text": "{{title2}}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "ผู้เข้าชมทั่วไปเห็นหัวข้อและเนื้อหาที่แก้",
+          "as": "anonymous",
+          "start": "/portal/search?q={{marker}}",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{title2}}",
+                "first": true
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "{{title2}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "heading",
+                    "name": "{{title2}}"
+                  }
+                },
+                {
+                  "text": "ผลการทดลองสรุปว่านักเรียนทุกกลุ่มทำสำเร็จ"
+                }
+              ],
+              "say": "หน้าข่าวบนเว็บไซต์แสดงหัวข้อใหม่และข้อความที่เพิ่ม",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "role": "heading",
+                "name": "{{title2}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "unpublish",
+      "title": "หยุดเผยแพร่ข่าว (ถอนออกจากเว็บไซต์ แต่ยังเก็บเป็นฉบับร่าง)",
+      "role": "editor",
+      "start": "/cms",
+      "depends_on": [
+        "edit-published"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ข่าวทั้งหมด",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "id": "desk-content-search"
+          },
+          "say": "เลือกเมนู \"ข่าวทั้งหมด\" ที่แถบเมนูด้านซ้าย",
+          "shot": true
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{title2}}",
+          "say": "พิมพ์ส่วนหนึ่งของหัวข้อข่าวในช่อง \"ค้นหาเนื้อหา\" รายการจะกรองให้เห็นเฉพาะข่าวที่ตรงกัน",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{title2}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "แก้ไข",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{title2}}"
+            }
+          },
+          "wait_after": {
+            "role": "link",
+            "name": "เปิดรายการที่เผยแพร่"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "role": "link",
+            "name": "เปิดรายการที่เผยแพร่"
+          },
+          "var": "live_url",
+          "from_attr": "href"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ข่าวทั้งหมด",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{title2}}"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "หยุดเผยแพร่",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{title2}}"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "method": "POST",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"หยุดเผยแพร่\" ที่แถวของข่าว ไม่มีหน้าต่างถามยืนยัน และข่าวถูกถอนออกจากเว็บไซต์ทันที",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "button",
+            "name": "หยุดเผยแพร่",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{title2}}"
+            }
+          },
+          "crop_pad": 30
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "ฉบับร่าง",
+              "in": {
+                "css": "article.desk-content-row",
+                "has_text": "{{title2}}"
+              }
+            },
+            {
+              "hidden": {
+                "role": "button",
+                "name": "หยุดเผยแพร่",
+                "within": {
+                  "css": "article.desk-content-row",
+                  "has_text": "{{title2}}"
+                }
+              }
+            }
+          ],
+          "say": "ป้ายของข่าวเปลี่ยนเป็น \"ฉบับร่าง\" และปุ่ม \"หยุดเผยแพร่\" หายไป",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "css": "article.desk-content-row",
+            "has_text": "{{title2}}"
+          },
+          "crop_pad": 30
+        }
+      ],
+      "expected": "หน้าข่าวเดิมเปิดไม่ได้อีก (ผู้เข้าชมเห็น 404) ข่าวไม่อยู่ในผลการค้นหา",
+      "verify": [
+        {
+          "title": "ที่อยู่หน้าข่าวเดิมตอบ 404 สำหรับผู้เข้าชมทั่วไป",
+          "as": "anonymous",
+          "start": "/portal/news",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "http_status": 404,
+                "url": "{{live_url}}",
+                "anonymous": true
+              }
+            }
+          ]
+        },
+        {
+          "title": "ข่าวไม่อยู่ในผลการค้นหาของเว็บไซต์",
+          "as": "anonymous",
+          "start": "/portal/search?q={{marker}}",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "พบ 0 รายการ"
+                },
+                {
+                  "not_text": "{{title2}}"
+                }
+              ],
+              "say": "ผู้เข้าชมที่ค้นหาหัวข้อนี้จะไม่พบข่าวอีก",
+              "shot": true,
+              "crop": "viewport"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-page",
+      "title": "เขียนหน้าเนื้อหาของโรงเรียนและเผยแพร่",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "t": "{{marker}} หน้าทดสอบ ข้อมูลทั่วไปของโรงเรียน"
+      },
+      "intro": "หน้าเนื้อหาใช้กับข้อมูลที่ไม่ใช่ข่าว เช่น ประวัติโรงเรียน หลักสูตร หรือระเบียบ เขียนด้วยแบบฟอร์มเดียวกับข่าว แต่แสดงในเมนู \"รู้จักโรงเรียน\" ของเว็บไซต์ ไม่แสดงในหน้าข่าว",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "หน้าเนื้อหาโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"เนื้อหาเว็บไซต์\" แล้วเลือก \"หน้าเนื้อหาโรงเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มหน้าเนื้อหา",
+            "first": true
+          },
+          "say": "กดปุ่ม \"เพิ่มหน้าเนื้อหา\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เพิ่มหน้าเนื้อหา",
+            "first": true
+          },
+          "wait_after": {
+            "id": "rich-body"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หัวข้อ",
+            "exact": true
+          },
+          "value": "{{t}}",
+          "say": "พิมพ์หัวข้อหน้าในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "type",
+          "target": {
+            "role": "textbox",
+            "name": "เนื้อหา"
+          },
+          "value": "โรงเรียนต้นธารวิทยาเป็นโรงเรียนสมมติสำหรับทดสอบระบบ ข้อมูลในหน้านี้เป็นข้อมูลสมมติ {{marker}}",
+          "say": "คลิกในกรอบเนื้อหาแล้วพิมพ์ข้อความของหน้า",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "status": 201
+          },
+          "say": "กดปุ่ม \"เผยแพร่\" มุมขวาบน ป้ายสถานะในกรอบ \"การเผยแพร่\" เปลี่ยนเป็น \"เผยแพร่แล้ว\"",
+          "shot": true,
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "เผยแพร่แล้ว",
+            "in": {
+              "id": "content-status-tag"
+            }
+          }
+        }
+      ],
+      "expected": "หน้าเนื้อหาอยู่ในรายการ \"หน้าเนื้อหา\" และแสดงบนเว็บไซต์",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเห็นหน้าในรายการ \"หน้าเนื้อหา\" และเปิดอ่านได้",
+          "as": "anonymous",
+          "start": "/portal/pages?q={{marker}}",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "link",
+                  "name": "{{t}}",
+                  "first": true
+                }
+              },
+              "say": "ผู้เข้าชมเปิดเมนู \"รู้จักโรงเรียน\" และค้นหา พบหน้าที่เผยแพร่",
+              "shot": true,
+              "crop": "viewport"
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{t}}",
+                "first": true
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "{{t}}",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "ข้อมูลในหน้านี้เป็นข้อมูลสมมติ"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "compare-and-restore-version",
+      "title": "เปรียบเทียบเวอร์ชันและคืนเวอร์ชันเก่าจากประวัติการเผยแพร่",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "t1": "{{marker}} เวอร์ชันแรก",
+        "t2": "{{marker}} เวอร์ชันที่สอง",
+        "pre": "{{marker}} เวอร์ชัน"
+      },
+      "intro": "ทุกครั้งที่เผยแพร่ ระบบเก็บเวอร์ชันนั้นไว้ในกรอบ \"ประวัติการเผยแพร่\" (เก็บ 20 เวอร์ชันล่าสุด) ผู้ดูแลเปรียบเทียบเวอร์ชันเก่ากับฉบับร่างปัจจุบันได้โดยไม่เปลี่ยนข้อมูล และคืนเวอร์ชันเก่ากลับมาเป็นฉบับร่าง เว็บไซต์ยังแสดงข้อความล่าสุดที่เผยแพร่จนกว่าจะกด \"เผยแพร่การแก้ไข\" ขั้นตอนนี้ทดลองกับหน้าเนื้อหาของตนเอง แล้วย้ายลงถังขยะเมื่อเสร็จ",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "หน้าเนื้อหาโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"เนื้อหาเว็บไซต์\" แล้วเลือก \"หน้าเนื้อหาโรงเรียน\"",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มหน้าเนื้อหา",
+            "first": true
+          },
+          "say": "กดปุ่ม \"เพิ่มหน้าเนื้อหา\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เพิ่มหน้าเนื้อหา",
+            "first": true
+          },
+          "wait_after": {
+            "id": "rich-body"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"title\"]"
+          },
+          "value": "{{t1}}",
+          "say": "พิมพ์หัวข้อเวอร์ชันแรกในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "status": 201
+          },
+          "say": "กดปุ่ม \"เผยแพร่\" มุมขวาบน เวอร์ชันแรกเข้าประวัติการเผยแพร่",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"title\"]"
+          },
+          "value": "{{t2}}",
+          "say": "แก้หัวข้อเป็นเวอร์ชันที่สอง",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่การแก้ไข",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content/",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"เผยแพร่การแก้ไข\" มุมขวาบน เวอร์ชันที่สองเข้าประวัติการเผยแพร่",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่การแก้ไข",
+            "exact": true,
+            "first": true
+          },
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "content-revision"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "#content-revision option:last-child",
+            "include_hidden": true
+          },
+          "from_attr": "value",
+          "var": "old_rev"
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "id": "content-revision"
+            }
+          },
+          "say": "กรอบ \"ประวัติการเผยแพร่\" ทางขวามีรายการเวอร์ชันที่เคยเผยแพร่ เรียงจากใหม่ไปเก่า พร้อมปุ่ม \"เปรียบเทียบเวอร์ชัน\" และ \"คืนเวอร์ชันเป็นร่าง\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "id": "content-revisions"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "id": "content-revision"
+          },
+          "value": "{{old_rev}}",
+          "say": "เลือกเวอร์ชันเก่าสุดในช่อง \"เวอร์ชันที่ต้องการคืน\" (รายการล่างสุด)",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "id": "content-revision"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "id": "compare-content-revision"
+          },
+          "say": "กดปุ่ม \"เปรียบเทียบเวอร์ชัน\" ระบบเปิดหน้าต่างวางฉบับเผยแพร่ที่เลือกไว้เทียบกับฉบับร่างปัจจุบัน การเปรียบเทียบไม่เปลี่ยนข้อมูล",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "revision-comparison"
+          },
+          "wait_after": {
+            "id": "revision-comparison"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "{{t1}}",
+              "in": {
+                "id": "revision-comparison"
+              }
+            },
+            {
+              "text": "{{t2}}",
+              "in": {
+                "id": "revision-comparison"
+              }
+            }
+          ]
+        },
+        {
+          "do": "click",
+          "target": {
+            "attr": {
+              "data-close-comparison": ""
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "id": "restore-content-revision"
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "status": 200,
+            "method": "POST"
+          },
+          "say": "กดปุ่ม \"คืนเวอร์ชันเป็นร่าง\" ระบบนำข้อความของเวอร์ชันที่เลือกกลับมาเป็นฉบับร่าง ข้อความบนเว็บไซต์ยังไม่เปลี่ยนจนกด \"เผยแพร่\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "restore-content-revision"
+          },
+          "wait_after": {
+            "text": "คืนเวอร์ชันเป็นฉบับร่างแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "{{t1}}",
+            "of": {
+              "css": "#content-form [name=\"title\"]"
+            }
+          },
+          "say": "ช่อง \"หัวข้อ\" กลับเป็นข้อความของเวอร์ชันแรก",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "css": "#content-form [name=\"title\"]"
+          },
+          "crop_pad": 30
+        },
+        {
+          "do": "goto",
+          "url": "/portal/pages?q={{marker}}",
+          "say": "เปิดหน้า \"หน้าเนื้อหา\" ของเว็บไซต์ ผู้เข้าชมยังเห็นหัวข้อเวอร์ชันที่สอง เพราะยังไม่ได้เผยแพร่เวอร์ชันที่คืน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "a",
+            "has_text": "{{t2}}",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "css": "main a",
+                "has_text": "{{t2}}",
+                "first": true
+              }
+            },
+            {
+              "count": 0,
+              "of": {
+                "css": "main a",
+                "has_text": "{{t1}}"
+              }
+            }
+          ]
+        },
+        {
+          "do": "goto",
+          "url": "/cms#pages",
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{pre}}"
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "article.desk-content-row",
+            "has_text": "{{pre}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "แก้ไข",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{pre}}"
+            }
+          },
+          "wait_after": {
+            "id": "rich-body"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "{{t1}}",
+            "of": {
+              "css": "#content-form [name=\"title\"]"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่การแก้ไข",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content/",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"เผยแพร่การแก้ไข\" ผู้เข้าชมจึงเห็นข้อความของเวอร์ชันที่คืน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่การแก้ไข",
+            "exact": true,
+            "first": true
+          },
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal/pages?q={{marker}}",
+          "wait_after": {
+            "css": "a",
+            "has_text": "{{t1}}",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "css": "main a",
+                "has_text": "{{t1}}",
+                "first": true
+              }
+            },
+            {
+              "count": 0,
+              "of": {
+                "css": "main a",
+                "has_text": "{{t2}}"
+              }
+            }
+          ]
+        },
+        {
+          "do": "goto",
+          "url": "/cms#pages",
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{pre}}",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{pre}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{pre}}"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "status": 200,
+            "method": "POST"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "article.desk-content-row",
+              "has_text": "{{pre}}"
+            }
+          }
+        }
+      ],
+      "expected": "ผู้เข้าชมเห็นข้อความของเวอร์ชันที่คืนหลังเผยแพร่ และหน้าทดลองอยู่ในถังขยะ",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมไม่พบหน้าทดลองแล้ว",
+          "as": "anonymous",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/portal/pages?q={{marker}}"
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "count": 0,
+                  "of": {
+                    "css": "main a",
+                    "has_text": "{{t1}}"
+                  }
+                },
+                {
+                  "count": 0,
+                  "of": {
+                    "css": "main a",
+                    "has_text": "{{t2}}"
+                  }
+                }
+              ],
+              "say": "ผู้เข้าชมค้นหาหน้าทดลองไม่พบ เพราะย้ายลงถังขยะแล้ว",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-event",
+      "title": "เพิ่มกิจกรรมในปฏิทินกิจกรรม",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "t": "{{marker}} กิจกรรมวันเปิดบ้านสมมติ"
+      },
+      "intro": "กิจกรรมมีวันเวลาเริ่มและสิ้นสุด และสถานที่ ปฏิทินกิจกรรมบนหน้าแรกแสดงกิจกรรมที่ยังไม่ถึงกำหนด",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ปฏิทินกิจกรรม",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"เนื้อหาเว็บไซต์\" แล้วเลือก \"ปฏิทินกิจกรรม\"",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มกิจกรรม",
+            "first": true
+          },
+          "say": "กดปุ่ม \"เพิ่มกิจกรรม\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เพิ่มกิจกรรม",
+            "first": true
+          },
+          "wait_after": {
+            "id": "rich-body"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หัวข้อ",
+            "exact": true
+          },
+          "value": "{{t}}",
+          "say": "พิมพ์ชื่อกิจกรรมในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เริ่มกิจกรรม"
+          },
+          "value": "2030-03-01T09:00",
+          "say": "กรอกวันและเวลาในช่อง \"เริ่มกิจกรรม\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "สิ้นสุดกิจกรรม"
+          },
+          "value": "2030-03-01T12:00"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "สถานที่",
+            "exact": true
+          },
+          "value": "หอประชุมโรงเรียนสมมติ",
+          "say": "พิมพ์สถานที่ในช่อง \"สถานที่\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "status": 201
+          },
+          "say": "กดปุ่ม \"เผยแพร่\" มุมขวาบน ป้ายสถานะในกรอบ \"การเผยแพร่\" เปลี่ยนเป็น \"เผยแพร่แล้ว\"",
+          "shot": true,
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        }
+      ],
+      "expected": "กิจกรรมอยู่ในรายการ \"ปฏิทินกิจกรรม\" และแสดงบนเว็บไซต์",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเห็นกิจกรรมในหน้า \"ปฏิทินกิจกรรม\"",
+          "as": "anonymous",
+          "start": "/portal/events?q={{marker}}",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "link",
+                  "name": "{{t}}",
+                  "first": true
+                }
+              },
+              "say": "ผู้เข้าชมเปิดหน้า \"ปฏิทินกิจกรรม\" (/portal/events) ค้นหาแล้วพบกิจกรรม",
+              "shot": true,
+              "crop": "viewport"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-person",
+      "title": "เพิ่มบุคลากรบนเว็บไซต์",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "t": "{{marker}} ครูตัวอย่าง"
+      },
+      "intro": "ข้อมูลบุคลากรบนเว็บไซต์เป็นข้อมูลที่เปิดเผยต่อสาธารณะ ใส่เฉพาะชื่อ ตำแหน่ง กลุ่มงาน และอีเมลติดต่อที่โรงเรียนอนุญาตให้เปิดเผย อย่าใส่เบอร์โทรส่วนตัวหรือเลขประจำตัว",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "บุคลากรบนเว็บไซต์",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"เนื้อหาเว็บไซต์\" แล้วเลือก \"บุคลากรบนเว็บไซต์\"",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มข้อมูลบุคลากร",
+            "first": true
+          },
+          "say": "กดปุ่ม \"เพิ่มข้อมูลบุคลากร\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เพิ่มข้อมูลบุคลากร",
+            "first": true
+          },
+          "wait_after": {
+            "id": "rich-body"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หัวข้อ",
+            "exact": true
+          },
+          "value": "{{t}}",
+          "say": "พิมพ์ชื่อบุคลากรในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ตำแหน่งงาน"
+          },
+          "value": "ครูชำนาญการ (สมมติ)",
+          "say": "พิมพ์ตำแหน่งในช่อง \"ตำแหน่งงาน\" และกลุ่มงานในช่อง \"กลุ่มงาน\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "กลุ่มงาน"
+          },
+          "value": "กลุ่มสาระการเรียนรู้วิทยาศาสตร์"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมลติดต่อที่เปิดเผยได้"
+          },
+          "value": "teacher.demo@example.invalid"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "status": 201
+          },
+          "say": "กดปุ่ม \"เผยแพร่\" มุมขวาบน",
+          "shot": true,
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        }
+      ],
+      "expected": "บุคลากรอยู่ในรายการ \"บุคลากร\" และแสดงบนเว็บไซต์",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเห็นบุคลากรในหน้า \"บุคลากร\"",
+          "as": "anonymous",
+          "start": "/portal/search?q={{marker}}",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "link",
+                  "name": "{{t}}",
+                  "first": true
+                }
+              },
+              "say": "ผู้เข้าชมค้นหาข้อมูลบนเว็บไซต์ พบข้อมูลบุคลากรที่เผยแพร่ (หน้า \"บุคลากร\" แสดงเฉพาะทำเนียบจากทะเบียนบุคลากร ไม่แสดงรายการนี้)",
+              "shot": true,
+              "crop": "viewport"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-download",
+      "title": "เพิ่มเอกสารดาวน์โหลดและแนบไฟล์",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "t": "{{marker}} แบบฟอร์มทดสอบ"
+      },
+      "intro": "เอกสารดาวน์โหลดคือหน้าที่แนบไฟล์ให้ผู้เข้าชมดาวน์โหลด แนบได้หลายไฟล์ รับไฟล์ PDF Word Excel PowerPoint CSV TXT และ ZIP ใช้ได้กับเนื้อหาทุกประเภทผ่านกรอบ \"เอกสารแนบ\"",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เอกสารดาวน์โหลด",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"เนื้อหาเว็บไซต์\" แล้วเลือก \"เอกสารดาวน์โหลด\"",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มเอกสาร",
+            "first": true
+          },
+          "say": "กดปุ่ม \"เพิ่มเอกสาร\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เพิ่มเอกสาร",
+            "first": true
+          },
+          "wait_after": {
+            "id": "rich-body"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หัวข้อ",
+            "exact": true
+          },
+          "value": "{{t}}",
+          "say": "พิมพ์ชื่อเอกสารในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "upload",
+          "target": {
+            "id": "attachment-file",
+            "include_hidden": true
+          },
+          "file": "sample.pdf",
+          "say": "กด \"อัปโหลดเอกสาร\" ในกรอบ \"เอกสารแนบ\" แล้วเลือกไฟล์ ระบบแสดงชื่อไฟล์ในรายการเอกสารแนบพร้อมปุ่ม \"นำออก\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "id": "content-attachments"
+          },
+          "wait_after": {
+            "css": "#content-attachments .desk-attached-file"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "status": 201
+          },
+          "say": "กดปุ่ม \"เผยแพร่\" มุมขวาบน",
+          "shot": true,
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        }
+      ],
+      "expected": "เอกสารอยู่ในรายการ \"เอกสารดาวน์โหลด\" พร้อมไฟล์แนบ",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเปิดหน้าเอกสารและเห็นลิงก์ไฟล์แนบ",
+          "as": "anonymous",
+          "start": "/portal/downloads?q={{marker}}",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{t}}",
+                "first": true
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "{{t}}",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "main a[href*='/media/']",
+                  "first": true
+                }
+              },
+              "say": "หน้าเอกสารแสดงลิงก์ไฟล์แนบให้ผู้เข้าชมกดดาวน์โหลด",
+              "shot": true,
+              "crop": "viewport"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-album-from-library",
+      "title": "สร้างอัลบั้มภาพและเลือกรูปจากคลังสื่อ",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "t": "{{marker}} อัลบั้มทดสอบ"
+      },
+      "intro": "รูปปกและรูปในอัลบั้มเลือกจากคลังสื่อที่มีอยู่แล้วได้ ไม่ต้องอัปโหลดซ้ำ หน้าต่างคลังมีช่องค้นหาและแบ่งหน้า",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "อัลบั้มภาพ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"เนื้อหาเว็บไซต์\" แล้วเลือก \"อัลบั้มภาพ\"",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มอัลบั้ม",
+            "first": true
+          },
+          "say": "กดปุ่ม \"เพิ่มอัลบั้ม\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เพิ่มอัลบั้ม",
+            "first": true
+          },
+          "wait_after": {
+            "id": "rich-body"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หัวข้อ",
+            "exact": true
+          },
+          "value": "{{t}}",
+          "say": "พิมพ์ชื่ออัลบั้มในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "click",
+          "target": {
+            "id": "choose-content-cover"
+          },
+          "say": "กดปุ่ม \"เลือกจากคลัง\" ในกรอบ \"รูปปก\" ระบบเปิดหน้าต่างคลังสื่อ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "media-heading"
+          },
+          "settle_ms": 2500,
+          "wait_after": {
+            "css": "#media-picker button[data-desk-media]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "#media-picker button[data-desk-media]",
+            "first": true
+          },
+          "say": "กดรูปที่ต้องการในหน้าต่างคลัง หน้าต่างปิดและรูปปกแสดงในกรอบ \"รูปปก\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "content-cover-preview"
+          },
+          "wait_after": {
+            "css": "#content-cover-preview img"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "id": "add-gallery"
+          },
+          "say": "กดปุ่ม \"เลือกจากคลัง\" ในกรอบ \"รูปในอัลบั้ม\" แล้วกดเลือกรูป ทำซ้ำเพื่อเพิ่มหลายรูป",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "media-heading"
+          },
+          "settle_ms": 2500,
+          "wait_after": {
+            "css": "#media-picker button[data-desk-media]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "#media-picker button[data-desk-media]",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#content-gallery [data-gallery-id]"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 1,
+            "of": {
+              "css": "#content-gallery [data-gallery-id]"
+            }
+          },
+          "say": "รูปที่เลือกอยู่ในกรอบ \"รูปในอัลบั้ม\" พร้อมปุ่ม \"ขึ้น\" \"ลง\" และ \"นำรูปออก\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "id": "content-gallery"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "status": 201
+          },
+          "say": "กดปุ่ม \"เผยแพร่\" มุมขวาบน",
+          "shot": true,
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        }
+      ],
+      "expected": "อัลบั้มอยู่ในรายการ \"อัลบั้มภาพ\" พร้อมรูปปกและรูปที่เลือก",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเปิดอัลบั้มและเห็นรูป",
+          "as": "anonymous",
+          "start": "/portal/albums?q={{marker}}",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{t}}",
+                "first": true
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "{{t}}",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "main img",
+                  "first": true
+                }
+              },
+              "say": "หน้าอัลบั้มแสดงรูปที่เลือกจากคลัง",
+              "shot": true,
+              "crop": "viewport"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-job",
+      "title": "เพิ่มประกาศรับสมัครงานและเผยแพร่",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "t": "{{marker}} รับสมัครครูอัตราจ้างสมมติ"
+      },
+      "intro": "ประกาศรับสมัครงานแสดงที่หน้า \"รับสมัครงาน\" ของเว็บไซต์และในส่วนประกาศของหน้าแรก ระบุตำแหน่ง จำนวนอัตรา วันสิ้นสุดกำหนด ค่าตอบแทน และคุณสมบัติ ถ้าเป็นประกาศอ้างอิงจากโรงเรียนอื่น ต้องใส่ชื่อโรงเรียนและลิงก์ต้นฉบับ ใช้ข้อมูลที่โรงเรียนอนุญาตให้เปิดเผยเท่านั้น",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ประกาศรับสมัครงาน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"เนื้อหาเว็บไซต์\" แล้วเลือก \"ประกาศรับสมัครงาน\"",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มประกาศรับสมัครงาน",
+            "first": true
+          },
+          "say": "กดปุ่ม \"เพิ่มประกาศรับสมัครงาน\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เพิ่มประกาศรับสมัครงาน",
+            "first": true
+          },
+          "wait_after": {
+            "id": "rich-body"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"title\"]"
+          },
+          "value": "{{t}}",
+          "say": "พิมพ์ชื่อประกาศในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "#content-form [name=\"source_kind\"]"
+          },
+          "value": "original",
+          "say": "ตรวจช่อง \"ประเภทข้อมูล\" เป็น \"ประกาศของโรงเรียน\" (ประกาศที่ออกโดยโรงเรียนเอง)",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"position\"]"
+          },
+          "value": "ครูผู้ช่วยกิจกรรมการเรียนรู้ (สมมติ)",
+          "say": "พิมพ์ตำแหน่งในช่อง \"ตำแหน่ง\" ในกรอบ \"ข้อมูลประกาศ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"positions\"]"
+          },
+          "value": "2",
+          "say": "พิมพ์ \"2\" ในช่อง \"จำนวนอัตรา\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"deadline\"]"
+          },
+          "value": "{{next_weekday:40}}",
+          "say": "กรอกวันสุดท้ายที่รับสมัครในช่อง \"สิ้นสุดกำหนด\" ประกาศที่พ้นวันนี้จะแสดงสถานะย้อนหลังให้ผู้เข้าชมเห็น",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"salary\"]"
+          },
+          "value": "ตามอัตราของโรงเรียนสมมติ",
+          "say": "พิมพ์ค่าตอบแทนในช่อง \"ค่าตอบแทนตามประกาศ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"qualification\"]"
+          },
+          "value": "สำเร็จการศึกษาระดับปริญญาตรี สมัครด้วยตนเองที่ห้องธุรการ (ข้อมูลสมมติ)",
+          "say": "พิมพ์คุณสมบัติในช่อง \"คุณสมบัติและข้อมูลเพิ่มเติม\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "status": 201
+          },
+          "say": "กดปุ่ม \"เผยแพร่\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        }
+      ],
+      "expected": "ประกาศอยู่ในรายการ \"ประกาศรับสมัครงาน\" และแสดงบนหน้า \"รับสมัครงาน\" ของเว็บไซต์",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเปิดประกาศและเห็นตำแหน่งกับค่าตอบแทน",
+          "as": "anonymous",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/portal/jobs?q={{marker}}",
+              "wait_after": {
+                "css": "a",
+                "has_text": "{{t}}",
+                "first": true
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{t}}",
+                "first": true
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "{{t}}",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "ครูผู้ช่วยกิจกรรมการเรียนรู้ (สมมติ)",
+                  "in": {
+                    "css": ".article-facts"
+                  }
+                },
+                {
+                  "text": "ตามอัตราของโรงเรียนสมมติ",
+                  "in": {
+                    "css": ".article-facts"
+                  }
+                }
+              ],
+              "say": "หน้าประกาศแสดงตำแหน่ง จำนวนอัตรา ค่าตอบแทน และวันสิ้นสุดกำหนด",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "css": ".article-facts"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-procurement",
+      "title": "เพิ่มประกาศจัดซื้อจัดจ้างพร้อมขั้นตอน เลขที่ วงเงิน และเอกสารแนบ",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "t": "{{marker}} ประกาศจัดซื้อสื่อการเรียนสมมติ"
+      },
+      "intro": "ประกาศจัดซื้อจัดจ้างแสดงที่หน้า \"จัดซื้อจัดจ้าง\" ของเว็บไซต์ ระบุขั้นตอนของประกาศ วิธีจัดหา เลขที่ประกาศ วงเงิน และแนบเอกสาร เช่น ร่าง TOR หรือประกาศผลผู้ชนะ ผู้เข้าชมกรองดูตามขั้นตอนได้ ประกาศที่ผ่านขั้นตอน \"ประกาศผู้ชนะ\" และ \"สัญญา\" รวมอยู่ในหมวดผลการจัดซื้อจัดจ้าง",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดซื้อจัดจ้าง",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"เนื้อหาเว็บไซต์\" แล้วเลือก \"จัดซื้อจัดจ้าง\"",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มประกาศจัดซื้อจัดจ้าง",
+            "first": true
+          },
+          "say": "กดปุ่ม \"เพิ่มประกาศจัดซื้อจัดจ้าง\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เพิ่มประกาศจัดซื้อจัดจ้าง",
+            "first": true
+          },
+          "wait_after": {
+            "id": "rich-body"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"title\"]"
+          },
+          "value": "{{t}}",
+          "say": "พิมพ์ชื่อประกาศในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "#content-form [name=\"stage\"]"
+          },
+          "value": "award",
+          "say": "เลือก \"ขั้นตอนประกาศ\" เป็น \"ประกาศผู้ชนะ\" (ขั้นตอนอื่นคือ ข้อมูลประกอบ ร่าง TOR เชิญชวน สัญญา และยกเลิก)",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "#content-form [name=\"method\"]"
+          },
+          "value": "e-bidding",
+          "say": "เลือก \"วิธีจัดหา\" เป็น \"ประกวดราคาอิเล็กทรอนิกส์\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"document_no\"]"
+          },
+          "value": "ทด-{{run_id}}/2569",
+          "say": "พิมพ์เลขที่ประกาศในช่อง \"เลขที่ประกาศ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"budget\"]"
+          },
+          "value": "125000.5",
+          "say": "พิมพ์วงเงินเป็นตัวเลขในช่อง \"วงเงินตามประกาศ (บาท)\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "upload",
+          "target": {
+            "id": "attachment-file",
+            "include_hidden": true
+          },
+          "file": "sample.pdf",
+          "say": "กด \"อัปโหลดเอกสาร\" ในกรอบ \"เอกสารแนบ\" แล้วเลือกไฟล์ ระบบแสดงชื่อไฟล์ในรายการเอกสารแนบ และเปิดถาดอัปโหลดไว้มุมล่างขวาของจอ เหนือแถบบันทึก กดหัวข้อ \"อัปโหลด 1 / 1 ไฟล์\" เพื่อพับถาดเก็บได้",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "content-attachments"
+          },
+          "wait_after": {
+            "css": "#content-attachments .desk-attached-file"
+          }
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "[data-upload-summary]",
+            "has_text": "อัปโหลด 1 / 1 ไฟล์"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "#school-upload-tray > summary"
+          },
+          "comment": "collapse the upload tray: it is open by default and covers the right side of the save bar"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "status": 201
+          },
+          "say": "กดปุ่ม \"เผยแพร่\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        }
+      ],
+      "expected": "ประกาศอยู่ในรายการ \"จัดซื้อจัดจ้าง\" และแสดงขั้นตอน เลขที่ วงเงิน และเอกสารแนบบนเว็บไซต์",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเปิดประกาศและเห็นขั้นตอน เลขที่ วงเงิน และไฟล์แนบ",
+          "as": "anonymous",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/portal/procurement?q={{marker}}",
+              "wait_after": {
+                "css": "a",
+                "has_text": "{{t}}",
+                "first": true
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{t}}",
+                "first": true
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "{{t}}",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "ประกาศผู้ชนะ",
+                  "in": {
+                    "css": ".article-facts"
+                  }
+                },
+                {
+                  "text": "ทด-{{run_id}}/2569",
+                  "in": {
+                    "css": ".article-facts"
+                  }
+                },
+                {
+                  "text": "125,000.50 บาท",
+                  "in": {
+                    "css": ".article-facts"
+                  }
+                },
+                {
+                  "visible": {
+                    "css": "main a[href*='/media/']",
+                    "first": true
+                  }
+                }
+              ],
+              "say": "หน้าประกาศแสดงขั้นตอน เลขที่ประกาศ วงเงิน และลิงก์เอกสารแนบ",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "css": ".article-facts"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-video",
+      "title": "เพิ่มวิดีโอโรงเรียนจากลิงก์ YouTube หรือ Vimeo",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "t": "{{marker}} วิดีโอกิจกรรมสมมติ"
+      },
+      "intro": "วิดีโอแสดงที่หน้า \"วิดีโอ\" ของเว็บไซต์ ใช้ลิงก์ YouTube หรือ Vimeo แบบ https หรือไฟล์ MP4 ไม่เกิน 10 MB ในคลังสื่อ ถ้าเลือกไฟล์ในคลังไว้ ระบบแสดงไฟล์นั้นก่อนลิงก์ภายนอก วิดีโอจากลิงก์ภายนอกไม่โหลดจนกว่าผู้เข้าชมจะกดปุ่ม \"เล่นวีดิทัศน์\" เพื่อไม่ส่งข้อมูลผู้เข้าชมไปยังผู้ให้บริการก่อนได้รับความยินยอม",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "วิดีโอโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"เนื้อหาเว็บไซต์\" แล้วเลือก \"วิดีโอโรงเรียน\"",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มวีดิทัศน์",
+            "first": true
+          },
+          "say": "กดปุ่ม \"เพิ่มวีดิทัศน์\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เพิ่มวีดิทัศน์",
+            "first": true
+          },
+          "wait_after": {
+            "id": "rich-body"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"title\"]"
+          },
+          "value": "{{t}}",
+          "say": "พิมพ์ชื่อวิดีโอในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"video_url\"]"
+          },
+          "value": "https://youtu.be/AAAAAAAAAAA",
+          "say": "พิมพ์ลิงก์ YouTube หรือ Vimeo (https) ในช่อง \"YouTube หรือ Vimeo (https)\" ในกรอบ \"วีดิทัศน์\" (ตัวอย่างนี้เป็นลิงก์สมมติ) หรือกด \"เลือก MP4 จากคลัง\" เพื่อใช้ไฟล์ MP4 ในคลังสื่อ",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "status": 201
+          },
+          "say": "กดปุ่ม \"เผยแพร่\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        }
+      ],
+      "expected": "วิดีโออยู่ในรายการ \"วิดีโอโรงเรียน\" และแสดงบนหน้า \"วิดีโอ\" ของเว็บไซต์",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเปิดหน้าวิดีโอและเห็นปุ่มเล่นที่ยังไม่โหลดวิดีโอ",
+          "as": "anonymous",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/portal/videos?q={{marker}}",
+              "wait_after": {
+                "css": "a",
+                "has_text": "{{t}}",
+                "first": true
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{t}}",
+                "first": true
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "{{t}}",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "button",
+                    "name": "เล่นวีดิทัศน์",
+                    "first": true
+                  }
+                },
+                {
+                  "text": "เมื่อกดเล่น วิดีโอจะโหลดจากผู้ให้บริการภายนอก"
+                }
+              ],
+              "say": "หน้าวิดีโอแสดงปุ่ม \"เล่นวีดิทัศน์\" และข้อความบอกว่าวิดีโอจะโหลดจากผู้ให้บริการภายนอกเมื่อกดเล่น (ไม่กดปุ่มนี้ในคู่มือ)",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "role": "button",
+                "name": "เล่นวีดิทัศน์",
+                "first": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-newsletter",
+      "title": "เพิ่มจดหมายข่าวพร้อมไฟล์ PDF ฉบับเต็ม",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "t": "{{marker}} จดหมายข่าวประจำเดือนสมมติ"
+      },
+      "intro": "จดหมายข่าวแสดงที่หน้า \"จดหมายข่าว\" ของเว็บไซต์ ระบุฉบับที่และวันที่ออก แนบ PDF ฉบับเต็มให้ผู้เข้าชมดาวน์โหลด หรือเขียนเนื้อหาดิจิทัลในหน้านี้ก็ได้",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จดหมายข่าว",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"เนื้อหาเว็บไซต์\" แล้วเลือก \"จดหมายข่าว\"",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มจดหมายข่าว",
+            "first": true
+          },
+          "say": "กดปุ่ม \"เพิ่มจดหมายข่าว\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เพิ่มจดหมายข่าว",
+            "first": true
+          },
+          "wait_after": {
+            "id": "rich-body"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"title\"]"
+          },
+          "value": "{{t}}",
+          "say": "พิมพ์ชื่อจดหมายข่าวในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"issue_no\"]"
+          },
+          "value": "ฉบับทดลอง {{run_id}}",
+          "say": "พิมพ์เลขฉบับในช่อง \"ฉบับที่\" ในกรอบ \"ข้อมูลฉบับจดหมายข่าว\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"issued_on\"]"
+          },
+          "value": "{{today}}",
+          "say": "กรอกวันที่ออกในช่อง \"วันที่ออกจดหมายข่าว\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "upload",
+          "target": {
+            "id": "attachment-file",
+            "include_hidden": true
+          },
+          "file": "sample.pdf",
+          "say": "กด \"อัปโหลดเอกสาร\" ในกรอบ \"เอกสารแนบ\" แล้วเลือกไฟล์ PDF ฉบับเต็ม ระบบแสดงชื่อไฟล์ในรายการเอกสารแนบ",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "id": "content-attachments"
+          },
+          "wait_after": {
+            "css": "#content-attachments .desk-attached-file"
+          }
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "[data-upload-summary]",
+            "has_text": "อัปโหลด 1 / 1 ไฟล์"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "#school-upload-tray > summary"
+          },
+          "comment": "collapse the upload tray: it is open by default and covers the right side of the save bar"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "status": 201
+          },
+          "say": "กดปุ่ม \"เผยแพร่\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        }
+      ],
+      "expected": "จดหมายข่าวอยู่ในรายการ \"จดหมายข่าว\" และแสดงบนหน้า \"จดหมายข่าว\" ของเว็บไซต์พร้อมไฟล์แนบ",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเปิดจดหมายข่าวและเห็นฉบับที่กับไฟล์ PDF",
+          "as": "anonymous",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/portal/newsletters?q={{marker}}",
+              "wait_after": {
+                "css": "a",
+                "has_text": "{{t}}",
+                "first": true
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{t}}",
+                "first": true
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "{{t}}",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "ฉบับทดลอง {{run_id}}",
+                  "in": {
+                    "css": ".article-facts"
+                  }
+                },
+                {
+                  "visible": {
+                    "css": "main a[href*='/media/']",
+                    "first": true
+                  }
+                }
+              ],
+              "say": "หน้าจดหมายข่าวแสดงฉบับที่ วันที่ออก และลิงก์ไฟล์แนบ",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "css": ".article-facts",
+                "first": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-banner",
+      "title": "เพิ่มแบนเนอร์ประกาศด่วนบนหน้าแรก",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "t": "{{marker}} ประกาศด่วนสมมติ"
+      },
+      "intro": "แบนเนอร์และประกาศด่วนใช้แจ้งเรื่องเร่งด่วนบนหน้าแรก เลือกตำแหน่งได้ 4 แบบ คือ แถบประกาศ ส่วนต้อนรับ แถบประกาศเพิ่มเติม และป๊อบอัพ ตั้งช่วงเวลาแสดงได้ ถ้าเว้นว่างจะแสดงต่อเนื่อง ตำแหน่ง \"ส่วนต้อนรับ\" ใช้ทำสไลด์ภาพใหญ่ ดูที่หน้า \"สไลด์หน้าแรก\"",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "แบนเนอร์และประกาศด่วน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"เนื้อหาเว็บไซต์\" แล้วเลือก \"แบนเนอร์และประกาศด่วน\"",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มแบนเนอร์",
+            "first": true
+          },
+          "say": "กดปุ่ม \"เพิ่มแบนเนอร์\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เพิ่มแบนเนอร์",
+            "first": true
+          },
+          "wait_after": {
+            "id": "rich-body"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"title\"]"
+          },
+          "value": "{{t}}",
+          "say": "พิมพ์หัวข้อประกาศในช่อง \"หัวข้อ (ขึ้นบรรทัดได้)\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"excerpt\"]"
+          },
+          "value": "ประกาศหยุดเรียนสมมติเพื่อทดลองระบบ",
+          "say": "พิมพ์ข้อความประกาศในช่อง \"คำโปรย\" ข้อความนี้แสดงในแถบ",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"url\"]"
+          },
+          "value": "/portal/contact",
+          "say": "พิมพ์ปลายทางของปุ่ม \"ดูรายละเอียด\" ในช่อง \"ลิงก์ปลายทาง (/portal/... หรือ https)\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "#content-form [name=\"placement\"]"
+          },
+          "value": "notice",
+          "say": "ตรวจช่อง \"ตำแหน่ง\" เป็น \"แถบประกาศ\" แถบจะแสดงใต้ภาพใหญ่ของหน้าแรก (ตำแหน่ง \"ป๊อบอัพ\" แสดงเป็นหน้าต่าง)",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "status": 201
+          },
+          "say": "กดปุ่ม \"เผยแพร่\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        }
+      ],
+      "expected": "แบนเนอร์อยู่ในรายการ และแสดงเป็นแถบประกาศที่หน้าแรกของเว็บไซต์",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเห็นแถบประกาศที่หน้าแรก",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "aside.public-banner",
+                  "has_text": "{{t}}",
+                  "first": true
+                }
+              },
+              "say": "ผู้เข้าชมเปิดหน้าแรก เห็นแถบประกาศใต้ภาพใหญ่",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "css": "aside.public-banner",
+                "has_text": "{{t}}",
+                "first": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-service",
+      "title": "เพิ่มลิงก์และบริการ",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "t": "{{marker}} บริการสมมติ"
+      },
+      "intro": "ลิงก์และบริการคือปุ่มทางลัดบนหน้าแรกของเว็บไซต์ เช่น รับสมัครนักเรียน เอกสารดาวน์โหลด ติดต่อโรงเรียน แต่ละรายการมีชื่อ คำอธิบายสั้น ลิงก์ปลายทาง และลำดับแสดงผล ลิงก์ภายในใช้เส้นทางขึ้นต้น /portal/ ลิงก์ภายนอกต้องเป็น https",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ลิงก์และบริการ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"เนื้อหาเว็บไซต์\" แล้วเลือก \"ลิงก์และบริการ\"",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มบริการ",
+            "first": true
+          },
+          "say": "กดปุ่ม \"เพิ่มบริการ\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เพิ่มบริการ",
+            "first": true
+          },
+          "wait_after": {
+            "id": "rich-body"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"title\"]"
+          },
+          "value": "{{t}}",
+          "say": "พิมพ์ชื่อบริการในช่อง \"หัวข้อ\" ชื่อนี้แสดงบนปุ่มบริการ",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"excerpt\"]"
+          },
+          "value": "ลิงก์ทางลัดสมมติ",
+          "say": "พิมพ์คำอธิบายสั้นในช่อง \"คำโปรย\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"url\"]"
+          },
+          "value": "/portal/directory",
+          "say": "พิมพ์ปลายทางในช่อง \"ลิงก์ปลายทาง (/portal/... หรือ https)\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#content-form [name=\"sort_order\"]"
+          },
+          "value": "90",
+          "say": "พิมพ์ลำดับแสดงผลในช่อง \"ลำดับแสดงผล\" เลขน้อยแสดงก่อน",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "status": 201
+          },
+          "say": "กดปุ่ม \"เผยแพร่\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        }
+      ],
+      "expected": "บริการอยู่ในรายการ \"ลิงก์และบริการ\" และแสดงบนเว็บไซต์",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมค้นพบบริการในหน้ารายการบริการ",
+          "as": "anonymous",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/portal/services?q={{marker}}",
+              "wait_after": {
+                "css": "a",
+                "has_text": "{{t}}",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "main a",
+                  "has_text": "{{t}}",
+                  "first": true
+                }
+              },
+              "say": "ผู้เข้าชมเปิดรายการบริการและค้นหา เห็นบริการที่เพิ่ม",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "css": "main a",
+                "has_text": "{{t}}",
+                "first": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reorder-album-pictures",
+      "title": "เพิ่มรูปในอัลบั้มและเลื่อนลำดับรูป",
+      "role": "editor",
+      "start": "/cms",
+      "depends_on": [
+        "create-album-from-library",
+        "write-draft"
+      ],
+      "vars": {
+        "alb": "{{marker}} อัลบั้มทดสอบ"
+      },
+      "intro": "ลำดับรูปในกรอบ \"รูปในอัลบั้ม\" คือลำดับที่ผู้เข้าชมเห็นในหน้าอัลบั้ม เลื่อนรูปด้วยปุ่ม \"ขึ้น\" และ \"ลง\" หรือลากรูปไปวางบนรูปอื่น อัลบั้มหนึ่งใส่ได้ไม่เกิน 40 รูป เมื่อแก้อัลบั้มที่เผยแพร่แล้ว ต้องกด \"เผยแพร่การแก้ไข\" ผู้เข้าชมจึงเห็นลำดับใหม่",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "อัลบั้มภาพ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"เนื้อหาเว็บไซต์\" แล้วเลือก \"อัลบั้มภาพ\"",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{alb}}",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{alb}}"
+          },
+          "say": "พิมพ์ชื่ออัลบั้มทดสอบในช่อง \"ค้นหาเนื้อหา\"",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "แก้ไข",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{alb}}"
+            }
+          },
+          "say": "กดปุ่ม \"แก้ไข\" ที่แถวของอัลบั้ม",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "css": "article.desk-content-row",
+            "has_text": "{{alb}}"
+          },
+          "crop_pad": 40,
+          "wait_after": {
+            "css": "#content-gallery [data-gallery-id]"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "#content-gallery > div[data-gallery-id]",
+            "nth": 0
+          },
+          "from_attr": "data-gallery-id",
+          "var": "a"
+        },
+        {
+          "do": "click",
+          "target": {
+            "id": "add-gallery"
+          },
+          "settle_ms": 2500,
+          "say": "กดปุ่ม \"เลือกจากคลัง\" ในกรอบ \"รูปในอัลบั้ม\" เพื่อเพิ่มรูปที่สอง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "media-heading"
+          },
+          "wait_after": {
+            "css": "#media-picker button[data-desk-media]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "picker-search"
+          },
+          "value": "cover",
+          "say": "พิมพ์ชื่อไฟล์ในช่อง \"ค้นหาไฟล์ในคลัง\" เพื่อหารูปที่ต้องการ แล้วกดเลือกรูป",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "picker-search"
+          }
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "#media-picker button[data-desk-media]:not([data-desk-media=\"{{a}}\"])",
+            "has_text": "cover",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "#media-picker button[data-desk-media]:not([data-desk-media=\"{{a}}\"])",
+            "has_text": "cover",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#content-gallery > div[data-gallery-id]",
+            "nth": 1
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 2,
+            "of": {
+              "css": "#content-gallery > div[data-gallery-id]"
+            }
+          },
+          "say": "กรอบ \"รูปในอัลบั้ม\" มีรูปสองรูป แต่ละรูปมีปุ่ม \"ขึ้น\" \"ลง\" และ \"นำรูปออก\" ลำดับในกรอบคือลำดับในหน้าอัลบั้ม",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "id": "content-gallery"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "#content-gallery > div[data-gallery-id]:not([data-gallery-id=\"{{a}}\"])",
+            "first": true
+          },
+          "from_attr": "data-gallery-id",
+          "var": "b"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เลื่อนภาพลง",
+            "within": {
+              "css": "#content-gallery > div[data-gallery-id=\"{{a}}\"]"
+            }
+          },
+          "say": "กดปุ่ม \"ลง\" ใต้รูปแรก รูปแรกเลื่อนไปอยู่ลำดับที่สอง (ลากรูปไปวางบนอีกรูปก็ได้)",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "id": "content-gallery"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 1,
+            "of": {
+              "css": "#content-gallery > div:first-child[data-gallery-id=\"{{b}}\"]"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่การแก้ไข",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content/",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"เผยแพร่การแก้ไข\" มุมขวาบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่การแก้ไข",
+            "exact": true,
+            "first": true
+          },
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        },
+        {
+          "do": "reload"
+        },
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "#content-gallery [data-gallery-id]",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 1,
+            "of": {
+              "css": "#content-gallery > div:first-child[data-gallery-id=\"{{b}}\"]"
+            }
+          },
+          "say": "หลังเปิดหน้าอีกครั้ง ลำดับรูปที่เลือกยังอยู่",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "id": "content-gallery"
+          }
+        }
+      ],
+      "expected": "อัลบั้มมีรูปสองรูป และรูปที่สองมาอยู่ลำดับแรกในหน้าอัลบั้มของผู้เข้าชม",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเปิดอัลบั้มและเห็นรูปที่เลื่อนมาอยู่ลำดับแรก",
+          "as": "anonymous",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/portal/albums?q={{marker}}",
+              "wait_after": {
+                "css": "a",
+                "has_text": "{{alb}}",
+                "first": true
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{alb}}",
+                "first": true
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "{{alb}}",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "count": 1,
+                "of": {
+                  "css": ".article-gallery a:first-child img[src$=\"/media/{{b}}\"]"
+                }
+              },
+              "say": "หน้าอัลบั้มแสดงรูปตามลำดับใหม่ รูปที่เลื่อนมาอยู่ลำดับแรก",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "css": ".article-gallery",
+                "first": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "publish-news-pinned-attachment",
+      "title": "ปักหมุดข่าวและแนบเอกสาร",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "t": "{{marker}} ประกาศสำคัญปักหมุด"
+      },
+      "intro": "ข่าวที่ปักหมุดแสดงก่อนข่าวอื่นในหน้าข่าว เอกสารแนบแสดงเป็นลิงก์ท้ายข่าวให้ผู้เข้าชมดาวน์โหลด",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เขียนข่าวใหม่",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"เขียนข่าวใหม่\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "wait_after": {
+            "id": "rich-body"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หัวข้อ",
+            "exact": true
+          },
+          "value": "{{t}}",
+          "say": "พิมพ์หัวข้อข่าวในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "type",
+          "target": {
+            "role": "textbox",
+            "name": "เนื้อหา"
+          },
+          "value": "ข่าวสำคัญสำหรับทดสอบการปักหมุด ข้อมูลสมมติ {{marker}}"
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "ปักหมุดรายการนี้"
+          },
+          "say": "ติ๊ก \"ปักหมุดรายการนี้\" ในกรอบ \"การเผยแพร่\" ทางขวา",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 60
+        },
+        {
+          "do": "upload",
+          "target": {
+            "id": "attachment-file",
+            "include_hidden": true
+          },
+          "file": "sample.pdf",
+          "say": "กด \"อัปโหลดเอกสาร\" ในกรอบ \"เอกสารแนบ\" แล้วเลือกไฟล์ ระบบแสดงชื่อไฟล์ในรายการเอกสารแนบ",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "id": "content-attachments"
+          },
+          "wait_after": {
+            "css": "#content-attachments .desk-attached-file"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่",
+            "exact": true,
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "status": 201
+          },
+          "say": "กดปุ่ม \"เผยแพร่\" มุมขวาบน",
+          "shot": true,
+          "wait_after": {
+            "text": "เผยแพร่เนื้อหาแล้ว"
+          }
+        }
+      ],
+      "expected": "ข่าวแสดงเป็นรายการแรกของหน้าข่าว และมีลิงก์เอกสารแนบ",
+      "verify": [
+        {
+          "title": "ข่าวปักหมุดอยู่ลำดับแรกของหน้า \"ข่าวและกิจกรรม\"",
+          "as": "anonymous",
+          "start": "/portal/news",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "text": "{{t}}",
+                "in": {
+                  "css": "article.news-card",
+                  "first": true
+                }
+              },
+              "say": "ผู้เข้าชมเปิดหน้า \"ข่าวและกิจกรรม\" ข่าวที่ปักหมุดอยู่ลำดับแรก",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "css": "article.news-card",
+                "first": true
+              }
+            }
+          ]
+        },
+        {
+          "title": "หน้าข่าวมีลิงก์เอกสารแนบ",
+          "as": "anonymous",
+          "start": "/portal/search?q={{marker}}",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{t}}",
+                "first": true
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "{{t}}",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "main a[href*='/media/']",
+                  "first": true
+                }
+              },
+              "say": "หน้าข่าวแสดงลิงก์เอกสารแนบ",
+              "shot": true,
+              "crop": "viewport"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "schedule-publication",
+      "title": "ตั้งเวลาเผยแพร่",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "t": "{{marker}} ข่าวตั้งเวลาล่วงหน้า"
+      },
+      "intro": "ตั้งวันและเวลา (เวลาไทย) ที่ต้องการให้เนื้อหาขึ้นเว็บไซต์ ฉบับร่างล่าสุดจะเผยแพร่เมื่อถึงกำหนด ก่อนถึงกำหนดผู้เข้าชมยังไม่เห็น",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เขียนข่าวใหม่",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"เขียนข่าวใหม่\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "wait_after": {
+            "id": "rich-body"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หัวข้อ",
+            "exact": true
+          },
+          "value": "{{t}}",
+          "say": "พิมพ์หัวข้อข่าวในช่อง \"หัวข้อ\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 30
+        },
+        {
+          "do": "type",
+          "target": {
+            "role": "textbox",
+            "name": "เนื้อหา"
+          },
+          "value": "ข่าวที่ตั้งเวลาไว้ล่วงหน้า ข้อมูลสมมติ {{marker}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "วันและเวลาที่ต้องการเผยแพร่"
+          },
+          "value": "2030-01-15T09:00",
+          "say": "กรอกวันและเวลาที่ต้องการให้ข่าวขึ้นเว็บไซต์ในช่อง \"วันและเวลาที่ต้องการเผยแพร่\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 60
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ตั้งเวลาเผยแพร่",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/content",
+            "status": 201
+          },
+          "say": "กดปุ่ม \"ตั้งเวลาเผยแพร่\" ป้ายสถานะเปลี่ยนเป็น \"ตั้งเวลาแล้ว\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "role": "button",
+            "name": "ตั้งเวลาเผยแพร่",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#content-status-tag",
+            "has_text": "ตั้งเวลาแล้ว"
+          }
+        }
+      ],
+      "expected": "ข่าวมีสถานะ \"ตั้งเวลาแล้ว\" และยังไม่แสดงต่อผู้เข้าชม",
+      "verify": [
+        {
+          "title": "ข่าวอยู่ในรายการ \"ข่าวทั้งหมด\" สถานะ \"ตั้งเวลาแล้ว\"",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "ข่าวทั้งหมด",
+                "exact": true,
+                "within": {
+                  "role": "navigation",
+                  "name": "ระบบงานโรงเรียน"
+                }
+              },
+              "wait_after": {
+                "id": "desk-content-search"
+              }
+            },
+            {
+              "do": "fill",
+              "target": {
+                "id": "desk-content-search"
+              },
+              "value": "{{t}}"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "ตั้งเวลาแล้ว",
+                "in": {
+                  "css": "article.desk-content-row",
+                  "has_text": "{{t}}"
+                }
+              },
+              "say": "ในเมนู \"ข่าวทั้งหมด\" ข่าวมีป้าย \"ตั้งเวลาแล้ว\" ตัวกรองสถานะเลือก \"ตั้งเวลาแล้ว\" ได้",
+              "shot": true,
+              "crop": "tight",
+              "crop_pad": 40,
+              "highlight": {
+                "css": "article.desk-content-row",
+                "has_text": "{{t}}"
+              }
+            }
+          ]
+        },
+        {
+          "title": "ผู้เข้าชมยังไม่พบข่าว",
+          "as": "anonymous",
+          "start": "/portal/search?q={{marker}}",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "not_text": "{{t}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "change-theme-tagline",
+      "title": "เปลี่ยนคำขวัญในธีมหน้าเว็บและใช้บนเว็บไซต์",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "tag": "{{marker}} คำขวัญทดสอบ",
+        "orig": "เรียนรู้อย่างเข้าใจ เติบโตอย่างมีคุณค่า"
+      },
+      "intro": "หน้า \"ปรับธีมหน้าบ้าน\" ปรับบรรยากาศ ชื่อและสีโรงเรียน ภาพต้อนรับ รูปแบบข่าว เมนู และข้อมูลติดต่อ ตัวอย่างด้านขวาแสดงผลก่อนเผยแพร่ กด \"เก็บร่าง\" เพื่อเก็บโดยยังไม่เปลี่ยนเว็บไซต์ กด \"ใช้ธีมนี้บนเว็บไซต์\" เพื่อเปลี่ยนหน้าบ้านทันที",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ปรับธีมหน้าบ้าน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ปรับธีมหน้าบ้าน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "wait_after": {
+            "id": "theme-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "text": "2. ชื่อและสีประจำโรงเรียน",
+            "first": true
+          },
+          "say": "กดหัวข้อ \"2. ชื่อและสีประจำโรงเรียน\" เพื่อกางส่วนนี้ (ส่วนอื่นพับอยู่)",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "label": "คำขวัญหรือข้อความสั้น"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "{{orig}}",
+            "of": {
+              "label": "คำขวัญหรือข้อความสั้น"
+            }
+          },
+          "comment": "precondition: original tagline"
+        },
+        {
+          "do": "note",
+          "say": "ฝั่งซ้ายเป็นแบบฟอร์ม 6 ส่วน ได้แก่ เลือกบรรยากาศ ชื่อและสีประจำโรงเรียน ภาพและข้อความต้อนรับ รูปแบบข่าวและตัวอักษร เมนูหน้าเว็บไซต์ และข้อมูลติดต่อ ฝั่งขวาเป็นตัวอย่างหน้าบ้านที่ปรับตามทันที",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "คำขวัญหรือข้อความสั้น"
+          },
+          "value": "{{tag}}",
+          "say": "พิมพ์คำขวัญใหม่ในช่อง \"คำขวัญหรือข้อความสั้น\" ในส่วน \"2. ชื่อและสีประจำโรงเรียน\" ตัวอย่างด้านขวาเปลี่ยนตาม",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ใช้ธีมนี้บนเว็บไซต์",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/cms/theme",
+            "method": "PUT",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"ใช้ธีมนี้บนเว็บไซต์\" มุมขวาบน ระบบเปลี่ยนหน้าบ้านทันที",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "ใช้ธีมนี้บนเว็บไซต์",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#theme-save-status",
+            "has_text": "ใช้"
+          }
+        }
+      ],
+      "expected": "หน้าบ้านแสดงคำขวัญใหม่ (ผู้ตรวจต้องคืนคำขวัญเดิมตามขั้นตอนถัดไป)",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเห็นคำขวัญใหม่ที่หน้าแรก",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "text": "{{tag}}"
+              },
+              "say": "ผู้เข้าชมเปิดหน้าแรกของเว็บไซต์ เห็นคำขวัญใหม่ที่ส่วนหัวของเว็บไซต์",
+              "shot": true,
+              "crop": "viewport"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "restore-theme-tagline",
+      "title": "คืนคำขวัญเดิมของธีม",
+      "role": "editor",
+      "start": "/cms#theme",
+      "cleanup": true,
+      "vars": {
+        "orig": "เรียนรู้อย่างเข้าใจ เติบโตอย่างมีคุณค่า",
+        "tag": "{{marker}} คำขวัญทดสอบ"
+      },
+      "intro": "ขั้นตอนนี้คืนค่าที่เปลี่ยนไว้ เพราะธีมเป็นค่าของทั้งเว็บไซต์ ผู้ดูแลทำเช่นเดียวกันเมื่อลองแล้วไม่ต้องการใช้",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "theme-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "text": "2. ชื่อและสีประจำโรงเรียน",
+            "first": true
+          },
+          "wait_after": {
+            "label": "คำขวัญหรือข้อความสั้น"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "คำขวัญหรือข้อความสั้น"
+          },
+          "value": "{{orig}}",
+          "say": "พิมพ์คำขวัญเดิมกลับในช่อง \"คำขวัญหรือข้อความสั้น\"",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ใช้ธีมนี้บนเว็บไซต์",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/cms/theme",
+            "method": "PUT",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"ใช้ธีมนี้บนเว็บไซต์\" อีกครั้ง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "ใช้ธีมนี้บนเว็บไซต์",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#theme-save-status",
+            "has_text": "ใช้"
+          }
+        }
+      ],
+      "expected": "หน้าบ้านกลับเป็นคำขวัญเดิม",
+      "verify": [
+        {
+          "title": "หน้าแรกกลับเป็นคำขวัญเดิม",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "{{orig}}"
+                },
+                {
+                  "not_text": "{{tag}}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "add-menu-item",
+      "title": "เพิ่มรายการในเมนูเว็บไซต์",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "m": "{{marker}} เมนูทดสอบ"
+      },
+      "intro": "เมนูเว็บไซต์มี 3 กลุ่ม คือ เมนูหลัก ส่วนท้าย และแถบบน จัดได้ 3 ระดับ กลุ่มละไม่เกิน 12 รายการ กด \"เก็บร่าง\" เพื่อเก็บโดยไม่เปลี่ยนเว็บไซต์ กด \"ใช้บนเว็บไซต์\" เพื่อเผยแพร่ ปุ่ม \"ตรวจลิงก์ภายใน\" ตรวจว่าลิงก์ในเมนูมีปลายทาง",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "ตั้งค่าเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "เมนูเว็บไซต์",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"ตั้งค่าเว็บไซต์\" แล้วเลือก \"เมนูเว็บไซต์\"",
+          "shot": true,
+          "wait_after": {
+            "id": "menu-tree"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เมนูหลัก",
+            "first": true
+          },
+          "comment": "make sure the main menu tab is shown"
+        },
+        {
+          "do": "click",
+          "target": {
+            "id": "add-root-menu"
+          },
+          "say": "กดปุ่ม \"เพิ่มเมนูระดับแรก\" ระบบเพิ่มแถวชื่อ \"เมนูใหม่\" ท้ายรายการของกลุ่ม \"เมนูหลัก\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "input[data-menu-label][value='เมนูใหม่']"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "input[data-menu-label][value='เมนูใหม่']"
+          },
+          "value": "{{m}}",
+          "say": "พิมพ์ชื่อเมนูในช่อง \"ชื่อเมนู\" ของแถวใหม่",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 60
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/settings",
+            "method": "PUT",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"ใช้บนเว็บไซต์\" มุมขวาบน ระบบแสดงข้อความ \"ใช้เมนูบนเว็บไซต์แล้ว\" ลิงก์ของเมนูใหม่คือ /portal",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "wait_after": {
+            "css": "#menu-status",
+            "has_text": "ใช้เมนูบนเว็บไซต์แล้ว"
+          }
+        }
+      ],
+      "expected": "เมนูใหม่แสดงบนแถบเมนูของเว็บไซต์ (ผู้ตรวจต้องนำออกตามขั้นตอนถัดไป)",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเห็นเมนูใหม่บนหน้าแรก",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "link",
+                  "name": "{{m}}",
+                  "first": true,
+                  "within": {
+                    "id": "public-navigation"
+                  }
+                }
+              },
+              "say": "ผู้เข้าชมเปิดหน้าแรกเห็นเมนูใหม่ที่แถบเมนูด้านบน",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "role": "link",
+                "name": "{{m}}",
+                "first": true,
+                "within": {
+                  "id": "public-navigation"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "remove-menu-item",
+      "title": "นำรายการเมนูทดสอบออก",
+      "role": "editor",
+      "start": "/cms#menus",
+      "cleanup": true,
+      "vars": {
+        "m": "{{marker}} เมนูทดสอบ"
+      },
+      "intro": "ปุ่ม \"นำออก\" ลบแถวเมนูออกจากร่าง ต้องกด \"ใช้บนเว็บไซต์\" อีกครั้งจึงเปลี่ยนเว็บไซต์จริง",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "menu-tree"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "นำออก",
+            "within": {
+              "css": ".release-menu-row:has(input[data-menu-label][value*='เมนูทดสอบ'])"
+            },
+            "first": true
+          },
+          "say": "กดปุ่ม \"นำออก\" ที่แถวของเมนูที่ต้องการลบ",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 60
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "นำออก",
+            "within": {
+              "css": ".release-menu-row:has(input[data-menu-label][value*='เมนูทดสอบ'])"
+            },
+            "first": true
+          },
+          "optional": true,
+          "comment": "leftover test item of an earlier failed run"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ใช้บนเว็บไซต์",
+            "first": true
+          },
+          "expect_response": {
+            "url_contains": "/api/site/settings",
+            "method": "PUT",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"ใช้บนเว็บไซต์\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "#menu-status",
+            "has_text": "ใช้เมนูบนเว็บไซต์แล้ว"
+          }
+        }
+      ],
+      "expected": "เมนูทดสอบหายจากแถบเมนูของเว็บไซต์",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมไม่เห็นเมนูทดสอบ",
+          "as": "anonymous",
+          "start": "/portal",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "not_text": "เมนูทดสอบ"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open-hero-design",
+      "title": "เปิดหน้า \"ออกแบบ hero\" และ \"สไลด์หน้าแรก\"",
+      "role": "editor",
+      "start": "/cms",
+      "intro": "ส่วนต้อนรับ (hero) คือภาพใหญ่ด้านบนของหน้าแรก หน้า \"ออกแบบ hero\" ปรับความสูง ตัวอักษร สี ปุ่ม และการเล่นสไลด์ ทีละกลุ่ม แล้วดูตัวอย่างบนคอมพิวเตอร์และมือถือก่อนกด \"เผยแพร่ส่วนนี้\" หน้า \"สไลด์หน้าแรก\" จัดลำดับและแก้แต่ละสไลด์ ขั้นตอนนี้เปิดดูเท่านั้น ไม่ได้เก็บร่างหรือเผยแพร่ เพราะ hero เป็นค่าของทั้งเว็บไซต์",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ออกแบบ hero",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ออกแบบ hero\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "wait_after": {
+            "id": "presentation-form"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "ขนาดและระยะห่าง",
+            "within": {
+              "id": "presentation-form"
+            }
+          },
+          "say": "กดหัวข้อกลุ่ม เช่น \"ขนาดและระยะห่าง\" เพื่อกางช่องปรับค่า ระบบแสดงตัวอย่างหน้าบ้านทางขวา",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "label": "ความสูงขั้นต่ำจอคอมพิวเตอร์ (px)"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "สไลด์หน้าแรก",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"สไลด์หน้าแรก\" ที่แถบเมนูด้านซ้าย ระบบแสดงสไลด์แต่ละภาพ ลำดับ และสถานะ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "id": "hero-slide-list"
+          }
+        }
+      ],
+      "expected": "ทั้งสองหน้าเปิดได้และแสดงตัวอย่าง",
+      "verify": [
+        {
+          "title": "หน้าสไลด์มีรายการสไลด์",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "count": {
+                  "min": 1
+                },
+                "of": {
+                  "css": "#hero-slide-list article"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "media-upload-edit",
+      "title": "อัปโหลดไฟล์เข้าคลังสื่อและแก้คำอธิบาย",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "alt": "{{marker}} รูปทดสอบ"
+      },
+      "intro": "คลังสื่อเก็บรูปภาพ เอกสาร และวีดิทัศน์ MP4 ที่ใช้กับเนื้อหาของเว็บไซต์ ไฟล์ละไม่เกินขนาดที่หน้าแสดง คำอธิบายภาพใช้เป็นข้อความทางเลือกสำหรับผู้ใช้โปรแกรมอ่านหน้าจอ",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "ตั้งค่าเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "คลังสื่อและเอกสาร",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"ตั้งค่าเว็บไซต์\" แล้วเลือก \"คลังสื่อและเอกสาร\"",
+          "shot": true,
+          "wait_after": {
+            "id": "media-search"
+          }
+        },
+        {
+          "do": "upload",
+          "target": {
+            "id": "library-upload",
+            "include_hidden": true
+          },
+          "file": "cover.png",
+          "say": "กดปุ่ม \"อัปโหลดไฟล์\" มุมขวาบนแล้วเลือกไฟล์ ระบบแสดงข้อความ \"อัปโหลดไฟล์แล้ว\" และไฟล์ใหม่อยู่ท้ายสุดของรายการ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "label.desk-upload-small",
+            "first": true
+          },
+          "wait_after": {
+            "text": "อัปโหลดไฟล์แล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "แก้คำอธิบาย",
+            "within": {
+              "css": ".desk-media-grid article:has(input[data-file-folder][value='ทั่วไป'])",
+              "first": true
+            }
+          },
+          "wait_after": {
+            "css": "input[data-file-alt]"
+          },
+          "say": "กด \"แก้คำอธิบาย / โฟลเดอร์\" ในกรอบของไฟล์ที่อัปโหลดล่าสุด (อยู่ลำดับแรก)",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "input[data-file-alt]",
+            "within": {
+              "css": ".desk-media-grid article:has(input[data-file-folder][value='ทั่วไป'])",
+              "first": true
+            }
+          },
+          "value": "{{alt}}",
+          "say": "พิมพ์คำอธิบายในช่อง \"คำอธิบายภาพ / ชื่อเอกสาร\" ของไฟล์",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "first": true,
+            "within": {
+              "css": ".desk-media-grid article:has(input[data-file-folder][value='ทั่วไป'])",
+              "first": true
+            }
+          },
+          "expect_response": {
+            "url_contains": "/api/site/media/",
+            "method": "PUT",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"บันทึก\" ในกรอบของไฟล์ ระบบแสดงข้อความ \"บันทึกข้อมูลไฟล์แล้ว\"",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "text": "บันทึกข้อมูลไฟล์แล้ว"
+          }
+        }
+      ],
+      "expected": "ไฟล์ในคลังมีคำอธิบายใหม่",
+      "verify": [
+        {
+          "title": "ค้นหาด้วยคำอธิบายแล้วพบไฟล์",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/cms#media",
+              "wait_after": {
+                "id": "media-search"
+              }
+            },
+            {
+              "do": "fill",
+              "target": {
+                "id": "media-search"
+              },
+              "value": "{{marker}}",
+              "settle_ms": 600,
+              "wait_after": {
+                "css": "#desk-media-pagination",
+                "has_text": "· 1 รายการ"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": ".desk-media-grid article",
+                  "has_text": "cover.png",
+                  "first": true
+                }
+              },
+              "say": "ช่องค้นหาในคลังค้นได้จากชื่อไฟล์และคำอธิบาย ไฟล์ที่บันทึกแล้วปรากฏ",
+              "shot": true,
+              "crop": "viewport"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "value": "{{alt}}",
+                "of": {
+                  "css": "input[data-file-alt]",
+                  "first": true,
+                  "include_hidden": true
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "resize-image-copy",
+      "title": "สร้างสำเนารูปที่ปรับขนาดในคลังสื่อ",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "alt": "{{marker}} รูปปรับขนาด"
+      },
+      "intro": "ปุ่ม \"ปรับขนาดภาพ\" ในคลังสื่อสร้างสำเนาของรูปตามสัดส่วน ความกว้าง รูปแบบ และคุณภาพที่เลือก โดยไม่แก้ไฟล์ต้นฉบับ ใช้เมื่อรูปใหญ่เกินไปหรือสัดส่วนไม่เหมาะกับตำแหน่งที่ใช้ เช่น 16:9 สำหรับภาพใหญ่ จุดโฟกัสบอกว่าส่วนไหนของภาพต้องไม่ถูกตัด สำเนามีคำอธิบายและโฟลเดอร์เดียวกับต้นฉบับ ขั้นตอนนี้อัปโหลดรูปทดลอง สร้างสำเนา แล้วลบทั้งสองไฟล์",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "ตั้งค่าเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "คลังสื่อและเอกสาร",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "กางกลุ่มเมนู \"ตั้งค่าเว็บไซต์\" แล้วเลือก \"คลังสื่อและเอกสาร\"",
+          "shot": true,
+          "wait_after": {
+            "id": "media-search"
+          }
+        },
+        {
+          "do": "upload",
+          "target": {
+            "id": "library-upload",
+            "include_hidden": true
+          },
+          "file": "cover.png",
+          "say": "กดปุ่ม \"อัปโหลดไฟล์\" มุมขวาบนแล้วเลือกไฟล์รูป",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "label.desk-upload-small",
+            "first": true
+          },
+          "wait_after": {
+            "text": "อัปโหลดไฟล์แล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "#school-upload-tray > summary"
+          },
+          "comment": "collapse the upload tray"
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "แก้คำอธิบาย",
+            "within": {
+              "css": ".desk-media-grid article:has(input[data-file-folder][value='ทั่วไป'])",
+              "first": true
+            }
+          },
+          "wait_after": {
+            "css": "input[data-file-alt]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "input[data-file-alt]",
+            "within": {
+              "css": ".desk-media-grid article:has(input[data-file-folder][value='ทั่วไป'])",
+              "first": true
+            }
+          },
+          "value": "{{alt}}",
+          "say": "พิมพ์คำอธิบายในช่อง \"คำอธิบายภาพ / ชื่อเอกสาร\" เพื่อหาไฟล์นี้ได้ง่าย",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "first": true,
+            "within": {
+              "css": ".desk-media-grid article:has(input[data-file-folder][value='ทั่วไป'])",
+              "first": true
+            }
+          },
+          "expect_response": {
+            "url_contains": "/api/site/media/",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"บันทึก\" ในกรอบของไฟล์",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "text": "บันทึกข้อมูลไฟล์แล้ว"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "media-search"
+          },
+          "value": "{{alt}}",
+          "settle_ms": 1200,
+          "wait_after": {
+            "css": ".desk-media-grid article:has(input[data-file-alt][value*=\"{{alt}}\"])",
+            "has_text": "cover.png"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ปรับขนาดภาพ",
+            "within": {
+              "css": ".desk-media-grid article:has(input[data-file-alt][value*=\"{{alt}}\"])",
+              "has_text": "cover.png"
+            }
+          },
+          "say": "กดปุ่ม \"ปรับขนาดภาพ\" ในกรอบของไฟล์รูป ระบบเปิดหน้าต่าง \"ปรับขนาดและจุดโฟกัสภาพ\" ที่สร้างสำเนาใหม่โดยไม่แตะต้นฉบับ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "image-variant-dialog"
+          },
+          "wait_after": {
+            "id": "variant-form"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "#variant-form [name=\"ratio\"]"
+          },
+          "value": "16:9",
+          "say": "เลือก \"สัดส่วน\" เป็น \"16:9\" ตัวอย่างในหน้าต่างเปลี่ยนตาม",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "#variant-form [name=\"ratio\"]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "#variant-form [name=\"width\"]"
+          },
+          "value": "400",
+          "say": "พิมพ์ความกว้างเป็นพิกเซลในช่อง \"ความกว้าง (px)\" เลือกรูปแบบไฟล์ได้ที่ช่อง \"รูปแบบ\" (WebP JPEG หรือ PNG) และเลื่อนจุดโฟกัสเพื่อเลือกส่วนของภาพที่ต้องการเก็บไว้",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "#variant-form [name=\"width\"]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างสำเนาภาพ",
+            "exact": true
+          },
+          "expect_response": {
+            "url_contains": "/variant",
+            "status": 201,
+            "method": "POST"
+          },
+          "say": "กดปุ่ม \"สร้างสำเนาภาพ\" ระบบแสดงขนาดของสำเนาใหม่ในหน้าต่าง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "สร้างสำเนาภาพ",
+            "exact": true
+          },
+          "wait_after": {
+            "css": "#variant-result p",
+            "has_text": "สร้างสำเนาแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "attr": {
+              "data-close-variant": ""
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#media",
+          "wait_after": {
+            "id": "media-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "media-search"
+          },
+          "value": "{{alt}}",
+          "settle_ms": 1200,
+          "wait_after": {
+            "css": ".desk-media-grid article:has(input[data-file-alt][value*=\"{{alt}}\"])",
+            "has_text": "cover-400.webp"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 2,
+            "of": {
+              "css": ".desk-media-grid article:has(input[data-file-alt][value*=\"{{alt}}\"])"
+            }
+          },
+          "say": "คลังสื่อมีสำเนา \"cover-400.webp\" เพิ่มมาอีกหนึ่งไฟล์ แยกจากต้นฉบับ \"cover.png\" ใช้เลือกในเนื้อหาได้เหมือนไฟล์อื่น",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".desk-media-grid article:has(input[data-file-alt][value*=\"{{alt}}\"])",
+            "has_text": "cover-400.webp"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "first": true,
+            "within": {
+              "css": ".desk-media-grid article:has(input[data-file-alt][value*=\"{{alt}}\"])",
+              "has_text": "cover-400.webp"
+            }
+          },
+          "dialog": "accept",
+          "expect_response": {
+            "url_contains": "/api/site/media/",
+            "status": 200,
+            "method": "DELETE"
+          },
+          "wait_after": {
+            "text": "ลบไฟล์แล้ว"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "media-search"
+          },
+          "value": "{{alt}}",
+          "settle_ms": 1200,
+          "wait_after": {
+            "css": ".desk-media-grid article:has(input[data-file-alt][value*=\"{{alt}}\"])",
+            "has_text": "cover.png"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "first": true,
+            "within": {
+              "css": ".desk-media-grid article:has(input[data-file-alt][value*=\"{{alt}}\"])",
+              "has_text": "cover.png"
+            }
+          },
+          "dialog": "accept",
+          "expect_response": {
+            "url_contains": "/api/site/media/",
+            "status": 200,
+            "method": "DELETE"
+          },
+          "wait_after": {
+            "text": "ลบไฟล์แล้ว"
+          }
+        }
+      ],
+      "expected": "คลังสื่อมีสำเนาที่ปรับขนาดแล้ว และไฟล์ทดลองถูกลบเมื่อเสร็จ",
+      "verify": [
+        {
+          "title": "คลังสื่อไม่มีไฟล์ทดลองค้างอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/cms#media",
+              "wait_after": {
+                "id": "media-search"
+              }
+            },
+            {
+              "do": "fill",
+              "target": {
+                "id": "media-search"
+              },
+              "value": "{{alt}}",
+              "settle_ms": 1200
+            },
+            {
+              "do": "expect",
+              "that": {
+                "count": 0,
+                "of": {
+                  "css": "input[data-file-alt]"
+                }
+              },
+              "say": "ค้นหาแล้วไม่พบไฟล์ทดลอง",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "media-delete",
+      "title": "ลบไฟล์ที่ไม่ได้ใช้งานออกจากคลังสื่อ",
+      "role": "editor",
+      "start": "/cms#media",
+      "cleanup": true,
+      "vars": {
+        "alt": "{{marker}} รูปทดสอบ"
+      },
+      "intro": "ปุ่ม \"ลบ\" ลบไฟล์ที่ไม่ได้ใช้งานออกถาวร ระบบถามยืนยันหนึ่งครั้ง ไฟล์ที่เนื้อหาใช้อยู่ลบไม่ได้",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "media-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "media-search"
+          },
+          "value": "{{marker}}",
+          "settle_ms": 1500,
+          "wait_after": {
+            "css": ".desk-media-grid article:has(input[data-file-alt][value*='{{marker}}'])",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "first": true,
+            "within": {
+              "css": ".desk-media-grid article:has(input[data-file-alt][value*='{{marker}}'])",
+              "first": true
+            }
+          },
+          "dialog": "accept",
+          "expect_response": {
+            "url_contains": "/api/site/media/",
+            "method": "DELETE",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"ลบ\" ในกรอบของไฟล์ แล้วกดตกลงในหน้าต่างยืนยัน",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "text": "ลบไฟล์แล้ว"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "media-search"
+          },
+          "value": "cover"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "first": true,
+            "within": {
+              "css": ".desk-media-grid article:has(input[data-file-folder][value='ทั่วไป'])",
+              "first": true
+            }
+          },
+          "dialog": "accept",
+          "optional": true,
+          "comment": "leftover cover.png of an earlier failed run (folder general, unused)"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "first": true,
+            "within": {
+              "css": ".desk-media-grid article:has(input[data-file-folder][value='ทั่วไป'])",
+              "first": true
+            }
+          },
+          "dialog": "accept",
+          "optional": true,
+          "comment": "leftover cover.png of an earlier failed run (folder general, unused)"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "first": true,
+            "within": {
+              "css": ".desk-media-grid article:has(input[data-file-folder][value='ทั่วไป'])",
+              "first": true
+            }
+          },
+          "dialog": "accept",
+          "optional": true,
+          "comment": "leftover cover.png of an earlier failed run (folder general, unused)"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "first": true,
+            "within": {
+              "css": ".desk-media-grid article:has(input[data-file-folder][value='ทั่วไป'])",
+              "first": true
+            }
+          },
+          "dialog": "accept",
+          "optional": true,
+          "comment": "leftover cover.png of an earlier failed run (folder general, unused)"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "first": true,
+            "within": {
+              "css": ".desk-media-grid article:has(input[data-file-folder][value='ทั่วไป'])",
+              "first": true
+            }
+          },
+          "dialog": "accept",
+          "optional": true,
+          "comment": "leftover cover.png of an earlier failed run (folder general, unused)"
+        }
+      ],
+      "expected": "ไฟล์หายจากคลังสื่อ",
+      "verify": [
+        {
+          "title": "ค้นหาแล้วไม่พบไฟล์",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/cms#media",
+              "wait_after": {
+                "id": "media-search"
+              }
+            },
+            {
+              "do": "fill",
+              "target": {
+                "id": "media-search"
+              },
+              "value": "{{marker}}"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "count": 0,
+                "of": {
+                  "css": "input[data-file-alt]"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hub-create",
+      "title": "สร้างหน้ากลุ่มงาน",
+      "role": "admin",
+      "start": "/work",
+      "vars": {
+        "ht": "{{marker}} กลุ่มงานทดสอบ",
+        "slug": "mt-{{run_id}}"
+      },
+      "intro": "หน้ากลุ่มงานและกลุ่มสาระรวมรายชื่อบุคลากรของกลุ่ม กล่องเอกสารแยกหมวด และข่าวของกลุ่ม ผู้ดูแลระบบสร้างหน้า หัวหน้ากลุ่มนั้นจัดการหน้าของกลุ่มตนเอง หน้าที่สร้างใหม่เป็นฉบับร่าง ระบบไม่มีปุ่มลบหน้ากลุ่ม",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "หน้ากลุ่มงาน/กลุ่มสาระ",
+            "exact": false,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"หน้ากลุ่มงาน/กลุ่มสาระ\" ที่แถบเมนูด้านซ้ายของหน้า \"งานโรงเรียน\"",
+          "shot": true,
+          "wait_after": {
+            "id": "hub-new"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อหน้า",
+            "within": {
+              "id": "hub-new"
+            }
+          },
+          "value": "{{ht}}",
+          "say": "พิมพ์ชื่อหน้าในช่อง \"ชื่อหน้า\" ของกรอบ \"สร้างหน้ากลุ่มใหม่\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ที่อยู่หน้า",
+            "within": {
+              "id": "hub-new"
+            }
+          },
+          "value": "{{slug}}",
+          "say": "พิมพ์ที่อยู่หน้าเป็นอักษรอังกฤษพิมพ์เล็ก ตัวเลข และเครื่องหมาย - ที่อยู่เว็บจะเป็น /portal/groups/ตามด้วยที่อยู่นี้",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างหน้า",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"สร้างหน้า\" ระบบเปิดหน้าจัดการของกลุ่มนั้น มีแท็บ \"เอกสาร\" \"หมวดเอกสาร\" และ \"ข้อมูลหน้า\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "tab",
+            "name": "หมวดเอกสาร"
+          }
+        }
+      ],
+      "expected": "หน้าจัดการของกลุ่มแสดงขึ้น สถานะ \"ฉบับร่าง\"",
+      "verify": [
+        {
+          "title": "หน้ากลุ่มอยู่ในรายการเป็นฉบับร่าง และผู้เข้าชมยังไม่เห็น",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#hubs",
+              "wait_after": {
+                "id": "hub-new"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "li.hub-card",
+                    "has_text": "{{marker}}"
+                  }
+                },
+                {
+                  "text": "ฉบับร่าง",
+                  "in": {
+                    "css": "li.hub-card",
+                    "has_text": "{{marker}}"
+                  }
+                }
+              ],
+              "say": "หน้ากลุ่มที่สร้างอยู่ในรายการ มีป้าย \"ฉบับร่าง\"",
+              "shot": true,
+              "crop": "tight",
+              "crop_pad": 40,
+              "highlight": {
+                "css": "li.hub-card",
+                "has_text": "{{marker}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hub-category-document",
+      "title": "เพิ่มหมวดเอกสารและอัปโหลดเอกสารในหน้ากลุ่ม",
+      "role": "admin",
+      "start": "/work#hubs",
+      "depends_on": [
+        "hub-create"
+      ],
+      "vars": {
+        "cat": "{{marker}} หมวดทดสอบ",
+        "doc": "{{marker}} เอกสารทดสอบ"
+      },
+      "intro": "เอกสารในหน้ากลุ่มจัดเป็นหมวด แต่ละหมวดเป็นหนึ่งกล่องบนหน้าเว็บ ระบบนับจำนวนครั้งที่ผู้เข้าชมดาวน์โหลดแต่ละเอกสาร รับไฟล์ PDF Word Excel PowerPoint และรูปภาพ",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "hub-new"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการ",
+            "within": {
+              "css": "li.hub-card",
+              "has_text": "{{marker}}"
+            }
+          },
+          "say": "กดปุ่ม \"จัดการ\" ที่การ์ดของหน้ากลุ่ม",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "tab",
+            "name": "หมวดเอกสาร"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "tab",
+            "name": "หมวดเอกสาร"
+          },
+          "say": "กดแท็บ \"หมวดเอกสาร\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "id": "cat-new"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เพิ่มหมวดใหม่"
+          },
+          "value": "{{cat}}",
+          "say": "พิมพ์ชื่อหมวดในช่อง \"เพิ่มหมวดใหม่\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มหมวด",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"เพิ่มหมวด\" ระบบแสดงข้อความ \"เพิ่มหมวดแล้ว\" และหมวดอยู่ในรายการ",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "li.hub-cat input[value*='หมวดทดสอบ']"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "tab",
+            "name": "เอกสาร",
+            "exact": true
+          },
+          "say": "กดแท็บ \"เอกสาร\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "id": "doc-new"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "#doc-new select[name=category_id]"
+          },
+          "label": "{{cat}}",
+          "say": "เลือกหมวดในช่อง \"หมวด\" ของกรอบ \"เพิ่มเอกสาร\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "upload",
+          "target": {
+            "css": "#doc-new input[type=file]",
+            "include_hidden": true
+          },
+          "file": "sample.pdf",
+          "say": "เลือกไฟล์ในช่อง \"ไฟล์\" ชื่อเอกสารตั้งจากชื่อไฟล์ แก้ภายหลังได้",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "อัปโหลด",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"อัปโหลด\" ระบบแสดงข้อความ \"เพิ่มเอกสารแล้ว\" และเอกสารอยู่ในรายการพร้อมจำนวนดาวน์โหลด",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "li.hub-doc",
+            "has_text": "sample"
+          }
+        }
+      ],
+      "expected": "เอกสารอยู่ในรายการ แสดง \"ดาวน์โหลด 0 ครั้ง\" และสถานะ \"เผยแพร่แล้ว\"",
+      "verify": [
+        {
+          "title": "เอกสารมีจำนวนดาวน์โหลดและสถานะเผยแพร่",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "ดาวน์โหลด 0 ครั้ง",
+                  "in": {
+                    "css": "li.hub-doc",
+                    "has_text": "sample",
+                    "first": true
+                  }
+                },
+                {
+                  "text": "เผยแพร่แล้ว",
+                  "in": {
+                    "css": "li.hub-doc",
+                    "has_text": "sample",
+                    "first": true
+                  }
+                }
+              ],
+              "say": "เอกสารที่อัปโหลดแสดงจำนวนดาวน์โหลดและสถานะ",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "li.hub-doc",
+                "has_text": "sample",
+                "first": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hub-publish-visitor",
+      "title": "เผยแพร่หน้ากลุ่มและตรวจหน้าที่ผู้เข้าชมเห็น",
+      "role": "admin",
+      "start": "/work#hubs",
+      "depends_on": [
+        "hub-category-document"
+      ],
+      "vars": {
+        "ht": "{{marker}} กลุ่มงานทดสอบ",
+        "slug": "mt-{{run_id}}"
+      },
+      "intro": "หน้ากลุ่มที่เผยแพร่แล้วอยู่ในรายการที่ /portal/groups และเปิดได้ที่ /portal/groups/ที่อยู่หน้า ผู้ดูแลเปลี่ยนสถานะที่แท็บ \"ข้อมูลหน้า\"",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "hub-new"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการ",
+            "within": {
+              "css": "li.hub-card",
+              "has_text": "{{marker}}"
+            }
+          },
+          "wait_after": {
+            "role": "tab",
+            "name": "ข้อมูลหน้า"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "tab",
+            "name": "ข้อมูลหน้า"
+          },
+          "say": "กดแท็บ \"ข้อมูลหน้า\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "id": "hub-settings"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "สถานะ",
+            "within": {
+              "id": "hub-settings"
+            }
+          },
+          "label": "เผยแพร่แล้ว",
+          "say": "เลือก \"เผยแพร่แล้ว\" ในช่อง \"สถานะ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกข้อมูลหน้า",
+            "exact": true
+          },
+          "expect_response": {
+            "url_contains": "/api/cms/hubs/",
+            "method": "PUT",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"บันทึกข้อมูลหน้า\" ระบบแสดงข้อความ \"บันทึกข้อมูลหน้าแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "text": "บันทึกข้อมูลหน้าแล้ว"
+          }
+        }
+      ],
+      "expected": "หน้ากลุ่มมีสถานะ \"เผยแพร่แล้ว\" และเปิดดูบนเว็บไซต์ได้",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเปิดหน้ากลุ่มและเห็นเอกสาร",
+          "as": "anonymous",
+          "start": "/portal/groups/{{slug}}",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "heading",
+                    "name": "{{ht}}",
+                    "first": true
+                  }
+                },
+                {
+                  "text": "{{marker}} หมวดทดสอบ"
+                }
+              ],
+              "say": "ผู้เข้าชมเปิดหน้ากลุ่ม เห็นชื่อหน้าและกล่องเอกสารของหมวดที่สร้าง",
+              "shot": true,
+              "crop": "viewport"
+            }
+          ]
+        },
+        {
+          "title": "หน้ากลุ่มอยู่ในรายการ /portal/groups",
+          "as": "anonymous",
+          "start": "/portal/groups",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "link",
+                  "name": "{{ht}}",
+                  "first": true
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hub-restore",
+      "title": "คืนหน้ากลุ่มทดสอบเป็นฉบับร่างและลบเอกสารกับหมวด",
+      "role": "admin",
+      "start": "/work#hubs",
+      "cleanup": true,
+      "vars": {
+        "slug": "mt-{{run_id}}"
+      },
+      "intro": "ลบเอกสารและหมวดของหน้ากลุ่มได้ แต่ไม่มีปุ่มลบหน้ากลุ่ม หน้าทดสอบจึงค้างในรายการเป็นฉบับร่าง",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "hub-new"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดการ",
+            "within": {
+              "css": "li.hub-card",
+              "has_text": "{{marker}}"
+            }
+          },
+          "say": "กดปุ่ม \"จัดการ\" ที่การ์ดของหน้ากลุ่มทดสอบ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "tab",
+            "name": "ข้อมูลหน้า"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "first": true,
+            "within": {
+              "css": "li.hub-doc",
+              "has_text": "sample"
+            }
+          },
+          "dialog": "accept",
+          "optional": true,
+          "say": "กดปุ่ม \"ลบ\" ที่แถวของเอกสาร แล้วกดตกลงในหน้าต่างยืนยัน",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "text": "ลบเอกสารแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "tab",
+            "name": "หมวดเอกสาร"
+          },
+          "wait_after": {
+            "id": "cat-new"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "first": true,
+            "within": {
+              "css": "li.hub-cat:has(input[value*='หมวดทดสอบ'])"
+            }
+          },
+          "dialog": "accept",
+          "optional": true,
+          "say": "กดปุ่ม \"ลบ\" ที่แถวของหมวดทดสอบ แล้วกดตกลงในหน้าต่างยืนยัน",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "text": "ลบหมวดแล้ว"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "tab",
+            "name": "ข้อมูลหน้า"
+          },
+          "wait_after": {
+            "id": "hub-settings"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "สถานะ",
+            "within": {
+              "id": "hub-settings"
+            }
+          },
+          "label": "ฉบับร่าง",
+          "say": "เลือก \"ฉบับร่าง\" ในช่อง \"สถานะ\" แล้วกด \"บันทึกข้อมูลหน้า\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกข้อมูลหน้า",
+            "exact": true
+          },
+          "expect_response": {
+            "url_contains": "/api/cms/hubs/",
+            "method": "PUT",
+            "status": 200
+          },
+          "wait_after": {
+            "text": "บันทึกข้อมูลหน้าแล้ว"
+          }
+        }
+      ],
+      "expected": "หน้ากลุ่มกลับเป็นฉบับร่าง ผู้เข้าชมเปิดไม่ได้",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเปิดหน้ากลุ่มทดสอบไม่ได้",
+          "as": "anonymous",
+          "start": "/portal/groups",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "http_status": 404,
+                "url": "/portal/groups/{{slug}}",
+                "anonymous": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open-other-content-lists",
+      "title": "เปิดรายการเนื้อหาประเภทอื่น (รับสมัครงาน จัดซื้อจัดจ้าง วิดีโอ จดหมายข่าว แบนเนอร์ ลิงก์และบริการ)",
+      "role": "editor",
+      "start": "/cms",
+      "intro": "เนื้อหาทุกประเภทใช้หน้าจอรายการและแบบฟอร์มรูปแบบเดียวกับข่าว ต่างกันที่ช่องข้อมูลเฉพาะประเภท เช่น ตำแหน่งและวันสิ้นสุดของประกาศรับสมัครงาน วงเงินและขั้นตอนของประกาศจัดซื้อจัดจ้าง ลิงก์ YouTube หรือไฟล์ MP4 ของวีดิทัศน์ ฉบับที่ของจดหมายข่าว และลิงก์ปลายทางของแบนเนอร์",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ประกาศรับสมัครงาน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ประกาศรับสมัครงาน\" ในกลุ่ม \"เนื้อหาเว็บไซต์\" ปุ่ม \"เพิ่มประกาศรับสมัครงาน\" เปิดแบบฟอร์มที่มีช่อง \"ตำแหน่ง\" \"จำนวนอัตรา\" และ \"สิ้นสุดกำหนด\"",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จัดซื้อจัดจ้าง",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"จัดซื้อจัดจ้าง\" แบบฟอร์มมีช่อง \"ขั้นตอนประกาศ\" \"วิธีจัดหา\" และ \"วงเงินตามประกาศ (บาท)\"",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "วิดีโอโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"วิดีโอโรงเรียน\" แบบฟอร์มรับลิงก์ YouTube หรือ Vimeo หรือไฟล์ MP4 จากคลังสื่อ",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "จดหมายข่าว",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"จดหมายข่าว\" แบบฟอร์มมีช่อง \"ฉบับที่\" และ \"วันที่ออกจดหมายข่าว\" และแนบ PDF ได้",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "แบนเนอร์และประกาศด่วน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"แบนเนอร์และประกาศด่วน\" แบบฟอร์มมีช่อง \"ตำแหน่ง\" (แถบประกาศ ส่วนต้อนรับ แถบประกาศเพิ่มเติม ป๊อบอัพ) และช่วงเวลาแสดง",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ลิงก์และบริการ",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ลิงก์และบริการ\" ใช้จัดปุ่มบริการบนหน้าแรก แต่ละรายการมีลิงก์ปลายทางและลำดับแสดงผล",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        }
+      ],
+      "expected": "ทุกหน้ารายการเปิดได้พร้อมปุ่มเพิ่มรายการ",
+      "verify": [
+        {
+          "title": "หน้ารายการล่าสุดมีช่องค้นหาและปุ่มเพิ่มบริการ",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "id": "desk-content-search"
+                  }
+                },
+                {
+                  "visible": {
+                    "role": "button",
+                    "name": "เพิ่มบริการ",
+                    "first": true
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trash-new-content-types",
+      "title": "ย้ายเนื้อหาทดลองประเภทรับสมัครงาน จัดซื้อจัดจ้าง วิดีโอ จดหมายข่าว แบนเนอร์ และบริการลงถังขยะ",
+      "role": "editor",
+      "start": "/cms",
+      "cleanup": true,
+      "intro": "ขั้นตอนนี้ย้ายประกาศ วิดีโอ จดหมายข่าว แบนเนอร์ และบริการทดลองลงถังขยะ ถังขยะไม่มีปุ่มลบถาวร รายการเหล่านี้จึงค้างอยู่ในถังขยะ คืนเป็นฉบับร่างได้เท่านั้น",
+      "steps": [
+        {
+          "do": "goto",
+          "url": "/cms#jobs",
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{marker}} รับสมัครครูอัตราจ้างสมมติ",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{marker}} รับสมัครครูอัตราจ้างสมมติ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} รับสมัครครูอัตราจ้างสมมติ"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "status": 200,
+            "method": "POST"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} รับสมัครครูอัตราจ้างสมมติ"
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#procurement",
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{marker}} ประกาศจัดซื้อสื่อการเรียนสมมติ",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{marker}} ประกาศจัดซื้อสื่อการเรียนสมมติ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} ประกาศจัดซื้อสื่อการเรียนสมมติ"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "status": 200,
+            "method": "POST"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} ประกาศจัดซื้อสื่อการเรียนสมมติ"
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#videos",
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{marker}} วิดีโอกิจกรรมสมมติ",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{marker}} วิดีโอกิจกรรมสมมติ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} วิดีโอกิจกรรมสมมติ"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "status": 200,
+            "method": "POST"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} วิดีโอกิจกรรมสมมติ"
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#newsletters",
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{marker}} จดหมายข่าวประจำเดือนสมมติ",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{marker}} จดหมายข่าวประจำเดือนสมมติ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} จดหมายข่าวประจำเดือนสมมติ"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "status": 200,
+            "method": "POST"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} จดหมายข่าวประจำเดือนสมมติ"
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#banners",
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{marker}} ประกาศด่วนสมมติ",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{marker}} ประกาศด่วนสมมติ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} ประกาศด่วนสมมติ"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "status": 200,
+            "method": "POST"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} ประกาศด่วนสมมติ"
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#services",
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{marker}} บริการสมมติ",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{marker}} บริการสมมติ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} บริการสมมติ"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "status": 200,
+            "method": "POST"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} บริการสมมติ"
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#trash",
+          "say": "เปิดหน้า \"ถังขยะ\" รายการที่ย้ายมาอยู่ที่นี่ ไม่มีปุ่มลบถาวร",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        }
+      ],
+      "expected": "รายการทดลองทั้งหมดอยู่ในถังขยะ และหายจากเว็บไซต์",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมค้นหาแล้วไม่พบรายการทดลอง",
+          "as": "anonymous",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/portal/search?q={{marker}} รับสมัครครูอัตราจ้างสมมติ"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "พบ 0 รายการ"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/portal/search?q={{marker}} ประกาศจัดซื้อสื่อการเรียนสมมติ"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "พบ 0 รายการ"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/portal/search?q={{marker}} วิดีโอกิจกรรมสมมติ"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "พบ 0 รายการ"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/portal/search?q={{marker}} จดหมายข่าวประจำเดือนสมมติ"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "พบ 0 รายการ"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/portal/search?q={{marker}} ประกาศด่วนสมมติ"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "พบ 0 รายการ"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/portal/search?q={{marker}} บริการสมมติ"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "พบ 0 รายการ"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trash-other-content",
+      "title": "ย้ายเนื้อหาทดสอบประเภทอื่นลงถังขยะ",
+      "role": "editor",
+      "start": "/cms",
+      "cleanup": true,
+      "intro": "ขั้นตอนนี้ย้ายหน้าเนื้อหา กิจกรรม บุคลากร เอกสาร อัลบั้ม และข่าวทดสอบลงถังขยะ ถังขยะไม่มีปุ่มลบถาวร รายการเหล่านี้จึงค้างอยู่ในถังขยะ คืนเป็นฉบับร่างได้เท่านั้น",
+      "steps": [
+        {
+          "do": "goto",
+          "url": "/cms#pages",
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{marker}} หน้าทดสอบ",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{marker}} หน้าทดสอบ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} หน้าทดสอบ"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "method": "POST",
+            "status": 200
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} หน้าทดสอบ"
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#events",
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{marker}} กิจกรรมวันเปิดบ้านสมมติ",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{marker}} กิจกรรมวันเปิดบ้านสมมติ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} กิจกรรมวันเปิดบ้านสมมติ"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "method": "POST",
+            "status": 200
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} กิจกรรมวันเปิดบ้านสมมติ"
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#people",
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{marker}} ครูตัวอย่าง",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{marker}} ครูตัวอย่าง"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} ครูตัวอย่าง"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "method": "POST",
+            "status": 200
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} ครูตัวอย่าง"
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#downloads",
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{marker}} แบบฟอร์มทดสอบ",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{marker}} แบบฟอร์มทดสอบ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} แบบฟอร์มทดสอบ"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "method": "POST",
+            "status": 200
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} แบบฟอร์มทดสอบ"
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#albums",
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{marker}} อัลบั้มทดสอบ",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{marker}} อัลบั้มทดสอบ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} อัลบั้มทดสอบ"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "method": "POST",
+            "status": 200
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} อัลบั้มทดสอบ"
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#posts",
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{marker}} ประกาศสำคัญปักหมุด",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{marker}} ประกาศสำคัญปักหมุด"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} ประกาศสำคัญปักหมุด"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "method": "POST",
+            "status": 200
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} ประกาศสำคัญปักหมุด"
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#posts",
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{marker}} ข่าวตั้งเวลาล่วงหน้า",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{marker}} ข่าวตั้งเวลาล่วงหน้า"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} ข่าวตั้งเวลาล่วงหน้า"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "method": "POST",
+            "status": 200
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "article.desk-content-row",
+              "has_text": "{{marker}} ข่าวตั้งเวลาล่วงหน้า"
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#trash",
+          "say": "เปิดหน้า \"ถังขยะ\" รายการที่ย้ายมาอยู่ที่นี่",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        }
+      ],
+      "expected": "รายการทดสอบทั้งหมดอยู่ในถังขยะ",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมค้นหาแล้วไม่พบรายการทดสอบ",
+          "as": "anonymous",
+          "start": "/portal/search?q={{marker}}",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "text": "พบ 0 รายการ"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trash-and-restore",
+      "title": "ย้ายข่าวลงถังขยะ และคืนเป็นฉบับร่าง",
+      "role": "editor",
+      "start": "/cms",
+      "cleanup": true,
+      "intro": "ข่าวที่ย้ายลงถังขยะจะหายจากรายการและจากเว็บไซต์ แต่ยังคืนเป็นฉบับร่างได้ที่หน้า \"ถังขยะ\" ในกลุ่มเมนู \"ตั้งค่าเว็บไซต์\" ขั้นตอนนี้ใช้ล้างข้อมูลทดสอบด้วย ข่าวทดสอบจบลงในถังขยะ",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ข่าวทั้งหมด",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "id": "desk-content-search"
+          },
+          "say": "เลือกเมนู \"ข่าวทั้งหมด\" ที่แถบเมนูด้านซ้าย",
+          "shot": true
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{title2}}",
+          "say": "พิมพ์ส่วนหนึ่งของหัวข้อข่าวในช่อง \"ค้นหาเนื้อหา\" รายการจะกรองให้เห็นเฉพาะข่าวที่ตรงกัน",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{title2}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{title2}}"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "method": "POST",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"ย้ายถังขยะ\" ที่แถวของข่าว ไม่มีหน้าต่างถามยืนยัน",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{title2}}"
+            }
+          },
+          "crop_pad": 30
+        },
+        {
+          "do": "goto",
+          "url": "/cms#trash",
+          "say": "เปิดหน้า \"ถังขยะ\" (เมนู \"ตั้งค่าเว็บไซต์\" > \"ถังขยะ\")",
+          "shot": true,
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{title2}}",
+          "say": "พิมพ์ส่วนหนึ่งของหัวข้อข่าวในช่อง \"ค้นหาเนื้อหา\" รายการจะกรองให้เห็นเฉพาะข่าวที่ตรงกัน",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "article.desk-content-row",
+            "has_text": "{{title2}}"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "อยู่ในถังขยะ",
+              "in": {
+                "css": "article.desk-content-row",
+                "has_text": "{{title2}}"
+              }
+            },
+            {
+              "visible": {
+                "role": "button",
+                "name": "คืนเป็นร่าง",
+                "within": {
+                  "css": "article.desk-content-row",
+                  "has_text": "{{title2}}"
+                }
+              }
+            }
+          ],
+          "say": "ข่าวอยู่ในถังขยะ กดปุ่ม \"คืนเป็นร่าง\" เมื่อต้องการนำกลับมา",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "button",
+            "name": "คืนเป็นร่าง",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{title2}}"
+            }
+          },
+          "crop_pad": 30
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "คืนเป็นร่าง",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{title2}}"
+            }
+          },
+          "say": "กดปุ่ม \"คืนเป็นร่าง\"",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "button",
+            "name": "คืนเป็นร่าง",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{title2}}"
+            }
+          },
+          "crop_pad": 30
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "article.desk-content-row",
+              "has_text": "{{title2}}"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ข่าวทั้งหมด",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "id": "desk-content-search"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "id": "desk-content-search"
+          },
+          "value": "{{title2}}"
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "css": "article.desk-content-row",
+                "has_text": "{{title2}}"
+              }
+            },
+            {
+              "text": "ฉบับร่าง",
+              "in": {
+                "css": "article.desk-content-row",
+                "has_text": "{{title2}}"
+              }
+            }
+          ],
+          "say": "ข่าวกลับมาในรายการ \"ข่าวทั้งหมด\" เป็นฉบับร่าง ไม่ได้เผยแพร่ทันที",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "css": "article.desk-content-row",
+            "has_text": "{{title2}}"
+          },
+          "crop_pad": 30
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย้ายถังขยะ",
+            "within": {
+              "css": "article.desk-content-row",
+              "has_text": "{{title2}}"
+            }
+          },
+          "expect_response": {
+            "url_contains": "/action",
+            "method": "POST",
+            "status": 200
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "article.desk-content-row",
+              "has_text": "{{title2}}"
+            }
+          }
+        }
+      ],
+      "expected": "ข่าวหายจากรายการ \"ข่าวทั้งหมด\" และอยู่ในหน้า \"ถังขยะ\"",
+      "verify": [
+        {
+          "title": "ข่าวอยู่ในถังขยะและไม่อยู่ในรายการข่าว",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/cms#trash",
+              "comment": "hash route"
+            },
+            {
+              "do": "fill",
+              "target": {
+                "id": "desk-content-search"
+              },
+              "value": "{{title2}}",
+              "wait_after": {
+                "css": "article.desk-content-row",
+                "has_text": "{{title2}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "อยู่ในถังขยะ",
+                "in": {
+                  "css": "article.desk-content-row",
+                  "has_text": "{{title2}}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "ผู้เข้าชมทั่วไปไม่พบข่าว",
+          "as": "anonymous",
+          "start": "/portal/search?q={{marker}}",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "พบ 0 รายการ"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": [
+    "การปรับหน้าตาและโครงสร้างเว็บไซต์ (โลโก้และชื่อ ส่วนหัว hero สไลด์ ไว้ทุกข์และเฉลิมฉลอง favicon และโหมดสี จัดหน้าแรก ข้อมูลโรงเรียน หมวดเนื้อหา redirect อีเมล ตรวจความพร้อมระบบ ประวัติการจัดการ ข้อความติดต่อ) ทดสอบแล้วในหน่วย \"ตั้งค่าและออกแบบเว็บไซต์\" (web-site-settings)",
+    "การเล่นวิดีโอจริง (ปุ่ม \"เล่นวีดิทัศน์\" โหลดจาก YouTube หรือ Vimeo ซึ่งเป็นบริการภายนอก) การเลือกหรืออัปโหลดไฟล์ MP4 ของวิดีโอ (ไม่มีไฟล์ MP4 ตัวอย่างในชุดทดสอบ) แบนเนอร์ตำแหน่ง \"ป๊อบอัพ\" และ \"แถบประกาศเพิ่มเติม\" การตั้งช่วงเวลาแสดงแบนเนอร์ และประกาศอ้างอิงโรงเรียนอื่น (ประเภทข้อมูล \"อ้างอิงประกาศโรงเรียนจริง\") ยังไม่ได้ทดสอบ ทดสอบแบนเนอร์ตำแหน่ง \"แถบประกาศ\" และวิดีโอแบบลิงก์ภายนอกที่ยังไม่กดเล่น",
+    "การลากรูปในอัลบั้มไปวางเพื่อเรียงลำดับ (ทดสอบด้วยปุ่ม \"ขึ้น\" และ \"ลง\" แทน) ตัวเลือกรูปแบบ JPEG และ PNG คุณภาพ และจุดโฟกัสของสำเนาภาพ ยังไม่ได้ทดสอบ ทดสอบสำเนา WebP สัดส่วน 16:9",
+    "ถังขยะไม่มีปุ่มลบถาวร มีเฉพาะ \"คืนเป็นร่าง\" รายการทดสอบที่ลงถังขยะจึงค้างอยู่ในถังขยะ เอกสารแนบ (sample.pdf) ที่อัปโหลดกับประกาศจัดซื้อจัดจ้างและจดหมายข่าวทดสอบลบไม่ได้ เพราะรายการในถังขยะยังอ้างถึงไฟล์ ระบบไม่มีปุ่มลบหน้ากลุ่มงาน หน้ากลุ่มทดสอบค้างอยู่เป็นฉบับร่าง และข้อความติดต่อทดสอบลบไม่ได้ (ดูโมดูลเว็บไซต์สาธารณะ)",
+    "การเผยแพร่ข้อมูลไปยังหน้าบ้านแยกเครื่อง (แบบสองฝั่ง) ไม่ได้ตรวจ การติดตั้งนี้เป็นแบบรวม"
+  ],
+  "coverage": "partial",
+  "coverage_note": "ครอบคลุมงานข่าวครบวงจร เนื้อหาทุกประเภท (หน้าเนื้อหา รับสมัครงาน จัดซื้อจัดจ้าง อัลบั้ม เอกสาร วิดีโอ จดหมายข่าว บุคลากร กิจกรรม แบนเนอร์ ลิงก์และบริการ) การปักหมุด การแนบเอกสาร การเลือกรูปจากคลัง การตั้งเวลาเผยแพร่ การเปรียบเทียบและคืนเวอร์ชัน ธีมและเมนู คลังสื่อ (อัปโหลด แก้ ปรับขนาดภาพ ลบ) การเรียงรูปในอัลบั้ม หน้ากลุ่มงาน และถังขยะ ส่วนที่ไม่ได้ทดสอบมีเหตุผลในรายการ \"ยังไม่ได้ตรวจ\" การตั้งค่าและออกแบบเว็บไซต์อยู่ในหน่วยตั้งค่าและออกแบบเว็บไซต์"
+}

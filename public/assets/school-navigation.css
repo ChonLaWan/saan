@@ -1,2 +1,81 @@
-:root{--school-nav-width:276px}.school-layout .workspace,.school-layout .cms-shell{margin-left:var(--school-nav-width)}.school-layout .account-shell{max-width:none;width:calc(100% - var(--school-nav-width));margin:0 0 0 var(--school-nav-width)}.school-nav{position:fixed;inset:0 auto 0 0;width:var(--school-nav-width);height:100dvh;display:flex;flex-direction:column;background:linear-gradient(155deg,#163c32,#204b3d);color:#eef3df;z-index:50;border-right:1px solid #345649;font:13px/1.7 var(--body);box-shadow:5px 0 30px #173c3008}.school-nav svg,.school-menu-toggle svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}.school-nav-brand{padding:27px 23px 18px;border-bottom:1px solid #55756566;flex-shrink:0}.school-nav-brand>a{font:600 19px/1.3 var(--display);color:#e5ecb0;text-decoration:none;letter-spacing:.4px}.school-nav-school{display:flex;gap:12px;align-items:center;margin-top:25px}.school-nav-school>span{width:40px;height:43px;flex-shrink:0;border:1px solid #6b8a7566;border-radius:9px;display:grid;place-items:center;color:#dbe9a3;font-size:19px}.school-nav-school>div{min-width:0}.school-nav-school strong{display:block;font-size:13px;font-weight:600;overflow-wrap:anywhere}.school-nav-school small{font-size:10px;color:#b6cdbd}.school-nav-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:12px 12px 18px;scrollbar-width:thin;scrollbar-color:#73937a transparent;display:block}.school-nav-group{border:0;margin:0 0 10px;padding:0;background:none}.school-nav-group h2,.school-nav-group>summary{font:400 10px/1.7 var(--body);color:#b5cbb7;padding:15px 12px 9px;margin:0;letter-spacing:.2px}.school-nav-group>summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;border-radius:7px}.school-nav-group>summary::-webkit-details-marker{display:none}.school-nav-group>summary:after{content:'+';font-size:17px;order:1}.school-nav-group[open]>summary:after{content:'−'}.school-nav-group>summary span{margin-left:auto;font-size:9px;color:#dce6c5}.school-nav-link{display:flex;gap:12px;align-items:center;padding:11px 13px;margin:3px 0;border-radius:9px;text-decoration:none;color:#c4d7c7;font-size:12px;min-height:43px;transition:background .14s,color .14s}.school-nav-link>span{min-width:0;overflow-wrap:anywhere}.school-nav-link svg{width:19px;height:19px}.school-nav-link>small{margin-left:auto;color:#b7cbac;font-size:8px;border:1px solid #8ba37c66;border-radius:4px;padding:0 4px;flex-shrink:0}.school-nav-link:hover{background:#ffffff0c;color:#f3f7e7}.school-nav-link[aria-current=page]{background:#dce9a2;color:#153c32;font-weight:600}.school-nav-link[aria-current=page]>small{color:#31573b;border-color:#73935a}.school-nav :focus-visible{outline:2px solid #f2d7af;outline-offset:-2px}.school-nav-footer{padding:13px 23px 16px;background:#14372dcc;border-top:1px solid #55756566;flex-shrink:0}.school-nav-footer>p{font-size:10px;color:#d4e1b6;margin:0 0 10px;display:flex;align-items:center;gap:8px}.school-nav-footer i{width:6px;height:6px;background:#dce9a2;border-radius:50%}.school-nav-footer>div{display:flex;justify-content:space-between;gap:12px;align-items:center}.school-nav-footer a{font-size:10px;color:#c4d7c7;text-decoration:none;overflow-wrap:anywhere}.school-nav-footer form{margin:0}.school-nav-footer button{border:0;padding:4px;background:none;color:#dce6c5;display:grid;place-items:center}.school-nav-footer button svg{width:18px;height:18px}.school-menu-toggle,.school-menu-close{display:none}.school-nav-overlay[hidden]{display:none!important}body.school-nav-open{overflow:hidden!important}.school-nav-overlay{position:fixed;inset:0;background:#112d2380;backdrop-filter:blur(3px);z-index:49}.school-layout .cms-heading h1{overflow-wrap:anywhere}@media(max-width:1024px){.school-layout .workspace,.school-layout .cms-shell{margin-left:0}.school-layout .account-shell{width:100%;margin:0}.school-nav{transform:translateX(-100%);width:min(310px,calc(100vw - 38px));transition:transform .2s ease;box-shadow:15px 0 50px #0b261c44}.school-nav-open .school-nav{transform:none}.school-menu-toggle{position:fixed;top:12px;left:14px;z-index:40;display:grid;place-items:center;width:36px;height:36px;padding:7px;border:1px solid #afbea4;border-radius:8px;background:#fffef1e8;color:#244b36;backdrop-filter:blur(14px)}.school-menu-close{display:grid;place-items:center;position:absolute;top:18px;right:17px;padding:4px;background:transparent;border:0;color:#dce9bc}.school-menu-close svg{width:20px;height:20px}.school-layout .cms-top{padding-left:62px;min-height:60px}.school-layout .topbar{padding-left:62px;flex-wrap:wrap;gap:12px;min-height:60px}.school-layout .account-top{padding-left:56px}.school-layout .cms-shell main{padding-top:26px}.school-layout .cms-top>div:first-child{min-width:0;max-width:45%;overflow-wrap:anywhere}.school-layout .top-actions{flex-wrap:wrap}.school-layout .account-top nav{gap:12px}}@media(prefers-reduced-motion:reduce){.school-nav,.school-nav-link{transition:none}}@media print{.school-nav,.school-menu-toggle,.school-nav-overlay{display:none!important}.school-layout .workspace,.school-layout .cms-shell,.school-layout .account-shell{margin:0;width:100%}.school-layout .account-top{display:none}}
-.school-nav-footer{display:block;margin:0;width:100%;max-width:none;text-align:left}
+/* Staff navigation: geometry and behaviour only. Colours, glass and the scene live in saan-glass.css.
+   Desktop (>= 1025px): fixed sidebar. Tablet (768-1024px): icon rail that opens as a labelled panel. Phone (< 768px): drawer. */
+/* set on the body: thai-compact.css still declares its own value on :root */
+.school-layout{--school-nav-width:264px;--school-nav-rail:72px}
+.school-layout .workspace,.school-layout .cms-shell{margin-left:var(--school-nav-width)}
+.school-layout .account-shell{max-width:none;width:calc(100% - var(--school-nav-width));margin:0 0 0 var(--school-nav-width)}
+.school-nav{position:fixed;inset:0 auto 0 0;width:var(--school-nav-width);height:100dvh;display:flex;flex-direction:column;z-index:50;font:14px/1.6 var(--body)}
+.school-nav-brand{padding:18px 18px 12px;flex-shrink:0;position:relative}
+.school-nav-brand>a{display:inline-flex}
+.school-nav-school{display:flex;gap:12px;align-items:center;margin-top:14px}
+.school-nav-school>span{width:40px;height:40px;flex:0 0 40px;display:grid;place-items:center;font-size:19px;font-weight:600}
+.school-nav-school>div{min-width:0}
+.school-nav-school strong{display:block;font-size:14px;font-weight:600;line-height:1.4;overflow-wrap:anywhere}
+.school-nav-school small{font-size:13px}
+.school-nav-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:4px 10px 14px;scrollbar-width:thin;display:block}
+.school-nav-group{border:0;margin:0 0 6px;padding:0;background:none}
+.school-nav-group h2,.school-nav-group>summary{font:600 13px/1.5 var(--body);padding:12px 10px 6px;margin:0}
+.school-nav-group>summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px;border-radius:10px;min-height:40px}
+.school-nav-group>summary::-webkit-details-marker{display:none}
+.school-nav-group>summary:after{content:'+';font-size:18px;order:1;line-height:1}
+.school-nav-group[open]>summary:after{content:'\2212'}
+.school-nav-group>summary span{margin-left:auto;font-size:13px;font-weight:400}
+.school-nav-link{display:flex;gap:12px;align-items:center;padding:7px 10px;margin:2px 0;border-radius:12px;text-decoration:none;font-size:14px;line-height:1.45;min-height:40px;position:relative}
+.school-nav-link>span{min-width:0;overflow-wrap:anywhere}
+.school-nav-link>small{margin-left:auto;font-size:13px;border-radius:999px;padding:0 8px;flex-shrink:0}
+.school-nav-footer{padding:10px 14px 12px;flex-shrink:0;display:block;margin:0;width:100%;max-width:none;text-align:left}
+.school-nav-footer>p{font-size:13px;margin:0 0 6px;display:flex;align-items:center;gap:8px}
+.school-nav-footer i{width:8px;height:8px;border-radius:50%;flex:none}
+.school-nav-footer>div{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.school-nav-footer a{font-size:14px;text-decoration:none;overflow-wrap:anywhere;min-height:44px;display:inline-flex;align-items:center}
+.school-nav-footer form{margin:0}
+.school-nav-footer button{width:44px;height:44px;padding:0;display:grid;place-items:center}
+.school-menu-toggle,.school-menu-close{display:none}
+.school-nav-overlay[hidden]{display:none!important}
+.school-nav-overlay{position:fixed;inset:0;z-index:49}
+body.school-nav-open{overflow:hidden!important}
+.school-layout .cms-heading h1{overflow-wrap:anywhere}
+
+/* tablet: icon rail, opens as a labelled panel over the page */
+@media(min-width:768px) and (max-width:1024px){
+  .school-layout{--school-nav-width:var(--school-nav-rail)}
+  .school-nav{transition:width .2s ease}
+  .school-nav-brand{padding:70px 0 8px;display:flex;flex-direction:column;align-items:center}
+  .school-nav-brand .saan-brand,.school-nav-school>div,.school-nav-group h2,.school-nav-group>summary,.school-nav-link>span,.school-nav-link>small,.school-nav-footer>p,.school-nav-footer>div>a{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  .school-nav-school{margin-top:0}
+  .school-nav-group>div{display:block}
+  .school-nav-group+.school-nav-group{border-top:1px solid var(--sg-border,#c8d2c7);margin-top:6px;padding-top:6px}
+  .school-nav-scroll{padding:4px 12px 14px}
+  .school-nav-link{justify-content:center;padding:0;min-height:44px}
+  .school-nav-footer>div{justify-content:center}
+  .school-menu-toggle{position:fixed;top:14px;left:14px;z-index:60;display:grid;place-items:center;width:44px;height:44px;padding:0}
+  .school-menu-close{display:none}
+  .school-nav-open .school-nav{width:min(310px,calc(100vw - 38px))}
+  .school-nav-open .school-nav-brand{padding:70px 18px 12px;display:block}
+  .school-nav-open .school-nav-brand .saan-brand,.school-nav-open .school-nav-school>div,.school-nav-open .school-nav-group h2,.school-nav-open .school-nav-group>summary,.school-nav-open .school-nav-link>span,.school-nav-open .school-nav-link>small,.school-nav-open .school-nav-footer>p,.school-nav-open .school-nav-footer>div>a{position:static;width:auto;height:auto;overflow:visible;clip-path:none;white-space:normal}
+  .school-nav-open .school-nav-link{justify-content:flex-start;padding:7px 10px}
+  .school-nav-open .school-nav-footer>div{justify-content:space-between}
+  .school-nav-open .school-nav-group+.school-nav-group{border-top:0;margin-top:0;padding-top:0}
+  .school-layout .cms-top,.school-layout .topbar{padding-left:20px;min-height:60px}
+  .school-layout .account-top{padding-left:20px}
+}
+/* phone: drawer */
+@media(max-width:767px){
+  .school-layout .workspace,.school-layout .cms-shell{margin-left:0}
+  .school-layout .account-shell{width:100%;margin:0}
+  .school-nav{transform:translateX(-100%);width:min(320px,calc(100vw - 40px));transition:transform .2s ease;padding-bottom:env(safe-area-inset-bottom)}
+  .school-nav-open .school-nav{transform:none}
+  .school-menu-toggle{position:fixed;top:max(10px,env(safe-area-inset-top));left:max(12px,env(safe-area-inset-left));z-index:40;display:grid;place-items:center;width:44px;height:44px;padding:0}
+  .school-menu-close{display:grid;place-items:center;position:absolute;top:14px;right:14px;width:44px;height:44px;padding:0}
+  .school-nav-link{min-height:44px}
+  .school-layout .cms-top{padding-left:68px;min-height:60px}
+  .school-layout .topbar{padding-left:68px;flex-wrap:wrap;gap:12px;min-height:60px}
+  .school-layout .account-top{padding-left:68px}
+  .school-layout .cms-shell main{padding-top:26px}
+  .school-layout .cms-top>div:first-child{min-width:0;overflow-wrap:anywhere}
+  .school-layout .top-actions{flex-wrap:wrap}
+  .school-layout .account-top nav{gap:12px}
+}
+/* the toggle also shows between 768 and 1024 (rail) */
+@media(prefers-reduced-motion:reduce){.school-nav,.school-nav-link{transition:none}}
+@media print{.school-nav,.school-menu-toggle,.school-nav-overlay{display:none!important}.school-layout .workspace,.school-layout .cms-shell,.school-layout .account-shell{margin:0;width:100%}.school-layout .account-top{display:none}}

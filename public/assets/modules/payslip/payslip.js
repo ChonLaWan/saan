@@ -18,7 +18,7 @@
     const idem = () => (window.crypto?.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2));
     const field = (label, control) => `<label class="psl-field"><span>${esc(label)}</span>${control}</label>`;
     const STATUS = {draft: 'ฉบับร่าง', published: 'เผยแพร่แล้ว', cancelled: 'ยกเลิก', active: 'ใช้งาน', voided: 'ยกเลิกแล้ว', issued: 'ออกแล้ว', stale: 'ต้องออกใหม่', missing: 'ยังไม่ออก', pdf_partial: 'มีงวดไฟล์ PDF', unreadable: 'ถอดรหัสสลิปไม่ได้'};
-    const REASON = {unmatched: 'ไม่พบผู้รับเงิน', duplicate_in_file: 'รหัสซ้ำในไฟล์', duplicate_existing: 'มีสลิปในงวดนี้แล้ว', invalid: 'จำนวนเงินไม่ถูกต้อง', mismatch: 'ยอดสุทธิไม่เท่ากับรายรับลบรายการหัก'};
+    const REASON = {unmatched: 'ไม่พบผู้รับเงิน', duplicate_in_file: 'รหัสซ้ำในไฟล์', duplicate_existing: 'มีสลิปในงวดนี้แล้ว', own_payee: 'เป็นผู้รับเงินของบัญชีที่ล็อกอินอยู่ ทำสลิปของตนเองไม่ได้ ให้เจ้าหน้าที่อีกคนนำเข้า', invalid: 'จำนวนเงินไม่ถูกต้อง', mismatch: 'ยอดสุทธิไม่เท่ากับรายรับลบรายการหัก'};
     const badge = st => `<span class="psl-badge ${esc(st)}">${esc(STATUS[st] || st)}</span>`;
     const year = y => Number(y) + 543;
 

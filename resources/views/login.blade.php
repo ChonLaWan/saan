@@ -1,6 +1,6 @@
 <!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>เข้าสู่ระบบ — {{ config('saan.display') }}</title><link rel="stylesheet" href="{{ \App\Support\WebsiteView::asset('assets/atelier.css') }}"><link rel="stylesheet" href="{{ \App\Support\WebsiteView::asset('assets/accounts.css') }}"><x-appearance-assets/></head>
 <body class="login-body"><main class="login-sheet glass account-login">
-<x-saan-brand /><p class="eyebrow">{{ config('saan.tagline') }}</p><h1>เรื่องราวของโรงเรียน<br>เริ่มที่นี่</h1><p>เข้าสู่ระบบเพื่อเขียนข่าวและดูแลเว็บไซต์ของโรงเรียน</p>
+<x-login-identity /><p class="eyebrow">{{ config('saan.tagline') }}</p><h1>เรื่องราวของโรงเรียน<br>เริ่มที่นี่</h1><p>เข้าสู่ระบบเพื่อเขียนข่าวและดูแลเว็บไซต์ของโรงเรียน</p>
 @if(session('status'))<div class="account-alert" role="status">{{ session('status') }}</div>@endif
 @if($errors->any())<div class="account-alert error" role="alert">{{ $errors->first() }}</div>@endif
 <form method="post" action="{{ url('/login') }}" class="account-form">@csrf

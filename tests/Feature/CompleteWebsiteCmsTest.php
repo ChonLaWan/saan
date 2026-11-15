@@ -62,6 +62,15 @@ class CompleteWebsiteCmsTest extends TestCase
         $p=$this->add('job',['metadata'=>$meta]);$this->get('/portal/jobs/'.$p['slug'])->assertSee('ตัวอย่างอ้างอิงจากโรงเรียนจริง')->assertSee('โรงเรียนต้นทาง')->assertSee('พ้นกำหนด')->assertSee('https://example.edu/notice');
         unset($meta['source_url']);$this->postJson('/api/site/content',$this->payload('job',['metadata'=>$meta]))->assertUnprocessable();
     }
+    public function test_the_reference_filter_and_its_explanation_appear_only_when_a_published_reference_notice_exists(): void
+    {
+        $this->add('job');
+        $this->get('/portal/jobs')->assertOk()->assertDontSee('อ้างอิงโรงเรียนจริง')->assertDontSee('reference-explainer',false);
+        $this->get('/portal/procurement')->assertOk()->assertDontSee('อ้างอิงโรงเรียนจริง');
+        $this->add('job',['metadata'=>['body_format'=>'html','source_kind'=>'reference','source_school'=>'โรงเรียนต้นทาง','source_url'=>'https://example.edu/notice','source_date'=>'2026-10-01','checked_on'=>'2026-11-05','deadline'=>'2026-10-25']]);
+        $this->get('/portal/jobs')->assertOk()->assertSee('<option value="reference"',false)->assertSee('reference-explainer',false);
+        $this->get('/portal/procurement')->assertOk()->assertDontSee('<option value="reference"',false);
+    }
     public function test_scheduled_updates_do_not_publish_early_and_command_is_idempotent(): void
     {
         $this->travelTo(\Carbon\CarbonImmutable::parse('2026-11-05T04:00:00Z'));$p=$this->add('page');

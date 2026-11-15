@@ -1,0 +1,4229 @@
+{
+ "module": "documents",
+ "title": "สารบรรณและทะเบียนหนังสือ",
+ "area": "งานบุคลากรและงานธุรการ",
+ "purpose": "เจ้าหน้าที่สารบรรณลงทะเบียนหนังสือรับ หนังสือส่ง คำสั่ง ประกาศ และบันทึกข้อความ ระบบออกเลขทะเบียนให้อัตโนมัติ รันต่อเนื่องในแต่ละเล่มของแต่ละปี พ.ศ. แนบไฟล์หนังสือที่สแกนไว้แบบส่วนตัว ส่งต่อให้บุคลากรรับทราบ และพิมพ์ทะเบียนรายเดือน บุคลากรเปิดดูและกดรับทราบหนังสือที่ส่งถึงตนเองได้ที่เมนู \"หนังสือเข้าถึงฉัน\" ผู้อำนวยการใช้การส่งต่อและหมายเหตุตอนรับทราบเพื่อสั่งการ",
+ "roles": [
+  "เจ้าหน้าที่สารบรรณ (ลงทะเบียน แนบไฟล์ ส่งต่อ ยกเลิก และพิมพ์ทะเบียน)",
+  "ผู้อำนวยการและผู้ดูแลระบบ (ทำได้ทุกอย่างของเจ้าหน้าที่สารบรรณ และจัดการหนังสือลับ ผู้ดูแลระบบกำหนดเจ้าหน้าที่สารบรรณ)",
+  "ครูและบรรณาธิการเว็บไซต์ (เปิดดูและรับทราบหนังสือที่ส่งถึงตนเอง)"
+ ],
+ "menu": [
+  "เมนูด้านซ้าย \"งานโรงเรียน\" > \"หนังสือเข้าถึงฉัน\" (/work#inbox) สำหรับผู้ดูแลระบบ ผู้อำนวยการ ครู และบรรณาธิการ",
+  "เมนูด้านซ้าย \"งานโรงเรียน\" > \"ทะเบียนหนังสือ\" (/work#documents) สำหรับผู้ดูแลระบบ ผู้อำนวยการ และครู (ใช้งานได้เฉพาะผู้ได้รับสิทธิ์)"
+ ],
+ "prerequisites": [
+  {
+   "module": "admin-users",
+   "text": "ผู้ดูแลระบบต้องสร้างบัญชีบุคลากรก่อน และกำหนดบัญชีเจ้าหน้าที่สารบรรณในหน้า \"ตั้งค่าเจ้าหน้าที่\" (ในหน้าทะเบียนหนังสือ) บัญชีที่ไม่ได้รับสิทธิ์ลงทะเบียนหนังสือไม่ได้"
+  }
+ ],
+ "vars": {},
+ "workflows": [
+  {
+   "id": "register-incoming",
+   "title": "ลงทะเบียนหนังสือรับ",
+   "intro": "เจ้าหน้าที่สารบรรณลงทะเบียนหนังสือที่หน่วยงานภายนอกส่งมาถึงโรงเรียน ระบบออกเลขทะเบียนให้อัตโนมัติ รันต่อกันในเล่มของประเภทนั้นและปี พ.ศ. ปัจจุบัน และบันทึกวันที่รับเป็นวันนี้ ผู้ที่ลงทะเบียนได้คือผู้ดูแลระบบ ผู้อำนวยการ และบัญชีที่ผู้ดูแลระบบกำหนดเป็นเจ้าหน้าที่สารบรรณ ครูทั่วไปที่ไม่ได้รับสิทธิ์จะเห็นเพียงข้อความแจ้งว่าไม่มีสิทธิ์",
+   "role": "clerk",
+   "start": "/work",
+   "core": true,
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "say": "เลือกเมนู \"ทะเบียนหนังสือ\" ที่แถบเมนูด้านซ้าย ระบบแสดงรายการหนังสือของปีปัจจุบัน",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "note",
+     "say": "ปุ่ม \"ลงทะเบียนหนังสือ\" อยู่ที่มุมขวาบนของหน้า",
+     "shot": true,
+     "crop": "tight",
+     "highlight": {
+      "role": "link",
+      "name": "ลงทะเบียนหนังสือ",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ลงทะเบียนหนังสือ",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=create]"
+     },
+     "say": "กดปุ่ม \"ลงทะเบียนหนังสือ\" ระบบแสดงแบบฟอร์มลงทะเบียน",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "form[data-form=create]"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ประเภททะเบียน",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "label": "หนังสือรับ",
+     "say": "ในช่อง \"ประเภททะเบียน\" เลือก \"หนังสือรับ\" เลขทะเบียนรันแยกกันตามประเภทและปี พ.ศ.",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "ประเภททะเบียน"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เรื่อง",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "value": "{{marker}} หนังสือรับ",
+     "say": "พิมพ์หัวเรื่องของหนังสือในช่อง \"เรื่อง\" ช่องนี้ต้องกรอก",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "เรื่อง",
+      "exact": true
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ที่ (เลขที่หนังสือของผู้ส่ง)",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "value": "ศธ 99999/ว901",
+     "say": "พิมพ์เลขที่หนังสือของหน่วยงานผู้ส่งในช่อง \"ที่ (เลขที่หนังสือของผู้ส่ง)\"",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "ที่ (เลขที่หนังสือของผู้ส่ง)"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จาก (หนังสือรับ)",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "value": "สำนักงานเขตพื้นที่การศึกษาสมมติ เขต 9",
+     "say": "พิมพ์ชื่อหน่วยงานที่ส่งหนังสือมาในช่อง \"จาก (หนังสือรับ)\" หนังสือรับต้องกรอกช่องนี้",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "จาก (หนังสือรับ)"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ความเร่งด่วน",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "label": "ด่วน",
+     "say": "ในช่อง \"ความเร่งด่วน\" เลือก \"ด่วน\" ถ้าหนังสือระบุว่าเป็นเรื่องด่วน (ค่าเริ่มต้นคือ \"ปกติ\")",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "ความเร่งด่วน"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "สาระสำคัญ",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "value": "แจ้งกำหนดการประชุมครู {{marker}}",
+     "say": "พิมพ์ข้อความสรุปเนื้อหาในช่อง \"สาระสำคัญ\" ถ้าต้องการ",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "สาระสำคัญ"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกและออกเลขทะเบียน",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ไฟล์แนบ",
+      "exact": true
+     },
+     "crop_pad": 230,
+     "say": "กดปุ่ม \"บันทึกและออกเลขทะเบียน\" ระบบออกเลขทะเบียนต่อจากฉบับก่อนในเล่มหนังสือรับของปี พ.ศ. นี้ และแสดงหน้ารายละเอียดของหนังสือ",
+     "shot": true,
+     "crop": {
+      "css": "section.doc h1"
+     },
+     "highlight": {
+      "css": "section.doc h1"
+     }
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "text": "{{marker}} หนังสือรับ",
+       "in": {
+        "css": "section.doc h1"
+       }
+      },
+      {
+       "text": "หนังสือรับ",
+       "in": {
+        "css": "dl.doc-facts"
+       }
+      },
+      {
+       "text": "สำนักงานเขตพื้นที่การศึกษาสมมติ เขต 9",
+       "in": {
+        "css": "dl.doc-facts"
+       }
+      }
+     ]
+    }
+   ],
+   "expected": "ระบบแสดงหน้ารายละเอียดของหนังสือ พร้อมเลขทะเบียนในรูปแบบ เลขที่/ปี พ.ศ. ประเภท \"หนังสือรับ\" และสถานะ \"ลงทะเบียนแล้ว\"",
+   "verify": [
+    {
+     "title": "ผู้อำนวยการเปิดทะเบียนหนังสือแล้วต้องเห็นหนังสือที่ลงทะเบียน",
+     "as": "principal",
+     "start": "/work",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ทะเบียนหนังสือ",
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        },
+        "exact": true
+       },
+       "wait_after": {
+        "role": "heading",
+        "name": "ทะเบียนหนังสือ",
+        "exact": true
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form[data-form=filter]"
+        }
+       },
+       "value": "{{marker}} หนังสือรับ",
+       "say": "ผู้อำนวยการเลือกเมนู \"ทะเบียนหนังสือ\" แล้วพิมพ์เรื่องในช่อง \"ค้นหา\" ระบบแสดงหนังสือฉบับนี้ในรายการ พร้อมป้าย \"ด่วน\" และสถานะ \"ลงทะเบียนแล้ว\"",
+       "shot": true,
+       "crop": "panel",
+       "highlight": {
+        "css": "form[data-form=filter]"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "count": 1,
+        "of": {
+         "css": "table.doc-table tbody tr",
+         "has_text": "{{marker}} หนังสือรับ"
+        }
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "ด่วน",
+         "in": {
+          "css": "table.doc-table tbody tr",
+          "has_text": "{{marker}} หนังสือรับ"
+         }
+        },
+        {
+         "text": "ลงทะเบียนแล้ว",
+         "in": {
+          "css": "table.doc-table tbody tr",
+          "has_text": "{{marker}} หนังสือรับ"
+         }
+        }
+       ],
+       "say": "แถวของหนังสือในทะเบียน แสดงเลขทะเบียน วันที่ เรื่อง ผู้ส่ง และสถานะ",
+       "shot": true,
+       "crop": "tight",
+       "highlight": {
+        "css": "table.doc-table tbody tr",
+        "has_text": "{{marker}} หนังสือรับ"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "register-outgoing",
+   "title": "ลงทะเบียนหนังสือส่ง",
+   "intro": "ใช้ลงทะเบียนหนังสือที่โรงเรียนส่งออกไปยังหน่วยงานอื่น หนังสือส่งต้องระบุหน่วยงานปลายทางในช่อง \"ถึง (หนังสือส่ง)\" เลขทะเบียนรันแยกจากเล่มหนังสือรับ",
+   "role": "clerk",
+   "start": "/work",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "say": "เลือกเมนู \"ทะเบียนหนังสือ\" ที่แถบเมนูด้านซ้าย ระบบแสดงรายการหนังสือของปีปัจจุบัน",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "note",
+     "say": "ปุ่ม \"ลงทะเบียนหนังสือ\" อยู่ที่มุมขวาบนของหน้า",
+     "shot": true,
+     "crop": "tight",
+     "highlight": {
+      "role": "link",
+      "name": "ลงทะเบียนหนังสือ",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ลงทะเบียนหนังสือ",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=create]"
+     },
+     "say": "กดปุ่ม \"ลงทะเบียนหนังสือ\" ระบบแสดงแบบฟอร์มลงทะเบียน",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "form[data-form=create]"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ประเภททะเบียน",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "label": "หนังสือส่ง",
+     "say": "ในช่อง \"ประเภททะเบียน\" เลือก \"หนังสือส่ง\" เลขทะเบียนรันแยกกันตามประเภทและปี พ.ศ.",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "ประเภททะเบียน"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เรื่อง",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "value": "{{marker}} หนังสือส่ง",
+     "say": "พิมพ์หัวเรื่องของหนังสือในช่อง \"เรื่อง\" ช่องนี้ต้องกรอก",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "เรื่อง",
+      "exact": true
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ที่ (เลขที่หนังสือของผู้ส่ง)",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "value": "ที่ ตธ 099/2569",
+     "say": "พิมพ์เลขที่หนังสือของโรงเรียนในช่อง \"ที่ (เลขที่หนังสือของผู้ส่ง)\"",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "ที่ (เลขที่หนังสือของผู้ส่ง)"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ถึง (หนังสือส่ง)",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "value": "สำนักงานเขตพื้นที่การศึกษาสมมติ เขต 9",
+     "say": "พิมพ์ชื่อหน่วยงานปลายทางในช่อง \"ถึง (หนังสือส่ง)\" หนังสือส่งต้องกรอกช่องนี้",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "ถึง (หนังสือส่ง)"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกและออกเลขทะเบียน",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ไฟล์แนบ",
+      "exact": true
+     },
+     "crop_pad": 230,
+     "say": "กดปุ่ม \"บันทึกและออกเลขทะเบียน\" ระบบออกเลขทะเบียนในเล่มหนังสือส่ง และแสดงหน้ารายละเอียดของหนังสือ",
+     "shot": true,
+     "crop": {
+      "css": "section.doc h1"
+     },
+     "highlight": {
+      "css": "section.doc h1"
+     }
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "text": "หนังสือส่ง",
+       "in": {
+        "css": "dl.doc-facts"
+       }
+      },
+      {
+       "text": "สำนักงานเขตพื้นที่การศึกษาสมมติ เขต 9",
+       "in": {
+        "css": "dl.doc-facts"
+       }
+      }
+     ]
+    }
+   ],
+   "expected": "หน้ารายละเอียดแสดงเลขทะเบียนของเล่มหนังสือส่ง ประเภท \"หนังสือส่ง\" และหน่วยงานปลายทางในช่อง \"ถึง\"",
+   "verify": [
+    {
+     "title": "กรองทะเบียนเฉพาะ \"หนังสือส่ง\" แล้วต้องเห็นหนังสือที่ลงทะเบียน",
+     "start": "/work",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ทะเบียนหนังสือ",
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        },
+        "exact": true
+       },
+       "wait_after": {
+        "role": "heading",
+        "name": "ทะเบียนหนังสือ",
+        "exact": true
+       }
+      },
+      {
+       "do": "select",
+       "target": {
+        "label": "ประเภท",
+        "within": {
+         "css": "form[data-form=filter]"
+        }
+       },
+       "label": "หนังสือส่ง"
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form[data-form=filter]"
+        }
+       },
+       "value": "{{marker}} หนังสือส่ง"
+      },
+      {
+       "do": "expect",
+       "that": {
+        "count": 1,
+        "of": {
+         "css": "table.doc-table tbody tr",
+         "has_text": "{{marker}} หนังสือส่ง"
+        }
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "หนังสือส่ง",
+        "in": {
+         "css": "table.doc-table tbody tr",
+         "has_text": "{{marker}} หนังสือส่ง"
+        }
+       },
+       "say": "เปิดทะเบียนหนังสือ เลือกประเภท \"หนังสือส่ง\" แล้วค้นหา ระบบแสดงหนังสือฉบับนี้",
+       "shot": true,
+       "crop": "panel",
+       "highlight": {
+        "css": "table.doc-table tbody tr",
+        "has_text": "{{marker}} หนังสือส่ง"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "register-missing-party",
+   "title": "ลงทะเบียนหนังสือรับโดยไม่ระบุหน่วยงานผู้ส่ง",
+   "intro": "ระบบไม่ออกเลขทะเบียนให้หนังสือรับที่ไม่มีชื่อหน่วยงานผู้ส่ง และไม่ใช้เลขทะเบียนไปโดยเปล่าประโยชน์",
+   "role": "clerk",
+   "start": "/work",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "say": "เลือกเมนู \"ทะเบียนหนังสือ\" ที่แถบเมนูด้านซ้าย ระบบแสดงรายการหนังสือของปีปัจจุบัน",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ลงทะเบียนหนังสือ",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=create]"
+     },
+     "say": "กดปุ่ม \"ลงทะเบียนหนังสือ\" ที่มุมขวาบนของหน้า",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "form[data-form=create]"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เรื่อง",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "value": "{{marker}} ทดลองไม่ระบุผู้ส่ง",
+     "say": "พิมพ์เฉพาะหัวเรื่องในช่อง \"เรื่อง\" และเว้นช่อง \"จาก (หนังสือรับ)\" ไว้",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "เรื่อง",
+      "exact": true
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกและออกเลขทะเบียน",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"บันทึกและออกเลขทะเบียน\" ระบบแสดงข้อความ \"หนังสือรับต้องระบุหน่วยงานที่ส่งมา\" และยังอยู่ที่แบบฟอร์ม",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     }
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "text": "หนังสือรับต้องระบุหน่วยงานที่ส่งมา",
+       "in": {
+        "id": "toast"
+       }
+      },
+      {
+       "visible": {
+        "css": "form[data-form=create]"
+       }
+      }
+     ]
+    }
+   ],
+   "expected": "ระบบแสดงข้อความเตือนสีแดงที่ด้านล่างของหน้า และไม่เปลี่ยนไปหน้ารายละเอียด เพราะยังไม่มีการออกเลขทะเบียน",
+   "verify": [
+    {
+     "title": "หนังสือที่ไม่สมบูรณ์ต้องไม่ถูกลงทะเบียน",
+     "start": "/work",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ทะเบียนหนังสือ",
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        },
+        "exact": true
+       },
+       "wait_after": {
+        "role": "heading",
+        "name": "ทะเบียนหนังสือ",
+        "exact": true
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form[data-form=filter]"
+        }
+       },
+       "value": "ทดลองไม่ระบุผู้ส่ง"
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "visible": {
+          "css": "p.doc-empty"
+         }
+        },
+        {
+         "text": "พบ 0 รายการ",
+         "in": {
+          "css": "p.doc-count"
+         }
+        }
+       ],
+       "say": "เปิดทะเบียนหนังสือแล้วค้นหาเรื่องที่เพิ่งกรอก ระบบแสดง \"พบ 0 รายการ\" แสดงว่าไม่มีการลงทะเบียน",
+       "shot": true,
+       "crop": "panel",
+       "highlight": {
+        "css": "p.doc-count"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "search-and-attach",
+   "title": "ค้นหาหนังสือและแนบไฟล์",
+   "intro": "ค้นหาได้จากเรื่อง ชื่อหน่วยงาน เลขที่หนังสือ หรือเลขทะเบียน และกรองตามปี พ.ศ. ประเภท และสถานะ ไฟล์แนบรับเฉพาะ PDF และรูปภาพ (JPG, PNG, WebP) แต่ละหนังสือแนบได้ไม่เกิน 20 ไฟล์ ไฟล์เก็บแบบส่วนตัว ผู้ที่ไม่มีสิทธิ์ดูหนังสือโหลดไฟล์ไม่ได้ และระบบบันทึกประวัติการดาวน์โหลด",
+   "role": "clerk",
+   "start": "/work",
+   "depends_on": [
+    "register-incoming"
+   ],
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "say": "เลือกเมนู \"ทะเบียนหนังสือ\" ที่แถบเมนูด้านซ้าย ระบบแสดงรายการหนังสือของปีปัจจุบัน",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form[data-form=filter]"
+      }
+     },
+     "value": "{{marker}} หนังสือรับ",
+     "say": "พิมพ์คำที่ต้องการค้นในช่อง \"ค้นหา\" เช่นบางส่วนของเรื่อง ชื่อหน่วยงาน หรือเลขที่หนังสือ ระบบค้นให้ทันทีเมื่อหยุดพิมพ์",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "form[data-form=filter]"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "count": 1,
+      "of": {
+       "css": "table.doc-table tbody tr",
+       "has_text": "{{marker}} หนังสือรับ"
+      }
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ประเภท",
+      "within": {
+       "css": "form[data-form=filter]"
+      }
+     },
+     "label": "หนังสือรับ",
+     "say": "จำกัดผลการค้นด้วยช่อง \"ประเภท\" เช่นเลือก \"หนังสือรับ\" นอกจากนี้กรองด้วย \"ปี พ.ศ.\" และ \"สถานะ\" ได้",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "ประเภท"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "count": 1,
+      "of": {
+       "css": "table.doc-table tbody tr",
+       "has_text": "{{marker}} หนังสือรับ"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "first": true,
+      "within": {
+       "css": "table.doc-table tbody tr",
+       "has_text": "{{marker}} หนังสือรับ"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ไฟล์แนบ",
+      "exact": true
+     },
+     "say": "กดที่เลขทะเบียนในแถวของหนังสือ ระบบเปิดหน้ารายละเอียด",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "section.doc h1"
+     }
+    },
+    {
+     "do": "note",
+     "target": {
+      "label": "แนบไฟล์ PDF"
+     },
+     "say": "ใต้หัวข้อ \"ไฟล์แนบ\" ถ้ายังไม่มีไฟล์ ระบบแสดง \"ยังไม่มีไฟล์แนบ\" ช่องเลือกไฟล์อยู่ใต้ข้อความนี้",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "แนบไฟล์ PDF"
+     }
+    },
+    {
+     "do": "upload",
+     "target": {
+      "label": "แนบไฟล์ PDF",
+      "within": {
+       "css": "form[data-form=upload]"
+      },
+      "include_hidden": true
+     },
+     "file": "sample.pdf",
+     "say": "กดปุ่มเลือกไฟล์ในช่อง \"แนบไฟล์ PDF หรือรูปภาพ\" แล้วเลือกไฟล์หนังสือที่สแกนไว้",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "แนบไฟล์ PDF"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "อัปโหลด",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=upload]"
+      }
+     },
+     "wait_after": {
+      "css": "ul.doc-files"
+     },
+     "say": "กดปุ่ม \"อัปโหลด\" ระบบแสดงข้อความ \"แนบไฟล์แล้ว\" และชื่อไฟล์ปรากฏในรายการไฟล์แนบ",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "ul.doc-files"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "sample.pdf",
+      "within": {
+       "css": "ul.doc-files"
+      }
+     },
+     "expect_download": {
+      "kind": "pdf",
+      "min_bytes": 200
+     },
+     "say": "กดที่ชื่อไฟล์เพื่อดาวน์โหลดมาดูหรือพิมพ์ ระบบตรวจสิทธิ์ก่อนส่งไฟล์ให้",
+     "shot": true,
+     "crop": "tight",
+     "highlight": {
+      "css": "ul.doc-files"
+     }
+    },
+    {
+     "do": "upload",
+     "target": {
+      "label": "แนบไฟล์ PDF",
+      "within": {
+       "css": "form[data-form=upload]"
+      },
+      "include_hidden": true
+     },
+     "file": "sample.txt",
+     "say": "ถ้าเลือกไฟล์ชนิดอื่นที่ไม่ใช่ PDF หรือรูปภาพ เช่นไฟล์ข้อความ ระบบไม่รับไฟล์ ให้เลือกไฟล์ชนิดอื่นในช่องเดิม",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "แนบไฟล์ PDF"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "อัปโหลด",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=upload]"
+      }
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"อัปโหลด\" ระบบแสดงข้อความ \"รองรับเฉพาะไฟล์ PDF, JPG, PNG และ WebP\" และไม่เพิ่มไฟล์ในรายการ",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     }
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "text": "รองรับเฉพาะไฟล์ PDF",
+       "in": {
+        "id": "toast"
+       }
+      },
+      {
+       "count": 1,
+       "of": {
+        "css": "ul.doc-files li"
+       }
+      }
+     ]
+    }
+   ],
+   "expected": "ชื่อไฟล์ \"sample.pdf\" ปรากฏใต้หัวข้อ \"ไฟล์แนบ\" พร้อมขนาดไฟล์ กดชื่อไฟล์แล้วได้ไฟล์ PDF และไฟล์ชนิดอื่นถูกปฏิเสธ",
+   "verify": [
+    {
+     "title": "เปิดหนังสือฉบับเดิมใหม่ ไฟล์แนบต้องยังอยู่",
+     "start": "/work",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ทะเบียนหนังสือ",
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        },
+        "exact": true
+       },
+       "wait_after": {
+        "role": "heading",
+        "name": "ทะเบียนหนังสือ",
+        "exact": true
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form[data-form=filter]"
+        }
+       },
+       "value": "{{marker}} หนังสือรับ"
+      },
+      {
+       "do": "expect",
+       "that": {
+        "count": 1,
+        "of": {
+         "css": "table.doc-table tbody tr",
+         "has_text": "{{marker}} หนังสือรับ"
+        }
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "first": true,
+        "within": {
+         "css": "table.doc-table tbody tr",
+         "has_text": "{{marker}} หนังสือรับ"
+        }
+       },
+       "wait_after": {
+        "role": "heading",
+        "name": "ไฟล์แนบ",
+        "exact": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "visible": {
+         "role": "link",
+         "name": "sample.pdf",
+         "within": {
+          "css": "ul.doc-files"
+         }
+        }
+       },
+       "say": "เปิดหนังสือฉบับเดิมอีกครั้ง ไฟล์แนบยังอยู่ในรายการ",
+       "shot": true,
+       "crop": "panel",
+       "highlight": {
+        "css": "ul.doc-files"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "route-to-staff",
+   "title": "ส่งต่อหนังสือให้บุคลากรรับทราบ",
+   "intro": "เจ้าหน้าที่สารบรรณเลือกบุคลากรที่ต้องรับทราบหนังสือ ระบบเพิ่มหนังสือเข้ากล่อง \"หนังสือเข้าถึงฉัน\" ของผู้รับ และเปลี่ยนสถานะเป็น \"ส่งต่อแล้ว\" ส่งซ้ำให้คนเดิมไม่ได้ ถ้าเลือกผู้รับผิดคน ถอนการส่งต่อได้ก่อนที่ผู้รับจะกดรับทราบ ระบบไม่ส่งอีเมลหรือการแจ้งเตือนอื่น ผู้รับเห็นเมื่อเปิดเมนู \"หนังสือเข้าถึงฉัน\"",
+   "role": "clerk",
+   "start": "/work",
+   "depends_on": [
+    "register-incoming"
+   ],
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "say": "เลือกเมนู \"ทะเบียนหนังสือ\" ที่แถบเมนูด้านซ้าย ระบบแสดงรายการหนังสือของปีปัจจุบัน",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form[data-form=filter]"
+      }
+     },
+     "value": "{{marker}} หนังสือรับ",
+     "say": "พิมพ์เรื่องของหนังสือในช่อง \"ค้นหา\" เพื่อหาหนังสือที่จะส่งต่อ",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "form[data-form=filter]"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "count": 1,
+      "of": {
+       "css": "table.doc-table tbody tr",
+       "has_text": "{{marker}} หนังสือรับ"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "first": true,
+      "within": {
+       "css": "table.doc-table tbody tr",
+       "has_text": "{{marker}} หนังสือรับ"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ไฟล์แนบ",
+      "exact": true
+     },
+     "say": "กดที่เลขทะเบียนของหนังสือ ระบบเปิดหน้ารายละเอียดของหนังสือ ใต้หัวข้อ \"การส่งต่อ\" มีกรอบ \"ส่งต่อให้บุคลากร\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": false
+    },
+    {
+     "do": "check",
+     "target": {
+      "label": "กันตภณ",
+      "within": {
+       "css": "form[data-form=route]"
+      }
+     },
+     "say": "ในกรอบ \"ส่งต่อให้บุคลากร\" ติ๊กชื่อผู้รับที่ต้องรับทราบ เลือกได้หลายคน",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=route]"
+     },
+     "highlight": {
+      "label": "กันตภณ",
+      "within": {
+       "css": "form[data-form=route]"
+      }
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "check",
+     "target": {
+      "label": "ชยุต",
+      "within": {
+       "css": "form[data-form=route]"
+      }
+     },
+     "say": "ติ๊กผู้รับอีกคน (ตัวอย่างนี้เลือกผิดคน เพื่อแสดงการถอนในขั้นตอนถัดไป)",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=route]"
+     },
+     "highlight": {
+      "label": "ชยุต",
+      "within": {
+       "css": "form[data-form=route]"
+      }
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หมายเหตุถึงผู้รับ",
+      "within": {
+       "css": "form[data-form=route]"
+      }
+     },
+     "value": "เพื่อทราบและเตรียมการ {{marker}}",
+     "say": "พิมพ์ข้อความถึงผู้รับในช่อง \"หมายเหตุถึงผู้รับ\" เช่นสิ่งที่ต้องทำ",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=route]"
+     },
+     "highlight": {
+      "label": "หมายเหตุถึงผู้รับ"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งต่อ",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=route]"
+      }
+     },
+     "wait_after": {
+      "css": "ul.doc-routes"
+     },
+     "say": "กดปุ่ม \"ส่งต่อ\" ระบบแสดงข้อความ \"ส่งต่อแล้ว\" รายชื่อผู้รับปรากฏใต้หัวข้อ \"การส่งต่อ\" พร้อมข้อความ \"ยังไม่เปิดอ่าน\" และสถานะหนังสือเป็น \"ส่งต่อแล้ว\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "ul.doc-routes"
+     }
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "text": "ส่งต่อแล้ว",
+       "in": {
+        "css": "dl.doc-facts"
+       }
+      },
+      {
+       "count": 2,
+       "of": {
+        "css": "ul.doc-routes li"
+       }
+      }
+     ]
+    },
+    {
+     "do": "note",
+     "say": "ถ้าเลือกผู้รับผิดคน กดปุ่ม \"ถอน\" ท้ายชื่อผู้รับได้ ตราบใดที่ผู้รับยังไม่กดรับทราบ",
+     "shot": true,
+     "crop": "tight",
+     "highlight": {
+      "role": "button",
+      "name": "ถอน",
+      "within": {
+       "css": "ul.doc-routes li",
+       "has_text": "ชยุต"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ถอน",
+      "within": {
+       "css": "ul.doc-routes li",
+       "has_text": "ชยุต"
+      }
+     },
+     "wait_after": {
+      "css": "ul.doc-routes"
+     },
+     "say": "กดปุ่ม \"ถอน\" ท้ายชื่อผู้รับที่เลือกผิด ระบบแสดงข้อความ \"ถอนการส่งต่อแล้ว\" และเหลือผู้รับ 1 คน",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "ul.doc-routes"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "count": 1,
+      "of": {
+       "css": "ul.doc-routes li"
+      }
+     }
+    }
+   ],
+   "expected": "ใต้หัวข้อ \"การส่งต่อ\" มีชื่อผู้รับ 1 คน พร้อมข้อความ \"ยังไม่เปิดอ่าน\" และสถานะหนังสือเป็น \"ส่งต่อแล้ว\"",
+   "verify": [
+    {
+     "title": "ครูผู้รับต้องเห็นหนังสือในกล่อง \"หนังสือเข้าถึงฉัน\" และผู้ที่ถูกถอนต้องไม่เห็น",
+     "as": "subject",
+     "start": "/work",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "หนังสือเข้าถึงฉัน",
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        }
+       },
+       "wait_after": {
+        "css": "li.doc-card",
+        "has_text": "{{marker}} หนังสือรับ"
+       },
+       "say": "ครูที่เป็นผู้รับเลือกเมนู \"หนังสือเข้าถึงฉัน\" ระบบแสดงหนังสือที่ส่งต่อ พร้อมข้อความจากผู้ส่งต่อ",
+       "shot": true,
+       "crop": "panel",
+       "highlight": {
+        "css": "li.doc-card",
+        "has_text": "{{marker}} หนังสือรับ"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "ยังไม่เปิดอ่าน",
+         "in": {
+          "css": "li.doc-card",
+          "has_text": "{{marker}} หนังสือรับ"
+         }
+        },
+        {
+         "text": "เพื่อทราบและเตรียมการ",
+         "in": {
+          "css": "li.doc-card",
+          "has_text": "{{marker}} หนังสือรับ"
+         }
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "title": "ครูที่ถูกถอนการส่งต่อต้องไม่เห็นหนังสือ",
+     "as": "payroll",
+     "start": "/work",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "หนังสือเข้าถึงฉัน",
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        }
+       },
+       "wait_after": {
+        "css": "section.doc"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "count": 0,
+        "of": {
+         "css": "li.doc-card",
+         "has_text": "{{marker}} หนังสือรับ"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "teacher-acknowledges",
+   "title": "ครูเปิดอ่านและรับทราบหนังสือที่ได้รับ",
+   "intro": "บุคลากรทุกบทบาทที่ได้รับหนังสือเห็นเฉพาะหนังสือที่ส่งถึงตนเอง เมื่อเปิดอ่านระบบบันทึกเวลาอ่านให้ผู้ส่งต่อเห็น ผู้รับกดรับทราบพร้อมหมายเหตุได้ 1 ครั้ง และรับทราบแล้วแก้ไม่ได้ หนังสือที่ถูกยกเลิกรับทราบไม่ได้ ผู้รับไม่เห็นรายชื่อผู้รับคนอื่นของหนังสือลับ",
+   "role": "subject",
+   "start": "/work",
+   "depends_on": [
+    "route-to-staff"
+   ],
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "หนังสือเข้าถึงฉัน",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "css": "li.doc-card",
+      "has_text": "{{marker}} หนังสือรับ"
+     },
+     "say": "เลือกเมนู \"หนังสือเข้าถึงฉัน\" ที่แถบเมนูด้านซ้าย ระบบแสดงหนังสือที่ส่งถึงผู้ใช้ รายการที่ยังไม่เปิดอ่านอยู่บนสุด",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "note",
+     "say": "ในรายการ หนังสือที่ยังไม่เปิดอ่านมีข้อความ \"ยังไม่เปิดอ่าน\" ใต้ชื่อเรื่อง",
+     "shot": true,
+     "crop": "tight",
+     "highlight": {
+      "css": "li.doc-card",
+      "has_text": "{{marker}} หนังสือรับ"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "{{marker}} หนังสือรับ",
+      "first": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "การรับทราบ",
+      "exact": true
+     },
+     "say": "กดที่ชื่อเรื่องของหนังสือ ระบบเปิดหน้ารายละเอียดและบันทึกว่าเปิดอ่านแล้ว",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": false
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หมายเหตุ (ไม่บังคับ)",
+      "within": {
+       "css": "form[data-form=ack]"
+      }
+     },
+     "value": "รับทราบ จะเตรียมการ {{marker}}",
+     "say": "พิมพ์ข้อความตอบกลับในช่อง \"หมายเหตุ (ไม่บังคับ)\" ถ้าต้องการ",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "หมายเหตุ (ไม่บังคับ)"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "รับทราบ",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=ack]"
+      }
+     },
+     "wait_after": {
+      "text": "รับทราบเมื่อ"
+     },
+     "say": "กดปุ่ม \"รับทราบ\" ระบบแสดงข้อความ \"บันทึกการรับทราบแล้ว\" และเปลี่ยนเป็นข้อความ \"รับทราบเมื่อ\" พร้อมวันที่",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "section.doc"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "รับทราบ จะเตรียมการ {{marker}}",
+      "in": {
+       "css": "section.doc"
+      }
+     }
+    }
+   ],
+   "expected": "หน้าหนังสือแสดง \"รับทราบเมื่อ\" ตามด้วยวันที่และหมายเหตุ ปุ่ม \"รับทราบ\" หายไป ส่วนในกล่อง \"หนังสือเข้าถึงฉัน\" รายการนี้แสดง \"รับทราบแล้ว\"",
+   "verify": [
+    {
+     "title": "เจ้าหน้าที่สารบรรณต้องเห็นว่าผู้รับรับทราบแล้วพร้อมหมายเหตุ",
+     "as": "clerk",
+     "start": "/work",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ทะเบียนหนังสือ",
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        },
+        "exact": true
+       },
+       "wait_after": {
+        "role": "heading",
+        "name": "ทะเบียนหนังสือ",
+        "exact": true
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form[data-form=filter]"
+        }
+       },
+       "value": "{{marker}} หนังสือรับ"
+      },
+      {
+       "do": "expect",
+       "that": {
+        "count": 1,
+        "of": {
+         "css": "table.doc-table tbody tr",
+         "has_text": "{{marker}} หนังสือรับ"
+        }
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "รับทราบ 1/1",
+        "in": {
+         "css": "table.doc-table tbody tr",
+         "has_text": "{{marker}} หนังสือรับ"
+        }
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "first": true,
+        "within": {
+         "css": "table.doc-table tbody tr",
+         "has_text": "{{marker}} หนังสือรับ"
+        }
+       },
+       "wait_after": {
+        "role": "heading",
+        "name": "ไฟล์แนบ",
+        "exact": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "รับทราบ",
+        "in": {
+         "css": "ul.doc-routes"
+        }
+       },
+       "say": "เจ้าหน้าที่สารบรรณเปิดหนังสือฉบับเดิม หัวข้อ \"การส่งต่อ\" แสดงว่าผู้รับรับทราบแล้ว พร้อมหมายเหตุที่ผู้รับพิมพ์",
+       "shot": true,
+       "crop": "panel",
+       "highlight": {
+        "css": "ul.doc-routes"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "propose-memo-to-principal",
+   "title": "ลงทะเบียนบันทึกข้อความและเสนอผู้อำนวยการ",
+   "intro": "ระบบไม่มีขั้นตอนเสนอเรื่องหรือขออนุมัติแยกต่างหาก การเสนอเรื่องทำโดยลงทะเบียนเอกสารแล้วส่งต่อให้ผู้อำนวยการรับทราบ ทะเบียนบันทึกข้อความ คำสั่ง และประกาศใช้แบบฟอร์มเดียวกับหนังสือรับและหนังสือส่ง ต่างกันที่ประเภททะเบียนและไม่บังคับช่อง \"จาก\" และ \"ถึง\"",
+   "role": "clerk",
+   "start": "/work",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "say": "เลือกเมนู \"ทะเบียนหนังสือ\" ที่แถบเมนูด้านซ้าย ระบบแสดงรายการหนังสือของปีปัจจุบัน",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "note",
+     "say": "ปุ่ม \"ลงทะเบียนหนังสือ\" อยู่ที่มุมขวาบนของหน้า",
+     "shot": true,
+     "crop": "tight",
+     "highlight": {
+      "role": "link",
+      "name": "ลงทะเบียนหนังสือ",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ลงทะเบียนหนังสือ",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=create]"
+     },
+     "say": "กดปุ่ม \"ลงทะเบียนหนังสือ\" ระบบแสดงแบบฟอร์มลงทะเบียน",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "form[data-form=create]"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ประเภททะเบียน",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "label": "บันทึกข้อความ",
+     "say": "ในช่อง \"ประเภททะเบียน\" เลือก \"บันทึกข้อความ\" เลขทะเบียนรันแยกกันตามประเภทและปี พ.ศ.",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "ประเภททะเบียน"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เรื่อง",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "value": "{{marker}} บันทึกขออนุมัติ",
+     "say": "พิมพ์หัวเรื่องของหนังสือในช่อง \"เรื่อง\" ช่องนี้ต้องกรอก",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "เรื่อง",
+      "exact": true
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ที่ (เลขที่หนังสือของผู้ส่ง)",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "value": "บันทึก 99/2569",
+     "say": "พิมพ์เลขที่บันทึกข้อความในช่อง \"ที่ (เลขที่หนังสือของผู้ส่ง)\"",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "ที่ (เลขที่หนังสือของผู้ส่ง)"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกและออกเลขทะเบียน",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ไฟล์แนบ",
+      "exact": true
+     },
+     "crop_pad": 230,
+     "say": "กดปุ่ม \"บันทึกและออกเลขทะเบียน\" ระบบออกเลขทะเบียนในเล่มบันทึกข้อความ",
+     "shot": true,
+     "crop": {
+      "css": "section.doc h1"
+     },
+     "highlight": {
+      "css": "section.doc h1"
+     }
+    },
+    {
+     "do": "check",
+     "target": {
+      "label": "ต้นธาร",
+      "within": {
+       "css": "form[data-form=route]"
+      }
+     },
+     "say": "ในกรอบ \"ส่งต่อให้บุคลากร\" ติ๊กชื่อ \"ผู้อำนวยการ\" เพื่อเสนอเรื่อง",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=route]"
+     },
+     "highlight": {
+      "label": "ต้นธาร",
+      "within": {
+       "css": "form[data-form=route]"
+      }
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หมายเหตุถึงผู้รับ",
+      "within": {
+       "css": "form[data-form=route]"
+      }
+     },
+     "value": "เสนอเพื่อโปรดพิจารณา {{marker}}",
+     "say": "พิมพ์ข้อความเสนอในช่อง \"หมายเหตุถึงผู้รับ\"",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=route]"
+     },
+     "highlight": {
+      "label": "หมายเหตุถึงผู้รับ"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งต่อ",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=route]"
+      }
+     },
+     "wait_after": {
+      "css": "ul.doc-routes"
+     },
+     "say": "กดปุ่ม \"ส่งต่อ\" ผู้อำนวยการจะเห็นบันทึกข้อความในกล่อง \"หนังสือเข้าถึงฉัน\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "ul.doc-routes"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ยังไม่เปิดอ่าน",
+      "in": {
+       "css": "ul.doc-routes"
+      }
+     }
+    }
+   ],
+   "expected": "ชื่อผู้อำนวยการอยู่ใต้หัวข้อ \"การส่งต่อ\" พร้อมข้อความ \"ยังไม่เปิดอ่าน\" และสถานะบันทึกข้อความเป็น \"ส่งต่อแล้ว\"",
+   "verify": [
+    {
+     "title": "ผู้อำนวยการต้องเห็นบันทึกข้อความในกล่อง \"หนังสือเข้าถึงฉัน\"",
+     "as": "principal",
+     "start": "/work",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "หนังสือเข้าถึงฉัน",
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        }
+       },
+       "wait_after": {
+        "css": "li.doc-card",
+        "has_text": "{{marker}} บันทึกขออนุมัติ"
+       },
+       "say": "ผู้อำนวยการเลือกเมนู \"หนังสือเข้าถึงฉัน\" บันทึกข้อความที่เสนออยู่ในรายการ",
+       "shot": true,
+       "crop": "panel",
+       "highlight": {
+        "css": "li.doc-card",
+        "has_text": "{{marker}} บันทึกขออนุมัติ"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "บันทึกข้อความ",
+        "in": {
+         "css": "li.doc-card",
+         "has_text": "{{marker}} บันทึกขออนุมัติ"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "principal-gives-order",
+   "title": "ผู้อำนวยการพิจารณาและสั่งการบนบันทึกข้อความ",
+   "intro": "ผู้อำนวยการเปิดบันทึกข้อความที่เสนอ แล้วพิมพ์คำสั่งการหรือความเห็นในช่อง \"หมายเหตุ\" ก่อนกด \"รับทราบ\" ข้อความนี้เก็บไว้กับการรับทราบและเจ้าหน้าที่สารบรรณเห็นได้ ระบบยังไม่มีสถานะ \"อนุมัติ\" หรือ \"ไม่อนุมัติ\" แยกต่างหาก",
+   "role": "principal",
+   "start": "/work",
+   "depends_on": [
+    "propose-memo-to-principal"
+   ],
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "หนังสือเข้าถึงฉัน",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "css": "li.doc-card",
+      "has_text": "{{marker}} บันทึกขออนุมัติ"
+     },
+     "say": "เลือกเมนู \"หนังสือเข้าถึงฉัน\" ที่แถบเมนูด้านซ้าย ระบบแสดงหนังสือที่ส่งถึงผู้ใช้ รายการที่ยังไม่เปิดอ่านอยู่บนสุด",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "note",
+     "say": "ในรายการ หนังสือที่ยังไม่เปิดอ่านมีข้อความ \"ยังไม่เปิดอ่าน\" ใต้ชื่อเรื่อง",
+     "shot": true,
+     "crop": "tight",
+     "highlight": {
+      "css": "li.doc-card",
+      "has_text": "{{marker}} บันทึกขออนุมัติ"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "{{marker}} บันทึกขออนุมัติ",
+      "first": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "การรับทราบ",
+      "exact": true
+     },
+     "say": "กดที่ชื่อเรื่องของหนังสือ ระบบเปิดหน้ารายละเอียดและบันทึกว่าเปิดอ่านแล้ว",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": false
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หมายเหตุ (ไม่บังคับ)",
+      "within": {
+       "css": "form[data-form=ack]"
+      }
+     },
+     "value": "อนุมัติ ให้ดำเนินการตามเสนอ {{marker}}",
+     "say": "พิมพ์ข้อความตอบกลับในช่อง \"หมายเหตุ (ไม่บังคับ)\" ถ้าต้องการ",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "หมายเหตุ (ไม่บังคับ)"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "รับทราบ",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=ack]"
+      }
+     },
+     "wait_after": {
+      "text": "รับทราบเมื่อ"
+     },
+     "say": "กดปุ่ม \"รับทราบ\" ระบบแสดงข้อความ \"บันทึกการรับทราบแล้ว\" และเปลี่ยนเป็นข้อความ \"รับทราบเมื่อ\" พร้อมวันที่",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "section.doc"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "อนุมัติ ให้ดำเนินการตามเสนอ {{marker}}",
+      "in": {
+       "css": "section.doc"
+      }
+     }
+    }
+   ],
+   "expected": "หน้าหนังสือแสดง \"รับทราบเมื่อ\" ตามด้วยวันที่และคำสั่งการที่พิมพ์ไว้",
+   "verify": [
+    {
+     "title": "เจ้าหน้าที่สารบรรณต้องเห็นคำสั่งการของผู้อำนวยการ",
+     "as": "clerk",
+     "start": "/work",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ทะเบียนหนังสือ",
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        },
+        "exact": true
+       },
+       "wait_after": {
+        "role": "heading",
+        "name": "ทะเบียนหนังสือ",
+        "exact": true
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form[data-form=filter]"
+        }
+       },
+       "value": "{{marker}} บันทึกขออนุมัติ"
+      },
+      {
+       "do": "expect",
+       "that": {
+        "count": 1,
+        "of": {
+         "css": "table.doc-table tbody tr",
+         "has_text": "{{marker}} บันทึกขออนุมัติ"
+        }
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "first": true,
+        "within": {
+         "css": "table.doc-table tbody tr",
+         "has_text": "{{marker}} บันทึกขออนุมัติ"
+        }
+       },
+       "wait_after": {
+        "role": "heading",
+        "name": "ไฟล์แนบ",
+        "exact": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "อนุมัติ ให้ดำเนินการตามเสนอ",
+        "in": {
+         "css": "ul.doc-routes"
+        }
+       },
+       "say": "เจ้าหน้าที่สารบรรณเปิดบันทึกข้อความฉบับเดิม หัวข้อ \"การส่งต่อ\" แสดงคำสั่งการของผู้อำนวยการ",
+       "shot": true,
+       "crop": "panel",
+       "highlight": {
+        "css": "ul.doc-routes"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "principal-issues-order",
+   "title": "ผู้อำนวยการลงทะเบียนคำสั่งและส่งให้ครู",
+   "intro": "ผู้อำนวยการและผู้ดูแลระบบลงทะเบียนเอกสารได้เองโดยไม่ต้องผ่านเจ้าหน้าที่สารบรรณ และเห็นช่อง \"ชั้นความลับ\" เพิ่มในแบบฟอร์ม ทะเบียนคำสั่งมีเลขทะเบียนแยกจากเล่มอื่น",
+   "role": "principal",
+   "start": "/work",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "say": "เลือกเมนู \"ทะเบียนหนังสือ\" ที่แถบเมนูด้านซ้าย ระบบแสดงรายการหนังสือของปีปัจจุบัน",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "note",
+     "say": "ปุ่ม \"ลงทะเบียนหนังสือ\" อยู่ที่มุมขวาบนของหน้า",
+     "shot": true,
+     "crop": "tight",
+     "highlight": {
+      "role": "link",
+      "name": "ลงทะเบียนหนังสือ",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ลงทะเบียนหนังสือ",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=create]"
+     },
+     "say": "กดปุ่ม \"ลงทะเบียนหนังสือ\" ระบบแสดงแบบฟอร์มลงทะเบียน",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "form[data-form=create]"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ประเภททะเบียน",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "label": "คำสั่ง",
+     "say": "ในช่อง \"ประเภททะเบียน\" เลือก \"คำสั่ง\" เลขทะเบียนรันแยกกันตามประเภทและปี พ.ศ.",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "ประเภททะเบียน"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เรื่อง",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "value": "{{marker}} คำสั่ง",
+     "say": "พิมพ์หัวเรื่องของหนังสือในช่อง \"เรื่อง\" ช่องนี้ต้องกรอก",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "เรื่อง",
+      "exact": true
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ที่ (เลขที่หนังสือของผู้ส่ง)",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "value": "คำสั่ง 99/2569",
+     "say": "พิมพ์เลขที่คำสั่งในช่อง \"ที่ (เลขที่หนังสือของผู้ส่ง)\"",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "ที่ (เลขที่หนังสือของผู้ส่ง)"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "note",
+     "target": {
+      "label": "ชั้นความลับ",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "say": "ผู้อำนวยการเห็นช่อง \"ชั้นความลับ\" เพิ่ม ค่าเริ่มต้นคือ \"ปกติ\" (เจ้าหน้าที่สารบรรณทั่วไปไม่เห็นช่องนี้)",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "ชั้นความลับ"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกและออกเลขทะเบียน",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ไฟล์แนบ",
+      "exact": true
+     },
+     "crop_pad": 230,
+     "say": "กดปุ่ม \"บันทึกและออกเลขทะเบียน\" ระบบออกเลขทะเบียนในเล่มคำสั่ง",
+     "shot": true,
+     "crop": {
+      "css": "section.doc h1"
+     },
+     "highlight": {
+      "css": "section.doc h1"
+     }
+    },
+    {
+     "do": "check",
+     "target": {
+      "label": "กันตภณ",
+      "within": {
+       "css": "form[data-form=route]"
+      }
+     },
+     "say": "ในกรอบ \"ส่งต่อให้บุคลากร\" ติ๊กชื่อครูที่ต้องปฏิบัติตามคำสั่ง",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=route]"
+     },
+     "highlight": {
+      "label": "กันตภณ",
+      "within": {
+       "css": "form[data-form=route]"
+      }
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หมายเหตุถึงผู้รับ",
+      "within": {
+       "css": "form[data-form=route]"
+      }
+     },
+     "value": "ให้ถือปฏิบัติ {{marker}}",
+     "say": "พิมพ์ข้อความในช่อง \"หมายเหตุถึงผู้รับ\"",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=route]"
+     },
+     "highlight": {
+      "label": "หมายเหตุถึงผู้รับ"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งต่อ",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=route]"
+      }
+     },
+     "wait_after": {
+      "css": "ul.doc-routes"
+     },
+     "say": "กดปุ่ม \"ส่งต่อ\" ครูจะเห็นคำสั่งในกล่อง \"หนังสือเข้าถึงฉัน\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "ul.doc-routes"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "คำสั่ง",
+      "in": {
+       "css": "dl.doc-facts"
+      }
+     }
+    }
+   ],
+   "expected": "ชื่อครูอยู่ใต้หัวข้อ \"การส่งต่อ\" และสถานะคำสั่งเป็น \"ส่งต่อแล้ว\"",
+   "verify": [
+    {
+     "title": "ครูต้องเห็นคำสั่งในกล่อง \"หนังสือเข้าถึงฉัน\"",
+     "as": "subject",
+     "start": "/work",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "หนังสือเข้าถึงฉัน",
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        }
+       },
+       "wait_after": {
+        "css": "li.doc-card",
+        "has_text": "{{marker}} คำสั่ง"
+       },
+       "say": "ครูที่เป็นผู้รับเลือกเมนู \"หนังสือเข้าถึงฉัน\" คำสั่งอยู่ในรายการพร้อมข้อความ \"ให้ถือปฏิบัติ\"",
+       "shot": true,
+       "crop": "panel",
+       "highlight": {
+        "css": "li.doc-card",
+        "has_text": "{{marker}} คำสั่ง"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "ให้ถือปฏิบัติ",
+        "in": {
+         "css": "li.doc-card",
+         "has_text": "{{marker}} คำสั่ง"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "confidential-letter",
+   "title": "ลงทะเบียนหนังสือลับ",
+   "intro": "หนังสือที่ตั้งชั้นความลับ \"ลับ\" เห็นได้เฉพาะผู้ดูแลระบบ ผู้อำนวยการ และผู้ที่ได้รับส่งต่อ เจ้าหน้าที่สารบรรณทั่วไปลงทะเบียนหรือแก้ไขหนังสือลับไม่ได้ และไม่เห็นหนังสือลับในทะเบียน ในรายงานพิมพ์รายเดือนระบบแสดงเรื่องเป็น \"หนังสือลับ\" แก่ผู้ที่ไม่มีสิทธิ์",
+   "role": "principal",
+   "start": "/work",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "say": "เลือกเมนู \"ทะเบียนหนังสือ\" ที่แถบเมนูด้านซ้าย ระบบแสดงรายการหนังสือของปีปัจจุบัน",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "note",
+     "say": "ปุ่ม \"ลงทะเบียนหนังสือ\" อยู่ที่มุมขวาบนของหน้า",
+     "shot": true,
+     "crop": "tight",
+     "highlight": {
+      "role": "link",
+      "name": "ลงทะเบียนหนังสือ",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ลงทะเบียนหนังสือ",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=create]"
+     },
+     "say": "กดปุ่ม \"ลงทะเบียนหนังสือ\" ระบบแสดงแบบฟอร์มลงทะเบียน",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "form[data-form=create]"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ประเภททะเบียน",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "label": "หนังสือรับ",
+     "say": "ในช่อง \"ประเภททะเบียน\" เลือก \"หนังสือรับ\" เลขทะเบียนรันแยกกันตามประเภทและปี พ.ศ.",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "ประเภททะเบียน"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เรื่อง",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "value": "{{marker}} หนังสือลับ",
+     "say": "พิมพ์หัวเรื่องของหนังสือในช่อง \"เรื่อง\" ช่องนี้ต้องกรอก",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "เรื่อง",
+      "exact": true
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จาก (หนังสือรับ)",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "value": "สำนักงานเขตพื้นที่การศึกษาสมมติ เขต 9",
+     "say": "พิมพ์ชื่อหน่วยงานผู้ส่งในช่อง \"จาก (หนังสือรับ)\"",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "จาก (หนังสือรับ)"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ชั้นความลับ",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "label": "ลับ (เห็นเฉพาะผู้ดูแล ผู้อำนวยการ และผู้รับ)",
+     "say": "ในช่อง \"ชั้นความลับ\" เลือก \"ลับ (เห็นเฉพาะผู้ดูแล ผู้อำนวยการ และผู้รับ)\"",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=create]"
+     },
+     "highlight": {
+      "label": "ชั้นความลับ"
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกและออกเลขทะเบียน",
+      "within": {
+       "css": "form[data-form=create]"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ไฟล์แนบ",
+      "exact": true
+     },
+     "crop_pad": 230,
+     "say": "กดปุ่ม \"บันทึกและออกเลขทะเบียน\" หน้ารายละเอียดแสดงป้าย \"ลับ\" ข้างชื่อเรื่อง",
+     "shot": true,
+     "crop": {
+      "css": "section.doc h1"
+     },
+     "highlight": {
+      "css": "section.doc h1"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ลับ",
+      "in": {
+       "css": "section.doc h1"
+      }
+     }
+    }
+   ],
+   "expected": "ข้างชื่อเรื่องมีป้าย \"ลับ\" และผู้ลงทะเบียนเห็นหนังสือนี้ในทะเบียน",
+   "verify": [
+    {
+     "title": "ผู้อำนวยการเห็นหนังสือลับในทะเบียน",
+     "start": "/work",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ทะเบียนหนังสือ",
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        },
+        "exact": true
+       },
+       "wait_after": {
+        "role": "heading",
+        "name": "ทะเบียนหนังสือ",
+        "exact": true
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form[data-form=filter]"
+        }
+       },
+       "value": "{{marker}} หนังสือลับ"
+      },
+      {
+       "do": "expect",
+       "that": {
+        "count": 1,
+        "of": {
+         "css": "table.doc-table tbody tr",
+         "has_text": "{{marker}} หนังสือลับ"
+        }
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "ลับ",
+        "in": {
+         "css": "table.doc-table tbody tr",
+         "has_text": "{{marker}} หนังสือลับ"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "title": "เจ้าหน้าที่สารบรรณทั่วไปต้องไม่เห็นหนังสือลับในทะเบียน",
+     "as": "clerk",
+     "start": "/work",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ทะเบียนหนังสือ",
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        },
+        "exact": true
+       },
+       "wait_after": {
+        "role": "heading",
+        "name": "ทะเบียนหนังสือ",
+        "exact": true
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form[data-form=filter]"
+        }
+       },
+       "value": "{{marker}} หนังสือลับ"
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "พบ 0 รายการ",
+         "in": {
+          "css": "p.doc-count"
+         }
+        }
+       ],
+       "say": "เจ้าหน้าที่สารบรรณเปิดทะเบียนหนังสือและค้นหาเรื่องของหนังสือลับ ระบบแสดง \"พบ 0 รายการ\" เพราะบัญชีนี้ไม่มีสิทธิ์เห็นหนังสือลับ",
+       "shot": true,
+       "crop": "panel",
+       "highlight": {
+        "css": "p.doc-count"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "confidential-forward-to-teacher",
+   "title": "ผู้อำนวยการส่งต่อหนังสือลับให้ครู ครูที่รับส่งต่อเห็น ครูที่ไม่ได้รับไม่เห็น",
+   "intro": "หนังสือลับลงทะเบียนและส่งต่อได้เฉพาะผู้ดูแลระบบและผู้อำนวยการ เจ้าหน้าที่สารบรรณทั่วไปทั้งลงทะเบียนและส่งต่อหนังสือลับไม่ได้ และไม่เห็นหนังสือลับในทะเบียน ขั้นตอนนี้จึงให้ผู้อำนวยการลงทะเบียนและส่งต่อ ผู้รับที่ได้รับส่งต่อเห็นหนังสือในกล่อง \"หนังสือเข้าถึงฉัน\" และเห็นเฉพาะชื่อของตนเองในหัวข้อการส่งต่อ ครูที่ไม่ได้รับส่งต่อไม่เห็นหนังสือนี้เลย",
+   "role": "principal",
+   "start": "/work",
+   "steps": [
+    {"do": "click", "target": {"role": "link", "name": "ทะเบียนหนังสือ", "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}, "exact": true}, "wait_after": {"role": "heading", "name": "ทะเบียนหนังสือ", "exact": true}, "say": "เลือกเมนู \"ทะเบียนหนังสือ\" ที่แถบเมนูด้านซ้าย ระบบแสดงรายการหนังสือของปีปัจจุบัน", "shot": true, "crop": "viewport"},
+    {"do": "click", "target": {"role": "link", "name": "ลงทะเบียนหนังสือ", "exact": true}, "wait_after": {"css": "form[data-form=create]"}, "say": "กดปุ่ม \"ลงทะเบียนหนังสือ\" ระบบแสดงแบบฟอร์มลงทะเบียน", "shot": true, "crop": "panel", "highlight": {"css": "form[data-form=create]"}},
+    {"do": "select", "target": {"label": "ประเภททะเบียน", "within": {"css": "form[data-form=create]"}}, "label": "หนังสือรับ", "say": "ในช่อง \"ประเภททะเบียน\" เลือก \"หนังสือรับ\"", "shot": true, "crop": {"css": "form[data-form=create]"}, "highlight": {"label": "ประเภททะเบียน"}, "crop_pad": 30},
+    {"do": "select", "target": {"label": "ชั้นความลับ", "within": {"css": "form[data-form=create]"}}, "label": "ลับ (เห็นเฉพาะผู้ดูแล ผู้อำนวยการ และผู้รับ)", "say": "ในช่อง \"ชั้นความลับ\" เลือก \"ลับ (เห็นเฉพาะผู้ดูแล ผู้อำนวยการ และผู้รับ)\"", "shot": true, "crop": {"css": "form[data-form=create]"}, "highlight": {"label": "ชั้นความลับ"}, "crop_pad": 30},
+    {"do": "fill", "target": {"label": "เรื่อง", "exact": true, "within": {"css": "form[data-form=create]"}}, "value": "{{marker}} ลับส่งต่อครู", "say": "พิมพ์หัวเรื่องของหนังสือในช่อง \"เรื่อง\""},
+    {"do": "fill", "target": {"label": "จาก (หนังสือรับ)", "within": {"css": "form[data-form=create]"}}, "value": "สำนักงานเขตพื้นที่การศึกษาสมมติ เขต 9", "say": "พิมพ์ชื่อหน่วยงานผู้ส่งในช่อง \"จาก (หนังสือรับ)\""},
+    {"do": "click", "target": {"role": "button", "name": "บันทึกและออกเลขทะเบียน", "within": {"css": "form[data-form=create]"}}, "wait_after": {"role": "heading", "name": "ไฟล์แนบ", "exact": true}, "say": "กดปุ่ม \"บันทึกและออกเลขทะเบียน\" หน้ารายละเอียดแสดงป้าย \"ลับ\" ข้างชื่อเรื่อง และมีกรอบ \"ส่งต่อให้บุคลากร\" สำหรับส่งต่อ", "shot": true, "crop": "viewport", "highlight": {"css": "section.doc h1"}},
+    {"do": "check", "target": {"label": "กันตภณ", "within": {"css": "form[data-form=route]"}}, "say": "ในกรอบ \"ส่งต่อให้บุคลากร\" ติ๊กชื่อครูที่ต้องรับทราบหนังสือลับ (ตัวอย่างนี้ส่งให้ \"กันตภณ\" และ \"ชยุต\")", "shot": true, "crop": {"css": "form[data-form=route]"}, "highlight": {"label": "กันตภณ", "within": {"css": "form[data-form=route]"}}, "crop_pad": 30},
+    {"do": "check", "target": {"label": "ชยุต", "within": {"css": "form[data-form=route]"}}},
+    {"do": "fill", "target": {"label": "หมายเหตุถึงผู้รับ", "within": {"css": "form[data-form=route]"}}, "value": "เพื่อทราบและดำเนินการ {{marker}}", "say": "พิมพ์ข้อความถึงผู้รับในช่อง \"หมายเหตุถึงผู้รับ\""},
+    {"do": "click", "target": {"role": "button", "name": "ส่งต่อ", "exact": true, "within": {"css": "form[data-form=route]"}}, "wait_after": {"css": "ul.doc-routes"}, "say": "กดปุ่ม \"ส่งต่อ\" ระบบแสดงรายชื่อผู้รับ 2 คนใต้หัวข้อ \"การส่งต่อ\" และสถานะหนังสือเป็น \"ส่งต่อแล้ว\"", "shot": true, "crop": "panel", "highlight": {"css": "ul.doc-routes"}},
+    {"do": "expect", "that": [{"text": "ส่งต่อแล้ว", "in": {"css": "dl.doc-facts"}}, {"count": 2, "of": {"css": "ul.doc-routes li"}}]}
+   ],
+   "expected": "หนังสือลับมีสถานะ \"ส่งต่อแล้ว\" และผู้รับ 2 คนอยู่ในรายการการส่งต่อ",
+   "verify": [
+    {
+     "title": "ครูที่รับส่งต่อเห็นหนังสือลับในกล่องของตนเอง และเห็นเฉพาะชื่อของตนเองในการส่งต่อ",
+     "as": "subject",
+     "start": "/work",
+     "steps": [
+      {"do": "click", "target": {"role": "link", "name": "หนังสือเข้าถึงฉัน", "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "wait_after": {"css": "li.doc-card", "has_text": "{{marker}} ลับส่งต่อครู"}, "say": "ครูที่ได้รับส่งต่อเลือกเมนู \"หนังสือเข้าถึงฉัน\" ระบบแสดงหนังสือลับที่ส่งถึงตนเอง", "shot": true, "crop": "panel", "highlight": {"css": "li.doc-card", "has_text": "{{marker}} ลับส่งต่อครู"}},
+      {"do": "click", "target": {"role": "link", "name": "{{marker}} ลับส่งต่อครู", "first": true}, "wait_after": {"role": "heading", "name": "การรับทราบ", "exact": true}},
+      {"do": "expect", "that": [{"text": "เพื่อทราบและดำเนินการ", "in": {"css": "section.doc"}}, {"not_text": "ชยุต", "in": {"css": "section.doc"}}], "say": "เปิดหนังสือลับ ครูเห็นหมายเหตุจากผู้ส่งต่อ แต่ไม่เห็นชื่อผู้รับคนอื่นในหนังสือ", "shot": true, "crop": "panel", "highlight": {"css": "section.doc"}}
+     ]
+    },
+    {
+     "title": "ครูที่ไม่ได้รับส่งต่อไม่เห็นหนังสือลับในกล่องหนังสือเข้าถึงฉัน",
+     "as": "homeroom",
+     "start": "/work",
+     "steps": [
+      {"do": "click", "target": {"role": "link", "name": "หนังสือเข้าถึงฉัน", "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "wait_after": {"css": "section.doc"}},
+      {"do": "expect", "that": {"count": 0, "of": {"css": "li.doc-card", "has_text": "{{marker}} ลับส่งต่อครู"}}, "say": "ครูที่ไม่ได้รับส่งต่อเปิดเมนู \"หนังสือเข้าถึงฉัน\" ระบบไม่แสดงหนังสือลับฉบับนี้", "shot": true, "crop": "viewport"}
+     ]
+    },
+    {
+     "title": "เจ้าหน้าที่สารบรรณทั่วไปค้นหาหนังสือลับไม่พบ",
+     "as": "clerk",
+     "start": "/work",
+     "steps": [
+      {"do": "click", "target": {"role": "link", "name": "ทะเบียนหนังสือ", "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}, "exact": true}, "wait_after": {"role": "heading", "name": "ทะเบียนหนังสือ", "exact": true}},
+      {"do": "fill", "target": {"label": "ค้นหา", "within": {"css": "form[data-form=filter]"}}, "value": "{{marker}} ลับส่งต่อครู"},
+      {"do": "expect", "that": {"text": "พบ 0 รายการ", "in": {"css": "p.doc-count"}}}
+     ]
+    }
+   ]
+  },  {
+   "id": "edit-and-close",
+   "title": "แก้ไขข้อมูลหนังสือ ทำเครื่องหมายเสร็จสิ้น และเปิดเรื่องอีกครั้ง",
+   "intro": "เลขทะเบียนแก้ไม่ได้ แก้ได้เฉพาะเรื่อง เลขที่ วันที่ หน่วยงาน ความเร่งด่วนและสาระสำคัญ หนังสือที่ยกเลิกแล้วแก้ไขไม่ได้ เมื่องานเสร็จกด \"ทำเครื่องหมายเสร็จสิ้น\" และกด \"เปิดเรื่องอีกครั้ง\" ได้ถ้ายังมีงานต่อ",
+   "role": "clerk",
+   "start": "/work",
+   "depends_on": [
+    "register-outgoing"
+   ],
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "say": "เลือกเมนู \"ทะเบียนหนังสือ\" ที่แถบเมนูด้านซ้าย ระบบแสดงรายการหนังสือของปีปัจจุบัน",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form[data-form=filter]"
+      }
+     },
+     "value": "{{marker}} หนังสือส่ง"
+    },
+    {
+     "do": "expect",
+     "that": {
+      "count": 1,
+      "of": {
+       "css": "table.doc-table tbody tr",
+       "has_text": "{{marker}} หนังสือส่ง"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "first": true,
+      "within": {
+       "css": "table.doc-table tbody tr",
+       "has_text": "{{marker}} หนังสือส่ง"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ไฟล์แนบ",
+      "exact": true
+     },
+     "say": "กดที่เลขทะเบียนของหนังสือที่ต้องการแก้ไข ระบบเปิดหน้ารายละเอียด",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": false
+    },
+    {
+     "do": "click",
+     "target": {
+      "text": "แก้ไขข้อมูลหนังสือ"
+     },
+     "wait_after": {
+      "css": "form[data-form=edit]"
+     },
+     "say": "กดหัวข้อ \"แก้ไขข้อมูลหนังสือ\" เพื่อเปิดแบบฟอร์มแก้ไข",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "form[data-form=edit]"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "สาระสำคัญ",
+      "within": {
+       "css": "form[data-form=edit]"
+      }
+     },
+     "value": "ขอความอนุเคราะห์รถรับส่งนักเรียน {{marker}}",
+     "say": "แก้ข้อความในช่อง \"สาระสำคัญ\" แล้วกดปุ่ม \"บันทึกการแก้ไข\"",
+     "shot": true,
+     "crop": {
+      "css": "form[data-form=edit]"
+     },
+     "highlight": {
+      "label": "สาระสำคัญ",
+      "within": {
+       "css": "form[data-form=edit]"
+      }
+     },
+     "crop_pad": 30
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกการแก้ไข",
+      "within": {
+       "css": "form[data-form=edit]"
+      }
+     },
+     "wait_after": {
+      "text": "ขอความอนุเคราะห์รถรับส่งนักเรียน",
+      "within": {
+       "css": "dl.doc-facts"
+      }
+     },
+     "say": "กดปุ่ม \"บันทึกการแก้ไข\" ระบบแสดงข้อความ \"บันทึกแล้ว\" และสาระสำคัญใหม่ปรากฏในหน้ารายละเอียด",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "dl.doc-facts"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ทำเครื่องหมายเสร็จสิ้น",
+      "exact": true
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "เปิดเรื่องอีกครั้ง",
+      "exact": true
+     },
+     "say": "กดปุ่ม \"ทำเครื่องหมายเสร็จสิ้น\" เมื่องานของหนังสือฉบับนี้เสร็จ สถานะเปลี่ยนเป็น \"เสร็จสิ้น\"",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "dl.doc-facts"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "เสร็จสิ้น",
+      "in": {
+       "css": "dl.doc-facts"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปิดเรื่องอีกครั้ง",
+      "exact": true
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "ทำเครื่องหมายเสร็จสิ้น",
+      "exact": true
+     },
+     "say": "ถ้ายังมีงานต่อ กดปุ่ม \"เปิดเรื่องอีกครั้ง\" สถานะกลับเป็น \"ลงทะเบียนแล้ว\" (หรือ \"ส่งต่อแล้ว\" ถ้าเคยส่งต่อ)",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "dl.doc-facts"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ลงทะเบียนแล้ว",
+      "in": {
+       "css": "dl.doc-facts"
+      }
+     }
+    }
+   ],
+   "expected": "หน้ารายละเอียดแสดงสาระสำคัญที่แก้ไข และสถานะกลับเป็น \"ลงทะเบียนแล้ว\"",
+   "verify": [
+    {
+     "title": "เปิดหนังสือฉบับเดิมใหม่ ข้อมูลที่แก้ต้องยังอยู่",
+     "start": "/work",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ทะเบียนหนังสือ",
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        },
+        "exact": true
+       },
+       "wait_after": {
+        "role": "heading",
+        "name": "ทะเบียนหนังสือ",
+        "exact": true
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form[data-form=filter]"
+        }
+       },
+       "value": "{{marker}} หนังสือส่ง"
+      },
+      {
+       "do": "expect",
+       "that": {
+        "count": 1,
+        "of": {
+         "css": "table.doc-table tbody tr",
+         "has_text": "{{marker}} หนังสือส่ง"
+        }
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "first": true,
+        "within": {
+         "css": "table.doc-table tbody tr",
+         "has_text": "{{marker}} หนังสือส่ง"
+        }
+       },
+       "wait_after": {
+        "role": "heading",
+        "name": "ไฟล์แนบ",
+        "exact": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "ขอความอนุเคราะห์รถรับส่งนักเรียน",
+        "in": {
+         "css": "dl.doc-facts"
+        }
+       },
+       "say": "เปิดหนังสือฉบับเดิมอีกครั้ง สาระสำคัญที่แก้ไขยังอยู่",
+       "shot": true,
+       "crop": "panel",
+       "highlight": {
+        "css": "dl.doc-facts"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "print-monthly-register",
+   "title": "เปิดหน้าพิมพ์ทะเบียนรายเดือน",
+   "intro": "ใช้พิมพ์ทะเบียนหนังสือของเดือนที่ต้องการเป็นกระดาษ A4 แนวนอนเก็บเข้าแฟ้ม เลือกประเภททะเบียน ปี พ.ศ. และเดือน หน้าพิมพ์เปิดในแท็บใหม่ แสดงเลขทะเบียน วันที่ เลขที่ เรื่อง ความเร่งด่วน การปฏิบัติ (ชื่อผู้รับและจำนวนที่รับทราบแล้ว) และหมายเหตุ หนังสือที่ยกเลิกยังอยู่ในทะเบียนพร้อมหมายเหตุ \"ยกเลิก\"",
+   "role": "clerk",
+   "start": "/work",
+   "depends_on": [
+    "route-to-staff"
+   ],
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "say": "เลือกเมนู \"ทะเบียนหนังสือ\" ที่แถบเมนูด้านซ้าย ระบบแสดงรายการหนังสือของปีปัจจุบัน",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "click",
+     "target": {
+      "text": "พิมพ์ทะเบียนรายเดือน"
+     },
+     "wait_after": {
+      "role": "link",
+      "name": "เปิดหน้าพิมพ์ A4 แนวนอน"
+     },
+     "say": "กดหัวข้อ \"พิมพ์ทะเบียนรายเดือน\" ที่ด้านล่างของหน้า ระบบแสดงช่องเลือกทะเบียน ปี และเดือน",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "css": "details.doc-print"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ทะเบียน",
+      "within": {
+       "css": "details.doc-print"
+      }
+     },
+     "label": "หนังสือรับ",
+     "say": "ในช่อง \"ทะเบียน\" เลือก \"หนังสือรับ\"",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "ทะเบียน",
+      "within": {
+       "css": "details.doc-print"
+      }
+     }
+    },
+    {
+     "do": "note",
+     "say": "ช่อง \"ปี พ.ศ.\" และ \"เดือน\" เป็นปีและเดือนปัจจุบันให้แล้ว เปลี่ยนได้ตามต้องการ",
+     "shot": true,
+     "crop": "panel",
+     "highlight": {
+      "label": "เดือน",
+      "within": {
+       "css": "details.doc-print"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "เปิดหน้าพิมพ์ A4 แนวนอน"
+     },
+     "expect_popup": {
+      "url_regex": "/documents/print"
+     },
+     "wait_after": {
+      "css": "table.dp-table"
+     },
+     "say": "กดปุ่ม \"เปิดหน้าพิมพ์ A4 แนวนอน\" ระบบเปิดแท็บใหม่ แสดงทะเบียนหนังสือรับของเดือนที่เลือก พร้อมปุ่ม \"พิมพ์ / บันทึกเป็น PDF\" ที่แถบด้านบน",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": false
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "text": "{{marker}} หนังสือรับ",
+       "in": {
+        "css": "table.dp-table"
+       }
+      },
+      {
+       "text": "ศธ 99999/ว901",
+       "in": {
+        "css": "table.dp-table"
+       }
+      },
+      {
+       "visible": {
+        "role": "button",
+        "name": "พิมพ์ / บันทึกเป็น PDF"
+       }
+      }
+     ]
+    },
+    {
+     "do": "note",
+     "say": "ในตารางมีแถวของหนังสือที่ลงทะเบียนในเดือนนี้ คอลัมน์ \"การปฏิบัติ\" แสดงผู้รับและจำนวนที่รับทราบแล้ว",
+     "shot": true,
+     "crop": "tight",
+     "highlight": {
+      "css": "table.dp-table tbody tr",
+      "has_text": "{{marker}} หนังสือรับ"
+     }
+    },
+    {
+     "do": "close_tab"
+    }
+   ],
+   "expected": "แท็บใหม่แสดงทะเบียนหนังสือรับของเดือนที่เลือก มีแถวของหนังสือที่ลงทะเบียน และมีปุ่ม \"พิมพ์ / บันทึกเป็น PDF\"",
+   "verify": [
+    {
+     "title": "ผู้อำนวยการเปิดหน้าพิมพ์ชุดเดียวกัน ต้องเห็นแถวของหนังสือเดียวกัน",
+     "as": "principal",
+     "start": "/work",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ทะเบียนหนังสือ",
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        },
+        "exact": true
+       },
+       "wait_after": {
+        "role": "heading",
+        "name": "ทะเบียนหนังสือ",
+        "exact": true
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "text": "พิมพ์ทะเบียนรายเดือน"
+       },
+       "wait_after": {
+        "role": "link",
+        "name": "เปิดหน้าพิมพ์ A4 แนวนอน"
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "เปิดหน้าพิมพ์ A4 แนวนอน"
+       },
+       "expect_popup": {
+        "url_regex": "/documents/print"
+       },
+       "wait_after": {
+        "css": "table.dp-table"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "{{marker}} หนังสือรับ",
+        "in": {
+         "css": "table.dp-table"
+        }
+       },
+       "say": "ผู้อำนวยการเปิดหน้าพิมพ์ทะเบียนหนังสือรับของเดือนเดียวกัน แถวของหนังสือที่ส่งต่อแสดงชื่อผู้รับในคอลัมน์ \"การปฏิบัติ\"",
+       "shot": true,
+       "crop": "viewport",
+       "highlight": {
+        "css": "table.dp-table tbody tr",
+        "has_text": "{{marker}} หนังสือรับ"
+       }
+      },
+      {
+       "do": "close_tab"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "teacher-no-registry-right",
+   "title": "ครูทั่วไปเปิดทะเบียนหนังสือ",
+   "intro": "เมนู \"ทะเบียนหนังสือ\" แสดงให้ครูทุกคน แต่ใช้ได้เฉพาะผู้ดูแลระบบ ผู้อำนวยการ และเจ้าหน้าที่สารบรรณที่ผู้ดูแลระบบกำหนด ครูทั่วไปเห็นข้อความแจ้งว่าไม่มีสิทธิ์ และยังเปิดดูหนังสือที่ส่งถึงตนเองได้ที่เมนู \"หนังสือเข้าถึงฉัน\"",
+   "role": "subject",
+   "start": "/work",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "alert",
+      "has_text": "ไม่ได้รับสิทธิ์"
+     },
+     "say": "ครูทั่วไปเลือกเมนู \"ทะเบียนหนังสือ\" ระบบแสดงข้อความ \"บัญชีนี้ไม่ได้รับสิทธิ์เจ้าหน้าที่สารบรรณ\"",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "alert",
+      "has_text": "ไม่ได้รับสิทธิ์"
+     }
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "text": "บัญชีนี้ไม่ได้รับสิทธิ์เจ้าหน้าที่สารบรรณ",
+       "in": {
+        "role": "alert",
+        "has_text": "ไม่ได้รับสิทธิ์"
+       }
+      },
+      {
+       "count": 0,
+       "of": {
+        "role": "link",
+        "name": "ลงทะเบียนหนังสือ",
+        "exact": true
+       }
+      }
+     ]
+    }
+   ],
+   "expected": "หน้าแสดงเพียงข้อความแจ้งว่าไม่มีสิทธิ์ ไม่มีปุ่ม \"ลงทะเบียนหนังสือ\" และไม่มีรายการหนังสือ",
+   "verify": [
+    {
+     "title": "ครูทั่วไปยังเปิดกล่อง \"หนังสือเข้าถึงฉัน\" ได้",
+     "start": "/work",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "หนังสือเข้าถึงฉัน",
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        }
+       },
+       "wait_after": {
+        "css": "section.doc"
+       },
+       "say": "เลือกเมนู \"หนังสือเข้าถึงฉัน\" ครูยังเห็นหนังสือที่ส่งถึงตนเองตามปกติ",
+       "shot": true,
+       "crop": "viewport",
+       "highlight": false
+      },
+      {
+       "do": "expect",
+       "that": {
+        "visible": {
+         "role": "heading",
+         "name": "หนังสือเข้าถึงฉัน",
+         "exact": true
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "admin-clerk-settings",
+   "title": "ผู้ดูแลระบบดูรายชื่อเจ้าหน้าที่สารบรรณ",
+   "intro": "ผู้ดูแลระบบเป็นผู้กำหนดว่าบัญชีใดช่วยงานสารบรรณได้ ในหน้านี้เลือกบัญชีของครูหรือบรรณาธิการแล้วกด \"บันทึก\" ผู้อำนวยการและผู้ดูแลระบบมีสิทธิ์อยู่แล้วจึงไม่ต้องเลือก คู่มือนี้เปิดดูโดยไม่กดบันทึก เพื่อไม่เปลี่ยนสิทธิ์ของผู้ใช้อื่น",
+   "role": "admin",
+   "start": "/work",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "say": "เลือกเมนู \"ทะเบียนหนังสือ\" ที่แถบเมนูด้านซ้าย ระบบแสดงรายการหนังสือของปีปัจจุบัน",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "note",
+     "crop_pad": 230,
+     "say": "ผู้ดูแลระบบเห็นปุ่ม \"ตั้งค่าเจ้าหน้าที่\" ที่มุมขวาบนของหน้า",
+     "shot": true,
+     "crop": "tight",
+     "highlight": {
+      "role": "link",
+      "name": "ตั้งค่าเจ้าหน้าที่",
+      "exact": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ตั้งค่าเจ้าหน้าที่",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "form[data-form=clerks]"
+     },
+     "say": "กดปุ่ม \"ตั้งค่าเจ้าหน้าที่\" ระบบแสดงหน้า \"เจ้าหน้าที่สารบรรณ\" และรายชื่อบัญชีที่เลือกได้ บัญชีที่มีเครื่องหมายถูกคือเจ้าหน้าที่ที่ได้รับสิทธิ์แล้ว",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "css": "form[data-form=clerks]"
+     }
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "visible": {
+        "role": "heading",
+        "name": "เจ้าหน้าที่สารบรรณ",
+        "exact": true
+       }
+      },
+      {
+       "checked": {
+        "label": "ศิริน",
+        "within": {
+         "css": "form[data-form=clerks]"
+        }
+       }
+      }
+     ]
+    }
+   ],
+   "expected": "หน้า \"เจ้าหน้าที่สารบรรณ\" แสดงรายชื่อบัญชีพร้อมช่องติ๊ก และปุ่ม \"บันทึก\"",
+   "verify": [
+    {
+     "title": "เปิดหน้าตั้งค่าใหม่ รายชื่อต้องเหมือนเดิม",
+     "start": "/work#documents/settings",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "form[data-form=clerks]"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "checked": {
+          "label": "ศิริน",
+          "within": {
+           "css": "form[data-form=clerks]"
+          }
+         }
+        },
+        {
+         "visible": {
+          "role": "button",
+          "name": "บันทึก",
+          "exact": true
+         }
+        }
+       ],
+       "say": "เปิดหน้าตั้งค่าอีกครั้ง บัญชีของเจ้าหน้าที่สารบรรณยังมีเครื่องหมายถูก",
+       "shot": true,
+       "crop": "panel",
+       "highlight": {
+        "css": "form[data-form=clerks]"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "editor-inbox-only",
+   "title": "บรรณาธิการเว็บไซต์เปิดกล่องหนังสือเข้าถึงฉัน",
+   "intro": "บรรณาธิการเว็บไซต์เปิดดูหนังสือที่ผู้อื่นส่งต่อให้ได้เหมือนบุคลากรอื่น แต่แถบเมนูด้านซ้ายของบรรณาธิการเป็นเมนูงานเว็บไซต์ จึงเข้าได้จากช่อง \"หนังสือเข้าถึงฉัน\" ในหน้า \"งานโรงเรียน\" และไม่มีเมนู \"ทะเบียนหนังสือ\"",
+   "role": "editor",
+   "start": "/work",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "หนังสือเข้าถึงฉัน",
+      "first": true
+     },
+     "wait_after": {
+      "css": "section.doc"
+     },
+     "say": "บรรณาธิการไม่มีเมนูหนังสือในแถบด้านซ้าย ให้กดช่อง \"หนังสือเข้าถึงฉัน\" ในหน้า \"งานโรงเรียน\" ระบบแสดงกล่องหนังสือที่ส่งถึงผู้ใช้",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "visible": {
+        "role": "heading",
+        "name": "หนังสือเข้าถึงฉัน",
+        "exact": true
+       }
+      },
+      {
+       "hidden": {
+        "role": "link",
+        "name": "ทะเบียนหนังสือ",
+        "exact": true
+       }
+      }
+     ],
+     "say": "บรรณาธิการเห็นกล่องหนังสือที่ส่งถึงตน และไม่มีเมนู \"ทะเบียนหนังสือ\" ในหน้านี้",
+     "shot": true,
+     "crop": "viewport",
+     "highlight": {
+      "role": "heading",
+      "name": "หนังสือเข้าถึงฉัน",
+      "exact": true
+     }
+    }
+   ],
+   "expected": "หน้า \"หนังสือเข้าถึงฉัน\" เปิดได้ และไม่มีเมนู \"ทะเบียนหนังสือ\" ในแถบเมนู",
+   "verify": [
+    {
+     "title": "บรรณาธิการเปิดทะเบียนหนังสือโดยตรงไม่ได้",
+     "start": "/work#documents",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "section.doc"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "count": 0,
+        "of": {
+         "role": "link",
+         "name": "ลงทะเบียนหนังสือ",
+         "exact": true
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "add-clerk-teacher",
+   "title": "ผู้ดูแลระบบเพิ่มครูเป็นเจ้าหน้าที่สารบรรณ แล้วครูลงทะเบียนหนังสือได้",
+   "intro": "ผู้ดูแลระบบติ๊กบัญชีของครูในหน้า \"ตั้งค่าเจ้าหน้าที่\" แล้วกด \"บันทึก\" ครูบัญชีนั้นจะลงทะเบียนหนังสือได้ทันที การทดสอบนี้เปลี่ยนรายชื่อเจ้าหน้าที่ของโรงเรียนทดลอง และรายชื่อจะถูกคืนค่าในขั้นตอนท้ายสุดของคู่มือ",
+   "role": "admin",
+   "start": "/work",
+   "steps": [
+    {"do": "click", "target": {"role": "link", "name": "ทะเบียนหนังสือ", "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}, "exact": true}, "wait_after": {"role": "heading", "name": "ทะเบียนหนังสือ", "exact": true}, "say": "เลือกเมนู \"ทะเบียนหนังสือ\" ที่แถบเมนูด้านซ้าย", "shot": true, "crop": "viewport"},
+    {"do": "click", "target": {"role": "link", "name": "ตั้งค่าเจ้าหน้าที่", "exact": true}, "wait_after": {"css": "form[data-form=clerks]"}, "say": "กดปุ่ม \"ตั้งค่าเจ้าหน้าที่\" ระบบแสดงรายชื่อบัญชีที่เลือกได้", "shot": true, "crop": "viewport", "highlight": {"css": "form[data-form=clerks]"}},
+    {"do": "check", "target": {"label": "วรินทร์", "within": {"css": "form[data-form=clerks]"}}, "say": "ในรายชื่อ ติ๊กบัญชีของ \"นางสาววรินทร์ ทดสอบดี\" ซึ่งเป็นครู เพื่อให้ช่วยงานสารบรรณ", "shot": true, "crop": "panel", "highlight": {"label": "วรินทร์", "within": {"css": "form[data-form=clerks]"}}},
+    {"do": "click", "target": {"role": "button", "name": "บันทึก", "exact": true, "within": {"css": "form[data-form=clerks]"}}, "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกแล้ว\"", "shot": true, "crop": "viewport", "highlight": {"id": "toast"}, "wait_after": {"id": "toast"}}
+   ],
+   "expected": "ระบบแสดงข้อความ \"บันทึกแล้ว\" และครูที่ติ๊กไว้ลงทะเบียนหนังสือได้",
+   "verify": [
+    {
+     "title": "ครูที่ได้รับสิทธิ์ลงทะเบียนหนังสือรับได้",
+     "as": "finance",
+     "start": "/work",
+     "steps": [
+      {"do": "click", "target": {"role": "link", "name": "ทะเบียนหนังสือ", "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}, "exact": true}, "wait_after": {"role": "heading", "name": "ทะเบียนหนังสือ", "exact": true}},
+      {"do": "click", "target": {"role": "link", "name": "ลงทะเบียนหนังสือ", "exact": true}, "wait_after": {"css": "form[data-form=create]"}},
+      {"do": "select", "target": {"label": "ประเภททะเบียน", "within": {"css": "form[data-form=create]"}}, "label": "หนังสือรับ"},
+      {"do": "fill", "target": {"label": "เรื่อง", "exact": true, "within": {"css": "form[data-form=create]"}}, "value": "{{marker}} แจ้งเจ้าหน้าที่ใหม่"},
+      {"do": "fill", "target": {"label": "ที่ (เลขที่หนังสือของผู้ส่ง)", "within": {"css": "form[data-form=create]"}}, "value": "ศธ 99999/ว902"},
+      {"do": "fill", "target": {"label": "จาก (หนังสือรับ)", "within": {"css": "form[data-form=create]"}}, "value": "สำนักงานเขตพื้นที่การศึกษาสมมติ เขต 9"},
+      {"do": "click", "target": {"role": "button", "name": "บันทึกและออกเลขทะเบียน", "within": {"css": "form[data-form=create]"}}, "wait_after": {"text": "{{marker}} แจ้งเจ้าหน้าที่ใหม่"}},
+      {"do": "expect", "that": {"visible": {"text": "{{marker}} แจ้งเจ้าหน้าที่ใหม่"}}, "say": "ครูบัญชีนี้ลงทะเบียนหนังสือรับได้ ระบบออกเลขทะเบียนและแสดงหนังสือที่เพิ่งลงทะเบียน", "shot": true, "crop": "viewport", "highlight": {"text": "{{marker}} แจ้งเจ้าหน้าที่ใหม่"}}
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restore-clerk-list",
+   "title": "คืนรายชื่อเจ้าหน้าที่สารบรรณให้เหมือนเดิม (ล้างข้อมูลทดสอบ)",
+   "intro": "ขั้นตอนนี้ใช้ตอนทดสอบเท่านั้น ยกเลิกหนังสือทดสอบที่ครูที่ติ๊กเพิ่มลงทะเบียนไว้ เอาครูนั้นออกจากรายชื่อเจ้าหน้าที่ และตรวจว่าเจ้าหน้าที่เดิมยังอยู่ครบ",
+   "role": "admin",
+   "start": "/work",
+   "cleanup": true,
+   "steps": [
+    {"do": "click", "target": {"role": "link", "name": "ทะเบียนหนังสือ", "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}, "exact": true}, "wait_after": {"role": "heading", "name": "ทะเบียนหนังสือ", "exact": true}},
+    {"do": "fill", "target": {"label": "ค้นหา", "within": {"css": "form[data-form=filter]"}}, "value": "{{marker}} แจ้งเจ้าหน้าที่ใหม่", "settle_ms": 1500},
+    {"do": "click", "target": {"role": "link", "first": true, "within": {"css": "table.doc-table tbody tr", "has_text": "{{marker}} แจ้งเจ้าหน้าที่ใหม่"}}, "wait_after": {"role": "heading", "name": "ไฟล์แนบ", "exact": true}},
+    {"do": "click", "target": {"text": "ยกเลิกหนังสือ (เลขทะเบียนยังคงอยู่)"}},
+    {"do": "fill", "target": {"label": "เหตุผลที่ยกเลิก", "within": {"css": "form[data-form=cancel]"}}, "value": "ล้างข้อมูลทดสอบ {{marker}}"},
+    {"do": "click", "target": {"role": "button", "name": "ยกเลิกหนังสือ", "exact": true, "within": {"css": "form[data-form=cancel]"}}, "wait_after": {"text": "ล้างข้อมูลทดสอบ", "within": {"css": "dl.doc-facts"}}},
+    {"do": "click", "target": {"role": "link", "name": "ทะเบียนหนังสือ", "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}, "exact": true}, "wait_after": {"role": "heading", "name": "ทะเบียนหนังสือ", "exact": true}},
+    {"do": "click", "target": {"role": "link", "name": "ตั้งค่าเจ้าหน้าที่", "exact": true}, "wait_after": {"css": "form[data-form=clerks]"}},
+    {"do": "uncheck", "target": {"label": "วรินทร์", "within": {"css": "form[data-form=clerks]"}}},
+    {"do": "click", "target": {"role": "button", "name": "บันทึก", "exact": true, "within": {"css": "form[data-form=clerks]"}}, "wait_after": {"id": "toast"}}
+   ],
+   "expected": "รายชื่อเจ้าหน้าที่กลับเป็นเหมือนก่อนทดสอบ",
+   "verify": [
+    {
+     "title": "เปิดหน้าตั้งค่าใหม่ ครูที่เพิ่มถูกเอาออก และบัญชีเจ้าหน้าที่เดิมยังติ๊กอยู่",
+     "start": "/work#documents/settings",
+     "steps": [
+      {"do": "wait_for", "target": {"css": "form[data-form=clerks]"}},
+      {"do": "expect", "that": [{"unchecked": {"label": "วรินทร์", "within": {"css": "form[data-form=clerks]"}}}, {"checked": {"label": "ศิริน", "within": {"css": "form[data-form=clerks]"}}}], "say": "เปิดหน้าตั้งค่าอีกครั้ง บัญชีของครูที่เพิ่มไม่มีเครื่องหมายถูกแล้ว และเจ้าหน้าที่เดิมยังมีเครื่องหมายถูก", "shot": true, "crop": "panel", "highlight": {"css": "form[data-form=clerks]"}}
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cancel-test-letters",
+   "title": "ยกเลิกหนังสือที่ลงทะเบียนไว้ (เจ้าหน้าที่สารบรรณ)",
+   "cleanup": true,
+   "intro": "ทะเบียนหนังสือไม่มีปุ่มลบ หนังสือที่ลงทะเบียนแล้วลบไม่ได้ ทำได้เพียงยกเลิก เลขทะเบียนยังคงอยู่พร้อมเหตุผลที่ยกเลิก",
+   "role": "clerk",
+   "start": "/work",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "optional": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form[data-form=filter]"
+      }
+     },
+     "value": "{{marker}} หนังสือรับ",
+     "optional": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "count": 1,
+      "of": {
+       "css": "table.doc-table tbody tr",
+       "has_text": "{{marker}} หนังสือรับ"
+      }
+     },
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "first": true,
+      "within": {
+       "css": "table.doc-table tbody tr",
+       "has_text": "{{marker}} หนังสือรับ"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ไฟล์แนบ",
+      "exact": true
+     },
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบ",
+      "exact": true,
+      "within": {
+       "css": "ul.doc-files li",
+       "has_text": "sample.pdf"
+      }
+     },
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "text": "ยกเลิกหนังสือ (เลขทะเบียนยังคงอยู่)"
+     },
+     "optional": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผลที่ยกเลิก",
+      "within": {
+       "css": "form[data-form=cancel]"
+      }
+     },
+     "value": "ล้างข้อมูลทดสอบ {{marker}}",
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกหนังสือ",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=cancel]"
+      }
+     },
+     "optional": true,
+     "wait_after": {
+      "text": "ล้างข้อมูลทดสอบ",
+      "within": {
+       "css": "dl.doc-facts"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "optional": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form[data-form=filter]"
+      }
+     },
+     "value": "{{marker}} หนังสือส่ง",
+     "optional": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "count": 1,
+      "of": {
+       "css": "table.doc-table tbody tr",
+       "has_text": "{{marker}} หนังสือส่ง"
+      }
+     },
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "first": true,
+      "within": {
+       "css": "table.doc-table tbody tr",
+       "has_text": "{{marker}} หนังสือส่ง"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ไฟล์แนบ",
+      "exact": true
+     },
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "text": "ยกเลิกหนังสือ (เลขทะเบียนยังคงอยู่)"
+     },
+     "optional": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผลที่ยกเลิก",
+      "within": {
+       "css": "form[data-form=cancel]"
+      }
+     },
+     "value": "ล้างข้อมูลทดสอบ {{marker}}",
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกหนังสือ",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=cancel]"
+      }
+     },
+     "optional": true,
+     "wait_after": {
+      "text": "ล้างข้อมูลทดสอบ",
+      "within": {
+       "css": "dl.doc-facts"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "optional": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form[data-form=filter]"
+      }
+     },
+     "value": "{{marker}} บันทึกขออนุมัติ",
+     "optional": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "count": 1,
+      "of": {
+       "css": "table.doc-table tbody tr",
+       "has_text": "{{marker}} บันทึกขออนุมัติ"
+      }
+     },
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "first": true,
+      "within": {
+       "css": "table.doc-table tbody tr",
+       "has_text": "{{marker}} บันทึกขออนุมัติ"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ไฟล์แนบ",
+      "exact": true
+     },
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "text": "ยกเลิกหนังสือ (เลขทะเบียนยังคงอยู่)"
+     },
+     "optional": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผลที่ยกเลิก",
+      "within": {
+       "css": "form[data-form=cancel]"
+      }
+     },
+     "value": "ล้างข้อมูลทดสอบ {{marker}}",
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกหนังสือ",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=cancel]"
+      }
+     },
+     "optional": true,
+     "wait_after": {
+      "text": "ล้างข้อมูลทดสอบ",
+      "within": {
+       "css": "dl.doc-facts"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "optional": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form[data-form=filter]"
+      }
+     },
+     "value": "{{marker}} คำสั่ง",
+     "optional": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "count": 1,
+      "of": {
+       "css": "table.doc-table tbody tr",
+       "has_text": "{{marker}} คำสั่ง"
+      }
+     },
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "first": true,
+      "within": {
+       "css": "table.doc-table tbody tr",
+       "has_text": "{{marker}} คำสั่ง"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ไฟล์แนบ",
+      "exact": true
+     },
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "text": "ยกเลิกหนังสือ (เลขทะเบียนยังคงอยู่)"
+     },
+     "optional": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผลที่ยกเลิก",
+      "within": {
+       "css": "form[data-form=cancel]"
+      }
+     },
+     "value": "ล้างข้อมูลทดสอบ {{marker}}",
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกหนังสือ",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=cancel]"
+      }
+     },
+     "optional": true,
+     "wait_after": {
+      "text": "ล้างข้อมูลทดสอบ",
+      "within": {
+       "css": "dl.doc-facts"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "optional": true
+    }
+   ],
+   "expected": "หนังสือทดลองทุกฉบับมีสถานะ \"ยกเลิก\" พร้อมเหตุผล",
+   "verify": [
+    {
+     "title": "ไม่เหลือหนังสือทดลองที่ยังใช้งานอยู่",
+     "start": "/work",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ทะเบียนหนังสือ",
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        },
+        "exact": true
+       },
+       "wait_after": {
+        "role": "heading",
+        "name": "ทะเบียนหนังสือ",
+        "exact": true
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form[data-form=filter]"
+        }
+       },
+       "value": "{{marker}}"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "p.doc-count"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "count": 0,
+         "of": {
+          "css": "table.doc-table tbody tr",
+          "has_text": "ลงทะเบียนแล้ว"
+         }
+        },
+        {
+         "count": 0,
+         "of": {
+          "css": "table.doc-table tbody tr",
+          "has_text": "ส่งต่อแล้ว"
+         }
+        },
+        {
+         "count": 0,
+         "of": {
+          "css": "table.doc-table tbody tr",
+          "has_text": "เสร็จสิ้น"
+         }
+        }
+       ]
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "ยกเลิก",
+        "in": {
+         "css": "table.doc-table tbody tr",
+         "has_text": "{{marker}} หนังสือรับ"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+     "id": "cancel-test-forwarded-letter",
+     "title": "ยกเลิกหนังสือลับที่ส่งต่อให้ครูไว้ (ผู้อำนวยการ)",
+     "cleanup": true,
+     "intro": "ล้างข้อมูลทดสอบของหนังสือลับที่ส่งต่อในขั้นตอนก่อนหน้า เฉพาะผู้ดูแลระบบและผู้อำนวยการยกเลิกหนังสือลับได้",
+     "role": "principal",
+     "start": "/work",
+     "steps": [
+        {
+           "do": "click",
+           "target": {
+              "role": "link",
+              "name": "ทะเบียนหนังสือ",
+              "within": {
+                 "role": "navigation",
+                 "name": "ระบบงานโรงเรียน"
+              },
+              "exact": true
+           },
+           "wait_after": {
+              "role": "heading",
+              "name": "ทะเบียนหนังสือ",
+              "exact": true
+           }
+        },
+        {
+           "do": "fill",
+           "target": {
+              "label": "ค้นหา",
+              "within": {
+                 "css": "form[data-form=filter]"
+              }
+           },
+           "value": "{{marker}} ลับส่งต่อครู"
+        },
+        {
+           "do": "expect",
+           "that": {
+              "count": 1,
+              "of": {
+                 "css": "table.doc-table tbody tr",
+                 "has_text": "{{marker}} ลับส่งต่อครู"
+              }
+           }
+        },
+        {
+           "do": "click",
+           "target": {
+              "role": "link",
+              "first": true,
+              "within": {
+                 "css": "table.doc-table tbody tr",
+                 "has_text": "{{marker}} ลับส่งต่อครู"
+              }
+           },
+           "wait_after": {
+              "role": "heading",
+              "name": "ไฟล์แนบ",
+              "exact": true
+           }
+        },
+        {
+           "do": "click",
+           "target": {
+              "text": "ยกเลิกหนังสือ (เลขทะเบียนยังคงอยู่)"
+           }
+        },
+        {
+           "do": "fill",
+           "target": {
+              "label": "เหตุผลที่ยกเลิก",
+              "within": {
+                 "css": "form[data-form=cancel]"
+              }
+           },
+           "value": "ล้างข้อมูลทดสอบ {{marker}}"
+        },
+        {
+           "do": "click",
+           "target": {
+              "role": "button",
+              "name": "ยกเลิกหนังสือ",
+              "exact": true,
+              "within": {
+                 "css": "form[data-form=cancel]"
+              }
+           },
+           "wait_after": {
+              "text": "ล้างข้อมูลทดสอบ",
+              "within": {
+                 "css": "dl.doc-facts"
+              }
+           }
+        },
+        {
+           "do": "click",
+           "target": {
+              "role": "link",
+              "name": "ทะเบียนหนังสือ",
+              "within": {
+                 "role": "navigation",
+                 "name": "ระบบงานโรงเรียน"
+              },
+              "exact": true
+           },
+           "wait_after": {
+              "role": "heading",
+              "name": "ทะเบียนหนังสือ",
+              "exact": true
+           }
+        }
+     ],
+     "expected": "หนังสือลับมีสถานะ \"ยกเลิก\" พร้อมเหตุผล",
+     "verify": [
+        {
+           "title": "หนังสือลับที่ส่งต่อแล้วถูกยกเลิก",
+           "steps": [
+              {
+                 "do": "click",
+                 "target": {
+                    "role": "link",
+                    "name": "ทะเบียนหนังสือ",
+                    "within": {
+                       "role": "navigation",
+                       "name": "ระบบงานโรงเรียน"
+                    },
+                    "exact": true
+                 },
+                 "wait_after": {
+                    "role": "heading",
+                    "name": "ทะเบียนหนังสือ",
+                    "exact": true
+                 }
+              },
+              {
+                 "do": "fill",
+                 "target": {
+                    "label": "ค้นหา",
+                    "within": {
+                       "css": "form[data-form=filter]"
+                    }
+                 },
+                 "value": "{{marker}} ลับส่งต่อครู"
+              },
+              {
+                 "do": "expect",
+                 "that": {
+                    "text": "ยกเลิก",
+                    "in": {
+                       "css": "table.doc-table tbody tr",
+                       "has_text": "{{marker}} ลับส่งต่อครู"
+                    }
+                 }
+              }
+           ]
+        }
+     ]
+  },
+  {
+   "id": "cancel-test-secret",
+   "title": "ยกเลิกหนังสือลับที่ลงทะเบียนไว้ (ผู้อำนวยการ)",
+   "cleanup": true,
+   "intro": "เฉพาะผู้ดูแลระบบและผู้อำนวยการยกเลิกหนังสือลับได้",
+   "role": "principal",
+   "start": "/work",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "optional": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ค้นหา",
+      "within": {
+       "css": "form[data-form=filter]"
+      }
+     },
+     "value": "{{marker}} หนังสือลับ",
+     "optional": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "count": 1,
+      "of": {
+       "css": "table.doc-table tbody tr",
+       "has_text": "{{marker}} หนังสือลับ"
+      }
+     },
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "first": true,
+      "within": {
+       "css": "table.doc-table tbody tr",
+       "has_text": "{{marker}} หนังสือลับ"
+      }
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ไฟล์แนบ",
+      "exact": true
+     },
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "text": "ยกเลิกหนังสือ (เลขทะเบียนยังคงอยู่)"
+     },
+     "optional": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผลที่ยกเลิก",
+      "within": {
+       "css": "form[data-form=cancel]"
+      }
+     },
+     "value": "ล้างข้อมูลทดสอบ {{marker}}",
+     "optional": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกหนังสือ",
+      "exact": true,
+      "within": {
+       "css": "form[data-form=cancel]"
+      }
+     },
+     "optional": true,
+     "wait_after": {
+      "text": "ล้างข้อมูลทดสอบ",
+      "within": {
+       "css": "dl.doc-facts"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ทะเบียนหนังสือ",
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      },
+      "exact": true
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "ทะเบียนหนังสือ",
+      "exact": true
+     },
+     "optional": true
+    }
+   ],
+   "expected": "หนังสือลับมีสถานะ \"ยกเลิก\" พร้อมเหตุผล",
+   "verify": [
+    {
+     "title": "ไม่เหลือหนังสือทดลองที่ยังใช้งานอยู่",
+     "start": "/work",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ทะเบียนหนังสือ",
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        },
+        "exact": true
+       },
+       "wait_after": {
+        "role": "heading",
+        "name": "ทะเบียนหนังสือ",
+        "exact": true
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ค้นหา",
+        "within": {
+         "css": "form[data-form=filter]"
+        }
+       },
+       "value": "{{marker}}"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "p.doc-count"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "count": 0,
+         "of": {
+          "css": "table.doc-table tbody tr",
+          "has_text": "ลงทะเบียนแล้ว"
+         }
+        },
+        {
+         "count": 0,
+         "of": {
+          "css": "table.doc-table tbody tr",
+          "has_text": "ส่งต่อแล้ว"
+         }
+        },
+        {
+         "count": 0,
+         "of": {
+          "css": "table.doc-table tbody tr",
+          "has_text": "เสร็จสิ้น"
+         }
+        }
+       ]
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "ยกเลิก",
+        "in": {
+         "css": "table.doc-table tbody tr",
+         "has_text": "{{marker}} หนังสือลับ"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "skeleton": [],
+ "untested": [
+  "ปุ่ม \"พิมพ์ / บันทึกเป็น PDF\" ในหน้าพิมพ์ทะเบียน (modules/documents/resources/views/print.blade.php, public/assets/modules/documents/documents-print.js) เรียก window.print() ซึ่งเปิดกล่องพิมพ์ของเบราว์เซอร์ ตัวรันทดสอบไม่ควบคุมกล่องนี้ จึงตรวจเพียงว่าหน้าพิมพ์เปิดได้ มีแถวข้อมูลและมีปุ่ม",
+  "การลงทะเบียนย้อนหลังโดยผู้ดูแลระบบหรือผู้อำนวยการ (ฟิลด์ registered_on, Documents.php:169-172) มีเฉพาะใน API หน้าจอแบบฟอร์มไม่มีช่องวันที่ลงทะเบียน จึงไม่มีหน้าจอให้ทดสอบ",
+  "การแก้ชื่อเล่มและคำนำหน้าเลขทะเบียน (PUT /api/documents/books/{id}, Documents.php:137) มีเฉพาะใน API ไม่มีหน้าจอเรียกใช้ใน documents.js จึงเปลี่ยนคำนำหน้าเลขทะเบียนจากหน้าจอไม่ได้ ระบบใช้ชื่อเล่ม \"ทะเบียนหนังสือรับ 2569\" ตามค่าเริ่มต้น",
+  "ตัวกรองความเร่งด่วนของรายการทะเบียน (พารามิเตอร์ urgency ของ GET /api/documents) มีเฉพาะใน API หน้าจอไม่มีช่องกรองความเร่งด่วน ใช้ได้เพียงค้นหา ปี พ.ศ. ประเภท และสถานะ",
+  "ระบบไม่มีขั้นตอนเสนอเรื่องขออนุมัติ และไม่มีสถานะอนุมัติหรือไม่อนุมัติ งาน \"เสนอและสั่งการ\" ทำได้โดยส่งต่อให้ผู้อำนวยการและให้ผู้อำนวยการพิมพ์คำสั่งการในหมายเหตุเมื่อรับทราบ (ทดสอบแล้วในขั้นตอน propose-memo-to-principal และ principal-gives-order) หมายเหตุนี้เป็นข้อความอย่างเดียว ไม่เปลี่ยนสถานะของหนังสือ",
+  "ระบบไม่ส่งอีเมลหรือการแจ้งเตือนอื่นเมื่อมีหนังสือส่งถึงผู้รับ (ค้นไม่พบโค้ดส่งอีเมลหรือแจ้งเตือนใน modules/documents) ผู้รับต้องเปิดเมนู \"หนังสือเข้าถึงฉัน\" เอง ตัวเลขหนังสือที่ยังไม่เปิดอ่านแสดงเฉพาะในหน้านั้น ไม่มีตัวเลขที่เมนูด้านซ้าย",
+  "ทะเบียนหนังสือไม่มีปุ่มลบ หนังสือที่ลงทะเบียนแล้วลบไม่ได้ ทำได้เพียงยกเลิกพร้อมเหตุผล เลขทะเบียนยังคงอยู่ ข้อมูลทดลองทุกฉบับที่ถูกยกเลิกจึงยังเห็นในทะเบียน ไฟล์แนบของหนังสือที่ยกเลิกแล้วลบไม่ได้ (ขั้นตอนล้างข้อมูลลบไฟล์ก่อนยกเลิก)"
+]
+}

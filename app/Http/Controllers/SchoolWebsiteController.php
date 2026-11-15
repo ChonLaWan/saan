@@ -94,6 +94,8 @@ class SchoolWebsiteController extends Controller
         $context=$this->context();$extra=[];
         // G3: the staff page may read the personnel register instead of hand-written person posts (site setting directory_source)
         if($type==='person'&&$this->directorySource($context['site'])==='personnel')$extra['personnelStaff']=\Saan\Modules\Personnel\Staff::directory();
+        // the "reference to another school's notice" filter and its explanation only appear when such a published notice exists
+        if(in_array($type,['job','procurement'],true))$extra['hasReference']=$this->query($type)->where('metadata->source_kind','reference')->exists();
         return view('website.collection',$context)->with(['posts'=>$posts,'collection'=>$type,'pageTitle'=>ContentTypes::TYPES[$type]['label']]+$extra);
     }
     /** 'personnel' only when chosen AND the personnel module is active with its tables; otherwise always 'manual'. */

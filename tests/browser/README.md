@@ -1,4 +1,4 @@
-# Browser layout audit
+# Browser audits: layout and contrast
 
 PHPUnit never opens a browser. It cannot see text printed over other text, a table that pushes a page sideways, or a request that
 fails only inside a page's JavaScript. `layout_audit.py` opens a running install in a real Chrome (Playwright), at four widths
@@ -60,6 +60,9 @@ Arguments (each has an environment variable):
 | `--widths`    | `SAAN_AUDIT_WIDTHS`    | default `1440,1024,768,390` |
 | `--channel`   | `SAAN_AUDIT_CHANNEL`   | `chrome` (default), `msedge`, `bundled` |
 | `--jobs N`    | `SAAN_AUDIT_JOBS`      | N parallel browser processes (default 1; 4 is a good choice, a full run is long) |
+| `--scheme`  | `SAAN_AUDIT_SCHEME`  | `light` (default) or `dark`: the colour scheme of the application's appearance switch (also sets the browser's preferred scheme) |
+| `--scope`   | `SAAN_AUDIT_SCOPE`   | `all` (default); `app`: staff pages, sign-in pages and the signed-in student and guardian portals (no public school website); `staff`: staff pages and the staff sign-in pages only |
+| `--state-widths` | `SAAN_AUDIT_STATE_WIDTHS` | drive the pages (selects, tabs, forms) only at these widths, e.g. `1440,390` (default: every width) |
 | `--no-states` |                        | first state of every page only |
 
 Output folder: `findings.txt` (readable list, empty when clean), `report.json` (every check, with counts), one screenshot per
@@ -98,3 +101,22 @@ sticky bar opaque), not with `overflow:hidden` or a smaller font. Then copy the 
 ```
 python -I tests/browser/layout_audit.py --base ... --accounts ... --only /work#documents
 ```
+
+## Contrast audit (`contrast_audit.py`)
+
+Same arguments, pages and states as the layout audit. CSS-only checkers cannot judge text on glass, because the colour behind a glass panel is
+the panel over a blurred scene, so this tool measures the rendered pixels. For every visible line of text it reads the computed colour (with the
+opacity of its ancestors), hides all text on the page, takes a screenshot, and compares the text colour with each pixel behind the line. The worst
+case (3rd percentile) must reach 4.5:1, or 3:1 for large text (24px, or 18.66px and bold). It also checks that every bordered control (and every
+input, select and textarea) can be told from what is around it by its border or its fill (3:1), and that the focus ring of the first focusable
+controls of a page is at least 2px thick and 3:1 against its surroundings. Disabled controls are exempt. Text that is partly under another
+element (a sticky bar) is judged where it is fully visible.
+
+```
+python -I tests/browser/contrast_audit.py --base ... --accounts ... --out ./contrast-out --scheme dark --jobs 4
+```
+
+Needs `numpy` and `Pillow` besides Playwright. The enlarged pixels that were measured for the first 40 findings are saved in `crops/` next to
+`findings.txt`; a finding reads `contrast 3.24:1 (needs 4.5): 'text' 13px color=... behind rgb(min)..rgb(max) in <box>`. Fix it by raising the
+fill opacity of the surface or darkening the text token, not by lightening the text. Run both schemes; a full release check is
+`layout_audit.py` and `contrast_audit.py` for `--scheme light` and `--scheme dark`, all four with exit code 0.

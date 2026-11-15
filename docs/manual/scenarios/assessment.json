@@ -1,0 +1,1926 @@
+{
+  "module": "assessment",
+  "title": "หลักสูตรรายวิชาและบันทึกคะแนน",
+  "area": "งานวิชาการและงานนักเรียน",
+  "purpose": "ผู้ดูแลระบบและผู้อำนวยการตั้งรายวิชา เปิดรายวิชาให้ห้องในแต่ละภาคเรียน มอบหมายครูผู้สอน และกำหนดเกณฑ์คะแนน (องค์ประกอบคะแนน คะแนนเต็ม และสัดส่วนระหว่างภาคต่อปลายภาค) ครูผู้สอนกรอกคะแนนของนักเรียนทั้งห้องเป็นตารางเดียว ระบบคำนวณคะแนนรวมและเกรด 8 ระดับให้ทันที เก็บประวัติทุกครั้งที่แก้คะแนนพร้อมชื่อผู้แก้และเหตุผล และเมื่อสิ้นภาคเรียนผู้ดูแลระบบปิดผลรายวิชา ซึ่งทำให้แก้คะแนนไม่ได้ ครูเห็นเฉพาะรายวิชาที่ได้รับมอบหมาย",
+  "roles": [
+    "ผู้ดูแลระบบและผู้อำนวยการ (ตั้งรายวิชา มอบหมายครู ปิดและเปิดผล ดูและแก้คะแนนทุกรายวิชา)",
+    "ครูผู้สอน (กรอกคะแนนรายวิชาที่ได้รับมอบหมาย)"
+  ],
+  "menu": [
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"บันทึกคะแนน\" (/work#scores)",
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"รายวิชาและครูผู้สอน\" (/work#courses) สำหรับผู้ดูแลระบบและผู้อำนวยการ"
+  ],
+  "prerequisites": [
+    {
+      "module": "academic",
+      "text": "ต้องมีภาคเรียนปัจจุบัน ห้องเรียน และรายชื่อครู"
+    },
+    {
+      "module": "registry",
+      "text": "ต้องมีนักเรียนในห้องจึงกรอกคะแนนได้"
+    }
+  ],
+  "vars": {
+    "subject_code": "TM{{run_id}}",
+    "subject_name": "วิชาตัวอย่าง {{marker}}",
+    "subject_name2": "วิชาตัวอย่าง {{marker}} (แก้ไขแล้ว)",
+    "room": "ม.4/1"
+  },
+  "workflows": [
+    {
+      "id": "add-subject",
+      "title": "เพิ่มรายวิชาในหลักสูตร",
+      "intro": "รายวิชาคือชื่อวิชาของโรงเรียน เช่น ค21101 คณิตศาสตร์ ต้องกรอกรหัสวิชาและชื่อวิชา ส่วนกลุ่มสาระ หน่วยกิต ชั่วโมงต่อปี และชั้นที่เปิดสอนไม่บังคับ รหัสวิชาซ้ำไม่ได้ รายวิชาที่ยังไม่เปิดให้ห้องใดลบได้ ส่วนรายวิชาที่ใช้แล้วให้ปิดการใช้งานแทน",
+      "role": "admin",
+      "start": "/work",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "รายวิชาและครูผู้สอน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"รายวิชาและครูผู้สอน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "form[data-form=subject]"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "text": "{{subject_code}}"
+            }
+          },
+          "comment": "precondition: no leftover subject of an earlier run"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสวิชา",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=subject]"
+            }
+          },
+          "value": "{{subject_code}}",
+          "say": "พิมพ์รหัสวิชาในช่อง \"รหัสวิชา\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=subject]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อวิชา",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=subject]"
+            }
+          },
+          "value": "{{subject_name}}",
+          "say": "พิมพ์ชื่อวิชาในช่อง \"ชื่อวิชา\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=subject]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "กลุ่มสาระ",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=subject]"
+            }
+          },
+          "value": "คณิตศาสตร์",
+          "say": "พิมพ์กลุ่มสาระในช่อง \"กลุ่มสาระ\" (ไม่บังคับ)",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=subject]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หน่วยกิต",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=subject]"
+            }
+          },
+          "value": "1",
+          "say": "พิมพ์จำนวนหน่วยกิตในช่อง \"หน่วยกิต\" ระบบใช้หน่วยกิตคำนวณเกรดเฉลี่ย",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=subject]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มรายวิชา",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=subject]"
+            }
+          },
+          "say": "กดปุ่ม \"เพิ่มรายวิชา\" ระบบแสดงข้อความ \"บันทึกรายวิชาแล้ว\" และเพิ่มรายการในรายการรายวิชา",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".as-notice.as-ok"
+          },
+          "wait_after": {
+            "css": ".as-notice.as-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "li.as-row",
+              "has_text": "{{subject_code}}"
+            }
+          },
+          "say": "รายวิชาที่เพิ่มปรากฏในรายการ พร้อมปุ่ม \"แก้ไข\" และ \"ลบ\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "li.as-row",
+            "has_text": "{{subject_code}}"
+          }
+        }
+      ],
+      "expected": "รายการรายวิชามีแถวใหม่ที่ขึ้นต้นด้วยรหัสวิชา ชื่อวิชา กลุ่มสาระ และหน่วยกิต",
+      "verify": [
+        {
+          "title": "เปิดหน้ารายวิชาใหม่ รายวิชาที่เพิ่มต้องยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#courses",
+              "wait_after": {
+                "css": "form[data-form=subject]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "1 หน่วยกิต",
+                "in": {
+                  "css": "li.as-row",
+                  "has_text": "{{subject_code}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open-course",
+      "title": "เปิดรายวิชาให้ห้องและมอบหมายครูผู้สอน",
+      "intro": "รายวิชาที่เปิดให้ห้องเรียกว่ารายวิชาที่เปิดสอนของภาคเรียนนั้น ต้องเลือกรายวิชาและห้อง ส่วนครูผู้สอนเลือกภายหลังได้ ระบบใช้เกณฑ์คะแนนมาตรฐาน คะแนนระหว่างภาคเต็ม 70 และปลายภาคเต็ม 30 ผ่านเมื่อรวมไม่ต่ำกว่า 50 ปรับชื่อ คะแนนเต็ม และสัดส่วนได้ก่อนมีคะแนน ครูผู้สอนต้องได้รับมอบหมายจึงเห็นรายวิชาในเมนู \"บันทึกคะแนน\"",
+      "role": "admin",
+      "start": "/admin/users",
+      "depends_on": [
+        "add-subject"
+      ],
+      "core": true,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "heading",
+            "name": "เพิ่มผู้ใช้งาน"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "details.account-user summary",
+            "has_text": "subject@"
+          },
+          "wait_after": {
+            "css": "details.account-user[open]"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "details.account-user[open] select[name=teacher_id] option[selected]",
+            "include_hidden": true
+          },
+          "var": "teacher_name"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "รายวิชาและครูผู้สอน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"รายวิชาและครูผู้สอน\" ที่แถบเมนูด้านซ้าย แล้วเลื่อนลงที่หัวข้อ \"เปิดรายวิชาให้ห้อง\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "form[data-form=course]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "subject_id"
+            },
+            "within": {
+              "css": "form[data-form=course]"
+            }
+          },
+          "label": "{{subject_code}} {{subject_name}}",
+          "say": "เลือกรายวิชาในช่อง \"รายวิชา\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=course]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "classroom_id"
+            },
+            "within": {
+              "css": "form[data-form=course]"
+            }
+          },
+          "label": "{{room}}",
+          "say": "เลือกห้องในช่อง \"ห้อง\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=course]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "teacher_id"
+            },
+            "within": {
+              "css": "form[data-form=course]"
+            }
+          },
+          "label": "{{teacher_name}}",
+          "say": "เลือกครูผู้สอนในช่อง \"ครูผู้สอน\" หรือเลือก \"ยังไม่มอบหมาย\" ไว้ก่อน",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=course]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มรายวิชาให้ห้อง",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"เพิ่มรายวิชาให้ห้อง\" ระบบแสดงข้อความ \"เพิ่มรายวิชาให้ห้องแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".as-notice.as-ok"
+          },
+          "wait_after": {
+            "css": ".as-notice.as-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "li.as-row[data-course]",
+              "has_text": "{{subject_code}}"
+            }
+          },
+          "say": "รายวิชาที่เปิดสอนปรากฏในหัวข้อ \"รายวิชาที่เปิดสอน\" ท้ายหน้า พร้อมช่องเลือกครู ปุ่ม \"เกณฑ์คะแนน\" \"ปิดผล\" และ \"ลบ\" และสรุปเกณฑ์คะแนน",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "li.as-row[data-course]",
+            "has_text": "{{subject_code}}"
+          }
+        }
+      ],
+      "expected": "รายวิชาที่เปิดสอนของห้องปรากฏพร้อมชื่อครูที่มอบหมายและสรุปเกณฑ์ \"คะแนนระหว่างภาค 70 + คะแนนปลายภาค 30 · 70:30 · ผ่าน 50\"",
+      "verify": [
+        {
+          "title": "เปิดหน้ารายวิชาใหม่ รายวิชาที่เปิดสอนต้องยังอยู่พร้อมเกณฑ์คะแนน",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#courses",
+              "wait_after": {
+                "css": "form[data-form=course]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "li.as-row[data-course]",
+                    "has_text": "{{subject_code}}"
+                  }
+                },
+                {
+                  "text": "70:30",
+                  "in": {
+                    "css": "li.as-row[data-course]",
+                    "has_text": "{{subject_code}}"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-policy",
+      "title": "ปรับชื่อองค์ประกอบคะแนนของรายวิชา (ก่อนมีคะแนน)",
+      "intro": "ปุ่ม \"เกณฑ์คะแนน\" เปิดแบบฟอร์มแก้ชื่อและคะแนนเต็มขององค์ประกอบคะแนน และสัดส่วนระหว่างภาคกับปลายภาค แก้ได้เฉพาะรายวิชาที่ยังไม่มีคะแนน เมื่อมีคะแนนแล้วช่องทั้งหมดถูกล็อก",
+      "role": "admin",
+      "start": "/work#courses",
+      "depends_on": [
+        "open-course"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-form=course]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เกณฑ์คะแนน",
+            "exact": true,
+            "within": {
+              "css": "li.as-row[data-course]",
+              "has_text": "{{subject_code}}"
+            }
+          },
+          "say": "กดปุ่ม \"เกณฑ์คะแนน\" ในแถวของรายวิชา แบบฟอร์มเกณฑ์คะแนนเปิดใต้แถวนั้น",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "form[data-form=policy]"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "[data-pass-rule]"
+            }
+          },
+          "say": "ช่องเกณฑ์ผ่านไม่มีให้แก้ ข้อความใต้แบบฟอร์มระบุว่าเกณฑ์ผ่านคือคะแนนรวมไม่ต่ำกว่า 50 คะแนน เป็นค่าตายตัวตามตารางเกรด จึงแก้ในหน้านี้ไม่ได้",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "[data-pass-rule]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อองค์ประกอบ",
+            "within": {
+              "css": "form[data-form=policy] .as-comp"
+            },
+            "first": true
+          },
+          "value": "คะแนนเก็บระหว่างภาค",
+          "say": "แก้ชื่อในช่อง \"ชื่อองค์ประกอบ\" ของแถวแรก ช่องอื่นที่แก้ได้คือ คะแนนเต็มของแต่ละองค์ประกอบ และสัดส่วนระหว่างภาคกับปลายภาค (รวมกัน 100)",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=policy]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกเกณฑ์คะแนน",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"บันทึกเกณฑ์คะแนน\" ระบบแสดงข้อความ \"บันทึกเกณฑ์คะแนนแล้ว\" และสรุปเกณฑ์ใต้ชื่อรายวิชาแสดงชื่อองค์ประกอบใหม่",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".as-notice.as-ok"
+          },
+          "wait_after": {
+            "css": ".as-notice.as-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "คะแนนเก็บระหว่างภาค 70",
+            "in": {
+              "css": "li.as-row[data-course]",
+              "has_text": "{{subject_code}}"
+            }
+          }
+        }
+      ],
+      "expected": "สรุปเกณฑ์ของรายวิชาแสดง \"คะแนนเก็บระหว่างภาค 70 + คะแนนปลายภาค 30\"",
+      "verify": [
+        {
+          "title": "เปิดหน้ารายวิชาใหม่ ชื่อองค์ประกอบใหม่ต้องยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#courses",
+              "wait_after": {
+                "css": "form[data-form=course]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "คะแนนเก็บระหว่างภาค 70",
+                "in": {
+                  "css": "li.as-row[data-course]",
+                  "has_text": "{{subject_code}}"
+                }
+              },
+              "say": "เปิดหน้า \"รายวิชาและครูผู้สอน\" ใหม่ สรุปเกณฑ์ของรายวิชายังแสดงชื่อองค์ประกอบที่แก้ไข",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "li.as-row[data-course]",
+                "has_text": "{{subject_code}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "teacher-enters-scores",
+      "title": "ครูผู้สอนกรอกคะแนนรายวิชาของห้อง",
+      "intro": "เมนู \"บันทึกคะแนน\" แสดงเฉพาะรายวิชาที่ได้รับมอบหมาย การ์ดของแต่ละวิชามีแถบแสดงจำนวนช่องที่กรอกแล้ว เปิดวิชาแล้วกรอกคะแนนของนักเรียนทั้งห้องในตารางเดียว ใช้ปุ่มลูกศรขึ้นลงหรือ Enter เลื่อนไปช่องถัดไป ช่องที่ยังไม่บันทึกมีสีเน้น คะแนนเป็นตัวเลขไม่เกินสองตำแหน่งทศนิยมและไม่เกินคะแนนเต็ม ระบบคำนวณคะแนนรวมและเกรดเมื่อกรอกครบทุกองค์ประกอบ",
+      "role": "subject",
+      "start": "/work",
+      "depends_on": [
+        "edit-policy"
+      ],
+      "core": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "บันทึกคะแนน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"บันทึกคะแนน\" ที่แถบเมนูด้านซ้าย ระบบแสดงรายวิชาที่ได้รับมอบหมายในภาคเรียนปัจจุบัน",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "li.as-course"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{subject_name}}",
+            "within": {
+              "css": "li.as-course"
+            }
+          },
+          "say": "กดการ์ดของรายวิชาที่ต้องการกรอกคะแนน",
+          "shot": true,
+          "crop": "tight",
+          "wait_after": {
+            "css": "table.as-grid"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=continuous]",
+            "nth": 0
+          },
+          "value": "99",
+          "say": "คลิกช่อง \"คะแนนระหว่างภาค\" ของนักเรียนคนแรกแล้วพิมพ์คะแนน ที่นี่ลองพิมพ์ค่าเกินคะแนนเต็ม 70 ช่องที่ยังไม่บันทึกจะมีสีเน้นและตัวเลขหน้าปุ่ม \"บันทึก\" เพิ่มขึ้น",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ช่องที่ยังไม่บันทึก"
+          },
+          "say": "กดปุ่ม \"... ช่องที่ยังไม่บันทึก · บันทึก\" ระบบไม่บันทึกและแจ้งว่าคะแนนต้องเป็นตัวเลขที่ไม่เกินคะแนนเต็ม พร้อมทำเครื่องหมายช่องที่ผิด",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".as-notice.as-error"
+          },
+          "wait_after": {
+            "css": ".as-notice.as-error"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=continuous]",
+            "nth": 0
+          },
+          "value": "65"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=exam]",
+            "nth": 0
+          },
+          "value": "25",
+          "say": "แก้เป็นคะแนนที่ถูกต้อง แล้วกรอกช่อง \"คะแนนปลายภาค\" ของนักเรียนคนเดียวกัน",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=continuous]",
+            "nth": 1
+          },
+          "value": "30"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=exam]",
+            "nth": 1
+          },
+          "value": "12",
+          "say": "กรอกคะแนนของนักเรียนคนถัดไปในแถวถัดลงมา",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เหตุผลที่แก้",
+            "within": {
+              "css": ".as-savebar"
+            }
+          },
+          "value": "กรอกคะแนนครั้งแรก",
+          "say": "พิมพ์เหตุผลในช่อง \"เหตุผลที่แก้ (ถ้ามี)\" ข้างปุ่มบันทึก ช่องนี้จำเป็นเมื่อแก้คะแนนของภาคเรียนที่ผ่านมา",
+          "shot": true,
+          "crop": {
+            "css": ".as-savebar"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ช่องที่ยังไม่บันทึก"
+          },
+          "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกแล้ว 4 ช่อง\" พร้อมเวลา และไฮไลต์แถวที่บันทึก คะแนนที่แสดงอ่านกลับจากฐานข้อมูล",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".as-notice.as-ok"
+          },
+          "wait_after": {
+            "css": ".as-notice.as-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "เกรด",
+              "in": {
+                "css": "tr[data-row] td.as-total",
+                "nth": 0
+              }
+            },
+            {
+              "text": "เกรด",
+              "in": {
+                "css": "tr[data-row] td.as-total",
+                "nth": 1
+              }
+            }
+          ],
+          "say": "คอลัมน์ \"รวม/เกรด\" ของสองคนแสดงคะแนนรวมและเกรด คนที่ยังไม่มีคะแนนแสดง \"กรอกไม่ครบ\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "tr[data-row] td.as-total",
+            "nth": 0
+          }
+        }
+      ],
+      "expected": "ตารางแสดงคะแนนที่กรอก คะแนนรวม และเกรดของนักเรียนสองคนแรก และมีข้อความ \"บันทึกแล้ว 4 ช่อง\"",
+      "verify": [
+        {
+          "title": "เปิดหน้ารายวิชาใหม่ คะแนนที่กรอกต้องยังอยู่ในตาราง",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#scores",
+              "wait_after": {
+                "css": "li.as-course"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{subject_name}}",
+                "within": {
+                  "css": "li.as-course"
+                }
+              },
+              "wait_after": {
+                "css": "table.as-grid"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "value": "65",
+                  "of": {
+                    "css": ".as-cell[data-key=continuous]",
+                    "nth": 0
+                  }
+                },
+                {
+                  "value": "12",
+                  "of": {
+                    "css": ".as-cell[data-key=exam]",
+                    "nth": 1
+                  }
+                }
+              ],
+              "say": "เปิดรายวิชาใหม่จากเมนู \"บันทึกคะแนน\" คะแนนที่กรอกยังอยู่ในตาราง",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "tr[data-row]",
+                "nth": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-score-history",
+      "title": "แก้คะแนนและดูประวัติการแก้ไข",
+      "intro": "ทุกครั้งที่คะแนนเปลี่ยน ระบบเก็บค่าเดิม ค่าใหม่ เวลา ชื่อผู้แก้ และเหตุผล ปุ่ม \"ประวัติ\" ท้ายแถวของนักเรียนแสดงรายการเหล่านี้ ครูแก้คะแนนของภาคเรียนปัจจุบันได้ ส่วนภาคเรียนที่ผ่านมาแก้ได้เฉพาะผู้ดูแลระบบและต้องระบุเหตุผล",
+      "role": "subject",
+      "start": "/work#scores",
+      "depends_on": [
+        "teacher-enters-scores"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "li.as-course"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{subject_name}}",
+            "within": {
+              "css": "li.as-course"
+            }
+          },
+          "wait_after": {
+            "css": "table.as-grid"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=continuous]",
+            "nth": 0
+          },
+          "value": "60",
+          "say": "แก้คะแนนในช่อง \"คะแนนระหว่างภาค\" ของนักเรียนคนแรก",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เหตุผลที่แก้",
+            "within": {
+              "css": ".as-savebar"
+            }
+          },
+          "value": "ตรวจทานใบงานใหม่",
+          "say": "พิมพ์เหตุผลที่แก้ในช่อง \"เหตุผลที่แก้ (ถ้ามี)\"",
+          "shot": true,
+          "crop": {
+            "css": ".as-savebar"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ช่องที่ยังไม่บันทึก"
+          },
+          "say": "กดปุ่ม \"บันทึก\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".as-notice.as-ok"
+          },
+          "wait_after": {
+            "css": ".as-notice.as-ok"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ประวัติ",
+            "exact": true,
+            "within": {
+              "css": "tr[data-row]",
+              "nth": 0
+            }
+          },
+          "say": "กดปุ่ม \"ประวัติ\" ท้ายแถวของนักเรียนคนแรก ด้านล่างตารางแสดงประวัติการแก้คะแนนของคนนั้น",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "ul.as-revs"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "65 → 60",
+              "in": {
+                "css": "ul.as-revs"
+              }
+            },
+            {
+              "text": "ตรวจทานใบงานใหม่",
+              "in": {
+                "css": "ul.as-revs"
+              }
+            }
+          ],
+          "say": "แต่ละรายการบอกองค์ประกอบ ค่าเดิม ค่าใหม่ เวลา ชื่อผู้แก้ และเหตุผล เช่น \"65 → 60\"",
+          "shot": true,
+          "crop": {
+            "css": "section.as-card",
+            "has_text": "ประวัติการแก้คะแนน"
+          },
+          "highlight": {
+            "css": "ul.as-revs li",
+            "first": true
+          }
+        }
+      ],
+      "expected": "ประวัติแสดงรายการแก้คะแนนจาก 65 เป็น 60 พร้อมชื่อครูและเหตุผล และรายการกรอกครั้งแรก",
+      "verify": [
+        {
+          "title": "เปิดประวัติของนักเรียนคนเดิมใหม่ รายการแก้คะแนนต้องยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#scores",
+              "wait_after": {
+                "css": "li.as-course"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{subject_name}}",
+                "within": {
+                  "css": "li.as-course"
+                }
+              },
+              "wait_after": {
+                "css": "table.as-grid"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "ประวัติ",
+                "exact": true,
+                "within": {
+                  "css": "tr[data-row]",
+                  "nth": 0
+                }
+              },
+              "wait_after": {
+                "css": "ul.as-revs"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "65 → 60",
+                "in": {
+                  "css": "ul.as-revs"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "admin-views-scores",
+      "title": "ผู้ดูแลระบบดูรายวิชาทั้งหมดและคะแนนที่ครูกรอก และดูภาคเรียนที่ผ่านมา",
+      "intro": "ผู้ดูแลระบบและผู้อำนวยการเห็นรายวิชาของทุกครู การ์ดแต่ละใบแสดงชื่อครูผู้สอนและความคืบหน้าของการกรอกคะแนน ช่อง \"ดูภาคเรียนอื่น\" เปิดรายวิชาของภาคเรียนที่ผ่านมาแบบอ่านอย่างเดียว",
+      "role": "admin",
+      "start": "/work",
+      "depends_on": [
+        "edit-score-history"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "บันทึกคะแนน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"บันทึกคะแนน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "li.as-course"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "css": "li.as-course",
+                "has_text": "{{subject_code}}"
+              }
+            },
+            {
+              "text": "กรอกแล้ว 4 / 40 ช่อง",
+              "in": {
+                "css": "li.as-course",
+                "has_text": "{{subject_code}}"
+              }
+            }
+          ],
+          "say": "การ์ดของรายวิชาแสดงชื่อครูผู้สอน สถานะ \"เปิดรับคะแนน\" และ \"กรอกแล้ว 4 / 40 ช่อง\" (20 คน x 2 องค์ประกอบ)",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "li.as-course",
+            "has_text": "{{subject_code}}"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ดูภาคเรียนอื่น"
+          },
+          "label": "ปีการศึกษา 2569 ภาคเรียนที่ 1",
+          "say": "เลือกภาคเรียนที่ผ่านมาในช่อง \"ดูภาคเรียนอื่น\" รายการเปลี่ยนเป็นรายวิชาของภาคเรียนนั้น และมีข้อความ \"ย้อนหลัง อ่านเพื่อดูเท่านั้น\"",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "text": "ย้อนหลัง อ่านเพื่อดูเท่านั้น"
+          }
+        }
+      ],
+      "expected": "ผู้ดูแลเห็นรายวิชาของทุกครูและเปลี่ยนไปดูภาคเรียนที่ผ่านมาได้",
+      "verify": [
+        {
+          "title": "รายการของภาคเรียนที่ผ่านมามีรายวิชาและไม่มีรายวิชาทดสอบ",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "li.as-course",
+                    "first": true
+                  }
+                },
+                {
+                  "hidden": {
+                    "css": "li.as-course",
+                    "has_text": "{{subject_code}}"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "other-teacher-cannot-see",
+      "title": "ครูคนอื่นไม่เห็นรายวิชาที่ไม่ได้รับมอบหมาย",
+      "intro": "ครูเห็นเฉพาะรายวิชาที่ผู้ดูแลระบบมอบหมายให้ตนเอง ครูประจำชั้นที่ไม่ได้สอนวิชาที่เพิ่ม จึงไม่เห็นการ์ดของรายวิชานั้น",
+      "role": "homeroom",
+      "start": "/work",
+      "depends_on": [
+        "teacher-enters-scores"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "บันทึกคะแนน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"บันทึกคะแนน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": ".as-lead"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "li.as-course",
+              "has_text": "{{subject_code}}"
+            }
+          },
+          "say": "รายการของครูประจำชั้นไม่มีรายวิชาที่ผู้ดูแลมอบหมายให้ครูท่านอื่น",
+          "shot": true,
+          "crop": "panel",
+          "highlight": false
+        }
+      ],
+      "expected": "ครูเห็นเฉพาะรายวิชาของตนเอง",
+      "verify": [
+        {
+          "title": "ไม่มีการ์ดของรายวิชาที่เพิ่มในรายการของครูประจำชั้น",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "text": "{{subject_code}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open-course-for-whole-level",
+      "title": "เปิดรายวิชาให้ทุกห้องของระดับชั้นพร้อมกัน แล้วลบรายวิชาทดสอบ",
+      "intro": "ฟอร์ม \"เปิดทั้งระดับชั้น\" สร้างรายวิชาให้ทุกห้องของระดับชั้นที่เลือกในครั้งเดียว ขั้นตอนนี้เพิ่มรายวิชาทดสอบ แล้วเปิดให้ระดับ ม.4 และลบรายวิชาทดสอบเป็นขั้นตอนสุดท้าย (รายวิชานี้ยังไม่มีคะแนน จึงลบได้)",
+      "role": "admin",
+      "start": "/work#courses",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "รายวิชาและครูผู้สอน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"รายวิชาและครูผู้สอน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "form[data-form=subject]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสวิชา",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=subject]"
+            }
+          },
+          "value": "TB{{run_id}}",
+          "say": "พิมพ์รหัสวิชาทดสอบในช่อง \"รหัสวิชา\""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อวิชา",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=subject]"
+            }
+          },
+          "value": "{{marker}} วิชาเปิดทั้งระดับ",
+          "say": "พิมพ์ชื่อวิชาทดสอบในช่อง \"ชื่อวิชา\""
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มรายวิชา",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=subject]"
+            }
+          },
+          "say": "กดปุ่ม \"เพิ่มรายวิชา\" ระบบเพิ่มรายวิชาทดสอบ",
+          "wait_after": {
+            "css": ".as-notice.as-ok"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "subject_id"
+            },
+            "within": {
+              "css": "form[data-form=bulk]"
+            }
+          },
+          "label": "TB{{run_id}} {{marker}} วิชาเปิดทั้งระดับ",
+          "say": "ในหัวข้อ \"เปิดทั้งระดับชั้น\" เลือกรายวิชาทดสอบ",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=bulk]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "grade_level"
+            },
+            "within": {
+              "css": "form[data-form=bulk]"
+            }
+          },
+          "label": "ม.4",
+          "say": "เลือกระดับชั้น \"ม.4\""
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างให้ทุกห้องของชั้น",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=bulk]"
+            }
+          },
+          "say": "กดปุ่ม \"สร้างให้ทุกห้องของชั้น\" ระบบเปิดรายวิชาให้ทุกห้องของ ม.4",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": ".as-notice.as-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "li.as-row[data-course]",
+              "has_text": "{{marker}} วิชาเปิดทั้งระดับ"
+            }
+          },
+          "say": "รายวิชาทดสอบปรากฏในรายการรายวิชาที่เปิดสอนของห้อง ม.4/1",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "li.as-row[data-course]",
+            "has_text": "{{marker}} วิชาเปิดทั้งระดับ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "li.as-row[data-course]",
+              "has_text": "{{marker}} วิชาเปิดทั้งระดับ"
+            }
+          },
+          "dialog": "accept",
+          "say": "กดปุ่ม \"ลบ\" ท้ายรายวิชาทดสอบเพื่อเอาออก",
+          "wait_after": {
+            "css": ".as-notice.as-ok"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "li.as-row",
+              "has_text": "TB{{run_id}}"
+            }
+          },
+          "dialog": "accept",
+          "say": "กดปุ่ม \"ลบ\" ท้ายรายวิชาทดสอบในรายการรายวิชา",
+          "wait_after": {
+            "css": ".as-notice.as-ok"
+          }
+        }
+      ],
+      "expected": "ระบบเปิดรายวิชาให้ทุกห้องของ ม.4 และรายวิชาทดสอบถูกลบเมื่อจบขั้นตอน",
+      "verify": [
+        {
+          "title": "รายวิชาทดสอบไม่อยู่ในรายการเมื่อเปิดหน้าใหม่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#courses",
+              "wait_after": {
+                "css": "form[data-form=subject]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "css": "li.as-row",
+                  "has_text": "{{marker}} วิชาเปิดทั้งระดับ"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "grade-band-check",
+      "title": "ตรวจเกรดตามช่วงคะแนนที่ขอบเขต แล้วล้างคะแนนทดสอบ",
+      "intro": "เกรด 8 ระดับคงที่ตามตาราง (80 ขึ้นไป 4, 75 3.5, 70 3, 65 2.5, 60 2, 55 1.5, 50 1, ต่ำกว่า 50 เกรด 0) ขั้นตอนนี้กรอกคะแนนทดสอบให้ได้ 50, 79, 80 และ 74 แล้วดูเกรดแต่ละแถว และล้างคะแนนเป็นขั้นตอนสุดท้าย",
+      "role": "admin",
+      "start": "/work#scores",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "li.as-course"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{subject_name}}",
+            "within": {
+              "css": "li.as-course"
+            }
+          },
+          "say": "กดการ์ดของรายวิชาทดสอบที่ยังเปิดรับคะแนน",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "table.as-grid"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=continuous]",
+            "nth": 2
+          },
+          "value": "50"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=exam]",
+            "nth": 2
+          },
+          "value": "0"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=continuous]",
+            "nth": 3
+          },
+          "value": "70"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=exam]",
+            "nth": 3
+          },
+          "value": "9"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=continuous]",
+            "nth": 4
+          },
+          "value": "70"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=exam]",
+            "nth": 4
+          },
+          "value": "10"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=continuous]",
+            "nth": 5
+          },
+          "value": "64"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=exam]",
+            "nth": 5
+          },
+          "value": "10"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ช่องที่ยังไม่บันทึก"
+          },
+          "say": "กดปุ่ม \"บันทึก\" ระบบคำนวณรวมและเกรดของทุกแถว",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": ".as-notice.as-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "เกรด 1",
+              "in": {
+                "css": "tr[data-row] td.as-total",
+                "nth": 2
+              }
+            },
+            {
+              "text": "เกรด 3.5",
+              "in": {
+                "css": "tr[data-row] td.as-total",
+                "nth": 3
+              }
+            },
+            {
+              "text": "เกรด 4",
+              "in": {
+                "css": "tr[data-row] td.as-total",
+                "nth": 4
+              }
+            },
+            {
+              "text": "เกรด 3",
+              "in": {
+                "css": "tr[data-row] td.as-total",
+                "nth": 5
+              }
+            }
+          ],
+          "say": "คะแนนรวม 50 ได้เกรด 1 รวม 79 ได้เกรด 3.5 รวม 80 ได้เกรด 4 และรวม 74 ได้เกรด 3",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "tr[data-row] td.as-total",
+            "nth": 3
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=continuous]",
+            "nth": 2
+          },
+          "value": ""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=exam]",
+            "nth": 2
+          },
+          "value": ""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=continuous]",
+            "nth": 3
+          },
+          "value": ""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=exam]",
+            "nth": 3
+          },
+          "value": ""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=continuous]",
+            "nth": 4
+          },
+          "value": ""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=exam]",
+            "nth": 4
+          },
+          "value": ""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=continuous]",
+            "nth": 5
+          },
+          "value": ""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=exam]",
+            "nth": 5
+          },
+          "value": ""
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ช่องที่ยังไม่บันทึก"
+          },
+          "wait_after": {
+            "css": ".as-notice.as-ok"
+          }
+        }
+      ],
+      "expected": "เกรดแต่ละแถวตรงตามช่วงคะแนนในตาราง และคะแนนทดสอบถูกล้างเมื่อจบขั้นตอน",
+      "verify": [
+        {
+          "title": "หลังล้างคะแนนทดสอบ แถวทดสอบแสดงกรอกไม่ครบ",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#scores",
+              "wait_after": {
+                "css": "li.as-course"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{subject_name}}",
+                "within": {
+                  "css": "li.as-course"
+                }
+              },
+              "wait_after": {
+                "css": "table.as-grid"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "กรอกไม่ครบ",
+                "in": {
+                  "css": "tr[data-row] td.as-total",
+                  "nth": 4
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "close-results",
+      "title": "ปิดผลรายวิชา (ครูแก้คะแนนไม่ได้อีก) และเปิดผลอีกครั้ง",
+      "intro": "เมื่อสิ้นภาคเรียนและตรวจคะแนนครบ ผู้ดูแลระบบกด \"ปิดผล\" รายวิชานั้นแก้คะแนนไม่ได้อีกและลบไม่ได้ ผลที่ปิดแล้วเป็นข้อมูลของปพ.5 และพอร์ทัลผลการเรียน หากพบข้อผิดพลาดกด \"เปิดผล\" เพื่อกลับไปแก้ไข",
+      "role": "admin",
+      "start": "/work#courses",
+      "depends_on": [
+        "admin-views-scores"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-form=course]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ปิดผล",
+            "exact": true,
+            "within": {
+              "css": "li.as-row[data-course]",
+              "has_text": "{{subject_code}}"
+            }
+          },
+          "say": "กดปุ่ม \"ปิดผล\" ในแถวของรายวิชา ระบบแสดงข้อความ \"ปิดผลแล้ว\" และปุ่มเปลี่ยนเป็น \"เปิดผล\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".as-notice.as-ok"
+          },
+          "wait_after": {
+            "role": "button",
+            "name": "เปิดผล",
+            "exact": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ปิดผลแล้ว",
+            "in": {
+              "css": "li.as-row[data-course]",
+              "has_text": "{{subject_code}}"
+            }
+          },
+          "say": "แถวของรายวิชาแสดงสถานะ \"ปิดผลแล้ว\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "li.as-row[data-course]",
+            "has_text": "{{subject_code}}"
+          }
+        }
+      ],
+      "expected": "รายวิชามีสถานะ \"ปิดผลแล้ว\" และปุ่มเปลี่ยนเป็น \"เปิดผล\"",
+      "verify": [
+        {
+          "title": "ครูผู้สอนเปิดรายวิชาที่ปิดผลแล้ว ช่องคะแนนทุกช่องแก้ไม่ได้",
+          "as": "subject",
+          "start": "/work#scores",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "li.as-course"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "{{subject_name}}",
+                "within": {
+                  "css": "li.as-course"
+                }
+              },
+              "wait_after": {
+                "css": "table.as-grid"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "รายวิชานี้ปิดผลแล้ว ดูได้อย่างเดียว"
+                },
+                {
+                  "disabled": {
+                    "css": ".as-cell[data-key=continuous]",
+                    "nth": 0
+                  }
+                },
+                {
+                  "hidden": {
+                    "role": "button",
+                    "name": "ช่องที่ยังไม่บันทึก"
+                  }
+                }
+              ],
+              "say": "ครูผู้สอนเปิดรายวิชาที่ปิดผลแล้ว ช่องคะแนนแก้ไม่ได้ ไม่มีปุ่มบันทึก และมีข้อความ \"รายวิชานี้ปิดผลแล้ว ดูได้อย่างเดียว\"",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "css": "div.as-notice",
+                "first": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "refuse-delete-course-with-scores",
+      "title": "ลบรายวิชาที่มีคะแนนแล้วไม่ได้ ระบบแจ้งให้ปิดรายวิชาแทน",
+      "intro": "รายวิชาที่มีคะแนนแล้วลบไม่ได้ ให้ปิดรายวิชาแทน ขั้นตอนนี้กดลบรายวิชาทดสอบที่มีคะแนน แล้วยืนยัน เพื่อให้เห็นข้อความที่ระบบแจ้ง รายวิชายังอยู่",
+      "role": "admin",
+      "start": "/work#courses",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-form=course]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "li.as-row[data-course]",
+              "has_text": "{{subject_code}}"
+            }
+          },
+          "dialog": "accept",
+          "say": "กดปุ่ม \"ลบ\" ในแถวรายวิชาที่มีคะแนนแล้ว แล้วยืนยัน ระบบไม่ลบและแจ้งให้ปิดรายวิชาแทน",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": ".as-notice.as-error"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "รายวิชานี้มีคะแนนแล้ว ลบไม่ได้",
+            "in": {
+              "css": ".as-notice.as-error"
+            }
+          },
+          "say": "ระบบแจ้งว่า \"รายวิชานี้มีคะแนนแล้ว ลบไม่ได้ ให้ปิดรายวิชาแทน\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".as-notice.as-error"
+          }
+        }
+      ],
+      "expected": "ระบบแจ้งว่ารายวิชาที่มีคะแนนลบไม่ได้ และรายวิชายังอยู่ในรายการ",
+      "verify": [
+        {
+          "title": "รายวิชาทดสอบยังอยู่ในรายการ",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#courses",
+              "wait_after": {
+                "css": "form[data-form=course]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "li.as-row[data-course]",
+                  "has_text": "{{subject_code}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trash-test-data",
+      "title": "ล้างคะแนนและปิดรายวิชาทดสอบ (ล้างข้อมูลทดสอบ)",
+      "intro": "ขั้นตอนนี้ใช้ตอนทดสอบเท่านั้น เพื่อคืนคะแนนของนักเรียนให้ว่างและปิดรายวิชาที่เพิ่ม ระบบไม่ลบรายวิชาที่มีประวัติคะแนนแล้ว ให้ปิดผลและปิดการใช้งานรายวิชาแทน",
+      "role": "admin",
+      "start": "/work#courses",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-form=course]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดผล",
+            "exact": true,
+            "within": {
+              "css": "li.as-row[data-course]",
+              "has_text": "{{subject_code}}"
+            }
+          },
+          "optional": true,
+          "wait_after": {
+            "role": "button",
+            "name": "ปิดผล",
+            "exact": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "บันทึกคะแนน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "css": "li.as-course"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{subject_name}}",
+            "within": {
+              "css": "li.as-course"
+            }
+          },
+          "optional": true,
+          "wait_after": {
+            "css": "table.as-grid"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=continuous]",
+            "nth": 0
+          },
+          "value": "",
+          "optional": true
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=exam]",
+            "nth": 0
+          },
+          "value": "",
+          "optional": true
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=continuous]",
+            "nth": 1
+          },
+          "value": "",
+          "optional": true
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".as-cell[data-key=exam]",
+            "nth": 1
+          },
+          "value": "",
+          "optional": true
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ช่องที่ยังไม่บันทึก"
+          },
+          "optional": true,
+          "wait_after": {
+            "css": ".as-notice.as-ok"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/work#courses",
+          "wait_after": {
+            "css": "form[data-form=course]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ปิดผล",
+            "exact": true,
+            "within": {
+              "css": "li.as-row[data-course]",
+              "has_text": "{{subject_code}}"
+            }
+          },
+          "optional": true,
+          "wait_after": {
+            "role": "button",
+            "name": "เปิดผล",
+            "exact": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "แก้ไข",
+            "exact": true,
+            "within": {
+              "css": "li.as-row",
+              "has_text": "{{subject_code}}"
+            }
+          },
+          "optional": true,
+          "wait_after": {
+            "role": "button",
+            "name": "ยกเลิก",
+            "exact": true
+          }
+        },
+        {
+          "do": "uncheck",
+          "target": {
+            "label": "เปิดใช้งาน",
+            "within": {
+              "css": "form[data-form=subject]"
+            }
+          },
+          "optional": true
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการแก้ไข",
+            "exact": true
+          },
+          "optional": true,
+          "wait_after": {
+            "css": ".as-notice.as-ok"
+          }
+        }
+      ],
+      "verify": [
+        {
+          "title": "รายวิชาทดสอบถูกปิดผลและไม่มีคะแนนเหลืออยู่ในรายการ",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#scores",
+              "wait_after": {
+                "css": "li.as-course"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "กรอกแล้ว 0 / 40 ช่อง",
+                "in": {
+                  "css": "li.as-course",
+                  "has_text": "{{subject_code}}"
+                }
+              },
+              "say": "การ์ดของรายวิชาทดสอบแสดง \"กรอกแล้ว 0 / 40 ช่อง\" และสถานะ \"ปิดผลแล้ว\"",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "li.as-course",
+                "has_text": "{{subject_code}}"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [
+    {
+      "id": "S1",
+      "promised": "module.json และคำอธิบายโมดูลระบุว่ามี \"คุณลักษณะ/สมรรถนะ\" ของนักเรียนต่อรายวิชาและต่อภาคเรียน",
+      "where": "modules/assessment/routes/web.php (เส้นทาง /api/assessment/courses/{id}/attributes และ /api/assessment/terms/current/attributes) และ public/assets/modules/assessment/assessment.js",
+      "observed": "มีเส้นทางฝั่งเซิร์ฟเวอร์สำหรับอ่านและบันทึกคุณลักษณะ แต่หน้าจอ \"บันทึกคะแนน\" และ \"รายวิชาและครูผู้สอน\" ไม่มีช่องหรือแท็บให้กรอกคุณลักษณะ/สมรรถนะ ค้นข้อความ attributes ในไฟล์ assessment.js และไฟล์ JavaScript อื่นของโมดูลไม่พบการเรียกใช้",
+      "evidence": "อ่านไฟล์ assessment.js ทั้งไฟล์ และค้นข้อความ /attributes ในไดเรกทอรี public/assets ไม่พบการเรียก API นี้",
+      "confirmed": true
+    }
+  ],
+  "untested": [
+    "การแก้ไขซ้อนกันของครูสองคนในช่องคะแนนเดียวกัน (ข้อความ \"มีผู้อื่นแก้คะแนนช่องเหล่านี้ไปก่อน\") ตัวรันใช้เบราว์เซอร์ผู้ใช้ครั้งละหนึ่งคน",
+    "รายวิชาและรายการเปิดสอนที่เพิ่มระหว่างทดสอบเหลืออยู่ในระบบ (ปิดผลและปิดการใช้งานแล้ว คะแนนล้างให้ว่าง) เพราะรายวิชาที่มีประวัติคะแนนลบไม่ได้ ชื่อขึ้นต้นด้วย \"วิชาตัวอย่าง ทดสอบคู่มือ\" และรหัสขึ้นต้นด้วย TM",
+    "การแก้คะแนนของภาคเรียนที่ผ่านมาโดยผู้ดูแลระบบที่ต้องระบุเหตุผล ยังไม่ได้ทดสอบ: รายวิชาของภาคเรียนที่ผ่านมาปิดผลแล้ว และช่องคะแนนถูกปิดการแก้ไขเมื่อรายวิชาปิดผล (public/assets/modules/assessment/assessment.js บรรทัด 78 isClosed) การแก้ต้องเปิดผลรายวิชาที่ปิดแล้วของภาคเรียนที่ผ่านมาก่อน ซึ่งเปลี่ยนผลปพ.5 ที่ปิดไว้แล้ว และปิดผลอีกครั้งหลังแก้ไม่ได้ทำในขั้นตอนนี้"
+  ]
+}

@@ -1,0 +1,1839 @@
+{
+ "module": "admin-modules",
+ "title": "จัดการโมดูลและตั้งค่าโมดูล",
+ "area": "การดูแลระบบ",
+ "purpose": "ผู้ดูแลระบบดูรายการโมดูลทั้งหมดของระบบสาน เปิดหรือปิดโมดูลที่ไม่ใช้ (ปิดแล้วข้อมูลไม่ถูกลบ) ส่งออกข้อมูลของโมดูลเป็นไฟล์ ตั้งค่าของแต่ละโมดูลในหน้า \"ตั้งค่าโมดูล\" และดูหน้า \"มีอะไรใหม่\" ที่สรุปสิ่งที่เปลี่ยนในรุ่นที่ติดตั้ง ผู้ดูแลระบบยืนยันด้วยรหัสผ่านก่อนเปิด ปิด หรือส่งออกทุกครั้ง",
+ "roles": [
+  "ผู้ดูแลระบบ"
+ ],
+ "menu": [
+  "เมนูกลุ่มบัญชีและระบบ > \"โมดูล\" (/admin/modules)",
+  "เมนูด้านซ้าย \"งานโรงเรียน\" > \"ตั้งค่าโมดูล\" (/work#module-settings)",
+  "หน้า \"มีอะไรใหม่\" (/whats-new)"
+ ],
+ "prerequisites": [],
+ "vars": {},
+ "workflows": [
+  {
+   "id": "view-modules",
+   "title": "ดูรายการโมดูลและระดับความพร้อม",
+   "role": "admin",
+   "start": "/admin/modules",
+   "core": true,
+   "intro": "หน้า \"โมดูล\" รวมความสามารถของระบบสานไว้ในรายการเดียว ผู้ดูแลระบบเปิดหรือปิดโมดูลที่ไม่ใช้ได้ การปิดไม่ลบข้อมูล ข้อมูลยังอยู่และกลับมาใช้ได้เมื่อเปิดอีกครั้ง ป้ายบนการ์ดบอกสถานะ ดังนี้ \"เปิดใช้งาน\" คือใช้อยู่ \"ปิดอยู่\" คือปิดไว้ \"เสถียร\" \"เบต้า\" และ \"ทดลอง\" บอกความพร้อม โมดูลทดลองอาจเปลี่ยนแปลงหรือมีข้อบกพร่อง ไม่แนะนำกับข้อมูลจริง ป้ายอื่นคือกลุ่มงานของโมดูล",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/admin/modules",
+     "crop": "viewport",
+     "wait_after": {
+      "css": "article.mods-card",
+      "first": true
+     },
+     "say": "เปิดหน้า \"โมดูล\" ของผู้ดูแลระบบ (ที่อยู่ลงท้ายด้วย /admin/modules) ส่วน \"รายการโมดูล\" แสดงโมดูลทั้งหมดที่ติดตั้ง",
+     "shot": true
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "css": "article.mods-card[data-id=web-social]"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "article.mods-card[data-id=web-social]"
+     },
+     "say": "เลื่อนไปที่การ์ดของโมดูลหนึ่ง การ์ดบอกชื่อ รุ่น สถานะ ระดับความพร้อม คำอธิบาย โมดูลที่ต้องใช้ร่วมกัน และปุ่ม \"ปิดโมดูล\" หรือ \"เปิดโมดูล\" (ในที่นี้คือ \"ข่าวจากเพจ Facebook\")",
+     "shot": true
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "css": "article.mods-card[data-id=academic]"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "article.mods-card[data-id=academic] button[data-act=disable]"
+     },
+     "say": "โมดูลที่ระบบต้องใช้ หรือโมดูลที่มีโมดูลอื่นต้องใช้ร่วม ปุ่ม \"ปิดโมดูล\" กดไม่ได้ และการ์ดบอกเหตุผล (ในที่นี้คือ \"ตั้งค่าโรงเรียน\")",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "disabled": {
+        "role": "button",
+        "name": "ปิดโมดูล",
+        "within": {
+         "css": "article.mods-card[data-id=academic]"
+        }
+       }
+      },
+      {
+       "text": "ปิดไม่ได้",
+       "in": {
+        "css": "article.mods-card[data-id=academic]"
+       }
+      }
+     ]
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "id": "mods-feed"
+     },
+     "crop": "panel",
+     "highlight": {
+      "id": "mods-feed"
+     },
+     "say": "ส่วน \"ตรวจรุ่นใหม่\" ที่ด้านบนของหน้าบอกสถานะการตรวจรุ่นใหม่ (ค่าเริ่มต้นคือ \"ปิด\" ระบบไม่เชื่อมต่อภายนอก) ปุ่ม \"เปิดการตรวจรุ่นใหม่\" ไม่ได้กดในคู่มือนี้ ในรุ่นที่ใหม่กว่าส่วนนี้ย้ายไปรวมที่หน้า \"อัปเดตระบบ\" (หน้านี้ไม่มีปุ่มอัปโหลดแพ็กเกจ)",
+     "shot": true
+    }
+   ],
+   "expected": "ทุกโมดูลมีการ์ดของตนเอง โมดูลที่ปิดไม่ได้แสดงเหตุผลและปุ่มปิดกดไม่ได้",
+   "verify": [
+    {
+     "title": "รายการมีโมดูลหลายตัวและการ์ดของโมดูลทดสอบ",
+     "steps": [
+      {
+       "do": "expect",
+       "that": [
+        {
+         "visible": {
+          "css": "article.mods-card[data-id=web-social]"
+         }
+        },
+        {
+         "count": {
+          "min": 20
+         },
+         "of": {
+          "css": "article.mods-card"
+         }
+        },
+        {
+         "text": "ตรวจรุ่นใหม่",
+         "in": {
+          "id": "mods-feed"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "disable-module",
+   "title": "ปิดโมดูลที่ไม่ใช้",
+   "role": "admin",
+   "start": "/admin/modules",
+   "depends_on": [
+    "view-modules"
+   ],
+   "intro": "การปิดและการเปิดโมดูลต้องยืนยันด้วยรหัสผ่านของผู้ดูแลระบบทุกครั้ง การปิดไม่ลบข้อมูล ผู้ใช้เข้าหน้าของโมดูลที่ปิดไม่ได้ในช่วงที่ปิด ถ้าโมดูลอื่นต้องใช้โมดูลนี้ ระบบไม่ให้ปิด ในคู่มือนี้ใช้โมดูล \"ข่าวจากเพจ Facebook\" เป็นตัวอย่าง",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.mods-card[data-id=web-social]"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดโมดูล",
+      "within": {
+       "css": "article.mods-card[data-id=web-social]"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "button",
+      "name": "ปิดโมดูล",
+      "within": {
+       "css": "article.mods-card[data-id=web-social]"
+      }
+     },
+     "wait_after": {
+      "css": "#mods-dialog[open]"
+     },
+     "say": "กดปุ่ม \"ปิดโมดูล\" ที่การ์ดของโมดูลที่ต้องการ ระบบเปิดกล่องยืนยัน",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านของคุณ",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "value": "{{secret:admin.password}}",
+     "secret": true,
+     "crop": "panel",
+     "say": "พิมพ์รหัสผ่านของผู้ดูแลระบบในช่อง \"รหัสผ่านของคุณ\" (ภาพนี้ปิดรหัสผ่านไว้)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดโมดูล",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "article.mods-card[data-id=web-social]"
+     },
+     "expect_response": {
+      "url_contains": "/state",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "css": "article.mods-card[data-id=web-social] .mods-badge",
+      "has_text": "ปิดอยู่"
+     },
+     "say": "กดปุ่ม \"ปิดโมดูล\" ในกล่องยืนยัน ป้ายบนการ์ดเปลี่ยนเป็น \"ปิดอยู่\" และปุ่มเปลี่ยนเป็น \"เปิดโมดูล\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "visible": {
+       "role": "button",
+       "name": "เปิดโมดูล",
+       "within": {
+        "css": "article.mods-card[data-id=web-social]"
+       }
+      }
+     }
+    }
+   ],
+   "expected": "การ์ดแสดงป้าย \"ปิดอยู่\" พร้อมเหตุผลที่ปิด และปุ่ม \"เปิดโมดูล\"",
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ โมดูลต้องยังปิดอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.mods-card[data-id=web-social]"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "article.mods-card[data-id=web-social]"
+       },
+       "that": [
+        {
+         "text": "ปิดอยู่",
+         "in": {
+          "css": "article.mods-card[data-id=web-social]"
+         }
+        },
+        {
+         "visible": {
+          "role": "button",
+          "name": "เปิดโมดูล",
+          "within": {
+           "css": "article.mods-card[data-id=web-social]"
+          }
+         }
+        }
+       ],
+       "say": "เปิดหน้า \"โมดูล\" ใหม่ การ์ดของโมดูลแสดง \"ปิดอยู่\" และมีปุ่ม \"เปิดโมดูล\"",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "export-module-data",
+   "title": "ส่งออกข้อมูลของโมดูลเป็นไฟล์ ZIP",
+   "role": "admin",
+   "start": "/admin/modules",
+   "depends_on": [
+    "view-modules"
+   ],
+   "intro": "ปุ่ม \"ส่งออกข้อมูล\" ให้ไฟล์ ZIP ของตารางของโมดูล รูปแบบ JSONL โดยตัดคอลัมน์รหัสผ่านและโทเคนออก ต้องยืนยันด้วยรหัสผ่าน ไฟล์อาจมีข้อมูลส่วนบุคคล ต้องเก็บในที่ปลอดภัย ใช้เมื่อต้องการสำเนาข้อมูลของโมดูลเดียวก่อนปิดหรือเลิกใช้ (ไม่ใช่การสำรองทั้งระบบ)",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.mods-card[data-id=web-social]"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งออกข้อมูล",
+      "within": {
+       "css": "article.mods-card[data-id=web-social]"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "button",
+      "name": "ส่งออกข้อมูล",
+      "within": {
+       "css": "article.mods-card[data-id=web-social]"
+      }
+     },
+     "wait_after": {
+      "css": "#mods-dialog[open]"
+     },
+     "say": "กดปุ่ม \"ส่งออกข้อมูล\" ที่การ์ดของโมดูล (ปุ่มนี้มีเฉพาะโมดูลที่มีข้อมูล) ระบบเปิดกล่องยืนยัน",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านของคุณ",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "value": "{{secret:admin.password}}",
+     "secret": true,
+     "crop": "panel",
+     "say": "พิมพ์รหัสผ่านของผู้ดูแลระบบในช่อง \"รหัสผ่านของคุณ\" (ภาพนี้ปิดรหัสผ่านไว้)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ดาวน์โหลด",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "id": "mods-dialog"
+     },
+     "expect_download": {
+      "ext": ".zip",
+      "kind": "zip",
+      "min_bytes": 100,
+      "name_regex": "^saan-module-web-social"
+     },
+     "say": "กดปุ่ม \"ดาวน์โหลด\" ในกล่องยืนยัน เบราว์เซอร์บันทึกไฟล์ saan-module-ชื่อโมดูล.zip",
+     "shot": true
+    }
+   ],
+   "expected": "ได้ไฟล์ ZIP ที่มีข้อมูลตารางของโมดูลในรูปแบบ JSONL",
+   "verify": [
+    {
+     "title": "ไฟล์ที่ได้เป็น ZIP จริงและไม่ว่าง",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ส่งออกข้อมูล",
+        "within": {
+         "css": "article.mods-card[data-id=web-social]"
+        }
+       },
+       "wait_after": {
+        "css": "#mods-dialog[open]"
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "รหัสผ่านของคุณ",
+        "within": {
+         "id": "mods-dialog"
+        }
+       },
+       "value": "{{secret:admin.password}}",
+       "secret": true
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ดาวน์โหลด",
+        "within": {
+         "id": "mods-dialog"
+        }
+       },
+       "expect_download": {
+        "ext": ".zip",
+        "kind": "zip",
+        "min_bytes": 100
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "change-module-setting",
+   "title": "ตั้งค่าโมดูลในหน้า \"ตั้งค่าโมดูล\"",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "view-modules"
+   ],
+   "intro": "โมดูลที่มีค่าให้ตั้งแสดงในหน้า \"ตั้งค่าโมดูล\" (เมนูผู้ดูแลระบบ) จัดเป็นกลุ่มตามโมดูล แต่ละรายการบันทึกแยกกันและมีประวัติการแก้ไข ปุ่ม \"ใส่ค่าเริ่มต้น\" คืนค่าเดิมของระบบ แล้วต้องกดบันทึกอีกครั้งจึงมีผล ในคู่มือนี้ใช้ค่า \"กำหนดเวลาตอบ: ข้อเสนอแนะ (วัน)\" ของโมดูลร้องเรียนและรับเรื่องเป็นตัวอย่าง",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/work#module-settings",
+     "crop": "viewport",
+     "wait_after": {
+      "css": "div.ms-item",
+      "has_text": "complaints.sla_suggestion"
+     },
+     "say": "เปิดหน้า \"ตั้งค่าโมดูล\" (/work#module-settings) หน้านี้แสดงค่าที่ตั้งได้ของทุกโมดูล แบ่งเป็นกลุ่มตามชื่อโมดูล",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "css": "input[type=number]",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_suggestion"
+      }
+     },
+     "value": "20",
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "complaints.sla_suggestion"
+     },
+     "say": "แก้ค่าในช่องของรายการที่ต้องการ ในที่นี้เปลี่ยน \"กำหนดเวลาตอบ: ข้อเสนอแนะ (วัน)\" เป็น 20",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_suggestion"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"บันทึก\" ของรายการนั้น ระบบแสดงข้อความ \"บันทึกการตั้งค่าแล้ว\" และป้าย \"ค่าเริ่มต้น\" หายไป",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "value": "20",
+      "of": {
+       "css": "input[type=number]",
+       "within": {
+        "css": "div.ms-item",
+        "has_text": "complaints.sla_suggestion"
+       }
+      }
+     }
+    }
+   ],
+   "expected": "ช่องของรายการแสดงค่า 20 และไม่มีป้าย \"ค่าเริ่มต้น\"",
+   "verify": [
+    {
+     "title": "เปิดหน้าตั้งค่าใหม่ ค่าที่บันทึกต้องยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "div.ms-item",
+        "has_text": "complaints.sla_suggestion"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "div.ms-item",
+        "has_text": "complaints.sla_suggestion"
+       },
+       "that": {
+        "value": "20",
+        "of": {
+         "css": "input[type=number]",
+         "within": {
+          "css": "div.ms-item",
+          "has_text": "complaints.sla_suggestion"
+         }
+        }
+       },
+       "say": "เปิดหน้า \"ตั้งค่าโมดูล\" ใหม่ รายการแสดงค่า 20 ที่บันทึกไว้",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "whats-new",
+   "title": "ดูหน้า \"มีอะไรใหม่\"",
+   "role": "admin",
+   "start": "/whats-new",
+   "intro": "หน้า \"มีอะไรใหม่\" สรุปสิ่งที่เปลี่ยนในรุ่นที่ติดตั้ง อ่านจากบันทึกการเปลี่ยนแปลงที่ติดมากับระบบ แยกตามแกนระบบและแต่ละโมดูล ถ้ามีรุ่นใหม่ให้ติดตั้ง (เมื่อเปิดการตรวจรุ่นใหม่) จะมีกล่อง \"มีรุ่นใหม่ให้ติดตั้ง\" ด้านบน ทุกบัญชีที่เข้าระบบเปิดดูได้",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/whats-new",
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.account-card"
+     },
+     "say": "เปิดหน้า \"มีอะไรใหม่\" (ที่อยู่ลงท้ายด้วย /whats-new) หน้านี้แสดงสิ่งที่เปลี่ยนในรุ่นที่ติดตั้ง",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "crop": "panel",
+     "highlight": {
+      "css": "section.account-card",
+      "first": true
+     },
+     "that": {
+      "visible": {
+       "css": "section.account-card",
+       "first": true
+      }
+     },
+     "say": "ส่วนของแกนระบบ และของแต่ละโมดูลเรียงต่อกัน แต่ละส่วนบอกรุ่นและวันที่ กับรายการที่เปลี่ยน",
+     "shot": true
+    }
+   ],
+   "expected": "หน้าแสดงรุ่นที่ติดตั้งและรายการที่เปลี่ยนของแกนระบบ",
+   "verify": [
+    {
+     "title": "หน้ามีหัวข้อแกนระบบ",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "text": "แกนระบบ"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "toggle-experimental-module",
+   "title": "ปิดแล้วเปิดโมดูลรุ่นทดลองกลับมา (ต้องพิมพ์รหัสโมดูลยืนยัน)",
+   "role": "admin",
+   "start": "/admin/modules",
+   "depends_on": [
+    "view-modules"
+   ],
+   "intro": "โมดูลรุ่นทดลองเปิดได้หลังพิมพ์รหัสโมดูลยืนยันในกล่องยืนยัน ในที่นี้ใช้ \"ภาพรวมงานโรงเรียน (ดูอย่างเดียว)\" ซึ่งไม่มีโมดูลอื่นต้องใช้ ปิดแล้วเปิดกลับ ข้อมูลไม่หาย และโมดูลจบขั้นตอนในสถานะเปิดใช้งาน",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.mods-card[data-id=operations]"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดโมดูล",
+      "within": {
+       "css": "article.mods-card[data-id=operations]"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.mods-card[data-id=operations]"
+     },
+     "wait_after": {
+      "css": "#mods-dialog[open]"
+     },
+     "say": "กดปุ่ม \"ปิดโมดูล\" ที่การ์ดของ \"ภาพรวมงานโรงเรียน\" ระบบเปิดกล่องยืนยัน",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านของคุณ",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "value": "{{secret:admin.password}}",
+     "secret": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดโมดูล",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "expect_response": {
+      "url_contains": "/state",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "css": "article.mods-card[data-id=operations] .mods-badge",
+      "has_text": "ปิดอยู่"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปิดโมดูล",
+      "within": {
+       "css": "article.mods-card[data-id=operations]"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.mods-card[data-id=operations]"
+     },
+     "wait_after": {
+      "css": "#mods-dialog[open]"
+     },
+     "say": "กดปุ่ม \"เปิดโมดูล\" ที่การ์ดเดิม ระบบเปิดกล่องยืนยันและเตือนว่าโมดูลนี้ยังเป็นรุ่นทดลอง",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "พิมพ์รหัสโมดูลเพื่อยืนยัน",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "value": "operations",
+     "crop": "panel",
+     "highlight": {
+      "id": "mods-dialog"
+     },
+     "say": "พิมพ์รหัสโมดูล \"operations\" ในช่อง \"พิมพ์รหัสโมดูลเพื่อยืนยัน\" ตามที่ระบบแสดง",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านของคุณ",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "value": "{{secret:admin.password}}",
+     "secret": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปิดโมดูล",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "expect_response": {
+      "url_contains": "/state",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "css": "article.mods-card[data-id=operations] .mods-badge",
+      "has_text": "เปิดใช้งาน"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "article.mods-card[data-id=operations]"
+     },
+     "say": "กดปุ่ม \"เปิดโมดูล\" ในกล่องยืนยัน ป้ายบนการ์ดกลับเป็น \"เปิดใช้งาน\"",
+     "shot": true
+    }
+   ],
+   "expected": "การ์ด \"ภาพรวมงานโรงเรียน\" แสดง \"เปิดใช้งาน\" และปุ่ม \"ปิดโมดูล\"",
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ โมดูลต้องเปิดใช้งานอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.mods-card[data-id=operations]"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "เปิดใช้งาน",
+         "in": {
+          "css": "article.mods-card[data-id=operations]"
+         }
+        },
+        {
+         "visible": {
+          "role": "button",
+          "name": "ปิดโมดูล",
+          "within": {
+           "css": "article.mods-card[data-id=operations]"
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "export-finance-data",
+   "title": "ส่งออกข้อมูลของโมดูลการเงินเป็นไฟล์ ZIP",
+   "role": "admin",
+   "start": "/admin/modules",
+   "depends_on": [
+    "view-modules"
+   ],
+   "intro": "ใช้ตรวจว่าการส่งออกทำงานกับโมดูลที่มีข้อมูลจริงในระบบทดลอง ไฟล์มีข้อมูลการเงินของนักเรียน จึงต้องเก็บในที่ปลอดภัย",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.mods-card[data-id=finance]"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งออกข้อมูล",
+      "within": {
+       "css": "article.mods-card[data-id=finance]"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.mods-card[data-id=finance]"
+     },
+     "wait_after": {
+      "css": "#mods-dialog[open]"
+     },
+     "say": "กดปุ่ม \"ส่งออกข้อมูล\" ที่การ์ดของโมดูลการเงิน ระบบเปิดกล่องยืนยันและบอกว่าคอลัมน์รหัสผ่านถูกตัดออก",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านของคุณ",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "value": "{{secret:admin.password}}",
+     "secret": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ดาวน์โหลด",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "id": "mods-dialog"
+     },
+     "expect_download": {
+      "ext": ".zip",
+      "kind": "zip",
+      "min_bytes": 100,
+      "name_regex": "^saan-module-finance"
+     },
+     "say": "กดปุ่ม \"ดาวน์โหลด\" ในกล่องยืนยัน เบราว์เซอร์บันทึกไฟล์ saan-module-finance.zip",
+     "shot": true
+    }
+   ],
+   "expected": "ได้ไฟล์ ZIP ของตารางโมดูลการเงิน",
+   "verify": [
+    {
+     "title": "ไฟล์ที่ได้เป็น ZIP จริงและไม่ว่าง",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ส่งออกข้อมูล",
+        "within": {
+         "css": "article.mods-card[data-id=finance]"
+        }
+       },
+       "wait_after": {
+        "css": "#mods-dialog[open]"
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "รหัสผ่านของคุณ",
+        "within": {
+         "id": "mods-dialog"
+        }
+       },
+       "value": "{{secret:admin.password}}",
+       "secret": true
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ดาวน์โหลด",
+        "within": {
+         "id": "mods-dialog"
+        }
+       },
+       "expect_download": {
+        "ext": ".zip",
+        "kind": "zip",
+        "min_bytes": 100,
+        "name_regex": "^saan-module-finance"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "edit-text-setting",
+   "title": "แก้ค่าตั้งค่าโมดูลชนิดข้อความ แล้วคืนค่าเดิม",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "view-modules"
+   ],
+   "intro": "ค่าตั้งค่าชนิดข้อความแสดงเป็นช่องพิมพ์ธรรมดา ระบบตัดช่องว่างซ้ำและไม่รับอักขระควบคุม แต่ละรายการมีความยาวสูงสุดของตนเอง ในคู่มือนี้ใช้ \"ชื่อผู้ลงนามเกียรติบัตร\" ของโมดูลกิจกรรมเป็นตัวอย่าง ค่านี้ปรากฏบนเกียรติบัตร ผู้ใช้จึงควรคืนค่าเดิมหลังลองเสมอ",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/work#module-settings",
+     "crop": "viewport",
+     "wait_after": {
+      "css": "div.ms-item",
+      "has_text": "activities.signer_name"
+     },
+     "say": "เปิดหน้า \"ตั้งค่าโมดูล\" (/work#module-settings) หาหัวข้อ \"ชื่อผู้ลงนามเกียรติบัตร\" ของโมดูลกิจกรรม รายการนี้เป็นช่องข้อความ",
+     "shot": true
+    },
+    {
+     "do": "capture",
+     "target": {
+      "css": "input[type=text]",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "activities.signer_name"
+      }
+     },
+     "var": "orig",
+     "from_attr": "value"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "css": "input[type=text]",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "activities.signer_name"
+      }
+     },
+     "value": "ผู้ลงนามทดสอบ {{marker}}",
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "activities.signer_name"
+     },
+     "say": "พิมพ์ชื่อใหม่ในช่องของรายการ \"ชื่อผู้ลงนามเกียรติบัตร\" (ช่องข้อความรับได้ไม่เกิน 120 ตัวอักษร)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "activities.signer_name"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"บันทึก\" ของรายการนั้น ระบบแสดงข้อความ \"บันทึกการตั้งค่าแล้ว\"",
+     "shot": true,
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "value": "ผู้ลงนามทดสอบ {{marker}}",
+      "of": {
+       "css": "input[type=text]",
+       "within": {
+        "css": "div.ms-item",
+        "has_text": "activities.signer_name"
+       }
+      }
+     }
+    },
+    {
+     "do": "reload"
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "div.ms-item",
+      "has_text": "activities.signer_name"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "value": "ผู้ลงนามทดสอบ {{marker}}",
+      "of": {
+       "css": "input[type=text]",
+       "within": {
+        "css": "div.ms-item",
+        "has_text": "activities.signer_name"
+       }
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "activities.signer_name"
+     },
+     "say": "เปิดหน้า \"ตั้งค่าโมดูล\" ใหม่ รายการแสดงชื่อที่บันทึกไว้ แสดงว่าค่าถูกเก็บในระบบ",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "css": "input[type=text]",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "activities.signer_name"
+      }
+     },
+     "value": "{{orig}}",
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "activities.signer_name"
+     },
+     "say": "เมื่อใช้เสร็จ พิมพ์ค่าเดิมกลับลงในช่อง (ในที่นี้คือชื่อผู้ลงนามเดิมของโรงเรียน)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "activities.signer_name"
+      }
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     }
+    }
+   ],
+   "expected": "ช่องของรายการแสดงชื่อผู้ลงนามเดิมกลับมา",
+   "verify": [
+    {
+     "title": "เปิดหน้าตั้งค่าใหม่ ค่าต้องเป็นค่าเดิมแล้ว",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "div.ms-item",
+        "has_text": "activities.signer_name"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "value": "{{orig}}",
+        "of": {
+         "css": "input[type=text]",
+         "within": {
+          "css": "div.ms-item",
+          "has_text": "activities.signer_name"
+         }
+        }
+       },
+       "crop": "panel",
+       "highlight": {
+        "css": "div.ms-item",
+        "has_text": "activities.signer_name"
+       },
+       "say": "เปิดหน้า \"ตั้งค่าโมดูล\" ใหม่ ชื่อผู้ลงนามเป็นค่าเดิมแล้ว",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "edit-json-setting",
+   "title": "แก้ค่าตั้งค่าโมดูลชนิด JSON (ผู้ลงนามท้ายรายงาน) แล้วคืนค่าเดิม",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "view-modules"
+   ],
+   "intro": "ค่าตั้งค่าบางรายการเป็นรายการหรือโครงสร้าง จึงแสดงเป็นกล่องข้อความแบบ JSON ระบบตรวจรูปแบบก่อนบันทึก และตรวจเงื่อนไขของแต่ละรายการ เช่น ผู้ลงนามต้องมีตำแหน่งและมีได้ไม่เกิน 6 ราย ในคู่มือนี้ใช้ \"ผู้ลงนามท้ายรายงาน\" เป็นตัวอย่าง ผู้ใช้ควรคืนค่าเดิมหลังลอง",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/work#module-settings",
+     "crop": "viewport",
+     "wait_after": {
+      "css": "div.ms-item",
+      "has_text": "reports.signers"
+     },
+     "say": "เปิดหน้า \"ตั้งค่าโมดูล\" หาหัวข้อ \"ผู้ลงนามท้ายรายงาน (สูงสุด 6 ราย)\" ของโมดูลรายงานผลการเรียน รายการนี้เป็นกล่อง JSON",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "css": "textarea",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "reports.signers"
+      }
+     },
+     "value": "ข้อความนี้ไม่ใช่ JSON",
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "reports.signers"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "reports.signers"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": ".ms-state",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "reports.signers"
+      }
+     },
+     "wait_after": {
+      "css": ".ms-state.bad",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "reports.signers"
+      }
+     },
+     "say": "ถ้าพิมพ์ผิดรูปแบบ แล้วกดปุ่ม \"บันทึก\" ระบบแจ้ง \"รูปแบบ JSON ไม่ถูกต้อง\" และไม่บันทึก",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "รูปแบบ JSON ไม่ถูกต้อง",
+      "in": {
+       "css": "div.ms-item",
+       "has_text": "reports.signers"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "css": "textarea",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "reports.signers"
+      }
+     },
+     "value": "[{\"label\":\"ผู้อำนวยการโรงเรียน\",\"name\":\"ผู้ลงนามทดสอบ {{marker}}\"}]",
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "reports.signers"
+     },
+     "say": "แก้ข้อความในกล่องให้เป็นรายการที่ถูกต้อง แต่ละรายมี \"label\" (ตำแหน่ง) และ \"name\" (ชื่อ) ในที่นี้เหลือผู้ลงนามคนเดียว",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "reports.signers"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกการตั้งค่าแล้ว\"",
+     "shot": true,
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     }
+    },
+    {
+     "do": "reload"
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "div.ms-item",
+      "has_text": "reports.signers"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "value": "ผู้ลงนามทดสอบ {{marker}}",
+      "of": {
+       "css": "textarea",
+       "within": {
+        "css": "div.ms-item",
+        "has_text": "reports.signers"
+       }
+      },
+      "contains": true
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "reports.signers"
+     },
+     "say": "เปิดหน้า \"ตั้งค่าโมดูล\" ใหม่ กล่องแสดงรายการที่บันทึกไว้",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "css": "textarea",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "reports.signers"
+      }
+     },
+     "value": "[{\"label\":\"ผู้อำนวยการโรงเรียน\",\"name\":\"ดร.ต้นธาร เรียนดี\"},{\"label\":\"นายทะเบียน\",\"name\":\"นางสาวศิริน วาดฝัน\"}]",
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "reports.signers"
+     },
+     "say": "เมื่อใช้เสร็จ วางข้อความเดิมกลับลงในกล่อง (ค่าเดิมมีผู้ลงนามสองราย)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "reports.signers"
+      }
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     }
+    }
+   ],
+   "expected": "กล่องของรายการแสดงรายการผู้ลงนามเดิมกลับมา",
+   "verify": [
+    {
+     "title": "เปิดหน้าตั้งค่าใหม่ ผู้ลงนามเดิมต้องกลับมา",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "div.ms-item",
+        "has_text": "reports.signers"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "value": "นายทะเบียน",
+        "of": {
+         "css": "textarea",
+         "within": {
+          "css": "div.ms-item",
+          "has_text": "reports.signers"
+         }
+        },
+        "contains": true
+       },
+       "crop": "panel",
+       "highlight": {
+        "css": "div.ms-item",
+        "has_text": "reports.signers"
+       },
+       "say": "เปิดหน้า \"ตั้งค่าโมดูล\" ใหม่ กล่องแสดงผู้ลงนามเดิม (ผู้อำนวยการโรงเรียนและนายทะเบียน)",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "module-needs-disabled-module",
+   "title": "ดูผลเมื่อเปิดโมดูลที่ต้องใช้โมดูลอื่นซึ่งปิดอยู่",
+   "role": "admin",
+   "start": "/admin/modules",
+   "depends_on": [
+    "view-modules"
+   ],
+   "intro": "บางโมดูลต้องใช้โมดูลอื่น เช่น \"พอร์ทัลนักเรียน\" ต้องใช้ \"เกตเวย์ API สำหรับแอปภายนอก\" เมื่อโมดูลที่ต้องใช้ถูกปิด การ์ดของโมดูลที่ต้องใช้ใส่ \"(ปิดอยู่)\" ไว้ท้ายชื่อ และระบบไม่ยอมเปิดโมดูลนั้นจนกว่าจะเปิดโมดูลที่ต้องใช้ก่อน ขั้นตอนนี้ปิดและเปิดกลับครบ ข้อมูลไม่หาย",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.mods-card[data-id=student-portal]"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดโมดูล",
+      "within": {
+       "css": "article.mods-card[data-id=student-portal]"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": "article.mods-card[data-id=student-portal]"
+     },
+     "wait_after": {
+      "css": "#mods-dialog[open]"
+     },
+     "say": "ในตัวอย่างนี้ปิดโมดูล \"พอร์ทัลนักเรียน\" ก่อน (กดปุ่ม \"ปิดโมดูล\" ที่การ์ดของโมดูล) แล้วจึงปิดโมดูลที่มันต้องใช้",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านของคุณ",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "value": "{{secret:admin.password}}",
+     "secret": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดโมดูล",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "wait_after": {
+      "css": "article.mods-card[data-id=student-portal] .mods-badge",
+      "has_text": "ปิดอยู่"
+     },
+     "expect_response": {
+      "url_contains": "/state",
+      "method": "POST",
+      "status": 200
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดโมดูล",
+      "within": {
+       "css": "article.mods-card[data-id=api-gateway]"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "article.mods-card[data-id=api-gateway]"
+     },
+     "wait_after": {
+      "css": "#mods-dialog[open]"
+     },
+     "say": "กดปุ่ม \"ปิดโมดูล\" ที่การ์ดของโมดูล \"เกตเวย์ API สำหรับแอปภายนอก\" ซึ่งพอร์ทัลนักเรียนต้องใช้ ปิดได้เพราะพอร์ทัลนักเรียนปิดไปแล้ว",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านของคุณ",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "value": "{{secret:admin.password}}",
+     "secret": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดโมดูล",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "wait_after": {
+      "css": "article.mods-card[data-id=api-gateway] .mods-badge",
+      "has_text": "ปิดอยู่"
+     },
+     "expect_response": {
+      "url_contains": "/state",
+      "method": "POST",
+      "status": 200
+     }
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "css": "article.mods-card[data-id=student-portal]"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "(ปิดอยู่)",
+      "in": {
+       "css": "article.mods-card[data-id=student-portal]"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "article.mods-card[data-id=student-portal]"
+     },
+     "say": "การ์ดของ \"พอร์ทัลนักเรียน\" บอกว่า \"ต้องใช้\" โมดูลใดบ้าง และใส่ \"(ปิดอยู่)\" ต่อท้ายชื่อโมดูลที่ปิดอยู่",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปิดโมดูล",
+      "within": {
+       "css": "article.mods-card[data-id=student-portal]"
+      }
+     },
+     "wait_after": {
+      "css": "#mods-dialog[open]"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านของคุณ",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "value": "{{secret:admin.password}}",
+     "secret": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปิดโมดูล",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "id": "mods-dialog"
+     },
+     "wait_after": {
+      "css": "#mods-dialog [data-error]:not([hidden])"
+     },
+     "say": "กดปุ่ม \"เปิดโมดูล\" ในกล่องยืนยัน ระบบไม่เปิดและแจ้งเหตุผลในกล่อง ว่าต้องเปิดโมดูลที่ต้องใช้ก่อน",
+     "shot": true,
+     "expect_response": {
+      "url_contains": "/state",
+      "method": "POST",
+      "status": 422
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ต้องเปิดโมดูล",
+      "in": {
+       "id": "mods-dialog"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิก",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "wait_after": {
+      "css": "#mods-dialog:not([open])",
+      "include_hidden": true
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปิดโมดูล",
+      "within": {
+       "css": "article.mods-card[data-id=api-gateway]"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "article.mods-card[data-id=api-gateway]"
+     },
+     "wait_after": {
+      "css": "#mods-dialog[open]"
+     },
+     "say": "เปิดโมดูลที่ต้องใช้กลับก่อน กดปุ่ม \"เปิดโมดูล\" ที่การ์ดของ \"เกตเวย์ API สำหรับแอปภายนอก\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านของคุณ",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "value": "{{secret:admin.password}}",
+     "secret": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปิดโมดูล",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "wait_after": {
+      "css": "article.mods-card[data-id=api-gateway] .mods-badge",
+      "has_text": "เปิดใช้งาน"
+     },
+     "expect_response": {
+      "url_contains": "/state",
+      "method": "POST",
+      "status": 200
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปิดโมดูล",
+      "within": {
+       "css": "article.mods-card[data-id=student-portal]"
+      }
+     },
+     "wait_after": {
+      "css": "#mods-dialog[open]"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านของคุณ",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "value": "{{secret:admin.password}}",
+     "secret": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปิดโมดูล",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "article.mods-card[data-id=student-portal]"
+     },
+     "wait_after": {
+      "css": "article.mods-card[data-id=student-portal] .mods-badge",
+      "has_text": "เปิดใช้งาน"
+     },
+     "say": "จากนั้นเปิด \"พอร์ทัลนักเรียน\" อีกครั้ง คราวนี้เปิดได้ ป้ายบนการ์ดกลับเป็น \"เปิดใช้งาน\"",
+     "shot": true,
+     "expect_response": {
+      "url_contains": "/state",
+      "method": "POST",
+      "status": 200
+     }
+    }
+   ],
+   "expected": "โมดูลที่โมดูลอื่นต้องใช้เปิดก่อนเสมอ ถ้าฝืนเปิดระบบแจ้งเหตุผลและไม่เปิดให้ เมื่อทำครบทั้งสองโมดูลกลับมาเปิดใช้งาน",
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ ทั้งสองโมดูลต้องเปิดใช้งาน",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.mods-card[data-id=student-portal]"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "เปิดใช้งาน",
+         "in": {
+          "css": "article.mods-card[data-id=student-portal]"
+         }
+        },
+        {
+         "text": "เปิดใช้งาน",
+         "in": {
+          "css": "article.mods-card[data-id=api-gateway]"
+         }
+        }
+       ],
+       "crop": "panel",
+       "highlight": {
+        "css": "article.mods-card[data-id=student-portal]"
+       },
+       "say": "เปิดหน้า \"โมดูล\" ใหม่ การ์ดของ \"พอร์ทัลนักเรียน\" แสดง \"เปิดใช้งาน\"",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "enable-module",
+   "title": "เปิดโมดูลกลับมาใช้งาน",
+   "role": "admin",
+   "start": "/admin/modules",
+   "cleanup": true,
+   "intro": "เปิดโมดูลที่ปิดไว้กลับมาใช้ได้ด้วยรหัสผ่านของผู้ดูแลระบบ ข้อมูลเดิมยังอยู่ครบ โมดูลรุ่นทดลองต้องพิมพ์รหัสโมดูลยืนยันเพิ่ม",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "article.mods-card[data-id=web-social]"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปิดโมดูล",
+      "within": {
+       "css": "article.mods-card[data-id=web-social]"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "button",
+      "name": "เปิดโมดูล",
+      "within": {
+       "css": "article.mods-card[data-id=web-social]"
+      }
+     },
+     "wait_after": {
+      "css": "#mods-dialog[open]"
+     },
+     "say": "กดปุ่ม \"เปิดโมดูล\" ที่การ์ดของโมดูลที่ปิดไว้ ระบบเปิดกล่องยืนยัน",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสผ่านของคุณ",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "value": "{{secret:admin.password}}",
+     "secret": true,
+     "crop": "panel",
+     "say": "พิมพ์รหัสผ่านของผู้ดูแลระบบในช่อง \"รหัสผ่านของคุณ\" (ภาพนี้ปิดรหัสผ่านไว้)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปิดโมดูล",
+      "within": {
+       "id": "mods-dialog"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "article.mods-card[data-id=web-social]"
+     },
+     "expect_response": {
+      "url_contains": "/state",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "css": "article.mods-card[data-id=web-social] .mods-badge",
+      "has_text": "เปิดใช้งาน"
+     },
+     "say": "กดปุ่ม \"เปิดโมดูล\" ในกล่องยืนยัน ป้ายบนการ์ดกลับเป็น \"เปิดใช้งาน\"",
+     "shot": true
+    }
+   ],
+   "expected": "การ์ดแสดง \"เปิดใช้งาน\" และปุ่ม \"ปิดโมดูล\"",
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ โมดูลต้องเปิดใช้งาน",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.mods-card[data-id=web-social]"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "เปิดใช้งาน",
+         "in": {
+          "css": "article.mods-card[data-id=web-social]"
+         }
+        },
+        {
+         "visible": {
+          "role": "button",
+          "name": "ปิดโมดูล",
+          "within": {
+           "css": "article.mods-card[data-id=web-social]"
+          }
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restore-module-setting",
+   "title": "คืนค่าเริ่มต้นของ \"กำหนดเวลาตอบ: ข้อเสนอแนะ\" (ล้างข้อมูลทดสอบ)",
+   "role": "admin",
+   "start": "/work#module-settings",
+   "cleanup": true,
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "div.ms-item",
+      "has_text": "complaints.sla_suggestion"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ใส่ค่าเริ่มต้น",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_suggestion"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "complaints.sla_suggestion"
+     },
+     "say": "กดปุ่ม \"ใส่ค่าเริ่มต้น\" ของรายการ ช่องกลับเป็นค่าเริ่มต้นของระบบ แล้วกดปุ่ม \"บันทึก\" อีกครั้งจึงมีผล",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "complaints.sla_suggestion"
+      }
+     },
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "value": "15",
+      "of": {
+       "css": "input[type=number]",
+       "within": {
+        "css": "div.ms-item",
+        "has_text": "complaints.sla_suggestion"
+       }
+      }
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "เปิดหน้าตั้งค่าใหม่ ค่าต้องเป็น 15",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "div.ms-item",
+        "has_text": "complaints.sla_suggestion"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "value": "15",
+        "of": {
+         "css": "input[type=number]",
+         "within": {
+          "css": "div.ms-item",
+          "has_text": "complaints.sla_suggestion"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "skeleton": [],
+ "untested": [
+  "หน้า \"โมดูล\" ไม่มีปุ่มอัปโหลดหรือติดตั้งแพ็กเกจโมดูล การติดตั้งหรืออัปเดตแพ็กเกจทำที่หน้า \"อัปเดตระบบ\" (วางไฟล์แพ็กเกจในโฟลเดอร์ storage/app/private/updates/incoming) หรือคำสั่ง php artisan saan:update จึงไม่ได้ทดสอบการอัปโหลดแพ็กเกจในหน้านี้ และไม่ได้อัปโหลดแพ็กเกจใด",
+  "การปิดโมดูลที่มีโมดูลอื่นต้องใช้ และโมดูลหลัก (ตั้งค่าโรงเรียน เว็บไซต์โรงเรียน) ตรวจเฉพาะว่าปุ่มกดไม่ได้ ไม่ได้พยายามปิด และไม่ได้ทดสอบกรณีไฟล์ตั้งค่าเซิร์ฟเวอร์ (.env) สั่งปิดโมดูลซึ่งมีสิทธิ์เหนือหน้านี้",
+  "เนื้อหาในไฟล์ ZIP ของการส่งออกไม่ได้เปิดตรวจ ตรวจเฉพาะว่าได้ไฟล์ ZIP ชื่อ saan-module-ชื่อโมดูล.zip และไม่ว่าง (ตัวรันทดสอบอ่านเนื้อไฟล์ ZIP ไม่ได้)",
+  "การตั้งค่าโมดูลชนิดรายชื่อผู้ใช้ (ติ๊กเลือกบัญชี) ตรวจในงานของโมดูลร้องเรียนและรับเรื่อง ชนิดตัวเลขตรวจในงาน \"ตั้งค่าโมดูลในหน้า ตั้งค่าโมดูล\" ชนิดข้อความและ JSON ตรวจแล้ว ผู้อ่านหน้านี้ควรระวังว่าการตั้งค่าบางรายการเปลี่ยนสิทธิ์ของผู้ใช้"
+ ]
+}

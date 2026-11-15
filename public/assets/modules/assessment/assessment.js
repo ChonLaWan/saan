@@ -226,7 +226,7 @@
         const st = {terms: [], look: null, subjects: [], term: null, courses: [], edit: null, policyEdit: null};
         const DEFAULT_POLICY = {components: [{key: 'continuous', label: 'คะแนนระหว่างภาค', max: 70, group: 'continuous'}, {key: 'exam', label: 'คะแนนปลายภาค', max: 30, group: 'exam'}], continuous_ratio: 70, exam_ratio: 30, pass_mark: 50};
         const GROUPS = [['continuous', 'ระหว่างภาค'], ['exam', 'ปลายภาค']];
-        // grading policy editor: repeatable component rows + ratios + pass mark; values are validated by the server (GradePolicy::normalize)
+        // grading policy editor: repeatable component rows + ratios (the pass mark is a fixed rule shown as text); values are validated by the server (GradePolicy::normalize)
         const compRow = c => `<div class="as-comp">
             <label class="as-field"><span>รหัส (a-z 0-9 _)</span><input data-p="key" maxlength="40" autocomplete="off" value="${esc(c.key)}"></label>
             <label class="as-field"><span>ชื่อองค์ประกอบ</span><input data-p="label" maxlength="80" autocomplete="off" value="${esc(c.label)}"></label>
@@ -238,12 +238,12 @@
             ${locked ? '' : '<div class="as-actions"><button type="button" class="as-btn small" data-act="comp-add">เพิ่มองค์ประกอบคะแนน</button></div>'}
             <label class="as-field"><span>สัดส่วนระหว่างภาค (%)</span><input data-p="continuous_ratio" inputmode="numeric" value="${esc(p.continuous_ratio)}"></label>
             <label class="as-field"><span>สัดส่วนปลายภาค (%)</span><input data-p="exam_ratio" inputmode="numeric" value="${esc(p.exam_ratio)}"></label>
-            <label class="as-field"><span>เกณฑ์ผ่าน (คะแนนรวมขั้นต่ำ)</span><input data-p="pass_mark" inputmode="numeric" value="${esc(p.pass_mark)}"></label></fieldset>`;
+            <p class="as-policy" data-pass-rule>เกณฑ์ผ่านคือคะแนนรวมไม่ต่ำกว่า ${esc(DEFAULT_POLICY.pass_mark)} คะแนน เป็นค่าตายตัวตามตารางเกรด (ต่ำกว่า ${esc(DEFAULT_POLICY.pass_mark)} ได้เกรด 0) จึงแก้ในหน้านี้ไม่ได้</p></fieldset>`;
         const num = v => { const s = String(v ?? '').trim(); return s === '' ? null : (/^\d+$/.test(s) ? Number(s) : s); };
         const readPolicy = f => {
             const val = (root, k) => root.querySelector(`[data-p="${k}"]`)?.value ?? '';
             return {components: [...f.querySelectorAll('.as-comp')].map(r => ({key: val(r, 'key').trim(), label: val(r, 'label').trim(), max: num(val(r, 'max')), group: val(r, 'group')})),
-                continuous_ratio: num(val(f, 'continuous_ratio')), exam_ratio: num(val(f, 'exam_ratio')), pass_mark: num(val(f, 'pass_mark'))};
+                continuous_ratio: num(val(f, 'continuous_ratio')), exam_ratio: num(val(f, 'exam_ratio')), pass_mark: DEFAULT_POLICY.pass_mark}; // fixed by the server (GradePolicy::PASS_MARK); still sent for the API contract
         };
         const policyText = p => p.components.map(k => `${k.label} ${k.max}`).join(' + ') + ` · ${p.continuous_ratio}:${p.exam_ratio} · ผ่าน ${p.pass_mark}`;
         const termOf = () => st.terms.find(t => String(t.id) === String(st.term)) || st.terms.find(t => t.current) || st.terms[0];

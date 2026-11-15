@@ -3,11 +3,11 @@
 <div class="workspace"><header class="topbar glass">@php($currentTerm=\App\Support\Saan\TermScope::current())<div class="term-label">@if($currentTerm)ปีการศึกษา {{ $currentTerm->year }} <span>/ ภาคเรียนที่ {{ $currentTerm->term }}</span>@else ยังไม่ได้ตั้งปีการศึกษา @endif</div><div class="top-actions"><form action="{{ url('/logout') }}" method="post">@csrf<button class="user-button" title="ออกจากระบบ"><span class="avatar">{{ mb_substr(auth()->user()->name,0,1) }}</span><span>{{ auth()->user()->role }}</span></button></form></div></header>
 <main id="main" tabindex="-1">
 @if(count($menu))
-<nav class="work-tabs glass" aria-label="หน้างานโรงเรียน"><div class="work-tabs-track">@foreach($menu as $item)<a href="{{ url('/work') }}#{{ substr($item['path'],6) }}" data-work-key="{{ explode('/',substr($item['path'],6))[0] }}"><x-ui-icon name="{{ $item['icon'] }}"/><span>{{ $item['label'] }}</span></a>@endforeach</div></nav>
+<nav class="work-tabs glass" aria-label="หน้างานโรงเรียน"><div class="work-tabs-track">@foreach($menu as $item)<a href="{{ url('/work') }}#{{ substr($item['path'],6) }}" data-work-key="{{ explode('/',substr($item['path'],6))[0] }}"><x-ui-icon name="{{ \App\Support\WorkAreas::glyph(explode('/',substr($item['path'],6))[0],$item['icon']) }}"/><span>{{ $item['label'] }}</span></a>@endforeach</div></nav>
 <div id="work-view" aria-live="polite" aria-busy="true"><div class="loading glass">กำลังเตรียมหน้างาน…</div></div>
 @else
 <div id="work-view" class="work-empty glass"><h1>งานโรงเรียน</h1><p>ยังไม่มีโมดูลที่เปิดหน้างานให้บทบาทนี้ ผู้ดูแลระบบเปิดโมดูลเพิ่มเติมได้ที่หน้า <a href="{{ url('/admin/modules') }}">โมดูล</a> (/admin/modules)</p></div>
 @endif
 </main><footer>{{ config('saan.display').' '.config('saan.version') }}</footer></div>
 <div id="toast" role="status" aria-live="polite"></div>
-<script type="application/json" id="work-boot">{!! json_encode(['role'=>$role,'services'=>$services??[],'menu'=>array_map(fn($i)=>['key'=>explode('/',substr($i['path'],6))[0],'label'=>$i['label'],'path'=>$i['path'],'icon'=>$i['icon']],$menu)], JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) !!}</script></body></html>
+<script type="application/json" id="work-boot">{!! json_encode(['role'=>$role,'services'=>$services??[],'areas'=>\App\Support\WorkAreas::AREAS,'menu'=>array_map(fn($i)=>['key'=>explode('/',substr($i['path'],6))[0],'label'=>$i['label'],'path'=>$i['path'],'icon'=>$i['icon'],'glyph'=>\App\Support\WorkAreas::glyph(explode('/',substr($i['path'],6))[0],$i['icon']),'area'=>\App\Support\WorkAreas::area(explode('/',substr($i['path'],6))[0])],$menu)], JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE) !!}</script></body></html>

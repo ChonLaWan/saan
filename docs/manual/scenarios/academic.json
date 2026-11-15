@@ -1,0 +1,2432 @@
+{
+  "module": "academic",
+  "title": "ตั้งค่าโรงเรียน (ปีการศึกษา คาบเวลา ห้องเรียน ครู ปฏิทิน)",
+  "area": "งานวิชาการและงานนักเรียน",
+  "purpose": "ผู้ดูแลระบบหรือผู้อำนวยการตั้งข้อมูลพื้นฐานของโรงเรียนเป็นลำดับขั้น ได้แก่ ปีการศึกษาและภาคเรียน คาบเวลา ห้องเรียน ครู ครูประจำชั้น และบัญชีครู แล้วตรวจความพร้อมในหน้าสรุป นอกจากนี้มีปฏิทินโรงเรียนสำหรับวันหยุด วันสอบ และกิจกรรม ซึ่งครูทุกคนเปิดดูได้ แต่แก้ไขได้เฉพาะผู้ดูแลระบบและผู้อำนวยการ",
+  "roles": [
+    "ผู้ดูแลระบบ (ตั้งค่าทุกขั้นตอน สร้างบัญชีครู)",
+    "ผู้อำนวยการ (ตั้งค่าได้เช่นเดียวกัน ยกเว้นการสร้างบัญชีครู)",
+    "ครู (ดูปฏิทินโรงเรียนอย่างเดียว)"
+  ],
+  "menu": [
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"ตั้งค่าโรงเรียน\" (/work#setup) สำหรับผู้ดูแลระบบและผู้อำนวยการ",
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"ปฏิทินโรงเรียน\" (/work#calendar) สำหรับผู้ดูแลระบบ ผู้อำนวยการ และครู"
+  ],
+  "prerequisites": [],
+  "vars": {
+    "term_label": "{{marker}}",
+    "term_label2": "{{marker}} แก้ไข",
+    "room_name": "ม.6/9 {{marker}}",
+    "teacher_name": "ครูตัวอย่าง {{marker}}",
+    "teacher2_name": "ครูนำเข้า {{marker}}",
+    "day_title": "{{marker}} กิจกรรมตัวอย่าง",
+    "day_title2": "{{marker}} กิจกรรมตัวอย่าง (แก้ไขแล้ว)"
+  },
+  "workflows": [
+    {
+      "id": "setup-overview",
+      "title": "เปิดขั้นตอนตั้งค่าโรงเรียนและดูหน้าสรุปความพร้อม",
+      "intro": "หน้า \"ตั้งค่าโรงเรียน\" แบ่งงานเป็น 6 ขั้นและหน้าสรุป แต่ละขั้นบันทึกได้ทันที และกลับมาแก้ไขภายหลังได้ เมื่อเปิดหน้านี้ ระบบพาไปขั้นแรกที่ยังไม่ครบ",
+      "role": "admin",
+      "start": "/work",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตั้งค่าโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ตั้งค่าโรงเรียน\" ที่แถบเมนูด้านซ้าย ระบบแสดงรายการขั้นตอนตั้งค่าและสถานะของแต่ละขั้น",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "navigation",
+            "name": "ขั้นตอนตั้งค่า"
+          },
+          "wait_after": {
+            "role": "navigation",
+            "name": "ขั้นตอนตั้งค่า"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "attr": {
+              "href": "#setup/summary"
+            },
+            "within": {
+              "role": "navigation",
+              "name": "ขั้นตอนตั้งค่า"
+            }
+          },
+          "say": "เลือก \"สรุป\" ที่ท้ายรายการขั้นตอน",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "ul.ac-sum"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "ภาคเรียนปัจจุบัน",
+              "in": {
+                "css": "ul.ac-sum"
+              }
+            },
+            {
+              "text": "ห้องที่ยังไม่มีครูประจำชั้น"
+            }
+          ],
+          "say": "หน้าสรุปแสดงภาคเรียนปัจจุบัน จำนวนข้อมูลของแต่ละขั้น และจำนวนห้องที่ยังไม่มีครูประจำชั้น กดปุ่ม \"เปิด\" เพื่อไปยังขั้นนั้น",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "ul.ac-sum"
+          }
+        }
+      ],
+      "expected": "หน้าสรุปแสดงภาคเรียนปัจจุบัน และรายการของแต่ละขั้นพร้อมสถานะ \"เสร็จแล้ว\" \"ข้ามได้\" หรือ \"ยังไม่ครบ\"",
+      "verify": [
+        {
+          "title": "รายการขั้นตอนมีครบ 7 ข้อและหน้าสรุปแสดงภาคเรียนปัจจุบัน",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "count": 7,
+                  "of": {
+                    "css": "ol.ac-steps li"
+                  }
+                },
+                {
+                  "text": "ภาคเรียนปัจจุบัน",
+                  "in": {
+                    "css": "ul.ac-sum"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "add-term",
+      "title": "เพิ่มภาคเรียนใหม่",
+      "intro": "ปีการศึกษาใช้ พ.ศ. วันที่ของภาคเรียนต้องไม่ซ้อนกับภาคเรียนอื่น ภาคเรียนแรกที่เพิ่มจะเป็นภาคเรียนปัจจุบันให้เอง ภาคเรียนที่เพิ่มภายหลังไม่เปลี่ยนภาคเรียนปัจจุบัน",
+      "role": "admin",
+      "start": "/work",
+      "core": true,
+      "vars": {
+        "year": "2599",
+        "starts": "2056-03-01",
+        "ends": "2056-05-31"
+      },
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตั้งค่าโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ตั้งค่าโรงเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "navigation",
+            "name": "ขั้นตอนตั้งค่า"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "attr": {
+              "href": "#setup/term"
+            },
+            "within": {
+              "role": "navigation",
+              "name": "ขั้นตอนตั้งค่า"
+            }
+          },
+          "say": "เลือกขั้นที่ 1 \"ปีการศึกษา/ภาคเรียน\" ในรายการขั้นตอน",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "form[data-form=term]"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "text": "{{term_label}}"
+            }
+          },
+          "comment": "precondition: no leftover term of an earlier run"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ปีการศึกษา (พ.ศ.)",
+            "within": {
+              "css": "form[data-form=term]"
+            }
+          },
+          "value": "{{year}}",
+          "say": "พิมพ์ปีการศึกษาเป็น พ.ศ. ในช่อง \"ปีการศึกษา (พ.ศ.)\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=term]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ภาคเรียนที่",
+            "within": {
+              "css": "form[data-form=term]"
+            }
+          },
+          "label": "3 (ภาคฤดูร้อน)",
+          "say": "เลือกภาคเรียนในช่อง \"ภาคเรียนที่\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=term]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อเรียก (ไม่บังคับ)",
+            "within": {
+              "css": "form[data-form=term]"
+            }
+          },
+          "value": "{{term_label}}",
+          "say": "พิมพ์ชื่อเรียกของภาคเรียนในช่อง \"ชื่อเรียก (ไม่บังคับ)\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=term]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "วันเริ่มภาคเรียน",
+            "within": {
+              "css": "form[data-form=term]"
+            }
+          },
+          "value": "{{starts}}",
+          "say": "เลือกวันที่ในช่อง \"วันเริ่มภาคเรียน\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=term]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "วันสิ้นสุดภาคเรียน",
+            "within": {
+              "css": "form[data-form=term]"
+            }
+          },
+          "value": "{{ends}}",
+          "say": "เลือกวันที่ในช่อง \"วันสิ้นสุดภาคเรียน\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=term]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=term]"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกภาคเรียนแล้ว\" และเพิ่มแถวใหม่ในตารางภาคเรียน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".ac-notice.ac-ok"
+          },
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "{{term_label}}"
+            }
+          }
+        }
+      ],
+      "expected": "ตารางภาคเรียนมีแถวใหม่ \"2599/3\" พร้อมชื่อเรียก วันเริ่มและวันสิ้นสุด และสถานะ \"ไม่ใช่ปัจจุบัน\"",
+      "verify": [
+        {
+          "title": "เปิดขั้นภาคเรียนใหม่ แถวที่เพิ่มต้องยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#setup/term",
+              "wait_after": {
+                "css": "form[data-form=term]"
+              }
+            },
+            {
+              "do": "reload"
+            },
+            {
+              "do": "goto",
+              "url": "/work#setup/term",
+              "wait_after": {
+                "css": "form[data-form=term]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "2599/3",
+                  "in": {
+                    "css": "table.ac-table tbody tr",
+                    "has_text": "{{term_label}}"
+                  }
+                },
+                {
+                  "text": "ไม่ใช่ปัจจุบัน",
+                  "in": {
+                    "css": "table.ac-table tbody tr",
+                    "has_text": "{{term_label}}"
+                  }
+                }
+              ],
+              "say": "เปิดขั้น \"ปีการศึกษา/ภาคเรียน\" ใหม่ แถวของภาคเรียนที่เพิ่มยังอยู่ในตาราง",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "table.ac-table tbody tr",
+                "has_text": "{{term_label}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-term",
+      "title": "แก้ไขชื่อเรียกของภาคเรียน",
+      "role": "admin",
+      "start": "/work#setup/term",
+      "depends_on": [
+        "add-term"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-form=term]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "แก้ไข",
+            "exact": true,
+            "within": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "{{term_label}}"
+            }
+          },
+          "say": "กดปุ่ม \"แก้ไข\" ท้ายแถวของภาคเรียนที่ต้องการ แบบฟอร์มด้านบนเปลี่ยนเป็น \"แก้ไขภาคเรียน\" พร้อมข้อมูลเดิม",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "button",
+            "name": "ยกเลิกการแก้ไข"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อเรียก (ไม่บังคับ)",
+            "within": {
+              "css": "form[data-form=term]"
+            }
+          },
+          "value": "{{term_label2}}",
+          "say": "แก้ข้อความในช่อง \"ชื่อเรียก (ไม่บังคับ)\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=term]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=term]"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".ac-notice.ac-ok"
+          },
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "{{term_label2}}"
+            }
+          }
+        }
+      ],
+      "expected": "ตารางแสดงชื่อเรียกใหม่ในแถวของภาคเรียนนั้น",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ ชื่อเรียกที่แก้ต้องยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#setup/periods",
+              "wait_after": {
+                "css": ".ac-prow"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#setup/term",
+              "wait_after": {
+                "css": "form[data-form=term]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "table.ac-table tbody tr",
+                  "has_text": "{{term_label2}}"
+                }
+              },
+              "say": "เปิดขั้นภาคเรียนอีกครั้ง ชื่อเรียกที่แก้ไขแสดงในตาราง",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "table.ac-table tbody tr",
+                "has_text": "{{term_label2}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-periods",
+      "title": "ตั้งคาบเวลา (เพิ่มและลบคาบ และสร้างคาบอัตโนมัติ)",
+      "intro": "คาบเรียนเรียงเป็นคาบที่ 1, 2, 3 ตามเวลา เวลาต้องเรียงต่อกันและไม่ซ้อนทับ ส่วนพักและโฮมรูมไม่นับเป็นคาบสอน คาบที่มีตารางสอนใช้อยู่ลบหรือเปลี่ยนชนิดไม่ได้ ปุ่ม \"สร้างแถวคาบ\" เพียงเติมแถวในหน้าจอ ต้องกด \"บันทึกคาบเวลา\" จึงจะเก็บจริง",
+      "role": "admin",
+      "start": "/work",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตั้งค่าโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ตั้งค่าโรงเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "navigation",
+            "name": "ขั้นตอนตั้งค่า"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "attr": {
+              "href": "#setup/periods"
+            },
+            "within": {
+              "role": "navigation",
+              "name": "ขั้นตอนตั้งค่า"
+            }
+          },
+          "say": "เลือกขั้นที่ 2 \"คาบเวลา\" ในรายการขั้นตอน",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": ".ac-prow"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": ".ac-prow",
+              "first": true
+            }
+          },
+          "say": "ตาราง \"ตารางคาบเวลา\" แสดงแต่ละคาบพร้อมเวลาเริ่ม เวลาสิ้นสุด และชนิด (คาบเรียน พัก โฮมรูม)",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".ac-prow",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มแถว",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"เพิ่มแถว\" ระบบเพิ่มแถวคาบใหม่ท้ายตาราง เวลาเริ่มต่อจากคาบสุดท้าย 50 นาที",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".ac-prow:nth-last-of-type(2)"
+          },
+          "wait_after": {
+            "css": ".ac-prow:nth-last-of-type(2)"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกคาบเวลา",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"บันทึกคาบเวลา\" ระบบแสดงข้อความ \"บันทึกคาบเวลาแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".ac-notice.ac-ok"
+          },
+          "expect_response": {
+            "url_contains": "/api/academic/periods",
+            "method": "PUT",
+            "status": 200
+          },
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "hover",
+          "target": {
+            "role": "button",
+            "name": "ลบแถว",
+            "within": {
+              "css": ".ac-prow:nth-last-of-type(2)"
+            }
+          },
+          "say": "กดปุ่ม \"ลบแถว\" ท้ายแถวที่เพิ่มเมื่อสักครู่ เพื่อเอาคาบนั้นออก",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบแถว",
+            "within": {
+              "css": ".ac-prow:nth-last-of-type(2)"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกคาบเวลา",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"บันทึกคาบเวลา\" อีกครั้ง คาบกลับเป็นเหมือนเดิม",
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "จำนวนคาบ",
+            "within": {
+              "css": "form[data-form=gen]"
+            }
+          },
+          "value": "5",
+          "say": "ใช้ฟอร์ม \"สร้างคาบต่อเนื่องอัตโนมัติ\" โดยกำหนดเวลาเริ่มคาบแรก นาทีต่อคาบ และจำนวนคาบ แล้วกดปุ่ม \"สร้างแถวคาบ\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=gen]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างแถวคาบ",
+            "exact": true
+          },
+          "say": "ระบบเติมแถวคาบใหม่ตามค่าที่ตั้งและแจ้งให้ตรวจสอบก่อนบันทึก ขั้นตอนนี้ยังไม่บันทึกข้อมูล ผู้ใช้เปลี่ยนใจได้โดยเปิดหน้าใหม่",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".ac-notice.ac-ok"
+          },
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        }
+      ],
+      "expected": "ตารางคาบเวลากลับมาเหมือนก่อนเริ่ม ส่วนแถวที่สร้างอัตโนมัติยังไม่ถูกบันทึกจนกว่าจะกดบันทึกคาบเวลา",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ คาบเวลากลับเป็นเดิมและไม่มีคาบที่เพิ่มชั่วคราว",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#setup/term",
+              "wait_after": {
+                "css": "form[data-form=term]"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#setup/periods",
+              "wait_after": {
+                "css": ".ac-prow"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": ".ac-prow",
+                    "first": true
+                  }
+                },
+                {
+                  "hidden": {
+                    "css": ".ac-notice.ac-ok"
+                  }
+                }
+              ],
+              "say": "เปิดขั้น \"คาบเวลา\" ใหม่ ตารางแสดงคาบตามที่บันทึกไว้เดิม",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": ".ac-prow",
+                "first": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "add-teacher",
+      "title": "เพิ่มครูทีละคนและนำเข้ารายชื่อครูจากการวางข้อความ",
+      "intro": "ครูเป็นรายชื่อบุคลากรสำหรับกำหนดครูประจำชั้นและครูผู้สอน ยังไม่ใช่บัญชีเข้าระบบ ผู้ดูแลระบบสร้างบัญชีให้ภายหลังได้ที่ขั้น \"บัญชีครู\" หรือที่หน้า \"จัดการผู้ใช้งาน\" รายชื่อซ้ำกับครูเดิมจะถูกข้าม",
+      "role": "admin",
+      "start": "/work",
+      "core": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตั้งค่าโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ตั้งค่าโรงเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "navigation",
+            "name": "ขั้นตอนตั้งค่า"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "attr": {
+              "href": "#setup/teachers"
+            },
+            "within": {
+              "role": "navigation",
+              "name": "ขั้นตอนตั้งค่า"
+            }
+          },
+          "say": "เลือกขั้นที่ 4 \"ครู\" ในรายการขั้นตอน",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "form[data-form=teacher]"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "text": "{{marker}}"
+            }
+          },
+          "comment": "precondition: no leftover teacher of an earlier run"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อ",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=teacher]"
+            }
+          },
+          "value": "ครูตัวอย่าง",
+          "say": "พิมพ์ชื่อครูในช่อง \"ชื่อ\" (ช่อง \"คำนำหน้า\" ไม่บังคับ)",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=teacher]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "นามสกุล",
+            "within": {
+              "css": "form[data-form=teacher]"
+            }
+          },
+          "value": "{{marker}}",
+          "say": "พิมพ์นามสกุลในช่อง \"นามสกุล\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=teacher]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "กลุ่มสาระ",
+            "within": {
+              "css": "form[data-form=teacher]"
+            }
+          },
+          "value": "วิทยาศาสตร์",
+          "say": "พิมพ์กลุ่มสาระที่สอนในช่อง \"กลุ่มสาระ\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=teacher]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=teacher]"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกครูแล้ว\" และเพิ่มแถวในตารางครู",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".ac-notice.ac-ok"
+          },
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "{{teacher_name}}"
+            }
+          },
+          "say": "แถวของครูที่เพิ่มปรากฏในตาราง สถานะ \"ใช้งาน\" และบัญชี \"ยังไม่มี\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "table.ac-table tbody tr",
+            "has_text": "{{teacher_name}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รายชื่อครู",
+            "within": {
+              "css": "div.ac-card",
+              "has_text": "วางรายชื่อครูหลายคน"
+            }
+          },
+          "value": "{{teacher2_name}}, ภาษาไทย",
+          "say": "ถ้ามีครูหลายคน ให้วางรายชื่อในกล่อง \"วางรายชื่อครูหลายคน\" หนึ่งบรรทัดต่อหนึ่งคน คั่นกลุ่มสาระด้วยเครื่องหมายจุลภาค",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ตรวจสอบก่อนนำเข้า",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"ตรวจสอบก่อนนำเข้า\" ระบบแสดงรายการที่จะเพิ่มและบรรทัดที่จะข้ามโดยยังไม่บันทึก",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "ul.ac-pre"
+          },
+          "wait_after": {
+            "css": "ul.ac-pre"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "นำเข้ารายชื่อ",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"นำเข้ารายชื่อ\" ระบบเพิ่มครูตามรายการและแสดงจำนวนที่นำเข้า",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".ac-notice.ac-ok"
+          },
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "{{teacher2_name}}"
+            }
+          }
+        }
+      ],
+      "expected": "ตารางครูมีแถวของครูทั้งสองคนที่เพิ่ม สถานะ \"ใช้งาน\" และบัญชี \"ยังไม่มี\"",
+      "verify": [
+        {
+          "title": "เปิดขั้นครูใหม่ ครูทั้งสองคนต้องยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#setup/periods",
+              "wait_after": {
+                "css": ".ac-prow"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#setup/teachers",
+              "wait_after": {
+                "css": "form[data-form=teacher]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "table.ac-table tbody tr",
+                    "has_text": "{{teacher_name}}"
+                  }
+                },
+                {
+                  "text": "วิทยาศาสตร์",
+                  "in": {
+                    "css": "table.ac-table tbody tr",
+                    "has_text": "{{teacher_name}}"
+                  }
+                },
+                {
+                  "text": "ภาษาไทย",
+                  "in": {
+                    "css": "table.ac-table tbody tr",
+                    "has_text": "{{teacher2_name}}"
+                  }
+                }
+              ],
+              "say": "เปิดขั้น \"ครู\" ใหม่ ครูทั้งสองคนยังอยู่ในตารางพร้อมกลุ่มสาระ",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "table.ac-table tbody tr",
+                "has_text": "{{marker}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-teacher",
+      "title": "แก้ไขข้อมูลครู",
+      "role": "admin",
+      "start": "/work#setup/teachers",
+      "depends_on": [
+        "add-teacher"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-form=teacher]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "แก้ไข",
+            "exact": true,
+            "within": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "{{teacher_name}}"
+            }
+          },
+          "say": "กดปุ่ม \"แก้ไข\" ท้ายแถวของครู แบบฟอร์มเปลี่ยนเป็น \"แก้ไขครู\" พร้อมช่อง \"สถานะ\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "button",
+            "name": "ยกเลิกการแก้ไข"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "กลุ่มสาระ",
+            "within": {
+              "css": "form[data-form=teacher]"
+            }
+          },
+          "value": "คณิตศาสตร์",
+          "say": "แก้ข้อความในช่อง \"กลุ่มสาระ\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=teacher]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=teacher]"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".ac-notice.ac-ok"
+          },
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "คณิตศาสตร์",
+            "in": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "{{teacher_name}}"
+            }
+          }
+        }
+      ],
+      "expected": "แถวของครูแสดงกลุ่มสาระใหม่",
+      "verify": [
+        {
+          "title": "เปิดขั้นครูใหม่ กลุ่มสาระที่แก้ต้องยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#setup/periods",
+              "wait_after": {
+                "css": ".ac-prow"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#setup/teachers",
+              "wait_after": {
+                "css": "form[data-form=teacher]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "คณิตศาสตร์",
+                "in": {
+                  "css": "table.ac-table tbody tr",
+                  "has_text": "{{teacher_name}}"
+                }
+              },
+              "say": "เปิดขั้น \"ครู\" ใหม่ แถวของครูแสดงกลุ่มสาระที่แก้ไข",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "table.ac-table tbody tr",
+                "has_text": "{{teacher_name}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "add-classroom",
+      "title": "เพิ่มห้องเรียน",
+      "intro": "เพิ่มห้องทีละห้องในฟอร์ม \"เพิ่มห้องเรียนทีละห้อง\" ช่อง \"ชื่อห้อง\" ว่างไว้ได้ ระบบตั้งชื่อเองเป็น ระดับชั้น/ห้องที่ เช่น ม.6/9 ถ้าต้องการสร้างหลายห้องพร้อมกัน ใช้ฟอร์ม \"สร้างหลายห้องพร้อมกัน\" ด้านบน",
+      "role": "admin",
+      "start": "/work",
+      "core": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตั้งค่าโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ตั้งค่าโรงเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "navigation",
+            "name": "ขั้นตอนตั้งค่า"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "attr": {
+              "href": "#setup/classrooms"
+            },
+            "within": {
+              "role": "navigation",
+              "name": "ขั้นตอนตั้งค่า"
+            }
+          },
+          "say": "เลือกขั้นที่ 3 \"ห้องเรียน\" ในรายการขั้นตอน",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "form[data-form=room]"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "text": "{{marker}}"
+            }
+          },
+          "comment": "precondition: no leftover classroom of an earlier run"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ระดับชั้น",
+            "within": {
+              "css": "form[data-form=room]"
+            }
+          },
+          "value": "ม.6",
+          "say": "พิมพ์ระดับชั้นในช่อง \"ระดับชั้น\" ของฟอร์ม \"เพิ่มห้องเรียนทีละห้อง\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=room]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ห้องที่",
+            "within": {
+              "css": "form[data-form=room]"
+            }
+          },
+          "value": "9",
+          "say": "พิมพ์หมายเลขห้องในช่อง \"ห้องที่\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=room]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อห้อง",
+            "within": {
+              "css": "form[data-form=room]"
+            }
+          },
+          "value": "{{room_name}}",
+          "say": "พิมพ์ชื่อห้องในช่อง \"ชื่อห้อง\" หรือเว้นว่างให้ระบบตั้งชื่อ",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=room]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=room]"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกห้องเรียนแล้ว\" และเพิ่มแถวในตารางห้องเรียน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".ac-notice.ac-ok"
+          },
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "css": "table.ac-table tbody tr",
+                "has_text": "{{room_name}}"
+              }
+            },
+            {
+              "text": "ยังไม่กำหนด",
+              "in": {
+                "css": "table.ac-table tbody tr",
+                "has_text": "{{room_name}}"
+              }
+            }
+          ],
+          "say": "แถวของห้องใหม่ปรากฏในตาราง นักเรียน 0 คน และครูประจำชั้น \"ยังไม่กำหนด\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "table.ac-table tbody tr",
+            "has_text": "{{room_name}}"
+          }
+        }
+      ],
+      "expected": "ตารางห้องเรียนมีแถวของห้องใหม่ สถานะ \"ใช้งาน\" และครูประจำชั้น \"ยังไม่กำหนด\"",
+      "verify": [
+        {
+          "title": "เปิดขั้นห้องเรียนใหม่ ห้องที่เพิ่มต้องยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#setup/periods",
+              "wait_after": {
+                "css": ".ac-prow"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#setup/classrooms",
+              "wait_after": {
+                "css": "form[data-form=room]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": "table.ac-table tbody tr",
+                    "has_text": "{{room_name}}"
+                  }
+                },
+                {
+                  "text": "ใช้งาน",
+                  "in": {
+                    "css": "table.ac-table tbody tr",
+                    "has_text": "{{room_name}}"
+                  }
+                }
+              ],
+              "say": "เปิดขั้น \"ห้องเรียน\" ใหม่ ห้องที่เพิ่มยังอยู่ในตาราง",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "table.ac-table tbody tr",
+                "has_text": "{{room_name}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "assign-homeroom",
+      "title": "กำหนดครูประจำชั้นของห้อง",
+      "role": "admin",
+      "start": "/work",
+      "depends_on": [
+        "add-teacher",
+        "add-classroom"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตั้งค่าโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ตั้งค่าโรงเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "navigation",
+            "name": "ขั้นตอนตั้งค่า"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "attr": {
+              "href": "#setup/homerooms"
+            },
+            "within": {
+              "role": "navigation",
+              "name": "ขั้นตอนตั้งค่า"
+            }
+          },
+          "say": "เลือกขั้นที่ 5 \"ครูประจำชั้น\" ในรายการขั้นตอน",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "select[data-room]",
+            "first": true
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "role": "combobox",
+            "name": "ครูประจำชั้น {{room_name}}"
+          },
+          "label": "{{teacher_name}}",
+          "say": "เลือกครูในช่องของห้องที่ต้องการ แต่ละห้องมีช่องเลือกครูของตนเอง",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "css": "table.ac-table tbody tr",
+            "has_text": "{{room_name}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกครูประจำชั้น",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"บันทึกครูประจำชั้น\" ระบบแสดงจำนวนห้องที่บันทึกและปรับตัวเลขในหน้าสรุป",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".ac-notice.ac-ok"
+          },
+          "expect_response": {
+            "url_contains": "/api/academic/homerooms",
+            "method": "PUT",
+            "status": 200
+          },
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        }
+      ],
+      "expected": "ช่องของห้องนั้นแสดงชื่อครูที่เลือก และข้อความแจ้งว่าบันทึกครูประจำชั้น 1 ห้องแล้ว",
+      "verify": [
+        {
+          "title": "เปิดขั้นห้องเรียนใหม่ ห้องนั้นแสดงชื่อครูประจำชั้น",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#setup/periods",
+              "wait_after": {
+                "css": ".ac-prow"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#setup/classrooms",
+              "wait_after": {
+                "css": "form[data-form=room]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "{{teacher_name}}",
+                "in": {
+                  "css": "table.ac-table tbody tr",
+                  "has_text": "{{room_name}}"
+                }
+              },
+              "say": "เปิดขั้น \"ห้องเรียน\" ใหม่ คอลัมน์ \"ครูประจำชั้น\" ของห้องนั้นแสดงชื่อครูที่เลือก",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "table.ac-table tbody tr",
+                "has_text": "{{room_name}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "add-calendar-day",
+      "title": "เพิ่มและแก้ไขกิจกรรมในปฏิทินโรงเรียน",
+      "intro": "ปฏิทินโรงเรียนมี 4 ชนิดรายการ คือ วันหยุด กิจกรรม สอบ และงดการเรียน วันหยุดและงดการเรียนทำให้ระบบเช็คชื่อไม่เปิดให้เช็คในวันนั้น ผู้ดูแลระบบและผู้อำนวยการเพิ่ม แก้ไข และลบรายการได้",
+      "role": "admin",
+      "start": "/work",
+      "core": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ปฏิทินโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ปฏิทินโรงเรียน\" ที่แถบเมนูด้านซ้าย ระบบแสดงรายการของเดือนปัจจุบัน",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "form[data-form=day]"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "text": "{{marker}}"
+            }
+          },
+          "comment": "precondition: no leftover entry of an earlier run"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "วันที่",
+            "within": {
+              "css": "form[data-form=day]"
+            }
+          },
+          "value": "{{today}}",
+          "say": "เลือกวันที่ในช่อง \"วันที่\" ของฟอร์ม \"เพิ่มวันหยุดหรือกิจกรรม\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=day]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ชนิด",
+            "within": {
+              "css": "form[data-form=day]"
+            }
+          },
+          "label": "กิจกรรม",
+          "say": "เลือกชนิดในช่อง \"ชนิด\" เช่น \"วันหยุด\" \"กิจกรรม\" \"สอบ\" หรือ \"งดการเรียน\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=day]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อรายการ",
+            "within": {
+              "css": "form[data-form=day]"
+            }
+          },
+          "value": "{{day_title}}",
+          "say": "พิมพ์ชื่อรายการในช่อง \"ชื่อรายการ\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=day]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=day]"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกรายการแล้ว\" และเพิ่มแถวในตาราง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".ac-notice.ac-ok"
+          },
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "{{day_title}}"
+            }
+          },
+          "say": "แถวของกิจกรรมปรากฏในตารางพร้อมวันที่และชนิด",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "table.ac-table tbody tr",
+            "has_text": "{{day_title}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "แก้ไข",
+            "exact": true,
+            "within": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "{{day_title}}"
+            }
+          },
+          "say": "ถ้าต้องแก้ไข กดปุ่ม \"แก้ไข\" ท้ายแถว ฟอร์มด้านล่างเปลี่ยนเป็น \"แก้ไขรายการ\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "button",
+            "name": "ยกเลิกการแก้ไข"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อรายการ",
+            "within": {
+              "css": "form[data-form=day]"
+            }
+          },
+          "value": "{{day_title2}}",
+          "say": "แก้ข้อความในช่อง \"ชื่อรายการ\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=day]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=day]"
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\"",
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "{{day_title2}}"
+            }
+          }
+        }
+      ],
+      "expected": "ตารางปฏิทินแสดงรายการที่เพิ่มด้วยชื่อที่แก้ไขแล้ว",
+      "verify": [
+        {
+          "title": "เปิดปฏิทินใหม่ รายการที่แก้ไขต้องยังอยู่",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "table.ac-table tbody tr",
+                  "has_text": "{{day_title2}}"
+                }
+              },
+              "say": "เปิดหน้า \"ปฏิทินโรงเรียน\" ใหม่ รายการที่เพิ่มและแก้ไขยังอยู่ในเดือนนั้น",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "table.ac-table tbody tr",
+                "has_text": "{{day_title2}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "teacher-views-calendar",
+      "title": "ครูดูปฏิทินโรงเรียน (ดูอย่างเดียว) และไม่เห็นเมนูตั้งค่าโรงเรียน",
+      "intro": "ครูเห็นปฏิทินของโรงเรียนเพื่อวางแผนการสอน แต่ไม่มีฟอร์มเพิ่ม และไม่มีปุ่มแก้ไขหรือลบ เมนู \"ตั้งค่าโรงเรียน\" ไม่แสดงสำหรับครู",
+      "role": "homeroom",
+      "start": "/work",
+      "depends_on": [
+        "add-calendar-day"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ปฏิทินโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ปฏิทินโรงเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "button",
+            "name": "เดือนก่อน"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "css": "table.ac-table tbody tr",
+                "has_text": "{{day_title2}}"
+              }
+            },
+            {
+              "hidden": {
+                "css": "form[data-form=day]"
+              }
+            },
+            {
+              "hidden": {
+                "role": "button",
+                "name": "แก้ไข",
+                "exact": true
+              }
+            }
+          ],
+          "say": "ครูเห็นรายการของเดือน มีปุ่ม \"เดือนก่อน\" และ \"เดือนถัดไป\" สำหรับเปลี่ยนเดือน แต่ไม่มีฟอร์มเพิ่มและไม่มีปุ่ม \"แก้ไข\" หรือ \"ลบ\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "table.ac-table tbody tr",
+            "has_text": "{{day_title2}}"
+          }
+        }
+      ],
+      "expected": "ครูเห็นรายการปฏิทินของเดือนและเปลี่ยนเดือนได้ แต่แก้ไขไม่ได้",
+      "verify": [
+        {
+          "title": "ครูไม่มีเมนู \"ตั้งค่าโรงเรียน\" ที่แถบเมนู",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "link",
+                    "name": "ปฏิทินโรงเรียน",
+                    "exact": true,
+                    "within": {
+                      "role": "navigation",
+                      "name": "ระบบงานโรงเรียน"
+                    }
+                  }
+                },
+                {
+                  "hidden": {
+                    "role": "link",
+                    "name": "ตั้งค่าโรงเรียน",
+                    "exact": true
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "principal-opens-setup",
+      "title": "ผู้อำนวยการเปิดหน้าตั้งค่าโรงเรียนและดูห้องเรียน",
+      "intro": "ผู้อำนวยการเปิดและแก้ไขขั้นตั้งค่าได้เช่นเดียวกับผู้ดูแลระบบ ยกเว้นขั้น \"บัญชีครู\" ซึ่งสร้างบัญชีได้เฉพาะผู้ดูแลระบบ",
+      "role": "principal",
+      "start": "/work",
+      "depends_on": [
+        "assign-homeroom"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตั้งค่าโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ตั้งค่าโรงเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "navigation",
+            "name": "ขั้นตอนตั้งค่า"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "attr": {
+              "href": "#setup/classrooms"
+            },
+            "within": {
+              "role": "navigation",
+              "name": "ขั้นตอนตั้งค่า"
+            }
+          },
+          "say": "เลือกขั้นที่ 3 \"ห้องเรียน\" ผู้อำนวยการเห็นรายการห้องทั้งหมดและแก้ไขได้",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "form[data-form=room]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "attr": {
+              "href": "#setup/accounts"
+            },
+            "within": {
+              "role": "navigation",
+              "name": "ขั้นตอนตั้งค่า"
+            }
+          },
+          "say": "เลือกขั้นที่ 6 \"บัญชีครู (ไม่บังคับ)\" ผู้อำนวยการเห็นข้อความแจ้งว่าการสร้างบัญชีครูทำได้เฉพาะผู้ดูแลระบบ",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "text": "การสร้างบัญชีครูทำได้เฉพาะผู้ดูแลระบบ"
+          }
+        }
+      ],
+      "expected": "ผู้อำนวยการเห็นห้องเรียนที่เพิ่ม พร้อมครูประจำชั้น และเห็นว่าขั้นบัญชีครูสงวนไว้ให้ผู้ดูแลระบบ",
+      "verify": [
+        {
+          "title": "ผู้อำนวยการเห็นห้องที่เพิ่มพร้อมครูประจำชั้นในขั้นห้องเรียน",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#setup/classrooms",
+              "wait_after": {
+                "css": "form[data-form=room]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "{{teacher_name}}",
+                "in": {
+                  "css": "table.ac-table tbody tr",
+                  "has_text": "{{room_name}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "admin-account-step",
+      "title": "ดูขั้นบัญชีครูของผู้ดูแลระบบ",
+      "intro": "ขั้นนี้ไม่บังคับ ผู้ดูแลระบบพิมพ์อีเมลของครูแล้วกด \"ส่งลิงก์เชิญ\" ระบบสร้างบัญชีและส่งลิงก์ตั้งรหัสผ่านทางอีเมล ใช้ได้ 72 ชั่วโมง ผู้ดูแลไม่ต้องรู้รหัสผ่านของครู คู่มือนี้แสดงหน้าจอเท่านั้นและไม่กดส่งลิงก์ เพราะการส่งลิงก์สร้างบัญชีจริงที่ลบไม่ได้",
+      "role": "admin",
+      "start": "/work#setup/accounts",
+      "depends_on": [
+        "add-teacher"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "button",
+            "name": "ส่งลิงก์เชิญ",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "role": "textbox",
+                "name": "อีเมลของ {{teacher_name}}"
+              }
+            },
+            {
+              "visible": {
+                "role": "button",
+                "name": "ส่งลิงก์เชิญ",
+                "first": true
+              }
+            }
+          ],
+          "say": "ขั้นที่ 6 \"บัญชีครู (ไม่บังคับ)\" แสดงครูที่ยังไม่มีบัญชีพร้อมช่องพิมพ์อีเมลและปุ่ม \"ส่งลิงก์เชิญ\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "textbox",
+            "name": "อีเมลของ {{teacher_name}}"
+          }
+        }
+      ],
+      "expected": "ผู้ดูแลระบบเห็นรายชื่อครูที่ยังไม่มีบัญชี พร้อมช่องกรอกอีเมลและปุ่มส่งลิงก์เชิญ",
+      "verify": [
+        {
+          "title": "ครูที่เพิ่มมีช่องกรอกอีเมลแสดงอยู่",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "textbox",
+                  "name": "อีเมลของ {{teacher_name}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "set-current-term",
+      "title": "ตั้งภาคเรียนที่ 1 เป็นภาคเรียนปัจจุบัน แล้วตั้งภาคเรียนที่ 2 กลับ",
+      "intro": "ปุ่ม \"ตั้งเป็นปัจจุบัน\" เปลี่ยนภาคเรียนที่ใช้ในตารางสอน เวร และการบันทึกคะแนนของทั้งโรงเรียน และแถบเมนูด้านซ้ายแสดงชื่อภาคเรียนใหม่ ขั้นตอนนี้ตั้งภาคเรียนที่ 1 ของปีการศึกษา 2569 เป็นปัจจุบันชั่วคราว แล้วตั้งภาคเรียนที่ 2 กลับทันที ถ้าขั้นตอนใดล้มเหลวกลางทาง ภาคเรียนปัจจุบันอาจค้างเป็นภาคเรียนที่ 1 ต้องล้างข้อมูลระบบทดลองใหม่ (reset) ก่อนทดสอบอีกครั้ง",
+      "role": "admin",
+      "start": "/work#setup/term",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "form[data-form=term]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ตั้งเป็นปัจจุบัน",
+            "exact": true,
+            "within": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "2569/1"
+            }
+          },
+          "say": "กดปุ่ม \"ตั้งเป็นปัจจุบัน\" ท้ายแถวภาคเรียน 2569/1 ระบบเปลี่ยนภาคเรียนปัจจุบันของทั้งโรงเรียน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "table.ac-table tbody tr",
+            "has_text": "2569/1"
+          },
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "reload",
+          "wait_after": {
+            "css": "form[data-form=term]"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ภาคเรียนที่ 1 / 2569"
+          },
+          "say": "แถบเมนูด้านซ้ายด้านล่างแสดง \"ภาคเรียนที่ 1 / 2569\" ซึ่งเป็นภาคเรียนปัจจุบันที่ตั้งใหม่",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "text": "ภาคเรียนที่ 1 / 2569"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ตั้งเป็นปัจจุบัน",
+            "exact": true,
+            "within": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "2569/2"
+            }
+          },
+          "say": "กดปุ่ม \"ตั้งเป็นปัจจุบัน\" ท้ายแถวภาคเรียน 2569/2 เพื่อตั้งภาคเรียนที่ 2 กลับเป็นภาคเรียนปัจจุบัน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "table.ac-table tbody tr",
+            "has_text": "2569/2"
+          },
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "reload",
+          "wait_after": {
+            "css": "form[data-form=term]"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ภาคเรียนที่ 2 / 2569"
+          },
+          "say": "แถบเมนูด้านซ้ายกลับมาแสดง \"ภาคเรียนที่ 2 / 2569\" ภาคเรียนปัจจุบันเป็นภาคเรียนเดิม",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "text": "ภาคเรียนที่ 2 / 2569"
+          }
+        }
+      ],
+      "expected": "ภาคเรียนปัจจุบันเปลี่ยนเป็น 2569/1 แล้วกลับเป็น 2569/2 และแถบเมนูด้านซ้ายแสดงชื่อภาคเรียนตามนั้น",
+      "verify": [
+        {
+          "title": "ภาคเรียนปัจจุบันเป็น 2569/2 และแถบเมนูแสดงภาคเรียนที่ 2",
+          "steps": [
+            {
+              "do": "reload",
+              "wait_after": {
+                "css": "form[data-form=term]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "ภาคเรียนที่ 2 / 2569"
+                },
+                {
+                  "text": "ภาคเรียนปัจจุบัน",
+                  "in": {
+                    "css": "table.ac-table tbody tr",
+                    "has_text": "2569/2"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "create-rooms-in-bulk",
+      "title": "สร้างห้องเรียนหลายห้องพร้อมกันจากระดับชั้น แล้วลบออก",
+      "intro": "ฟอร์ม \"สร้างหลายห้องพร้อมกัน\" สร้างห้องชื่อ ระดับ/ห้องที่ 1, 2 ตามจำนวนที่กำหนด ห้องที่มีอยู่แล้วจะถูกข้าม ขั้นตอนนี้สร้างห้องทดสอบ อ.1/1 และ อ.1/2 แล้วลบทั้งสองห้องเป็นขั้นตอนสุดท้าย",
+      "role": "admin",
+      "start": "/work",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตั้งค่าโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ตั้งค่าโรงเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "navigation",
+            "name": "ขั้นตอนตั้งค่า"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "attr": {
+              "href": "#setup/classrooms"
+            },
+            "within": {
+              "role": "navigation",
+              "name": "ขั้นตอนตั้งค่า"
+            }
+          },
+          "wait_after": {
+            "css": "form[data-form=bulk]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ระดับชั้น",
+            "within": {
+              "css": "form[data-form=bulk]"
+            }
+          },
+          "value": "อ.1",
+          "say": "พิมพ์ระดับชั้นในช่อง \"ระดับชั้น\" ของฟอร์ม \"สร้างหลายห้องพร้อมกัน\""
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "จำนวนห้องต่อระดับ",
+            "within": {
+              "css": "form[data-form=bulk]"
+            }
+          },
+          "value": "2",
+          "say": "พิมพ์จำนวนห้องต่อระดับในช่อง \"จำนวนห้องต่อระดับ\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=bulk]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างห้องเรียน",
+            "exact": true,
+            "within": {
+              "css": "form[data-form=bulk]"
+            }
+          },
+          "say": "กดปุ่ม \"สร้างห้องเรียน\" ระบบแจ้งจำนวนห้องที่สร้างและแสดงห้องใหม่ในตาราง",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "css": "table.ac-table tbody tr",
+                "has_text": "อ.1/1"
+              }
+            },
+            {
+              "visible": {
+                "css": "table.ac-table tbody tr",
+                "has_text": "อ.1/2"
+              }
+            }
+          ],
+          "say": "ตารางห้องเรียนมีห้อง อ.1/1 และ อ.1/2 ที่สร้างพร้อมกัน",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "table.ac-table tbody tr",
+            "has_text": "อ.1/1"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "อ.1/1"
+            }
+          },
+          "dialog": "accept",
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "อ.1/2"
+            }
+          },
+          "dialog": "accept",
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        }
+      ],
+      "expected": "ระบบสร้างห้อง อ.1/1 และ อ.1/2 และลบทั้งสองห้องเมื่อจบขั้นตอน",
+      "verify": [
+        {
+          "title": "หลังลบ ห้อง อ.1 ไม่อยู่ในตารางห้องเรียน",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#setup/classrooms",
+              "wait_after": {
+                "css": "form[data-form=bulk]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "css": "table.ac-table tbody tr",
+                  "has_text": "อ.1/1"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "refuse-delete-room-with-students",
+      "title": "ลบห้องเรียนที่มีนักเรียนอยู่ไม่ได้ ระบบแจ้งเหตุผล",
+      "intro": "ห้องที่มีนักเรียนอยู่ลบไม่ได้ ให้ปิดใช้งานแทน ขั้นตอนนี้กดลบห้อง ม.4/1 แล้วยืนยัน เพื่อให้เห็นข้อความที่ระบบแจ้ง ห้องยังคงอยู่ ไม่มีข้อมูลถูกลบ",
+      "role": "admin",
+      "start": "/work",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ตั้งค่าโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "role": "navigation",
+            "name": "ขั้นตอนตั้งค่า"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "attr": {
+              "href": "#setup/classrooms"
+            },
+            "within": {
+              "role": "navigation",
+              "name": "ขั้นตอนตั้งค่า"
+            }
+          },
+          "wait_after": {
+            "css": "form[data-form=room]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "ม.4/1"
+            }
+          },
+          "dialog": "accept",
+          "say": "กดปุ่ม \"ลบ\" ท้ายแถวห้อง ม.4/1 แล้วยืนยัน ระบบไม่ลบเพราะห้องนี้มีนักเรียนอยู่",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": ".ac-notice.ac-error"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ลบไม่ได้ ห้องเรียนนี้มี",
+            "in": {
+              "css": ".ac-notice.ac-error"
+            }
+          },
+          "say": "ระบบแจ้งว่า \"ลบไม่ได้ ห้องเรียนนี้มีนักเรียนอยู่ ให้ปิดใช้งานแทน\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".ac-notice.ac-error"
+          }
+        }
+      ],
+      "expected": "ระบบแจ้งว่าห้องที่มีนักเรียนลบไม่ได้ และห้อง ม.4/1 ยังอยู่ในตาราง",
+      "verify": [
+        {
+          "title": "ห้อง ม.4/1 ยังอยู่ในตารางห้องเรียน",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#setup/classrooms",
+              "wait_after": {
+                "css": "form[data-form=room]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "table.ac-table tbody tr",
+                  "has_text": "ม.4/1"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "trash-test-data",
+      "title": "ลบข้อมูลทดสอบ (กิจกรรมปฏิทิน ห้องเรียน ครู ภาคเรียน)",
+      "intro": "ขั้นตอนนี้ใช้ล้างข้อมูลที่เพิ่มระหว่างทดสอบ ในการใช้งานจริงลบรายการด้วยปุ่ม \"ลบ\" ท้ายแถว ระบบถามยืนยันก่อนลบ ห้องที่มีนักเรียนหรือภาคเรียนที่มีข้อมูลใช้งานอยู่ลบไม่ได้",
+      "role": "admin",
+      "start": "/work",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ปฏิทินโรงเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ปฏิทินโรงเรียน\" แล้วกดปุ่ม \"ลบ\" ท้ายแถวของรายการที่ต้องการลบ",
+          "wait_after": {
+            "css": "form[data-form=day]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "{{marker}}"
+            }
+          },
+          "optional": true,
+          "say": "กดปุ่ม \"ลบ\" ท้ายแถวของรายการปฏิทิน ระบบถามยืนยันและลบรายการ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".ac-notice.ac-ok"
+          },
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/work#setup/classrooms",
+          "wait_after": {
+            "css": "form[data-form=room]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "{{marker}}"
+            }
+          },
+          "optional": true,
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/work#setup/teachers",
+          "wait_after": {
+            "css": "form[data-form=teacher]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "{{teacher_name}}"
+            }
+          },
+          "optional": true,
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "{{teacher_name}}"
+            }
+          },
+          "comment": "the first teacher must be gone from the refreshed list before the second delete"
+        },
+        {
+          "do": "goto",
+          "url": "/work#setup/teachers",
+          "wait_after": {
+            "css": "form[data-form=teacher]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "{{teacher2_name}}"
+            }
+          },
+          "optional": true,
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/work#setup/term",
+          "wait_after": {
+            "css": "form[data-form=term]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบ",
+            "exact": true,
+            "within": {
+              "css": "table.ac-table tbody tr",
+              "has_text": "{{marker}}"
+            }
+          },
+          "optional": true,
+          "wait_after": {
+            "css": ".ac-notice.ac-ok"
+          }
+        }
+      ],
+      "verify": [
+        {
+          "title": "ภาคเรียน ครู ห้องเรียน และปฏิทินไม่มีรายการทดสอบเหลืออยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#setup/term",
+              "wait_after": {
+                "css": "form[data-form=term]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "text": "{{marker}}"
+                }
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#setup/teachers",
+              "wait_after": {
+                "css": "form[data-form=teacher]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "hidden": {
+                    "css": "table.ac-table tbody tr",
+                    "has_text": "{{teacher_name}}"
+                  }
+                },
+                {
+                  "hidden": {
+                    "css": "table.ac-table tbody tr",
+                    "has_text": "{{teacher2_name}}"
+                  }
+                }
+              ],
+              "comment": "checks this run's own test teachers only"
+            },
+            {
+              "do": "goto",
+              "url": "/work#setup/classrooms",
+              "wait_after": {
+                "css": "form[data-form=room]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "text": "{{marker}}"
+                }
+              },
+              "say": "ตารางห้องเรียนไม่มีห้องทดสอบเหลืออยู่",
+              "shot": true,
+              "crop": {
+                "css": "table.ac-table"
+              },
+              "highlight": false
+            },
+            {
+              "do": "goto",
+              "url": "/work#calendar",
+              "wait_after": {
+                "css": "form[data-form=day]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "text": "{{marker}}"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": [
+    "ปุ่ม \"ส่งลิงก์เชิญ\" ในขั้นบัญชีครู ไม่ได้กดเพราะสร้างบัญชีผู้ใช้จริงและส่งอีเมล และไม่มีปุ่มลบบัญชีในหน้านี้ (ปิดการใช้งานได้ที่หน้า \"จัดการผู้ใช้งาน\")",
+    "การแก้ไขซ้อนกันของผู้ใช้สองคน (ข้อความ \"โหลดข้อมูลล่าสุด\" เมื่อรหัสเวอร์ชันไม่ตรง) ตัวรันใช้เบราว์เซอร์ผู้ใช้ครั้งละหนึ่งคน"
+  ]
+}

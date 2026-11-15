@@ -5,7 +5,9 @@
     const toggle = document.querySelector('.school-menu-toggle');
     const closeButton = sidebar.querySelector('.school-menu-close');
     const overlay = document.querySelector('.school-nav-overlay');
-    const mobile = window.matchMedia('(max-width: 1024px)');
+    const mobile = window.matchMedia('(max-width: 767px)'); // drawer
+    const rail = window.matchMedia('(min-width: 768px) and (max-width: 1024px)'); // icon rail that opens as a labelled panel
+    const compact = () => mobile.matches || rail.matches;
     const main = document.querySelector('.cms-shell, .workspace, .account-shell');
     let previousFocus = null;
 
@@ -18,7 +20,7 @@
         sidebar.removeAttribute('role');
         sidebar.removeAttribute('aria-modal');
         if (main) main.inert = false;
-        if (restoreFocus && mobile.matches && previousFocus?.isConnected) previousFocus.focus();
+        if (restoreFocus && compact() && previousFocus?.isConnected) previousFocus.focus();
     }
 
     function open() {
@@ -31,7 +33,7 @@
         toggle.setAttribute('aria-label', 'ปิดเมนูหลัก');
         overlay.hidden = false;
         if (main) main.inert = true;
-        closeButton.focus();
+        (closeButton.getClientRects().length ? closeButton : sidebar.querySelector('a, button')).focus();
     }
 
     function highlight() {
@@ -57,7 +59,7 @@
     toggle.addEventListener('click', () => document.body.classList.contains('school-nav-open') ? close() : open());
     closeButton.addEventListener('click', () => close());
     overlay.addEventListener('click', () => close());
-    sidebar.addEventListener('click', event => { if (event.target.closest('a') && mobile.matches) close(false); });
+    sidebar.addEventListener('click', event => { if (event.target.closest('a') && compact()) close(false); });
     document.addEventListener('keydown', event => {
         if (!document.body.classList.contains('school-nav-open')) return;
         if (event.key === 'Escape') { event.preventDefault(); close(); }
@@ -68,13 +70,19 @@
             if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
         }
     });
-    mobile.addEventListener('change', () => {
+    // the rail shows every link as an icon: closed groups would hide theirs, so they are opened while the rail is on screen
+    const openGroups = () => { if (rail.matches) sidebar.querySelectorAll('details.school-nav-group').forEach(group => { group.open = true; }); };
+    const onChange = () => {
         const focusedInside = sidebar.contains(document.activeElement);
         close(false);
-        if (mobile.matches && focusedInside) toggle.focus();
-    });
+        openGroups();
+        if (compact() && focusedInside) toggle.focus();
+    };
+    mobile.addEventListener('change', onChange);
+    rail.addEventListener('change', onChange);
     window.addEventListener('hashchange', highlight);
     close(false);
+    openGroups();
     highlight();
 
     // Health banner for admins on /cms and /work: the cron heartbeat is older than 10 minutes, or a check is at error level.
@@ -94,14 +102,6 @@
                 const banner = document.createElement('div');
                 banner.className = 'school-health-banner';
                 banner.setAttribute('role', 'alert');
-                const style = banner.style;
-                style.setProperty('margin', '12px 16px');
-                style.setProperty('padding', '12px 16px');
-                style.setProperty('border', '1px solid #b45309');
-                style.setProperty('border-left-width', '6px');
-                style.setProperty('border-radius', '8px');
-                style.setProperty('background', '#fff4e0');
-                style.setProperty('color', '#5b2a00');
                 const parts = [];
                 if (stale) parts.push('cron (schedule:run) ไม่ทำงานเกิน 10 นาที งานเผยแพร่ตามเวลา การส่งข้อมูลไปหน้าบ้าน และการสำรองอัตโนมัติจะหยุด');
                 if (errors) parts.push('มี ' + errors + ' รายการตรวจที่ผิดพลาด');
@@ -109,9 +109,8 @@
                 const link = document.createElement('a');
                 link.href = deploymentLink.href;
                 link.textContent = 'ดูหน้าตรวจความพร้อมระบบ';
-                link.style.setProperty('color', 'inherit');
-                link.style.setProperty('font-weight', '700');
                 banner.append(link);
+                if (window.SchoolIcons) banner.insertAdjacentHTML('afterbegin', window.SchoolIcons.render('alert'));
                 host.parentNode.insertBefore(banner, host);
             })
             .catch(() => {});

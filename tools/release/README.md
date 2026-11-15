@@ -38,6 +38,8 @@ Everything below is what the scripts in this folder do; nothing here publishes a
    that may update straight to this one (`requires.from`); a school on an older release is told to install the stepping-stone release first.
 2. Add the heading at the top of `CHANGELOG.md`, in the existing style: `## [<version>] — <date>` (the `/whats-new` page shows the section whose heading equals `VERSION`).
 3. Check the tree: `php tools/release/scan-secrets.php --fail` (no finding of level high), `composer audit --locked`, and the test suite on MariaDB/MySQL (CI does this per PR).
+   `php tools/release/check-upstream.php` asks Packagist for newer `laravel/framework` releases and runs `composer audit --locked`: it prints [OK]/[WARN] lines and exits 1 when an advisory exists or a newer patch release of the framework is out inside the locked line, i.e. a Saan patch release is due (offline it only warns and exits 0).
+   The core package records the framework version it ships (`provides.laravel` in its manifest, read from `composer.lock`) so that the update page can show "Laravel 13.42.0 -> 13.45.1" before installing.
 4. Make a production vendor tree in a staging copy, never in the working tree: copy `composer.json` and `composer.lock` to an empty folder and run
    `composer install --no-dev --optimize-autoloader --working-dir=<staging>`. The build refuses a `vendor/` that contains dev packages.
 5. Build: `php tools/release/build-release.php <out-dir> <saan-release-signing.enc.json> --vendor-from=<staging>` (passphrase in `SAAN_SIGNING_PASSPHRASE` or `SAAN_SIGNING_PASSPHRASE_FILE`, see above).
@@ -48,5 +50,5 @@ Everything below is what the scripts in this folder do; nothing here publishes a
 8. Publish on https://saan.linuxthai.org (the project website, not part of this repository): the zip files and their SHA-256 values for the `/download/` page, the matching source for `/source/`,
    and `/.well-known/security.txt` for the security contact. Schools that switch the update check on read `https://saan.linuxthai.org/releases/feed.json` and `feed.sig`
    (`config/saan.php`, `update_feed`): `feed.json` has the form described in `app/Support/Modules/UpdateFeed.php` and `feed.sig` is the base64 Ed25519 signature of the exact bytes of `feed.json`
-   made with the same release key. No script in this folder produces the feed: it is written and signed by hand today.
+   made with the same release key. The feed (version 2) is produced and signed by `tools/build-feed.php` of the project website from `release-index.json`: besides the version notice it lists, for the core and every module package, `zip`, `bytes` and `sha256` (plus the core's `laravel` and `requires`) and a top-level `base` folder (e.g. `0.7.0/`), so installed schools can download the packages themselves from the folder of that release next to `feed.json` (`/admin/updates`, `saan:self-update`).
 9. Keep the signing key off shared machines (see Signing key). Do not publish a package that `verify-release.php` rejected or that was built with `--allow-test-key` or `--allow-dev`.

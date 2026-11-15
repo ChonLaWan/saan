@@ -1,0 +1,1654 @@
+{
+  "module": "web-ita",
+  "title": "ITA การเปิดเผยข้อมูลสาธารณะ",
+  "area": "เว็บไซต์โรงเรียน",
+  "purpose": "ผู้ดูแลเว็บไซต์จัดข้อมูลการเปิดเผยข้อมูลสาธารณะตามตัวชี้วัด ITA ของแต่ละปีงบประมาณ ได้แก่ หัวข้อ รายการ ลิงก์ ไฟล์ และหมายเหตุ ตรวจความครบของตัวชี้วัด O1 ถึง O18 แล้วเผยแพร่เป็นหน้า \"การเปิดเผยข้อมูลสาธารณะ (ITA)\" บนเว็บไซต์ของโรงเรียน ผู้เข้าชมเปิดอ่านและค้นหารายการได้โดยไม่ต้องเข้าสู่ระบบ ปีที่เผยแพร่แล้วหยุดเผยแพร่ได้ แต่ระบบไม่มีปุ่มลบปีงบประมาณ",
+  "roles": [
+    "ผู้ดูแลเว็บไซต์ (จัดข้อมูลและเผยแพร่)",
+    "ผู้อำนวยการและผู้ดูแลระบบ (เข้าได้เช่นเดียวกัน)",
+    "ผู้เข้าชมทั่วไป (อ่านและค้นหารายการ ไม่ต้องเข้าสู่ระบบ)"
+  ],
+  "menu": [
+    "เมนูด้านซ้ายกลุ่ม \"เนื้อหาเว็บไซต์\" > \"ITA เปิดเผยข้อมูลสาธารณะ\" (/cms#ita)",
+    "หน้าเว็บสาธารณะ: การเปิดเผยข้อมูลสาธารณะ (/portal/ita และ /portal/ita/<ปีงบประมาณ>)"
+  ],
+  "prerequisites": [],
+  "vars": {
+    "fy": "2562",
+    "page_title": "{{marker}} ITA ปี 2562",
+    "topic_title": "{{marker}} หัวข้อโครงสร้าง",
+    "item_title": "{{marker}} ผังโครงสร้างโรงเรียน"
+  },
+  "workflows": [
+    {
+      "id": "create-year",
+      "title": "เพิ่มปีงบประมาณใหม่",
+      "core": true,
+      "role": "editor",
+      "start": "/cms",
+      "intro": "ปีงบประมาณใช้เลข พ.ศ. ตั้งแต่ 2560 ถึง 2700 และมีได้ปีละหนึ่งชุด ปีที่สร้างใหม่เป็นฉบับร่าง ผู้เข้าชมยังไม่เห็น",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ITA เปิดเผยข้อมูลสาธารณะ",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ITA เปิดเผยข้อมูลสาธารณะ\" ที่แถบเมนูด้านซ้าย (อยู่ในกลุ่ม \"เนื้อหาเว็บไซต์\")",
+          "shot": true,
+          "wait_after": {
+            "id": "ita-create"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 0,
+            "of": {
+              "css": ".release-health-list > div",
+              "has_text": "ปีงบประมาณ {{fy}}"
+            }
+          },
+          "comment": "precondition: the test year must not exist"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ปีงบประมาณ (พ.ศ.)"
+          },
+          "value": "{{fy}}",
+          "say": "พิมพ์ปีงบประมาณ (พ.ศ.) ในช่อง \"ปีงบประมาณ (พ.ศ.)\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "note",
+          "say": "ช่อง \"เริ่มจาก\" ใช้เลือกหัวข้อเริ่มต้นแบบกลาง หรือคัดลอกโครงจากปีที่มีอยู่ (ไม่คัดลอกไฟล์และลิงก์) ขั้นตอนนี้ใช้หัวข้อเริ่มต้นแบบกลาง",
+          "shot": true,
+          "highlight": {
+            "label": "เริ่มจาก"
+          },
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างปีงบประมาณ"
+          },
+          "say": "กดปุ่ม \"สร้างปีงบประมาณ\" ระบบเปิดหน้าแก้ไขของปีนั้นและแสดงหัวข้อเริ่มต้น",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "heading",
+            "name": "ITA ปีงบประมาณ {{fy}}"
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "ITA ปีงบประมาณ {{fy}}"
+          }
+        }
+      ],
+      "expected": "หน้าแก้ไขแสดงข้อความ \"ฉบับร่าง ผู้ชมยังไม่เห็น\" และหัวข้อเริ่มต้น ปีใหม่อยู่ในรายการ \"ปีที่มีอยู่\" เป็นฉบับร่าง",
+      "verify": [
+        {
+          "title": "ปีใหม่อยู่ในรายการ \"ปีที่มีอยู่\" เป็นฉบับร่าง",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/cms#ita",
+              "wait_after": {
+                "id": "ita-create"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": ".release-health-list > div",
+                    "has_text": "ปีงบประมาณ {{fy}}"
+                  }
+                },
+                {
+                  "text": "ฉบับร่าง",
+                  "in": {
+                    "css": ".release-health-list > div",
+                    "has_text": "ปีงบประมาณ {{fy}}"
+                  }
+                }
+              ],
+              "say": "ปีงบประมาณที่เพิ่มอยู่ในรายการ \"ปีที่มีอยู่\" และมีป้าย \"ฉบับร่าง\"",
+              "shot": true,
+              "crop": "tight",
+              "crop_pad": 40,
+              "highlight": {
+                "css": ".release-health-list > div",
+                "has_text": "ปีงบประมาณ {{fy}}"
+              }
+            }
+          ]
+        },
+        {
+          "title": "ผู้เข้าชมทั่วไปยังไม่เห็นปีที่เป็นฉบับร่าง",
+          "as": "anonymous",
+          "start": "/portal/ita",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "http_status": 404,
+                "url": "/portal/ita/{{fy}}",
+                "anonymous": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fill-items",
+      "title": "แก้ชื่อหน้า เพิ่มรายการและลิงก์ แล้วบันทึก",
+      "role": "editor",
+      "start": "/cms#ita",
+      "depends_on": [
+        "create-year"
+      ],
+      "intro": "แต่ละปีมีหลายหัวข้อ แต่ละหัวข้อมีหลายรายการ รายการหนึ่งมีชื่อ ลิงก์ (https หรือ /portal/...) ไฟล์จากคลังสื่อ และหมายเหตุ ระบบบันทึกทุกหัวข้อพร้อมกันเมื่อกด \"บันทึก\"",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "ita-create"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "แก้ไข",
+            "within": {
+              "css": ".release-health-list > div",
+              "has_text": "ปีงบประมาณ {{fy}}"
+            }
+          },
+          "say": "กดปุ่ม \"แก้ไข\" ที่แถวของปีงบประมาณที่ต้องการ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "ITA ปีงบประมาณ {{fy}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อหัวข้อ",
+            "within": {
+              "css": "details.ita-topic-edit",
+              "first": true
+            }
+          },
+          "value": "{{topic_title}}",
+          "say": "พิมพ์ชื่อหัวข้อในกรอบหัวข้อแรก ช่อง \"ชื่อหัวข้อ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มรายการ",
+            "within": {
+              "css": "details.ita-topic-edit",
+              "first": true
+            }
+          },
+          "say": "กดปุ่ม \"เพิ่มรายการ\" ใต้หัวข้อแรก ระบบเพิ่มแถวรายการว่างหนึ่งแถว",
+          "shot": true,
+          "crop": "panel",
+          "wait_after": {
+            "css": "details.ita-topic-edit .ita-item-row"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อรายการ",
+            "within": {
+              "css": ".ita-item-row",
+              "first": true
+            }
+          },
+          "value": "{{item_title}}",
+          "say": "พิมพ์ชื่อรายการในช่อง \"ชื่อรายการ\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ลิงก์ (https หรือ /portal/...)",
+            "within": {
+              "css": ".ita-item-row",
+              "first": true
+            }
+          },
+          "value": "/portal/news",
+          "say": "พิมพ์ลิงก์ของข้อมูลในช่อง \"ลิงก์ (https หรือ /portal/...)\" เช่น /portal/news หรือที่อยู่ https",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หมายเหตุ",
+            "within": {
+              "css": ".ita-item-row",
+              "first": true
+            }
+          },
+          "value": "ข้อมูลสมมติสำหรับทดสอบ {{marker}}",
+          "say": "พิมพ์หมายเหตุสั้น ๆ ในช่อง \"หมายเหตุ\" (ไม่บังคับ)",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อหน้า"
+          },
+          "value": "{{page_title}}",
+          "say": "พิมพ์ชื่อหน้าในช่อง \"ชื่อหน้า\" ชื่อนี้แสดงเป็นหัวข้อใหญ่บนหน้าเว็บ",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 40
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true
+          },
+          "expect_response": {
+            "url_contains": "/api/ita/years/",
+            "method": "PUT",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"บันทึก\" ที่ท้ายหน้า ระบบแสดงข้อความ \"บันทึก ITA แล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true
+          },
+          "wait_after": {
+            "text": "บันทึก ITA แล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "{{page_title}}",
+            "of": {
+              "label": "ชื่อหน้า"
+            }
+          }
+        }
+      ],
+      "expected": "ระบบแสดงข้อความ \"บันทึก ITA แล้ว\" ชื่อหน้า ชื่อหัวข้อ และรายการที่พิมพ์ยังอยู่ในหน้าแก้ไข",
+      "verify": [
+        {
+          "title": "เปิดหน้าแก้ไขของปีนั้นใหม่ ข้อมูลที่บันทึกต้องยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/cms#ita",
+              "wait_after": {
+                "id": "ita-create"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "แก้ไข",
+                "within": {
+                  "css": ".release-health-list > div",
+                  "has_text": "ปีงบประมาณ {{fy}}"
+                }
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "ITA ปีงบประมาณ {{fy}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "value": "{{page_title}}",
+                  "of": {
+                    "label": "ชื่อหน้า"
+                  }
+                },
+                {
+                  "value": "{{item_title}}",
+                  "of": {
+                    "label": "ชื่อรายการ",
+                    "within": {
+                      "css": ".ita-item-row",
+                      "first": true
+                    }
+                  }
+                },
+                {
+                  "value": "/portal/news",
+                  "of": {
+                    "label": "ลิงก์ (https หรือ /portal/...)",
+                    "within": {
+                      "css": ".ita-item-row",
+                      "first": true
+                    }
+                  }
+                }
+              ],
+              "say": "เปิดหน้าแก้ไขใหม่ ชื่อหน้าและรายการที่บันทึกยังอยู่ครบ",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": ".ita-item-row",
+                "first": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "check-completeness",
+      "title": "ตรวจความครบของตัวชี้วัด O1 ถึง O18",
+      "role": "editor",
+      "start": "/cms#ita",
+      "depends_on": [
+        "fill-items"
+      ],
+      "intro": "ปุ่มตรวจความครบอ่านข้อมูลที่บันทึกแล้วเท่านั้น ไม่บันทึกให้ ผลบอกว่าตัวชี้วัดใดครบ ใช้ลิงก์อัตโนมัติ ขาด หรือลิงก์เสีย ปีที่ยังเป็นฉบับร่างยังไม่ถือว่าผ่าน",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "ita-create"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "แก้ไข",
+            "within": {
+              "css": ".release-health-list > div",
+              "has_text": "ปีงบประมาณ {{fy}}"
+            }
+          },
+          "say": "กดปุ่ม \"แก้ไข\" ที่แถวของปีงบประมาณที่ต้องการตรวจ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "ITA ปีงบประมาณ {{fy}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ตรวจความครบ O1-O18"
+          },
+          "say": "กดปุ่ม \"ตรวจความครบ O1-O18 (ที่บันทึกแล้ว)\" ใกล้ปุ่ม \"บันทึก\"",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 60,
+          "wait_after": {
+            "id": "ita-check-result"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "ผลตรวจความครบ ปีงบประมาณ {{fy}}",
+              "in": {
+                "id": "ita-check-result"
+              }
+            },
+            {
+              "text": "จากทั้งหมด 18 ข้อ",
+              "in": {
+                "id": "ita-check-result"
+              }
+            }
+          ],
+          "say": "ระบบแสดง \"ผลตรวจความครบ\" สรุปจำนวนข้อที่ครบ ขาด และลิงก์เสีย พร้อมรายการทุกข้อ แต่ละข้อที่ยังไม่ครบมีปุ่ม \"แก้ไขรายการนี้\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "ita-check-result"
+          }
+        }
+      ],
+      "expected": "กล่อง \"ผลตรวจความครบ\" แสดงจำนวน ครบ ลิงก์อัตโนมัติ ขาด และลิงก์เสีย จากทั้งหมด 18 ข้อ",
+      "verify": [
+        {
+          "title": "ผลตรวจแสดงครบ 18 ข้อ",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "count": 18,
+                "of": {
+                  "css": "#ita-check-result .release-health-list > div"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "copy-structure-from-year",
+      "title": "สร้างปีงบประมาณใหม่โดยคัดลอกโครงจากปีก่อน",
+      "role": "editor",
+      "start": "/cms",
+      "depends_on": [
+        "fill-items"
+      ],
+      "vars": {
+        "fy2": "2561"
+      },
+      "intro": "ปีงบประมาณใหม่เริ่มจากหัวข้อและรายการของปีที่มีอยู่ได้ ระบบคัดลอกเฉพาะโครง ได้แก่ รหัสตัวชี้วัด ชื่อหัวข้อ และชื่อรายการ ไม่คัดลอกไฟล์และลิงก์ เพื่อให้แนบข้อมูลของปีใหม่เอง ปีที่สร้างใหม่เป็นฉบับร่าง",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ITA เปิดเผยข้อมูลสาธารณะ",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "id": "ita-create"
+          },
+          "say": "กางกลุ่มเมนู \"เนื้อหาเว็บไซต์\" แล้วเลือก \"ITA เปิดเผยข้อมูลสาธารณะ\"",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 0,
+            "of": {
+              "css": ".release-health-list > div",
+              "has_text": "ปีงบประมาณ {{fy2}}"
+            }
+          },
+          "comment": "precondition: the copy year must not exist"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ปีงบประมาณ (พ.ศ.)"
+          },
+          "value": "{{fy2}}",
+          "say": "พิมพ์ปีงบประมาณใหม่ในช่อง \"ปีงบประมาณ (พ.ศ.)\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "select",
+          "target": {
+            "attr": {
+              "name": "copy_from"
+            }
+          },
+          "label": "คัดลอกโครงจากปี {{fy}} (ไม่คัดลอกไฟล์/ลิงก์)",
+          "say": "เลือกในช่อง \"เริ่มจาก\" ว่า \"คัดลอกโครงจากปี {{fy}} (ไม่คัดลอกไฟล์/ลิงก์)\" ระบบนำหัวข้อและรายการของปีนั้นมาเป็นต้นแบบ",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "attr": {
+              "name": "copy_from"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างปีงบประมาณ"
+          },
+          "say": "กดปุ่ม \"สร้างปีงบประมาณ\" ระบบเปิดหน้าแก้ไขของปีใหม่ซึ่งมีหัวข้อและรายการของปีต้นแบบ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "heading",
+            "name": "ITA ปีงบประมาณ {{fy2}}"
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "ITA ปีงบประมาณ {{fy2}}"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 1,
+            "of": {
+              "css": "input[data-t=\"title\"][value=\"{{topic_title}}\"]"
+            }
+          },
+          "say": "หัวข้อ \"{{topic_title}}\" ที่พิมพ์ไว้ในปีต้นแบบอยู่ในปีใหม่ด้วย",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "input[data-t=\"title\"][value=\"{{topic_title}}\"]"
+          }
+        }
+      ],
+      "expected": "ปีใหม่เป็นฉบับร่างและมีหัวข้อกับรายการจากปีต้นแบบ",
+      "verify": [
+        {
+          "title": "ปีใหม่อยู่ในรายการ \"ปีที่มีอยู่\" เป็นฉบับร่างและมีหัวข้อที่คัดลอก",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/cms#ita",
+              "wait_after": {
+                "id": "ita-create"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": ".release-health-list > div",
+                    "has_text": "ปีงบประมาณ {{fy2}}"
+                  }
+                },
+                {
+                  "text": "ฉบับร่าง",
+                  "in": {
+                    "css": ".release-health-list > div",
+                    "has_text": "ปีงบประมาณ {{fy2}}"
+                  }
+                }
+              ],
+              "say": "ปีใหม่อยู่ในรายการ \"ปีที่มีอยู่\" เป็นฉบับร่าง",
+              "shot": true,
+              "crop": "tight",
+              "highlight": {
+                "css": ".release-health-list > div",
+                "has_text": "ปีงบประมาณ {{fy2}}"
+              },
+              "crop_pad": 40
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "แก้ไข",
+                "within": {
+                  "css": ".release-health-list > div",
+                  "has_text": "ปีงบประมาณ {{fy2}}"
+                }
+              },
+              "wait_after": {
+                "role": "heading",
+                "name": "ITA ปีงบประมาณ {{fy2}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "count": 1,
+                "of": {
+                  "css": "input[data-t=\"title\"][value=\"{{topic_title}}\"]"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "preset-indicator-set",
+      "title": "สร้างปีงบประมาณด้วยชุดตัวชี้วัด O1-O18 พร้อมลิงก์อัตโนมัติ",
+      "role": "editor",
+      "start": "/cms",
+      "vars": {
+        "fy3": "2560"
+      },
+      "intro": "ถ้าไม่ได้คัดลอกจากปีอื่น ติ๊ก \"ใช้ชุดตัวชี้วัด O1-O18 พร้อมลิงก์อัตโนมัติ\" เพื่อได้หัวข้อ O1 ถึง O18 ตามรหัสตัวชี้วัด ตัวชี้วัดที่ระบบมีข้อมูลเอง (ข่าว จัดซื้อจัดจ้าง เรื่องร้องเรียน รายงานการเงิน) ผูกลิงก์อัตโนมัติให้ ส่วนที่เหลือ โรงเรียนใส่ลิงก์หรือไฟล์เอง ชุดนี้เป็นตัวช่วยเริ่มต้น ผู้ดูแลต้องตรวจให้ตรงกับประกาศ ITA ของปีนั้น",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "css": "summary",
+            "has_text": "เนื้อหาเว็บไซต์",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ITA เปิดเผยข้อมูลสาธารณะ",
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "wait_after": {
+            "id": "ita-create"
+          },
+          "say": "กางกลุ่มเมนู \"เนื้อหาเว็บไซต์\" แล้วเลือก \"ITA เปิดเผยข้อมูลสาธารณะ\"",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 0,
+            "of": {
+              "css": ".release-health-list > div",
+              "has_text": "ปีงบประมาณ {{fy3}}"
+            }
+          },
+          "comment": "precondition: the preset year must not exist"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ปีงบประมาณ (พ.ศ.)"
+          },
+          "value": "{{fy3}}",
+          "say": "พิมพ์ปีงบประมาณใหม่ในช่อง \"ปีงบประมาณ (พ.ศ.)\"",
+          "shot": true,
+          "crop": "panel"
+        },
+        {
+          "do": "check",
+          "target": {
+            "role": "checkbox",
+            "name": "ใช้ชุดตัวชี้วัด O1-O18"
+          },
+          "say": "ติ๊ก \"ใช้ชุดตัวชี้วัด O1-O18 พร้อมลิงก์อัตโนมัติ\" (ใช้เมื่อไม่ได้คัดลอกจากปีอื่น) ระบบสร้างหัวข้อ O1 ถึง O18 และผูกลิงก์อัตโนมัติกับตัวชี้วัดที่ระบบมีข้อมูลเอง เช่น ข่าว จัดซื้อจัดจ้าง และเรื่องร้องเรียน",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "role": "checkbox",
+            "name": "ใช้ชุดตัวชี้วัด O1-O18"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างปีงบประมาณ"
+          },
+          "say": "กดปุ่ม \"สร้างปีงบประมาณ\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "role": "heading",
+            "name": "ITA ปีงบประมาณ {{fy3}}"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "count": 18,
+            "of": {
+              "css": "details.ita-topic-edit"
+            }
+          },
+          "say": "หน้าแก้ไขมีหัวข้อ O1 ถึง O18 ครบ 18 หัวข้อ แต่ละหัวข้อมีรายการที่ตั้งตัวอย่างไว้",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "details.ita-topic-edit",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ตรวจความครบ O1-O18"
+          },
+          "say": "กดปุ่ม \"ตรวจความครบ O1-O18 (ที่บันทึกแล้ว)\" ระบบสรุปว่าข้อใดครบ ใช้ลิงก์อัตโนมัติ ขาด หรือลิงก์เสีย ปีที่ยังเป็นฉบับร่างยังไม่ถือว่าผ่าน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "ita-check-result"
+          },
+          "wait_after": {
+            "id": "ita-check-result"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "จากทั้งหมด 18 ข้อ",
+              "in": {
+                "id": "ita-check-result"
+              }
+            },
+            {
+              "text": "ปีนี้ยังเป็นฉบับร่าง",
+              "in": {
+                "id": "ita-check-result"
+              }
+            }
+          ],
+          "say": "ผลตรวจแสดงจำนวนครบ ขาด และลิงก์เสีย พร้อมข้อความว่าปีนี้ยังเป็นฉบับร่าง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "ita-check-result"
+          }
+        }
+      ],
+      "expected": "ปีใหม่มี 18 หัวข้อ และการตรวจความครบสรุปผลได้ครบ 18 ข้อ",
+      "verify": [
+        {
+          "title": "ปีใหม่อยู่ในรายการ \"ปีที่มีอยู่\" เป็นฉบับร่าง",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/cms#ita",
+              "wait_after": {
+                "id": "ita-create"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "css": ".release-health-list > div",
+                    "has_text": "ปีงบประมาณ {{fy3}}"
+                  }
+                },
+                {
+                  "text": "ฉบับร่าง",
+                  "in": {
+                    "css": ".release-health-list > div",
+                    "has_text": "ปีงบประมาณ {{fy3}}"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "publish-year",
+      "title": "เผยแพร่ปีงบประมาณและตรวจว่าผู้เข้าชมเห็น",
+      "role": "editor",
+      "start": "/cms#ita",
+      "depends_on": [
+        "fill-items"
+      ],
+      "intro": "เมื่อกด \"เผยแพร่ปีนี้\" ระบบบันทึกข้อมูลในหน้าให้ก่อน แล้วเผยแพร่ ปีที่เผยแพร่แล้วแก้ไขและบันทึกได้ และหน้าเว็บเปลี่ยนทันที",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "ita-create"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "แก้ไข",
+            "within": {
+              "css": ".release-health-list > div",
+              "has_text": "ปีงบประมาณ {{fy}}"
+            }
+          },
+          "say": "กดปุ่ม \"แก้ไข\" ที่แถวของปีงบประมาณที่ต้องการเผยแพร่",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "ITA ปีงบประมาณ {{fy}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เผยแพร่ปีนี้"
+          },
+          "expect_response": {
+            "url_contains": "/status",
+            "method": "POST",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"เผยแพร่ปีนี้\" ระบบแสดงข้อความ \"เผยแพร่ ITA ปีนี้แล้ว\" และปุ่มเปลี่ยนเป็น \"หยุดเผยแพร่\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่ปีนี้"
+          },
+          "wait_after": {
+            "text": "เผยแพร่ ITA ปีนี้แล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "role": "button",
+                "name": "หยุดเผยแพร่"
+              }
+            },
+            {
+              "text": "เผยแพร่แล้ว การบันทึกจะแสดงบนเว็บไซต์ทันที"
+            }
+          ]
+        }
+      ],
+      "expected": "หัวข้อของหน้าแก้ไขแสดง \"เผยแพร่แล้ว การบันทึกจะแสดงบนเว็บไซต์ทันที\"",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเปิดหน้า ITA ของปีนั้นได้ และเห็นชื่อหน้า หัวข้อ และรายการ",
+          "as": "anonymous",
+          "start": "/portal/ita/{{fy}}",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "heading",
+                    "name": "{{page_title}}"
+                  }
+                },
+                {
+                  "text": "{{topic_title}}"
+                },
+                {
+                  "visible": {
+                    "role": "link",
+                    "name": "{{item_title}}"
+                  }
+                }
+              ],
+              "say": "ผู้เข้าชมเห็นหน้า \"การเปิดเผยข้อมูลสาธารณะ\" ของปีงบประมาณนั้น พร้อมหัวข้อและรายการที่ผู้ดูแลเพิ่ม",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "role": "link",
+                "name": "{{item_title}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "visitor-reads-ita",
+      "title": "ผู้เข้าชมค้นหารายการในหน้า ITA",
+      "role": "anonymous",
+      "start": "/portal/ita/{{fy}}",
+      "depends_on": [
+        "publish-year"
+      ],
+      "intro": "ผู้เข้าชมไม่ต้องเข้าสู่ระบบ ช่องค้นหากรองรายการด้วยชื่อรายการหรือรหัสตัวชี้วัด ปุ่ม \"ย่อทั้งหมด\" และ \"ขยายทั้งหมด\" พับและกางทุกหัวข้อ",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "role": "heading",
+            "name": "{{page_title}}"
+          },
+          "say": "เปิดหน้า \"การเปิดเผยข้อมูลสาธารณะ (ITA)\" บนเว็บไซต์ของโรงเรียน (/portal/ita) แล้วเลือกปีงบประมาณจากแถบปีด้านบน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "heading",
+            "name": "{{page_title}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ค้นหารายการ"
+          },
+          "value": "{{marker}}",
+          "say": "พิมพ์ชื่อรายการหรือรหัสตัวชี้วัดในช่อง \"ค้นหารายการ\" ระบบแสดงเฉพาะรายการที่ตรงและบอกจำนวนที่พบ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "[data-ita-count]",
+            "has_text": "พบ 1 รายการ"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ย่อทั้งหมด"
+          },
+          "say": "กดปุ่ม \"ย่อทั้งหมด\" เพื่อพับทุกหัวข้อ กดปุ่ม \"ขยายทั้งหมด\" เพื่อกางกลับ",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 80
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ขยายทั้งหมด"
+          }
+        }
+      ],
+      "expected": "ผู้เข้าชมเห็นรายการที่ค้นหา และกางหรือพับหัวข้อได้",
+      "verify": [
+        {
+          "title": "รายการที่ค้นหาเป็นลิงก์ที่กดได้",
+          "as": "anonymous",
+          "start": "/portal/ita/{{fy}}",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "link",
+                  "name": "{{item_title}}"
+                }
+              },
+              "say": "รายการที่มีลิงก์แสดงเป็นข้อความที่กดได้ และรายการที่ไม่มีลิงก์แสดงเป็นข้อความธรรมดา",
+              "shot": true,
+              "crop": "tight",
+              "crop_pad": 80,
+              "highlight": {
+                "role": "link",
+                "name": "{{item_title}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "topic-order-library-file-and-delete",
+      "title": "เพิ่มหัวข้อ แนบไฟล์จากคลัง ตั้งลิงก์ เลื่อนลำดับ และลบหัวข้อ",
+      "role": "editor",
+      "start": "/cms#ita",
+      "depends_on": [
+        "visitor-reads-ita"
+      ],
+      "intro": "หัวข้อและรายการจัดได้ครบในหน้าแก้ไขของแต่ละปี ปุ่ม \"เพิ่มหัวข้อ\" และ \"เพิ่มรายการ\" เพิ่มกรอบใหม่ ปุ่ม \"เลื่อนขึ้น\" และ \"เลื่อนลง\" จัดลำดับหัวข้อ ปุ่ม \"ลบหัวข้อ\" และ \"ลบรายการ\" ลบทีละกรอบ รายการหนึ่งแนบไฟล์จากคลังสื่อ (ปุ่ม \"เลือกไฟล์จากคลัง\") หรือใส่ลิงก์ก็ได้ ถ้าใส่ทั้งสองอย่าง หน้าเว็บใช้ไฟล์ก่อน ทุกอย่างบันทึกพร้อมกันเมื่อกด \"บันทึก\" ปีที่เผยแพร่แล้วเปลี่ยนบนเว็บไซต์ทันที ขั้นตอนนี้เพิ่มหัวข้อทดลองแล้วลบเมื่อเสร็จ",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "ita-create"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "แก้ไข",
+            "within": {
+              "css": ".release-health-list > div",
+              "has_text": "ปีงบประมาณ {{fy}}"
+            }
+          },
+          "say": "กดปุ่ม \"แก้ไข\" ที่แถวของปีงบประมาณที่ต้องการ",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".release-health-list > div",
+            "has_text": "ปีงบประมาณ {{fy}}"
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "ITA ปีงบประมาณ {{fy}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อหน้า"
+          },
+          "value": "{{page_title}} (พิมพ์ทดลอง)",
+          "say": "พิมพ์ชื่อหน้าใหม่ในช่อง \"ชื่อหน้า\" ยังไม่ต้องกดบันทึก",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 40
+        },
+        {
+          "do": "click",
+          "target": {
+            "id": "ita-add-topic"
+          },
+          "say": "กดปุ่ม \"เพิ่มหัวข้อ\" ระบบเพิ่มกรอบหัวข้อว่างท้ายหน้า และเก็บชื่อหน้าที่พิมพ์ไว้ยังไม่หาย",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "id": "ita-add-topic"
+          },
+          "wait_after": {
+            "css": "#ita-topics > details.ita-topic-edit:last-of-type [data-t='title']"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "{{page_title}} (พิมพ์ทดลอง)",
+            "of": {
+              "label": "ชื่อหน้า"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อหน้า"
+          },
+          "value": "{{page_title}}",
+          "say": "พิมพ์ชื่อหน้าเดิมกลับ",
+          "shot": true,
+          "crop": "tight",
+          "crop_pad": 40
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[data-t=\"title\"]",
+            "within": {
+              "css": "#ita-topics > details.ita-topic-edit:last-of-type"
+            }
+          },
+          "value": "{{marker}} หัวข้อที่สอง",
+          "say": "พิมพ์ชื่อหัวข้อในช่อง \"ชื่อหัวข้อ\" ของกรอบใหม่",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "#ita-topics > details.ita-topic-edit:last-of-type"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มรายการ",
+            "within": {
+              "css": "#ita-topics > details.ita-topic-edit:last-of-type"
+            }
+          },
+          "say": "กดปุ่ม \"เพิ่มรายการ\" ในกรอบหัวข้อใหม่",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "#ita-topics > details.ita-topic-edit:last-of-type"
+          },
+          "wait_after": {
+            "css": ".ita-item-row",
+            "within": {
+              "css": "details.ita-topic-edit",
+              "has_text": "{{marker}} หัวข้อที่สอง"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[data-f=\"title\"]",
+            "within": {
+              "css": ".ita-item-row",
+              "nth": 0,
+              "within": {
+                "css": "details.ita-topic-edit",
+                "has_text": "{{marker}} หัวข้อที่สอง"
+              }
+            }
+          },
+          "value": "{{marker}} รายการไฟล์",
+          "say": "พิมพ์ชื่อรายการแรกในช่อง \"ชื่อรายการ\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".ita-item-row",
+            "nth": 0,
+            "within": {
+              "css": "details.ita-topic-edit",
+              "has_text": "{{marker}} หัวข้อที่สอง"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เลือกไฟล์จากคลัง",
+            "within": {
+              "css": ".ita-item-row",
+              "nth": 0,
+              "within": {
+                "css": "details.ita-topic-edit",
+                "has_text": "{{marker}} หัวข้อที่สอง"
+              }
+            }
+          },
+          "settle_ms": 2500,
+          "say": "กดปุ่ม \"เลือกไฟล์จากคลัง\" แล้วกดเลือกเอกสารจากหน้าต่างคลัง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เลือกไฟล์จากคลัง",
+            "within": {
+              "css": ".ita-item-row",
+              "nth": 0,
+              "within": {
+                "css": "details.ita-topic-edit",
+                "has_text": "{{marker}} หัวข้อที่สอง"
+              }
+            }
+          },
+          "wait_after": {
+            "css": "#media-picker button[data-desk-media]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "#media-picker button[data-desk-media]",
+            "first": true
+          },
+          "wait_after": {
+            "css": "[data-file-label]",
+            "has_text": "จะแสดงชื่อหลังบันทึก",
+            "within": {
+              "css": ".ita-item-row",
+              "nth": 0,
+              "within": {
+                "css": "details.ita-topic-edit",
+                "has_text": "{{marker}} หัวข้อที่สอง"
+              }
+            }
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "[data-file-label]",
+              "has_text": "จะแสดงชื่อหลังบันทึก",
+              "within": {
+                "css": ".ita-item-row",
+                "nth": 0,
+                "within": {
+                  "css": "details.ita-topic-edit",
+                  "has_text": "{{marker}} หัวข้อที่สอง"
+                }
+              }
+            }
+          },
+          "say": "ช่องไฟล์แสดงเลขไฟล์ที่เลือก ชื่อไฟล์จะแสดงหลังบันทึก ปุ่ม \"นำไฟล์ออก\" ใช้ถอนไฟล์",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".ita-file",
+            "within": {
+              "css": ".ita-item-row",
+              "nth": 0,
+              "within": {
+                "css": "details.ita-topic-edit",
+                "has_text": "{{marker}} หัวข้อที่สอง"
+              }
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เพิ่มรายการ",
+            "within": {
+              "css": "details.ita-topic-edit",
+              "has_text": "{{marker}} หัวข้อที่สอง"
+            }
+          },
+          "wait_after": {
+            "css": ".ita-item-row",
+            "nth": 1,
+            "within": {
+              "css": "details.ita-topic-edit",
+              "has_text": "{{marker}} หัวข้อที่สอง"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[data-f=\"title\"]",
+            "within": {
+              "css": ".ita-item-row",
+              "nth": 1,
+              "within": {
+                "css": "details.ita-topic-edit",
+                "has_text": "{{marker}} หัวข้อที่สอง"
+              }
+            }
+          },
+          "value": "{{marker}} รายการลิงก์",
+          "say": "พิมพ์ชื่อรายการที่สองและลิงก์ภายในเว็บไซต์ /portal/news",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".ita-item-row",
+            "nth": 1,
+            "within": {
+              "css": "details.ita-topic-edit",
+              "has_text": "{{marker}} หัวข้อที่สอง"
+            }
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "[data-f=\"url\"]",
+            "within": {
+              "css": ".ita-item-row",
+              "nth": 1,
+              "within": {
+                "css": "details.ita-topic-edit",
+                "has_text": "{{marker}} หัวข้อที่สอง"
+              }
+            }
+          },
+          "value": "/portal/news"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เลื่อนขึ้น",
+            "within": {
+              "css": "details.ita-topic-edit",
+              "has_text": "{{marker}} หัวข้อที่สอง"
+            }
+          },
+          "say": "กดปุ่ม \"เลื่อนขึ้น\" ในกรอบหัวข้อใหม่ หัวข้อเลื่อนขึ้นหนึ่งลำดับ (หัวข้อทั้งหมดบันทึกพร้อมกันเมื่อกด \"บันทึก\")",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "details.ita-topic-edit",
+            "has_text": "{{marker}} หัวข้อที่สอง"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true
+          },
+          "expect_response": {
+            "url_contains": "/api/ita/years/",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"บันทึก\" ที่ท้ายหน้า ปีนี้เผยแพร่อยู่ หน้าเว็บจึงเปลี่ยนทันที",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true
+          },
+          "wait_after": {
+            "text": "บันทึก ITA แล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "hidden": {
+                "css": "[data-file-label]",
+                "has_text": "จะแสดงชื่อหลังบันทึก"
+              }
+            },
+            {
+              "visible": {
+                "css": "[data-clear-file]",
+                "within": {
+                  "css": ".ita-item-row",
+                  "nth": 0,
+                  "within": {
+                    "css": "details.ita-topic-edit",
+                    "has_text": "{{marker}} หัวข้อที่สอง"
+                  }
+                }
+              }
+            }
+          ],
+          "say": "หลังบันทึก ช่องไฟล์แสดงชื่อไฟล์จริง",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".ita-file",
+            "within": {
+              "css": ".ita-item-row",
+              "nth": 0,
+              "within": {
+                "css": "details.ita-topic-edit",
+                "has_text": "{{marker}} หัวข้อที่สอง"
+              }
+            }
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/portal/ita/{{fy}}",
+          "say": "เปิดหน้า ITA ของปีนี้บนเว็บไซต์ รายการที่เพิ่มอยู่ในหัวข้อใหม่ รายการที่แนบไฟล์แสดงขนาดไฟล์ รายการที่ตั้งลิงก์เป็นลิงก์ที่กดได้",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": "details.ita-topic",
+            "has_text": "{{marker}} หัวข้อที่สอง"
+          },
+          "wait_after": {
+            "css": "a",
+            "has_text": "{{marker}} รายการลิงก์"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "css": "a[href*='/media/']",
+                "has_text": "{{marker}} รายการไฟล์",
+                "first": true
+              }
+            },
+            {
+              "visible": {
+                "css": "a",
+                "has_text": "{{marker}} รายการลิงก์",
+                "first": true
+              }
+            }
+          ]
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{marker}} รายการลิงก์",
+            "first": true
+          },
+          "say": "กดลิงก์ของรายการ ระบบพาไปหน้า \"ข่าวและกิจกรรม\" ของเว็บไซต์ (ลิงก์ภายในใช้ได้แม้ติดตั้งในโฟลเดอร์ย่อย)",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": false,
+          "wait_after": {
+            "role": "heading",
+            "name": "ข่าวและกิจกรรม",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "url": "/portal/news"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/cms#ita",
+          "wait_after": {
+            "id": "ita-create"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "แก้ไข",
+            "within": {
+              "css": ".release-health-list > div",
+              "has_text": "ปีงบประมาณ {{fy}}"
+            }
+          },
+          "wait_after": {
+            "role": "heading",
+            "name": "ITA ปีงบประมาณ {{fy}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ลบหัวข้อ",
+            "within": {
+              "css": "details.ita-topic-edit",
+              "has_text": "{{marker}} หัวข้อที่สอง"
+            }
+          },
+          "dialog": "accept",
+          "say": "กดปุ่ม \"ลบหัวข้อ\" แล้วกดตกลงในหน้าต่างยืนยัน หัวข้อและรายการทั้งหมดในหัวข้อหายจากหน้า (ยังไม่หายจากเว็บไซต์จนกด \"บันทึก\")",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "details.ita-topic-edit",
+            "has_text": "{{marker}} หัวข้อที่สอง"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "hidden": {
+              "css": "details.ita-topic-edit",
+              "has_text": "{{marker}} หัวข้อที่สอง"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true
+          },
+          "expect_response": {
+            "url_contains": "/api/ita/years/",
+            "status": 200,
+            "method": "PUT"
+          },
+          "say": "กดปุ่ม \"บันทึก\" อีกครั้ง",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true
+          },
+          "wait_after": {
+            "text": "บันทึก ITA แล้ว"
+          }
+        }
+      ],
+      "expected": "หัวข้อทดลองและรายการแสดงบนหน้า ITA ของปีนี้แล้วหายไปเมื่อลบ",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมไม่เห็นหัวข้อทดลองแล้ว",
+          "as": "anonymous",
+          "start": "/portal/ita/{{fy}}",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "not_text": "{{marker}} หัวข้อที่สอง"
+              },
+              "say": "ผู้เข้าชมเปิดหน้า ITA ของปีนี้ หัวข้อทดลองหายไปแล้ว",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "unpublish-year",
+      "title": "หยุดเผยแพร่ปีงบประมาณ",
+      "cleanup": true,
+      "role": "editor",
+      "start": "/cms#ita",
+      "intro": "ปีที่หยุดเผยแพร่กลับเป็นฉบับร่างและหายจากหน้าเว็บ ผู้เข้าชมเห็น 404 ระบบไม่มีปุ่มลบปีงบประมาณ ปีทดสอบจึงค้างอยู่ในรายการเป็นฉบับร่าง",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "id": "ita-create"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "แก้ไข",
+            "within": {
+              "css": ".release-health-list > div",
+              "has_text": "ปีงบประมาณ {{fy}}"
+            }
+          },
+          "say": "กดปุ่ม \"แก้ไข\" ที่แถวของปีงบประมาณที่เผยแพร่อยู่",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "ITA ปีงบประมาณ {{fy}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "หยุดเผยแพร่"
+          },
+          "optional": true,
+          "expect_response": {
+            "url_contains": "/status",
+            "method": "POST",
+            "status": 200
+          },
+          "say": "กดปุ่ม \"หยุดเผยแพร่\" ระบบแสดงข้อความ \"หยุดเผยแพร่แล้ว\" ไม่มีหน้าต่างถามยืนยัน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "หยุดเผยแพร่"
+          },
+          "wait_after": {
+            "text": "หยุดเผยแพร่แล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "role": "button",
+                "name": "เผยแพร่ปีนี้"
+              }
+            },
+            {
+              "text": "ฉบับร่าง ผู้ชมยังไม่เห็น"
+            }
+          ],
+          "say": "ปุ่มกลับเป็น \"เผยแพร่ปีนี้\" และหัวข้อแสดง \"ฉบับร่าง ผู้ชมยังไม่เห็น\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "เผยแพร่ปีนี้"
+          }
+        }
+      ],
+      "expected": "ปีงบประมาณกลับเป็นฉบับร่าง และหน้าเว็บของปีนั้นเปิดไม่ได้",
+      "verify": [
+        {
+          "title": "ผู้เข้าชมเปิดหน้า ITA ของปีนั้นไม่ได้อีก",
+          "as": "anonymous",
+          "start": "/portal/ita",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "http_status": 404,
+                "url": "/portal/ita/{{fy}}",
+                "anonymous": true
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": [
+    "การเลือกลิงก์อัตโนมัติรายรายการด้วยตนเอง (ช่อง \"ลิงก์อัตโนมัติจากระบบ\" ตัวเลือกอื่นนอกจากที่ชุด O1-O18 ตั้งให้) ปุ่ม \"ลบรายการ\" ของรายการเดี่ยว และปุ่ม \"แก้ไขรายการนี้\" ในผลตรวจความครบ ยังไม่ได้ทดสอบ ใช้แบบฟอร์มเดียวกับที่ทดสอบแล้ว",
+    "ระบบไม่มีปุ่มลบปีงบประมาณ ปีทดสอบ (2560 2561 และ 2562) ค้างอยู่ในรายการเป็นฉบับร่าง ลบได้ทางฐานข้อมูลเท่านั้น"
+  ]
+}

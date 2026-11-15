@@ -1293,4 +1293,15 @@ class PayslipModuleTest extends TestCase
         $this->assertSame('void', DB::table('psl_certs')->where('year', 2025)->value('status'), 'no certificate is kept or issued from partial data');
         $this->assertSame(1, \Saan\Modules\Payslip\Slips::recompute($p1)['unreadable_slips']);
     }
+
+    public function test_every_import_problem_reason_has_a_thai_label_on_the_check_screen(): void
+    {
+        $src = (string) file_get_contents(base_path('modules/payslip/src/Importer.php')).(string) file_get_contents(base_path('modules/payslip/src/Slips.php'));
+        preg_match_all("/\\\$problem\\('([a-z_]+)'\\)|'error' => '([a-z_]+)'|'(duplicate_[a-z_]+)'/", $src, $m); // the duplicate reasons are chosen by a ternary
+        $reasons = array_values(array_unique(array_filter(array_merge($m[1], $m[2], $m[3]))));
+        $this->assertContains('own_payee', $reasons);
+        $js = (string) file_get_contents(public_path('assets/modules/payslip/payslip.js'));
+        $this->assertSame(1, preg_match('/const REASON = \{(.*?)\};/s', $js, $block));
+        foreach ($reasons as $r) $this->assertMatchesRegularExpression('/\b'.$r.": '[^']*[\\x{0E00}-\\x{0E7F}]/u", $block[1], "reason {$r} has no Thai label in payslip.js");
+    }
 }

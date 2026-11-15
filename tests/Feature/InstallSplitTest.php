@@ -313,11 +313,16 @@ class InstallSplitTest extends TestCase
             $this->assertSame(0, $pub->table('per_profiles')->whereNotNull('education')->count());
             // what is published went through the normal first delivery: news, the name list with masked names, the open survey, hubs, ITA
             $this->assertGreaterThanOrEqual(50, $seen['posts'], $facts);
-            $this->assertSame(1, $seen['notice_lists'], $facts); $this->assertSame(20, $seen['pub_notice_rows'], $facts);
+            // exactly the PUBLISHED name lists of the internal side and their rows (the trial also holds a draft and an archived list, which stay inside)
+            $publishedLists = $int->table('notice_lists')->where('status', 'published')->pluck('id');
+            $this->assertGreaterThanOrEqual(1, $publishedLists->count()); $this->assertGreaterThan($publishedLists->count(), $int->table('notice_lists')->count());
+            $this->assertSame($publishedLists->count(), $seen['notice_lists'], $facts);
+            $this->assertSame($int->table('notice_rows')->whereIn('list_id', $publishedLists)->count(), $seen['pub_notice_rows'], $facts);
             $family = explode(' ', $int->table('notice_rows')->orderBy('id')->value('display_name'))[2];
             $this->assertStringNotContainsString($family, json_encode($pub->table('pub_notice_rows')->pluck('cells')->map(fn ($c) => json_decode($c, true))->all(), JSON_UNESCAPED_UNICODE));
             $this->assertSame(['open'], $pub->table('srv_surveys')->pluck('status')->unique()->values()->all(), $facts);
-            $this->assertSame(3, $seen['cms_hubs'], $facts); $this->assertSame(1, $seen['ita_years'], $facts);
+            $this->assertSame(3, $seen['cms_hubs'], $facts);
+            $this->assertGreaterThanOrEqual(1, $seen['ita_years'], $facts); $this->assertSame($int->table('ita_years')->where('status', 'published')->count(), $seen['ita_years'], $facts);
             $this->assertGreaterThan(0, $seen['pub_certificates'], $facts);
             $this->assertNotEmpty(glob($pubRoot.'/storage/app/private/cms/1/*'), 'published files were delivered to the public storage');
 

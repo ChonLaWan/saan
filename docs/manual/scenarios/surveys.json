@@ -1,0 +1,2953 @@
+{
+ "module": "surveys",
+ "title": "แบบสอบถามและเกียรติบัตร",
+ "area": "เว็บไซต์โรงเรียน",
+ "purpose": "ผู้ดูแลเว็บไซต์สร้างแบบสอบถามหรือแบบประเมินสาธารณะที่ผู้ตอบไม่ต้องเข้าสู่ระบบ หนึ่งคนตอบได้หนึ่งครั้งโดยยืนยันด้วยอีเมลหรือรหัสตามรายชื่อ ดูผลสรุปและส่งออกเป็นไฟล์ CSV และออกเกียรติบัตรให้ผู้ตอบ ซึ่งผู้รับและผู้อื่นตรวจสอบเลขที่ได้จากหน้าสาธารณะ",
+ "roles": [
+  "ผู้ดูแลเว็บไซต์ ผู้อำนวยการ และผู้ดูแลระบบ (สร้างแบบสอบถามและดูผล)",
+  "ผู้เข้าชมเว็บไซต์ (ตอบแบบสอบถามและตรวจสอบเกียรติบัตร ไม่ต้องเข้าสู่ระบบ)"
+ ],
+ "menu": [
+  "เมนูด้านซ้ายกลุ่ม \"เว็บไซต์โรงเรียน\" > \"แบบสอบถามและเกียรติบัตร\" (/cms#surveys)",
+  "หน้าเว็บสาธารณะ: แบบสอบถาม (/portal/surveys/ชื่อแบบสอบถาม) และตรวจสอบเกียรติบัตร (/portal/certificates/verify)"
+ ],
+ "prerequisites": [
+  {
+   "module": "web-cms",
+   "text": "เว็บไซต์โรงเรียนต้องเปิดอยู่ จึงมีหน้าสาธารณะให้ผู้ตอบ"
+  }
+ ],
+ "vars": {},
+ "workflows": [
+  {
+   "id": "create-survey",
+   "title": "สร้างแบบสอบถามฉบับร่าง",
+   "role": "editor",
+   "start": "/cms",
+   "core": true,
+   "intro": "ผู้ดูแลเว็บไซต์ ผู้อำนวยการ และผู้ดูแลระบบสร้างแบบสอบถามได้ ต้องเลือกวิธีระบุตัวตนผู้ตอบตั้งแต่ต้น เพราะเปลี่ยนไม่ได้เมื่อมีผู้ตอบแล้ว แบบสอบถามที่สร้างใหม่เป็นฉบับร่าง ยังไม่แสดงต่อสาธารณะ",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/cms#surveys",
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-create"
+     },
+     "say": "เปิดหน้า \"แบบสอบถามและเกียรติบัตร\" จากเมนูด้านซ้ายของหน้าจัดการเว็บไซต์ (ที่อยู่ลงท้ายด้วย /cms#surveys) หน้านี้แสดงแบบฟอร์มสร้างแบบสอบถามใหม่และรายการแบบสอบถามทั้งหมด",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ชื่อแบบสอบถาม",
+      "within": {
+       "id": "srv-create"
+      }
+     },
+     "value": "{{marker}} แบบประเมินความพึงพอใจ",
+     "crop": "panel",
+     "say": "พิมพ์ชื่อแบบสอบถามในช่อง \"ชื่อแบบสอบถาม\"",
+     "shot": true
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "การระบุตัวตนผู้ตอบ",
+      "within": {
+       "id": "srv-create"
+      }
+     },
+     "label": "รหัสตามรายชื่อ (ใช้ได้ครั้งเดียว)",
+     "crop": "panel",
+     "say": "เลือกวิธีระบุตัวตนในช่อง \"การระบุตัวตนผู้ตอบ\" ในที่นี้เลือก \"รหัสตามรายชื่อ (ใช้ได้ครั้งเดียว)\" ซึ่งออกเกียรติบัตรได้และไม่ต้องใช้อีเมล",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "สร้างฉบับร่าง"
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-form"
+     },
+     "say": "กดปุ่ม \"สร้างฉบับร่าง\" ระบบเปิดหน้าแก้ไขแบบสอบถาม",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ฉบับร่าง",
+      "in": {
+       "css": ".cms-heading"
+      }
+     }
+    }
+   ],
+   "expected": "หน้าแก้ไขแสดงชื่อแบบสอบถาม สถานะ \"ฉบับร่าง\" 0 คำตอบ และลิงก์สาธารณะของแบบสอบถาม",
+   "verify": [
+    {
+     "title": "แบบสอบถามอยู่ในรายการเป็นฉบับร่าง",
+     "steps": [
+      {
+       "do": "goto",
+       "url": "/cms#surveys",
+       "crop": "viewport",
+       "wait_after": {
+        "id": "srv-create"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "div.srv-card",
+        "has_text": "{{marker}}"
+       },
+       "that": [
+        {
+         "visible": {
+          "css": "div.srv-card",
+          "has_text": "{{marker}}"
+         }
+        },
+        {
+         "text": "ฉบับร่าง",
+         "in": {
+          "css": "div.srv-card",
+          "has_text": "{{marker}}"
+         }
+        }
+       ],
+       "say": "กลับไปหน้า \"แบบสอบถามและเกียรติบัตร\" แบบสอบถามที่สร้างอยู่ในรายการ \"แบบสอบถามทั้งหมด\" สถานะ \"ฉบับร่าง\"",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "build-survey",
+   "title": "เพิ่มคำถามและตั้งค่าเกียรติบัตร",
+   "role": "editor",
+   "start": "/cms",
+   "depends_on": [
+    "create-survey"
+   ],
+   "intro": "แบบสอบถามมีคำถามสี่ชนิด คือ เลือกข้อเดียว เลือกได้หลายข้อ ระดับคะแนน และข้อความ ใส่เฉลยได้เมื่อต้องการให้คะแนนอัตโนมัติ เกียรติบัตรออกได้เมื่อใช้โหมดกรอกชื่อและอีเมล หรือรหัสตามรายชื่อ เมื่อมีผู้ตอบแล้ว ระบบล็อกโครงสร้างคำถาม แก้ได้เฉพาะข้อความคำถาม",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/cms#surveys",
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-create"
+     },
+     "say": "เปิดหน้า \"แบบสอบถามและเกียรติบัตร\" จากเมนูด้านซ้ายของหน้าจัดการเว็บไซต์ (ที่อยู่ลงท้ายด้วย /cms#surveys) หน้านี้แสดงแบบฟอร์มสร้างแบบสอบถามใหม่และรายการแบบสอบถามทั้งหมด",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แก้ไข / ดูผล",
+      "within": {
+       "css": "div.srv-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-form"
+     },
+     "say": "กดปุ่ม \"แก้ไข / ดูผล\" ของแบบสอบถามที่ต้องการ",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ที่อยู่ในลิงก์",
+      "exact": false
+     },
+     "value": "tst-{{run_id}}",
+     "crop": "panel",
+     "say": "แก้ที่อยู่ของลิงก์ในช่อง \"ที่อยู่ในลิงก์\" ใช้ได้เฉพาะตัวอักษร a-z ตัวเลข และ - และแก้ได้เฉพาะฉบับร่าง",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "คำชี้แจง"
+     },
+     "value": "ขอความร่วมมือตอบแบบประเมินนี้ ข้อมูลสมมติสำหรับทดสอบ {{marker}}",
+     "crop": "panel",
+     "say": "พิมพ์คำชี้แจงถึงผู้ตอบในช่อง \"คำชี้แจง\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "cms-toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/surveys/",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "cms-toast"
+     },
+     "say": "กดปุ่ม \"บันทึก\" ก่อนเพิ่มคำถาม เพราะการกดปุ่ม \"เพิ่มข้อ\" ล้างข้อมูลทั่วไปที่พิมพ์แล้วแต่ยังไม่บันทึก ระบบแสดงข้อความ \"บันทึกแบบสอบถามแล้ว\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มข้อ: เลือกข้อเดียว"
+     },
+     "crop": "panel",
+     "wait_after": {
+      "css": "[data-q]"
+     },
+     "say": "กดปุ่ม \"เพิ่มข้อ: เลือกข้อเดียว\" ระบบเพิ่มคำถามข้อที่ 1",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ข้อ 1 คำถาม"
+     },
+     "value": "ท่านรู้จักโรงเรียนจากช่องทางใด",
+     "crop": "panel",
+     "say": "พิมพ์คำถามในช่อง \"คำถาม\" ของข้อที่ 1",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ตัวเลือก (หนึ่งบรรทัดต่อหนึ่งตัวเลือก)"
+     },
+     "value": "เว็บไซต์โรงเรียน\nเพื่อนบ้าน\nสื่อสังคมออนไลน์",
+     "crop": "panel",
+     "say": "พิมพ์ตัวเลือกในช่อง \"ตัวเลือก\" หนึ่งบรรทัดต่อหนึ่งตัวเลือก",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มข้อ: ระดับคะแนน"
+     },
+     "crop": "panel",
+     "wait_after": {
+      "label": "ข้อ 2 คำถาม"
+     },
+     "say": "กดปุ่ม \"เพิ่มข้อ: ระดับคะแนน\" เพื่อเพิ่มคำถามข้อที่ 2 แล้วพิมพ์คำถามในช่อง \"คำถาม\" ของข้อนั้น",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ข้อ 2 คำถาม"
+     },
+     "value": "ท่านพึงพอใจกับการให้บริการมากเพียงใด"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มข้อ: ข้อความ"
+     },
+     "crop": "panel",
+     "wait_after": {
+      "label": "ข้อ 3 คำถาม"
+     },
+     "say": "กดปุ่ม \"เพิ่มข้อ: ข้อความ\" เพื่อเพิ่มคำถามข้อที่ 3 ซึ่งให้ผู้ตอบพิมพ์ข้อเสนอแนะ",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ข้อ 3 คำถาม"
+     },
+     "value": "ข้อเสนอแนะอื่น ๆ"
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "จำเป็นต้องตอบ",
+      "nth": 0
+     },
+     "label": "จำเป็น",
+     "crop": "panel",
+     "say": "ที่ช่อง \"จำเป็นต้องตอบ\" ของข้อที่ 1 เลือก \"จำเป็น\" เมื่อต้องการให้ผู้ตอบต้องตอบข้อนี้",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "checkbox",
+      "name": "ออกเกียรติบัตรให้ผู้ตอบ"
+     },
+     "crop": "panel",
+     "say": "ในกล่อง \"เกียรติบัตร\" ติ๊ก \"ออกเกียรติบัตรให้ผู้ตอบ\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ชื่อผู้ลงนาม"
+     },
+     "value": "ดร.ต้นธาร เรียนดี",
+     "crop": "panel",
+     "say": "พิมพ์ชื่อผู้ลงนามในช่อง \"ชื่อผู้ลงนาม\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ตำแหน่งผู้ลงนาม"
+     },
+     "value": "ผู้อำนวยการโรงเรียน",
+     "crop": "panel",
+     "say": "พิมพ์ตำแหน่งผู้ลงนามในช่อง \"ตำแหน่งผู้ลงนาม\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "cms-toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/surveys/",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "cms-toast"
+     },
+     "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกแบบสอบถามแล้ว\"",
+     "shot": true
+    }
+   ],
+   "expected": "หน้าแก้ไขแสดงคำถามสามข้อ และ \"ที่อยู่ในลิงก์\" ตามที่ตั้ง",
+   "verify": [
+    {
+     "title": "เปิดหน้าแก้ไขใหม่ คำถามและเกียรติบัตรต้องยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "id": "srv-form"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "id": "srv-questions"
+       },
+       "that": [
+        {
+         "value": "ท่านรู้จักโรงเรียนจากช่องทางใด",
+         "of": {
+          "label": "ข้อ 1 คำถาม"
+         }
+        },
+        {
+         "value": "ท่านพึงพอใจกับการให้บริการมากเพียงใด",
+         "of": {
+          "label": "ข้อ 2 คำถาม"
+         }
+        },
+        {
+         "checked": {
+          "role": "checkbox",
+          "name": "ออกเกียรติบัตรให้ผู้ตอบ"
+         }
+        }
+       ],
+       "say": "เปิดหน้าแก้ไขใหม่ คำถามทั้งสามข้อและการตั้งค่าเกียรติบัตรยังอยู่",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "import-roster",
+   "title": "นำเข้ารายชื่อผู้มีสิทธิ์ตอบพร้อมรหัส",
+   "role": "editor",
+   "start": "/cms",
+   "depends_on": [
+    "build-survey"
+   ],
+   "intro": "โหมด \"รหัสตามรายชื่อ\" ใช้ได้เฉพาะผู้ที่มีรหัส วางรายชื่อบรรทัดละหนึ่งคนในรูปแบบ รหัส,ชื่อ-สกุล รหัสยาว 3 ถึง 40 ตัวอักษร ระบบเก็บเฉพาะค่าแฮชของรหัส จึงดูรหัสย้อนหลังไม่ได้ ให้แจกรหัสจากไฟล์ต้นฉบับของโรงเรียน รหัสหนึ่งใช้ตอบได้ครั้งเดียว",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/cms#surveys",
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-create"
+     },
+     "say": "เปิดหน้า \"แบบสอบถามและเกียรติบัตร\" จากเมนูด้านซ้ายของหน้าจัดการเว็บไซต์ (ที่อยู่ลงท้ายด้วย /cms#surveys) หน้านี้แสดงแบบฟอร์มสร้างแบบสอบถามใหม่และรายการแบบสอบถามทั้งหมด",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แก้ไข / ดูผล",
+      "within": {
+       "css": "div.srv-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-form"
+     },
+     "say": "กดปุ่ม \"แก้ไข / ดูผล\" ของแบบสอบถามที่ต้องการ",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วางรายชื่อ"
+     },
+     "value": "TST-{{run_id}},นางสาวทดสอบ ตัวอย่าง",
+     "crop": "panel",
+     "mask": [
+      {
+       "label": "วางรายชื่อ"
+      }
+     ],
+     "say": "วางรายชื่อในช่อง \"วางรายชื่อ\" บรรทัดละหนึ่งคน รูปแบบ รหัส,ชื่อ-สกุล",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "นำเข้ารายชื่อ"
+     },
+     "crop": "panel",
+     "highlight": {
+      "id": "srv-roster-stat"
+     },
+     "wait_after": {
+      "id": "cms-toast"
+     },
+     "say": "กดปุ่ม \"นำเข้ารายชื่อ\" ระบบแสดงจำนวนที่นำเข้า (ภาพนี้ปิดรหัสไว้)",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ในรายชื่อ 1 คน",
+      "in": {
+       "id": "srv-roster-stat"
+      }
+     }
+    }
+   ],
+   "expected": "ข้อความใต้หัวข้อ \"รายชื่อผู้มีสิทธิ์ตอบ\" บอกว่า \"ในรายชื่อ 1 คน ใช้รหัสแล้ว 0 คน\"",
+   "verify": [
+    {
+     "title": "เปิดหน้าแก้ไขใหม่ จำนวนในรายชื่อต้องยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "id": "srv-form"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "ในรายชื่อ 1 คน",
+        "in": {
+         "id": "srv-roster-stat"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "open-survey",
+   "title": "เปิดรับคำตอบ",
+   "role": "editor",
+   "start": "/cms",
+   "depends_on": [
+    "import-roster"
+   ],
+   "intro": "ปุ่ม \"เปิดรับคำตอบ\" บันทึกการแก้ไขที่ค้างอยู่ก่อน แล้วเปิดลิงก์สาธารณะให้ผู้ตอบ ตั้งเวลาเปิดและปิดรับ หรือจำกัดจำนวนคำตอบได้ในกล่อง \"ข้อมูลทั่วไป\"",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/cms#surveys",
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-create"
+     },
+     "say": "เปิดหน้า \"แบบสอบถามและเกียรติบัตร\" จากเมนูด้านซ้ายของหน้าจัดการเว็บไซต์ (ที่อยู่ลงท้ายด้วย /cms#surveys) หน้านี้แสดงแบบฟอร์มสร้างแบบสอบถามใหม่และรายการแบบสอบถามทั้งหมด",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แก้ไข / ดูผล",
+      "within": {
+       "css": "div.srv-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-form"
+     },
+     "say": "กดปุ่ม \"แก้ไข / ดูผล\" ของแบบสอบถามที่ต้องการ",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปิดรับคำตอบ",
+      "exact": true
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "cms-toast"
+     },
+     "expect_response": {
+      "url_contains": "/status",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "cms-toast"
+     },
+     "say": "กดปุ่ม \"เปิดรับคำตอบ\" ระบบแสดงข้อความ \"อัปเดตสถานะแล้ว\" และสถานะเปลี่ยนเป็น \"เปิดรับคำตอบ\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "เปิดรับคำตอบ",
+      "in": {
+       "css": ".cms-heading"
+      }
+     }
+    }
+   ],
+   "expected": "หัวหน้าหน้าแสดงสถานะ \"เปิดรับคำตอบ\" และมีปุ่ม \"ปิดรับคำตอบ\" แทนปุ่มเปิด",
+   "verify": [
+    {
+     "title": "หน้าสาธารณะของแบบสอบถามเปิดได้โดยไม่ต้องเข้าสู่ระบบ",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "http_status": 200,
+        "url": "/portal/surveys/tst-{{run_id}}",
+        "anonymous": true
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "respond-survey",
+   "title": "ผู้ตอบเปิดลิงก์สาธารณะ ตอบ และรับเกียรติบัตร",
+   "role": "anonymous",
+   "start": "/portal/surveys/tst-{{run_id}}",
+   "depends_on": [
+    "open-survey"
+   ],
+   "intro": "ผู้ตอบไม่ต้องเข้าสู่ระบบ เปิดลิงก์ที่โรงเรียนแจก ใส่รหัสที่ได้รับ ตอบคำถาม และกดส่ง รหัสหนึ่งตอบได้ครั้งเดียว เมื่อส่งแล้วระบบออกเกียรติบัตรเลขที่ของตนเอง เปิดดู พิมพ์ หรือบันทึกเป็น PDF ได้ และตรวจเลขที่ได้ที่หน้า \"ตรวจสอบเกียรติบัตร\"",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/portal/surveys/tst-{{run_id}}",
+     "crop": "viewport",
+     "wait_after": {
+      "css": "form.srv-form"
+     },
+     "say": "เปิดลิงก์แบบสอบถามที่โรงเรียนแจก (ที่อยู่ลงท้ายด้วย /portal/surveys/ ตามด้วยชื่อแบบสอบถาม) ไม่ต้องเข้าสู่ระบบ",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสที่ได้รับ"
+     },
+     "value": "{{code_value}}",
+     "secret": true,
+     "crop": "panel",
+     "mask": [
+      {
+       "label": "รหัสที่ได้รับ"
+      }
+     ],
+     "say": "พิมพ์รหัสที่ได้รับจากโรงเรียนในช่อง \"รหัสที่ได้รับ\" (ภาพนี้ปิดรหัสไว้)",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "radio",
+      "name": "เว็บไซต์โรงเรียน"
+     },
+     "crop": "panel",
+     "say": "เลือกคำตอบของข้อที่ 1 ข้อที่มีเครื่องหมาย * ต้องตอบ",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "radio",
+      "name": "5",
+      "exact": true
+     },
+     "crop": "panel",
+     "say": "เลือกระดับคะแนนของข้อที่ 2 ตัวเลขมากหมายถึงมากที่สุด",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "css": "textarea[name^='a[']"
+     },
+     "value": "ขอให้ปรับปรุงห้องน้ำ {{marker}}",
+     "crop": "panel",
+     "say": "พิมพ์ข้อเสนอแนะในข้อที่ 3 (ถ้ามี)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งคำตอบ"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "section.srv-notice strong"
+     },
+     "wait_after": {
+      "css": "section.srv-notice strong"
+     },
+     "say": "กดปุ่ม \"ส่งคำตอบ\" ระบบแสดงข้อความขอบคุณ และเลขที่เกียรติบัตร",
+     "shot": true
+    },
+    {
+     "do": "capture",
+     "target": {
+      "css": "section.srv-notice strong"
+     },
+     "var": "cert_no"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "เปิดเกียรติบัตร"
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "main.cert"
+     },
+     "say": "กดลิงก์ \"เปิดเกียรติบัตร (พิมพ์หรือบันทึกเป็น PDF)\" ระบบแสดงเกียรติบัตรของผู้ตอบ",
+     "shot": true
+    },
+    {
+     "do": "goto",
+     "url": "/portal/certificates/verify?no={{cert_no}}",
+     "crop": "panel",
+     "highlight": {
+      "css": "[role=status]"
+     },
+     "wait_after": {
+      "css": "[role=status]"
+     },
+     "say": "ตรวจเลขที่เกียรติบัตรที่หน้า \"ตรวจสอบเกียรติบัตร\" (ที่อยู่ลงท้ายด้วย /portal/certificates/verify) พิมพ์เลขที่ในช่อง \"เลขที่เกียรติบัตร\" แล้วกดปุ่ม \"ตรวจสอบ\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ถูกต้อง",
+      "in": {
+       "css": "[role=status]"
+      }
+     }
+    }
+   ],
+   "vars": {
+    "code_value": "TST-{{run_id}}"
+   },
+   "expected": "หน้าตรวจสอบแสดง \"ถูกต้อง: พบเกียรติบัตรเลขที่ ...\" พร้อมวันที่ออก โดยไม่แสดงชื่อเต็มของผู้รับ",
+   "verify": [
+    {
+     "title": "ผู้ดูแลเห็นคำตอบ 1 รายการในหน้าผลสรุป",
+     "as": "editor",
+     "start": "/cms#surveys",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "id": "srv-create"
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "แก้ไข / ดูผล",
+        "within": {
+         "css": "div.srv-card",
+         "has_text": "{{marker}}"
+        }
+       },
+       "wait_after": {
+        "id": "srv-results"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "คำตอบ",
+        "in": {
+         "css": ".srv-kpis"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "view-results",
+   "title": "ดูผลสรุปและส่งออก CSV",
+   "role": "editor",
+   "start": "/cms",
+   "depends_on": [
+    "respond-survey"
+   ],
+   "intro": "ส่วน \"ผลสรุป\" ของหน้าแก้ไขแสดงจำนวนคำตอบ จำนวนเกียรติบัตร กราฟจำนวนคำตอบของแต่ละตัวเลือก ค่าเฉลี่ยของข้อคะแนน และข้อความที่ผู้ตอบพิมพ์ ไฟล์ CSV ของโหมดที่ระบุตัวตนมีชื่อผู้ตอบ จึงต้องเก็บรักษาอย่างระวัง",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/cms#surveys",
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-create"
+     },
+     "say": "เปิดหน้า \"แบบสอบถามและเกียรติบัตร\" จากเมนูด้านซ้ายของหน้าจัดการเว็บไซต์ (ที่อยู่ลงท้ายด้วย /cms#surveys) หน้านี้แสดงแบบฟอร์มสร้างแบบสอบถามใหม่และรายการแบบสอบถามทั้งหมด",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แก้ไข / ดูผล",
+      "within": {
+       "css": "div.srv-card",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-form"
+     },
+     "say": "กดปุ่ม \"แก้ไข / ดูผล\" ของแบบสอบถามที่ต้องการ",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "โหลดผลใหม่"
+     },
+     "crop": "panel",
+     "highlight": {
+      "id": "srv-results"
+     },
+     "wait_after": {
+      "css": ".srv-kpis"
+     },
+     "say": "กดปุ่ม \"โหลดผลใหม่\" เพื่ออ่านผลล่าสุด เลื่อนไปที่หัวข้อ \"ผลสรุป\" ระบบแสดงจำนวนคำตอบและกราฟของแต่ละข้อ",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "text": "1",
+       "in": {
+        "css": ".srv-kpis"
+       }
+      },
+      {
+       "visible": {
+        "css": ".srv-bar",
+        "first": true
+       }
+      }
+     ]
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ดาวน์โหลด CSV",
+      "exact": false
+     },
+     "crop": "panel",
+     "expect_download": {
+      "ext": ".csv",
+      "kind": "csv",
+      "min_bytes": 30
+     },
+     "say": "กดลิงก์ \"ดาวน์โหลด CSV\" เบราว์เซอร์บันทึกไฟล์คำตอบทั้งหมด",
+     "shot": true
+    }
+   ],
+   "expected": "ผลสรุปแสดง 1 คำตอบ 1 เกียรติบัตร กราฟของข้อเลือกตอบ ค่าเฉลี่ยของข้อคะแนน และข้อความที่ผู้ตอบพิมพ์",
+   "verify": [
+    {
+     "title": "ไฟล์ CSV มีคำตอบข้อความที่ผู้ตอบพิมพ์",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ดาวน์โหลด CSV"
+       },
+       "expect_download": {
+        "ext": ".csv",
+        "kind": "csv",
+        "min_bytes": 30,
+        "contains": "ขอให้ปรับปรุงห้องน้ำ"
+       }
+      }
+     ]
+    },
+    {
+     "title": "ข้อความที่ผู้ตอบพิมพ์อยู่ในผลสรุปของข้อที่ 3",
+     "steps": [
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "ul.srv-texts"
+       },
+       "that": {
+        "text": "ขอให้ปรับปรุงห้องน้ำ",
+        "in": {
+         "id": "srv-results"
+        }
+       },
+       "say": "ข้อความที่ผู้ตอบพิมพ์แสดงในผลสรุปของข้อที่ 3",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "close-survey",
+   "title": "ปิดรับคำตอบ",
+   "role": "editor",
+   "start": "/cms",
+   "depends_on": [
+    "view-results"
+   ],
+   "cleanup": true,
+   "intro": "เมื่อพอแล้ว ปิดรับคำตอบ ลิงก์สาธารณะเดิมยังเปิดได้แต่ไม่รับคำตอบ แบบสอบถามที่มีผู้ตอบแล้วลบไม่ได้ ต้องลบคำตอบทีละรายการหรือทั้งหมด (เมื่อปิดรับแล้ว) ก่อน",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/cms#surveys",
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-create"
+     },
+     "say": "เปิดหน้า \"แบบสอบถามและเกียรติบัตร\" จากเมนูด้านซ้ายของหน้าจัดการเว็บไซต์ (ที่อยู่ลงท้ายด้วย /cms#surveys) หน้านี้แสดงแบบฟอร์มสร้างแบบสอบถามใหม่และรายการแบบสอบถามทั้งหมด",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แก้ไข / ดูผล",
+      "within": {
+       "css": "div.srv-card",
+       "has_text": "{{marker}} แบบประเมินความพึงพอใจ"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-form"
+     },
+     "say": "กดปุ่ม \"แก้ไข / ดูผล\" ของแบบสอบถามที่ต้องการ",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดรับคำตอบ",
+      "exact": true
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "cms-toast"
+     },
+     "expect_response": {
+      "url_contains": "/status",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "cms-toast"
+     },
+     "say": "กดปุ่ม \"ปิดรับคำตอบ\" ระบบแสดงข้อความ \"อัปเดตสถานะแล้ว\" และสถานะเปลี่ยนเป็น \"ปิดแล้ว\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ปิดแล้ว",
+      "in": {
+       "css": ".cms-heading"
+      }
+     }
+    }
+   ],
+   "expected": "สถานะเป็น \"ปิดแล้ว\" และมีปุ่ม \"ลบคำตอบทั้งหมดของแบบสอบถามนี้\" ในส่วนผลสรุป",
+   "verify": [
+    {
+     "title": "ผู้ตอบเปิดลิงก์แล้วส่งคำตอบไม่ได้",
+     "as": "anonymous",
+     "start": "/portal/surveys/tst-{{run_id}}",
+     "steps": [
+      {
+       "do": "expect",
+       "crop": "viewport",
+       "that": {
+        "hidden": {
+         "role": "button",
+         "name": "ส่งคำตอบ"
+        }
+       },
+       "say": "ผู้ตอบเปิดลิงก์เดิมหลังปิดรับ ระบบไม่แสดงแบบฟอร์มให้ตอบ",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "edit-question-list",
+   "title": "จัดลำดับ เปลี่ยนชนิด และลบคำถามในฉบับร่าง",
+   "role": "editor",
+   "start": "/cms",
+   "intro": "ฉบับร่างเพิ่มคำถามได้หลายแบบ เลื่อนขึ้นลงเพื่อเรียงลำดับ เปลี่ยนชนิดได้ก่อนมีผู้ตอบ และลบข้อที่ไม่ต้องการได้ ต้องกดบันทึกหลังแก้ทุกครั้ง เพราะข้อความที่พิมพ์ค้างไว้จะหายเมื่อเพิ่มข้อใหม่โดยยังไม่บันทึก",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/cms#surveys",
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-create"
+     },
+     "say": "เปิดหน้า \"แบบสอบถามและเกียรติบัตร\" จากเมนูด้านซ้ายของหน้าจัดการเว็บไซต์",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ชื่อแบบสอบถาม",
+      "within": {
+       "id": "srv-create"
+      }
+     },
+     "value": "{{marker}} ทดสอบจัดลำดับคำถาม"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "สร้างฉบับร่าง"
+     },
+     "wait_after": {
+      "id": "srv-form"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "[data-add=text]"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "div.srv-qactions"
+     },
+     "say": "กดปุ่ม \"เพิ่มข้อ: ข้อความ\" เพื่อเพิ่มคำถามแบบพิมพ์คำตอบ"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "css": "div.srv-qrow[data-q='0'] [data-f=label]"
+     },
+     "value": "คำถามแรก"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "expect_response": {
+      "url_contains": "/api/surveys/",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "cms-toast"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "[data-add=single]"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "css": "div.srv-qrow[data-q='1'] [data-f=label]"
+     },
+     "value": "คำถามสอง"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "expect_response": {
+      "url_contains": "/api/surveys/",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "cms-toast"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "div.srv-qrow[data-q='1'] [data-move='-1']"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "div.srv-qrow[data-q='1']"
+     },
+     "say": "กดปุ่ม \"เลื่อนขึ้น\" ที่ข้อ \"คำถามสอง\" ให้ไปอยู่ลำดับแรก"
+    },
+    {
+     "do": "select",
+     "target": {
+      "css": "div.srv-qrow[data-q='0'] [data-f=type]"
+     },
+     "value": "multi",
+     "crop": "panel",
+     "highlight": {
+      "css": "div.srv-qrow[data-q='0']"
+     },
+     "say": "ในข้อ \"คำถามสอง\" เปลี่ยนชนิดเป็นคำตอบหลายข้อ"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "expect_response": {
+      "url_contains": "/api/surveys/",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "cms-toast"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "div.srv-qrow[data-q='1'] [data-remove]"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "div.srv-qrow[data-q='1']"
+     },
+     "say": "กดปุ่ม \"ลบข้อนี้\" ที่ข้อ \"คำถามแรก\" ที่อยู่ลำดับท้าย"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "expect_response": {
+      "url_contains": "/api/surveys/",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "cms-toast"
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "cms-toast"
+     },
+     "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกแบบสอบถามแล้ว\""
+    }
+   ],
+   "expected": "ฉบับร่างเหลือคำถามเดียวคือ \"คำถามสอง\" ชนิดคำตอบหลายข้อ",
+   "verify": [
+    {
+     "title": "เปิดฉบับร่างใหม่ ลำดับ ชนิด และจำนวนข้อต้องตรงกับที่บันทึก",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "id": "srv-form"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "div.srv-qrow[data-q='0']"
+       },
+       "that": [
+        {
+         "value": "คำถามสอง",
+         "of": {
+          "css": "div.srv-qrow[data-q='0'] [data-f=label]"
+         }
+        },
+        {
+         "value": "multi",
+         "of": {
+          "css": "div.srv-qrow[data-q='0'] [data-f=type]"
+         }
+        },
+        {
+         "hidden": {
+          "css": "div.srv-qrow[data-q='1']"
+         }
+        }
+       ],
+       "say": "เปิดฉบับร่างใหม่ เหลือข้อเดียว \"คำถามสอง\" ชนิดคำตอบหลายข้อ"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "create-anonymous-survey",
+   "title": "สร้างแบบสอบถามแบบไม่ระบุตัวตน ตั้งเวลาเปิดรับและจำนวนคำตอบสูงสุด",
+   "role": "editor",
+   "start": "/cms",
+   "intro": "แบบสอบถามแบบไม่ระบุตัวตนไม่ออกเกียรติบัตร เพราะไม่มีชื่อผู้ตอบ ระบบจำกัดจำนวนครั้งต่อเครือข่ายด้วย ผู้ดูแลตั้งเวลาเปิดรับ เวลาปิดรับ และจำนวนคำตอบสูงสุดได้ในหน้าแก้ไขแบบสอบถาม เวลาเป็นเวลาไทย",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/cms#surveys",
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-create"
+     },
+     "say": "เปิดหน้า \"แบบสอบถามและเกียรติบัตร\" ของผู้ดูแลเว็บไซต์ (ที่อยู่ลงท้ายด้วย /cms#surveys)",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ชื่อแบบสอบถาม",
+      "within": {
+       "id": "srv-create"
+      }
+     },
+     "value": "{{marker}} แบบสอบถามไม่ระบุตัวตน"
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "การระบุตัวตนผู้ตอบ",
+      "within": {
+       "id": "srv-create"
+      }
+     },
+     "label": "ไม่ระบุตัวตน (คุกกี้ + จำกัดต่อ IP ไม่รับรองหนึ่งคนหนึ่งครั้ง)",
+     "crop": "panel",
+     "highlight": {
+      "label": "การระบุตัวตนผู้ตอบ",
+      "within": {
+       "id": "srv-create"
+      }
+     },
+     "say": "พิมพ์ชื่อแบบสอบถาม และเลือก \"การระบุตัวตนผู้ตอบ\" เป็น \"ไม่ระบุตัวตน\" โหมดนี้ผู้ตอบไม่ต้องกรอกชื่อหรือรหัส ระบบจำเพียงว่าเครื่องนี้ตอบแล้ว (ใช้คุกกี้)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "สร้างฉบับร่าง"
+     },
+     "wait_after": {
+      "id": "srv-form"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ที่อยู่ในลิงก์",
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "value": "tst-{{run_id}}-an"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "wait_after": {
+      "id": "cms-toast"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มข้อ: เลือกข้อเดียว"
+     },
+     "wait_after": {
+      "css": "div.srv-qrow[data-q=\"0\"]"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ข้อ 1 คำถาม"
+     },
+     "value": "ท่านเคยใช้บริการห้องสมุดโรงเรียนหรือไม่ (คำถามสมมติ)"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ตัวเลือก (หนึ่งบรรทัดต่อหนึ่งตัวเลือก)"
+     },
+     "value": "เคย\nไม่เคย"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เปิดรับตั้งแต่ (เวลาไทย)",
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "value": "{{next_weekday:2}}T08:00",
+     "crop": "panel",
+     "highlight": {
+      "label": "เปิดรับตั้งแต่ (เวลาไทย)",
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "say": "ตั้ง \"เปิดรับตั้งแต่ (เวลาไทย)\" เป็นวันที่ยังมาไม่ถึง แบบสอบถามจะยังไม่รับคำตอบจนถึงเวลานั้น ช่อง \"ปิดรับเมื่อ (เวลาไทย)\" ใช้ตั้งเวลาปิดอัตโนมัติ",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จำนวนคำตอบสูงสุด (เว้นว่าง",
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "value": "1",
+     "crop": "panel",
+     "highlight": {
+      "label": "จำนวนคำตอบสูงสุด (เว้นว่าง",
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "say": "พิมพ์ \"จำนวนคำตอบสูงสุด\" เป็น 1 เมื่อได้คำตอบครบจำนวน ระบบหยุดรับคำตอบทันที (เว้นว่างถ้าไม่จำกัด)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "cms-toast"
+     },
+     "wait_after": {
+      "id": "cms-toast"
+     },
+     "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกแบบสอบถามแล้ว\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปิดรับคำตอบ",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "role": "button",
+      "name": "ปิดรับคำตอบ",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "ปิดรับคำตอบ",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "say": "กดปุ่ม \"เปิดรับคำตอบ\" สถานะเปลี่ยนเป็น \"เปิดรับคำตอบ\" แต่ผู้ตอบยังตอบไม่ได้จนกว่าจะถึงเวลาที่ตั้งไว้",
+     "shot": true
+    }
+   ],
+   "expected": "แบบสอบถามอยู่ในสถานะ \"เปิดรับคำตอบ\" มีเวลาเปิดรับในอนาคตและจำนวนคำตอบสูงสุด 1",
+   "verify": [
+    {
+     "title": "เปิดหน้าแก้ไขใหม่ ค่าที่ตั้งยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "id": "srv-form"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "value": "1",
+         "of": {
+          "label": "จำนวนคำตอบสูงสุด (เว้นว่าง",
+          "within": {
+           "id": "srv-form"
+          }
+         }
+        },
+        {
+         "value": "{{next_weekday:2}}T08:00",
+         "of": {
+          "label": "เปิดรับตั้งแต่ (เวลาไทย)",
+          "within": {
+           "id": "srv-form"
+          }
+         }
+        }
+       ],
+       "crop": "panel",
+       "highlight": {
+        "label": "จำนวนคำตอบสูงสุด (เว้นว่าง",
+        "within": {
+         "id": "srv-form"
+        }
+       },
+       "say": "เปิดหน้าแก้ไขใหม่ ช่องเวลาเปิดรับและจำนวนคำตอบสูงสุดแสดงค่าที่ตั้งไว้",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "visitor-before-opening-time",
+   "title": "ผู้ตอบเปิดแบบสอบถามก่อนถึงเวลาเปิดรับ",
+   "role": "anonymous",
+   "start": "/portal/surveys/tst-{{run_id}}-an",
+   "depends_on": [
+    "create-anonymous-survey"
+   ],
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/portal/surveys/tst-{{run_id}}-an",
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.srv-notice"
+     },
+     "say": "ผู้ตอบเปิดลิงก์ของแบบสอบถามก่อนถึงเวลาเปิดรับ",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "แบบสอบถามนี้ยังไม่ถึงเวลาเปิดรับคำตอบ",
+      "in": {
+       "css": "section.srv-notice"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "section.srv-notice"
+     },
+     "say": "ระบบไม่แสดงแบบฟอร์ม และแจ้งว่า \"แบบสอบถามนี้ยังไม่ถึงเวลาเปิดรับคำตอบ\"",
+     "shot": true
+    }
+   ],
+   "expected": "หน้านี้ไม่มีปุ่ม \"ส่งคำตอบ\" และมีข้อความว่ายังไม่ถึงเวลาเปิดรับ",
+   "verify": [
+    {
+     "title": "ไม่มีแบบฟอร์มให้ตอบ",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "hidden": {
+         "role": "button",
+         "name": "ส่งคำตอบ"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "set-opening-time-to-past",
+   "title": "เปลี่ยนเวลาเปิดรับให้ผ่านมาแล้ว แบบสอบถามเริ่มรับคำตอบ",
+   "role": "editor",
+   "start": "/cms",
+   "depends_on": [
+    "visitor-before-opening-time"
+   ],
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/cms#surveys",
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-create"
+     },
+     "say": "เปิดหน้า \"แบบสอบถามและเกียรติบัตร\" ของผู้ดูแลเว็บไซต์ (ที่อยู่ลงท้ายด้วย /cms#surveys)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แก้ไข / ดูผล",
+      "within": {
+       "css": "div.srv-card",
+       "has_text": "{{marker}} แบบสอบถามไม่ระบุตัวตน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "แก้ไข / ดูผล",
+      "within": {
+       "css": "div.srv-card",
+       "has_text": "{{marker}} แบบสอบถามไม่ระบุตัวตน"
+      }
+     },
+     "wait_after": {
+      "id": "srv-form"
+     },
+     "say": "กดปุ่ม \"แก้ไข / ดูผล\" ที่แบบสอบถามที่ต้องการ",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เปิดรับตั้งแต่ (เวลาไทย)",
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "value": "{{last_weekday}}T00:01",
+     "crop": "panel",
+     "highlight": {
+      "label": "เปิดรับตั้งแต่ (เวลาไทย)",
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "say": "เปลี่ยน \"เปิดรับตั้งแต่ (เวลาไทย)\" เป็นวันที่ผ่านมาแล้ว",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "cms-toast"
+     },
+     "wait_after": {
+      "id": "cms-toast"
+     },
+     "say": "กดปุ่ม \"บันทึก\" แบบสอบถามที่เปิดรับคำตอบไว้แล้วเริ่มรับคำตอบทันทีเมื่อถึงเวลา",
+     "shot": true
+    }
+   ],
+   "expected": "ช่องเวลาเปิดรับแสดงวันที่ที่ผ่านมาแล้ว",
+   "verify": [
+    {
+     "title": "ผู้ตอบเปิดแบบฟอร์มได้",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "http_status": 200,
+        "url": "/portal/surveys/tst-{{run_id}}-an",
+        "anonymous": true
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "answer-anonymous-survey",
+   "title": "ตอบแบบสอบถามแบบไม่ระบุตัวตน",
+   "role": "anonymous",
+   "start": "/portal/surveys/tst-{{run_id}}-an",
+   "depends_on": [
+    "set-opening-time-to-past"
+   ],
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/portal/surveys/tst-{{run_id}}-an",
+     "crop": "viewport",
+     "wait_after": {
+      "role": "button",
+      "name": "ส่งคำตอบ"
+     },
+     "say": "ผู้ตอบเปิดลิงก์ของแบบสอบถาม หน้านี้บอกว่าไม่ระบุตัวตน และไม่มีช่องกรอกชื่อหรือรหัส",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "radio",
+      "name": "เคย",
+      "exact": true
+     },
+     "crop": "panel",
+     "highlight": {
+      "role": "radio",
+      "name": "เคย",
+      "exact": true
+     },
+     "say": "เลือกคำตอบ",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งคำตอบ"
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": "section.srv-notice p[role=status]"
+     },
+     "wait_after": {
+      "css": "section.srv-notice"
+     },
+     "say": "กดปุ่ม \"ส่งคำตอบ\" ระบบแจ้ง \"ขอบคุณที่ตอบแบบสอบถาม\" ไม่มีเลขเกียรติบัตรเพราะแบบสอบถามไม่ระบุตัวตนไม่ออกเกียรติบัตร",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "text": "ระบบบันทึกคำตอบของท่านแล้ว",
+       "in": {
+        "css": "section.srv-notice"
+       }
+      },
+      {
+       "hidden": {
+        "text": "เปิดเกียรติบัตร"
+       }
+      }
+     ]
+    }
+   ],
+   "expected": "ระบบบันทึกคำตอบ ไม่มีเลขเกียรติบัตร",
+   "verify": [
+    {
+     "title": "ผู้ตอบเปิดลิงก์เดิมอีกครั้ง ระบบไม่รับเพิ่มเพราะครบจำนวนแล้ว",
+     "steps": [
+      {
+       "do": "goto",
+       "url": "/portal/surveys/tst-{{run_id}}-an",
+       "crop": "viewport"
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "ได้รับคำตอบครบจำนวนที่กำหนดแล้ว",
+        "in": {
+         "css": "section.srv-notice"
+        }
+       },
+       "crop": "panel",
+       "highlight": {
+        "css": "section.srv-notice"
+       },
+       "say": "เปิดลิงก์เดิมอีกครั้ง ระบบแจ้งว่า \"แบบสอบถามนี้ได้รับคำตอบครบจำนวนที่กำหนดแล้ว\" เพราะผู้ดูแลตั้งจำนวนสูงสุดไว้ 1",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "second-visitor-refused-at-limit",
+   "title": "ผู้ตอบคนที่สองถูกปฏิเสธเมื่อครบจำนวนคำตอบสูงสุด",
+   "role": "anonymous",
+   "start": "/portal/surveys/tst-{{run_id}}-an",
+   "depends_on": [
+    "answer-anonymous-survey"
+   ],
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/portal/surveys/tst-{{run_id}}-an",
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.srv-notice"
+     },
+     "say": "ผู้ตอบคนที่สองซึ่งใช้เครื่องอื่น เปิดลิงก์เดียวกัน",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ได้รับคำตอบครบจำนวนที่กำหนดแล้ว",
+      "in": {
+       "css": "section.srv-notice"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "section.srv-notice"
+     },
+     "say": "ระบบไม่แสดงแบบฟอร์ม และแจ้งว่า \"แบบสอบถามนี้ได้รับคำตอบครบจำนวนที่กำหนดแล้ว\"",
+     "shot": true
+    }
+   ],
+   "expected": "ไม่มีปุ่ม \"ส่งคำตอบ\" และมีข้อความว่าครบจำนวนแล้ว",
+   "verify": [
+    {
+     "title": "ไม่มีแบบฟอร์มให้ตอบ",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "hidden": {
+         "role": "button",
+         "name": "ส่งคำตอบ"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "set-closing-time-in-past",
+   "title": "ตั้งเวลาปิดรับให้ผ่านมาแล้ว แบบสอบถามปิดทันที",
+   "role": "editor",
+   "start": "/cms",
+   "depends_on": [
+    "second-visitor-refused-at-limit"
+   ],
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/cms#surveys",
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-create"
+     },
+     "say": "เปิดหน้า \"แบบสอบถามและเกียรติบัตร\" ของผู้ดูแลเว็บไซต์ (ที่อยู่ลงท้ายด้วย /cms#surveys)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แก้ไข / ดูผล",
+      "within": {
+       "css": "div.srv-card",
+       "has_text": "{{marker}} แบบสอบถามไม่ระบุตัวตน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "แก้ไข / ดูผล",
+      "within": {
+       "css": "div.srv-card",
+       "has_text": "{{marker}} แบบสอบถามไม่ระบุตัวตน"
+      }
+     },
+     "wait_after": {
+      "id": "srv-form"
+     },
+     "say": "กดปุ่ม \"แก้ไข / ดูผล\" ที่แบบสอบถามที่ต้องการ",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ปิดรับเมื่อ (เวลาไทย)",
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "value": "{{last_weekday}}T00:05",
+     "crop": "panel",
+     "highlight": {
+      "label": "ปิดรับเมื่อ (เวลาไทย)",
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "say": "ตั้ง \"ปิดรับเมื่อ (เวลาไทย)\" เป็นเวลาที่ผ่านมาแล้ว",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "cms-toast"
+     },
+     "wait_after": {
+      "id": "cms-toast"
+     },
+     "say": "กดปุ่ม \"บันทึก\" แบบสอบถามที่เลยเวลาปิดรับถือว่าปิดแล้ว แม้สถานะยังเป็น \"เปิดรับคำตอบ\"",
+     "shot": true
+    }
+   ],
+   "expected": "ช่อง \"ปิดรับเมื่อ\" แสดงเวลาที่ผ่านมาแล้ว",
+   "verify": [
+    {
+     "title": "เปิดหน้าแก้ไขใหม่ เวลาปิดรับยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "id": "srv-form"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "value": "{{last_weekday}}T00:05",
+        "of": {
+         "label": "ปิดรับเมื่อ (เวลาไทย)",
+         "within": {
+          "id": "srv-form"
+         }
+        }
+       },
+       "crop": "panel",
+       "highlight": {
+        "label": "ปิดรับเมื่อ (เวลาไทย)",
+        "within": {
+         "id": "srv-form"
+        }
+       },
+       "say": "เปิดหน้าแก้ไขใหม่ ช่องเวลาปิดรับแสดงค่าที่ตั้งไว้",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "visitor-after-closing-time",
+   "title": "ผู้ตอบเปิดแบบสอบถามหลังเลยเวลาปิดรับ",
+   "role": "anonymous",
+   "start": "/portal/surveys/tst-{{run_id}}-an",
+   "depends_on": [
+    "set-closing-time-in-past"
+   ],
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/portal/surveys/tst-{{run_id}}-an",
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.srv-notice"
+     },
+     "say": "ผู้ตอบเปิดลิงก์ของแบบสอบถามหลังเลยเวลาปิดรับ",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "แบบสอบถามนี้หมดเวลารับคำตอบแล้ว",
+      "in": {
+       "css": "section.srv-notice"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "section.srv-notice"
+     },
+     "say": "ระบบไม่แสดงแบบฟอร์ม และแจ้งว่า \"แบบสอบถามนี้หมดเวลารับคำตอบแล้ว\"",
+     "shot": true
+    }
+   ],
+   "expected": "ไม่มีปุ่ม \"ส่งคำตอบ\" และมีข้อความว่าหมดเวลารับคำตอบ",
+   "verify": [
+    {
+     "title": "ไม่มีแบบฟอร์มให้ตอบ",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "hidden": {
+         "role": "button",
+         "name": "ส่งคำตอบ"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "create-scored-survey",
+   "title": "สร้างแบบสอบถามที่ตรวจคะแนนอัตโนมัติและตั้งคะแนนขั้นต่ำของเกียรติบัตร",
+   "role": "editor",
+   "start": "/cms",
+   "intro": "ถ้าตั้งเฉลยในข้อแบบเลือก ระบบให้คะแนนเป็นร้อยละของข้อที่ตอบถูก ถ้าตั้ง \"คะแนนขั้นต่ำเป็นร้อยละ\" ของเกียรติบัตร ผู้ตอบที่ได้คะแนนไม่ถึงจะได้รับการบันทึกคำตอบ แต่ไม่ได้เกียรติบัตร เกียรติบัตรต้องใช้โหมดรหัสตามรายชื่อหรือโหมดกรอกชื่อและอีเมล",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/cms#surveys",
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-create"
+     },
+     "say": "เปิดหน้า \"แบบสอบถามและเกียรติบัตร\" ของผู้ดูแลเว็บไซต์ (ที่อยู่ลงท้ายด้วย /cms#surveys)",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ชื่อแบบสอบถาม",
+      "within": {
+       "id": "srv-create"
+      }
+     },
+     "value": "{{marker}} แบบสอบถามมีคะแนน"
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "การระบุตัวตนผู้ตอบ",
+      "within": {
+       "id": "srv-create"
+      }
+     },
+     "label": "รหัสตามรายชื่อ (ใช้ได้ครั้งเดียว)"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "สร้างฉบับร่าง"
+     },
+     "wait_after": {
+      "id": "srv-form"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ที่อยู่ในลิงก์",
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "value": "tst-{{run_id}}-sc"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "wait_after": {
+      "id": "cms-toast"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มข้อ: เลือกข้อเดียว"
+     },
+     "wait_after": {
+      "css": "div.srv-qrow[data-q=\"0\"]"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ข้อ 1 คำถาม"
+     },
+     "value": "สองบวกสองเท่ากับเท่าใด (คำถามสมมติ)"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ตัวเลือก (หนึ่งบรรทัดต่อหนึ่งตัวเลือก)"
+     },
+     "value": "4\n5"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "css": "textarea[data-f=correct]"
+     },
+     "value": "4",
+     "crop": "panel",
+     "highlight": {
+      "css": "textarea[data-f=correct]"
+     },
+     "say": "ในข้อที่เป็นแบบเลือก พิมพ์ตัวเลือกที่ถูกในช่อง \"เฉลย\" ระบบจะตรวจให้คะแนนอัตโนมัติ เป็นร้อยละของข้อที่ตอบถูก",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "checkbox",
+      "name": "ออกเกียรติบัตรให้ผู้ตอบ"
+     },
+     "crop": "panel",
+     "highlight": {
+      "role": "checkbox",
+      "name": "ออกเกียรติบัตรให้ผู้ตอบ"
+     },
+     "say": "ติ๊ก \"ออกเกียรติบัตรให้ผู้ตอบ\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ชื่อผู้ลงนาม",
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "value": "ดร.ต้นธาร เรียนดี"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ตำแหน่งผู้ลงนาม",
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "value": "ผู้อำนวยการโรงเรียน"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "คะแนนขั้นต่ำเป็นร้อยละ",
+      "within": {
+       "id": "srv-form"
+      },
+      "exact": false
+     },
+     "value": "60",
+     "crop": "panel",
+     "highlight": {
+      "label": "คะแนนขั้นต่ำเป็นร้อยละ",
+      "within": {
+       "id": "srv-form"
+      },
+      "exact": false
+     },
+     "say": "พิมพ์ \"คะแนนขั้นต่ำเป็นร้อยละ\" เป็น 60 ผู้ตอบที่ได้คะแนนต่ำกว่านี้จะไม่ได้เกียรติบัตร (ต้องตั้งเฉลยอย่างน้อยหนึ่งข้อ)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "cms-toast"
+     },
+     "wait_after": {
+      "id": "cms-toast"
+     },
+     "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกแบบสอบถามแล้ว\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วางรายชื่อ"
+     },
+     "value": "SCA-{{run_id}},นางสาวผ่านเกณฑ์ ตัวอย่าง\nSCB-{{run_id}},นายต่ำกว่าเกณฑ์ ตัวอย่าง",
+     "crop": "panel",
+     "highlight": {
+      "label": "วางรายชื่อ"
+     },
+     "say": "วางรายชื่อผู้มีสิทธิ์ตอบ แต่ละบรรทัดคือ \"รหัส,ชื่อ-สกุล\" (ภาพนี้ปิดรหัสไว้) รหัสแต่ละรหัสใช้ได้ครั้งเดียว",
+     "shot": true,
+     "mask": [
+      {
+       "label": "วางรายชื่อ"
+      }
+     ]
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "นำเข้ารายชื่อ"
+     },
+     "wait_after": {
+      "css": "#srv-roster-stat",
+      "has_text": "ในรายชื่อ 2 คน"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปิดรับคำตอบ",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "role": "button",
+      "name": "ปิดรับคำตอบ",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "ปิดรับคำตอบ",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "say": "กดปุ่ม \"เปิดรับคำตอบ\" แบบสอบถามพร้อมให้ตอบ",
+     "shot": true
+    }
+   ],
+   "expected": "แบบสอบถามเปิดรับคำตอบ มีเฉลย 1 ข้อ คะแนนขั้นต่ำ 60 และรายชื่อ 2 คน",
+   "verify": [
+    {
+     "title": "เปิดหน้าแก้ไขใหม่ ค่าที่ตั้งยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "id": "srv-form"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "value": "60",
+         "of": {
+          "label": "คะแนนขั้นต่ำเป็นร้อยละ",
+          "within": {
+           "id": "srv-form"
+          }
+         }
+        },
+        {
+         "value": "4",
+         "of": {
+          "css": "textarea[data-f=correct]"
+         }
+        },
+        {
+         "text": "ในรายชื่อ 2 คน",
+         "in": {
+          "id": "srv-roster-stat"
+         }
+        }
+       ],
+       "crop": "panel",
+       "highlight": {
+        "label": "คะแนนขั้นต่ำเป็นร้อยละ",
+        "within": {
+         "id": "srv-form"
+        }
+       },
+       "say": "เปิดหน้าแก้ไขใหม่ เฉลย คะแนนขั้นต่ำ และรายชื่อยังอยู่ครบ",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "answer-scored-survey-above-threshold",
+   "title": "ตอบถูกและได้เกียรติบัตร (คะแนนสูงกว่าขั้นต่ำ)",
+   "role": "anonymous",
+   "start": "/portal/surveys/tst-{{run_id}}-sc",
+   "depends_on": [
+    "create-scored-survey"
+   ],
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/portal/surveys/tst-{{run_id}}-sc",
+     "crop": "viewport",
+     "wait_after": {
+      "role": "button",
+      "name": "ส่งคำตอบ"
+     },
+     "say": "ผู้ตอบเปิดลิงก์ของแบบสอบถาม หน้านี้บอกว่าได้เกียรติบัตรเมื่อได้คะแนนไม่ต่ำกว่าร้อยละ 60",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสที่ได้รับ"
+     },
+     "value": "SCA-{{run_id}}",
+     "crop": "panel",
+     "highlight": {
+      "label": "รหัสที่ได้รับ"
+     },
+     "say": "กรอก \"รหัสที่ได้รับ\" (ภาพนี้ปิดรหัสไว้)",
+     "shot": true,
+     "secret": true,
+     "mask": [
+      {
+       "label": "รหัสที่ได้รับ"
+      }
+     ]
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "radio",
+      "name": "4",
+      "exact": true
+     },
+     "crop": "panel",
+     "highlight": {
+      "role": "radio",
+      "name": "4",
+      "exact": true
+     },
+     "say": "เลือกคำตอบที่ถูก",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งคำตอบ"
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "เปิดเกียรติบัตร"
+     },
+     "wait_after": {
+      "css": "section.srv-notice strong"
+     },
+     "say": "กดปุ่ม \"ส่งคำตอบ\" ผู้ตอบได้คะแนนร้อยละ 100 ซึ่งสูงกว่า 60 ระบบออกเลขเกียรติบัตรและลิงก์ \"เปิดเกียรติบัตร\"",
+     "shot": true,
+     "mask": [
+      {
+       "css": "section.srv-notice strong"
+      }
+     ]
+    },
+    {
+     "do": "expect",
+     "that": {
+      "visible": {
+       "role": "link",
+       "name": "เปิดเกียรติบัตร"
+      }
+     }
+    }
+   ],
+   "expected": "หน้าขอบคุณแสดงเลขเกียรติบัตรและลิงก์เปิดเกียรติบัตร",
+   "verify": [
+    {
+     "title": "ผู้ดูแลเห็นเกียรติบัตร 1 ใบในผลสรุป",
+     "steps": [
+      {
+       "do": "goto",
+       "url": "/cms#surveys",
+       "crop": "viewport",
+       "wait_after": {
+        "id": "srv-create"
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "แก้ไข / ดูผล",
+        "within": {
+         "css": "div.srv-card",
+         "has_text": "{{marker}} แบบสอบถามมีคะแนน"
+        }
+       },
+       "wait_after": {
+        "id": "srv-form"
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "โหลดผลใหม่"
+       },
+       "wait_after": {
+        "css": ".srv-kpis"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "1เกียรติบัตร",
+        "in": {
+         "css": ".srv-kpis"
+        }
+       },
+       "crop": "panel",
+       "highlight": {
+        "css": ".srv-kpis"
+       },
+       "say": "ผู้ดูแลเปิดผลสรุปของแบบสอบถาม ช่องเกียรติบัตรแสดง 1 ใบ",
+       "shot": true
+      }
+     ],
+     "as": "editor",
+     "start": "/cms#surveys"
+    }
+   ]
+  },
+  {
+   "id": "answer-scored-survey-below-threshold",
+   "title": "ตอบผิดและไม่ได้เกียรติบัตร (คะแนนต่ำกว่าขั้นต่ำ)",
+   "role": "anonymous",
+   "start": "/portal/surveys/tst-{{run_id}}-sc",
+   "depends_on": [
+    "answer-scored-survey-above-threshold"
+   ],
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/portal/surveys/tst-{{run_id}}-sc",
+     "crop": "viewport",
+     "wait_after": {
+      "role": "button",
+      "name": "ส่งคำตอบ"
+     },
+     "say": "ผู้ตอบอีกคนเปิดลิงก์ของแบบสอบถามเดียวกัน",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสที่ได้รับ"
+     },
+     "value": "SCB-{{run_id}}",
+     "crop": "panel",
+     "highlight": {
+      "label": "รหัสที่ได้รับ"
+     },
+     "say": "กรอก \"รหัสที่ได้รับ\" ของตน (ภาพนี้ปิดรหัสไว้)",
+     "shot": true,
+     "secret": true,
+     "mask": [
+      {
+       "label": "รหัสที่ได้รับ"
+      }
+     ]
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "radio",
+      "name": "5",
+      "exact": true
+     },
+     "crop": "panel",
+     "highlight": {
+      "role": "radio",
+      "name": "5",
+      "exact": true
+     },
+     "say": "เลือกคำตอบที่ผิด",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งคำตอบ"
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": "section.srv-notice p[role=status]"
+     },
+     "wait_after": {
+      "css": "section.srv-notice"
+     },
+     "say": "กดปุ่ม \"ส่งคำตอบ\" ระบบบันทึกคำตอบและแจ้งขอบคุณ แต่ไม่ออกเกียรติบัตร เพราะได้คะแนนร้อยละ 0 ต่ำกว่า 60",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "text": "ระบบบันทึกคำตอบของท่านแล้ว",
+       "in": {
+        "css": "section.srv-notice"
+       }
+      },
+      {
+       "hidden": {
+        "text": "เปิดเกียรติบัตร"
+       }
+      },
+      {
+       "hidden": {
+        "text": "เกียรติบัตรของท่านเลขที่"
+       }
+      }
+     ]
+    }
+   ],
+   "expected": "หน้าขอบคุณไม่มีเลขเกียรติบัตรและไม่มีลิงก์เกียรติบัตร",
+   "verify": [
+    {
+     "title": "ผู้ดูแลเห็นคำตอบ 2 รายการ แต่เกียรติบัตรยังมี 1 ใบ",
+     "steps": [
+      {
+       "do": "goto",
+       "url": "/cms#surveys",
+       "crop": "viewport",
+       "wait_after": {
+        "id": "srv-create"
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "แก้ไข / ดูผล",
+        "within": {
+         "css": "div.srv-card",
+         "has_text": "{{marker}} แบบสอบถามมีคะแนน"
+        }
+       },
+       "wait_after": {
+        "id": "srv-form"
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "โหลดผลใหม่"
+       },
+       "wait_after": {
+        "css": ".srv-kpis"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "2คำตอบ",
+         "in": {
+          "css": ".srv-kpis"
+         }
+        },
+        {
+         "text": "1เกียรติบัตร",
+         "in": {
+          "css": ".srv-kpis"
+         }
+        },
+        {
+         "text": "50คะแนนเฉลี่ย",
+         "in": {
+          "css": ".srv-kpis"
+         }
+        }
+       ],
+       "crop": "panel",
+       "highlight": {
+        "css": ".srv-kpis"
+       },
+       "say": "ผลสรุปแสดงคำตอบ 2 รายการ เกียรติบัตร 1 ใบ และคะแนนเฉลี่ยร้อยละ 50",
+       "shot": true
+      }
+     ],
+     "as": "editor",
+     "start": "/cms#surveys"
+    }
+   ]
+  },
+  {
+   "id": "purge-all-responses",
+   "title": "ลบคำตอบทั้งหมดของแบบสอบถามที่ปิดรับแล้ว",
+   "role": "editor",
+   "start": "/cms",
+   "depends_on": [
+    "respond-survey",
+    "close-survey"
+   ],
+   "cleanup": true,
+   "intro": "ลบคำตอบทั้งหมดได้เฉพาะแบบสอบถามที่ปิดรับคำตอบแล้ว ระบบถามข้อความยืนยันในกล่องพิมพ์ ต้องพิมพ์ \"ลบคำตอบ\" ตามด้วยชื่อแบบสอบถามให้ตรงทุกตัวอักษร ลบแล้วกู้คืนไม่ได้ และเกียรติบัตรของผู้ตอบจะตรวจสอบไม่ได้อีก",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/cms#surveys",
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-create"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แก้ไข / ดูผล",
+      "within": {
+       "css": "div.srv-card",
+       "has_text": "{{marker}} แบบประเมินความพึงพอใจ"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-form"
+     },
+     "say": "กดปุ่ม \"แก้ไข / ดูผล\" ของแบบสอบถามที่ปิดรับคำตอบแล้ว"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบคำตอบทั้งหมดของแบบสอบถามนี้",
+      "exact": true
+     },
+     "dialog_text": "ลบคำตอบ {{marker}} แบบประเมินความพึงพอใจ",
+     "crop": "panel",
+     "highlight": {
+      "id": "srv-purge"
+     },
+     "expect_response": {
+      "url_contains": "/purge",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "cms-toast"
+     },
+     "say": "กดปุ่ม \"ลบคำตอบทั้งหมดของแบบสอบถามนี้\" ระบบถามให้พิมพ์ข้อความยืนยันว่า \"ลบคำตอบ\" ตามด้วยชื่อแบบสอบถาม แล้วลบคำตอบทั้งหมด",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "hidden": {
+       "text": "ลบข้อมูลผู้ตอบ (ตามคำขอ)"
+      }
+     }
+    }
+   ],
+   "expected": "ระบบแสดงข้อความว่าลบคำตอบแล้วพร้อมจำนวนรายการ และส่วน \"ลบข้อมูลผู้ตอบ\" หายไปเพราะไม่มีคำตอบเหลือ",
+   "verify": [
+    {
+     "title": "เปิดหน้าแบบสอบถามใหม่ ไม่มีคำตอบเหลือ และลบแบบสอบถามได้",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "id": "srv-form"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "role": "button",
+        "name": "ลบแบบสอบถาม",
+        "exact": true
+       },
+       "that": [
+        {
+         "hidden": {
+          "text": "ลบข้อมูลผู้ตอบ (ตามคำขอ)"
+         }
+        },
+        {
+         "visible": {
+          "role": "button",
+          "name": "ลบแบบสอบถาม",
+          "exact": true
+         }
+        }
+       ],
+       "say": "เปิดหน้าแบบสอบถามใหม่ ส่วนลบข้อมูลผู้ตอบหายไป และปุ่ม \"ลบแบบสอบถาม\" กลับมาใช้ได้",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "delete-draft-survey",
+   "title": "ลบแบบสอบถามฉบับร่างที่ไม่ใช้",
+   "role": "editor",
+   "start": "/cms",
+   "intro": "ลบได้เฉพาะแบบสอบถามที่ยังไม่มีผู้ตอบ ระบบถามยืนยันก่อนลบถาวร แบบสอบถามที่มีคำตอบแล้วลบไม่ได้ เพื่อไม่ให้เกียรติบัตรที่แจกไปตรวจสอบไม่ได้",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/cms#surveys",
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-create"
+     },
+     "say": "เปิดหน้า \"แบบสอบถามและเกียรติบัตร\" จากเมนูด้านซ้ายของหน้าจัดการเว็บไซต์ (ที่อยู่ลงท้ายด้วย /cms#surveys) หน้านี้แสดงแบบฟอร์มสร้างแบบสอบถามใหม่และรายการแบบสอบถามทั้งหมด",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ชื่อแบบสอบถาม",
+      "within": {
+       "id": "srv-create"
+      }
+     },
+     "value": "{{marker}} ฉบับร่างที่จะลบ"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "สร้างฉบับร่าง"
+     },
+     "wait_after": {
+      "id": "srv-form"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบแบบสอบถาม"
+     },
+     "crop": "viewport",
+     "expect_response": {
+      "url_contains": "/api/surveys/",
+      "method": "DELETE",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "srv-create"
+     },
+     "say": "กดปุ่ม \"ลบแบบสอบถาม\" ที่ท้ายแบบฟอร์ม ระบบถามยืนยันการลบถาวร แล้วกลับไปหน้ารายการ",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "hidden": {
+       "css": "div.srv-card",
+       "has_text": "ฉบับร่างที่จะลบ"
+      }
+     }
+    }
+   ],
+   "expected": "กลับมาที่หน้ารายการ และแบบสอบถามที่ลบไม่อยู่ในรายการ",
+   "verify": [
+    {
+     "title": "เปิดหน้ารายการใหม่ แบบสอบถามที่ลบต้องไม่อยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "id": "srv-create"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "that": {
+        "hidden": {
+         "css": "div.srv-card",
+         "has_text": "ฉบับร่างที่จะลบ"
+        }
+       },
+       "say": "เปิดหน้ารายการใหม่ แบบสอบถามที่ลบไม่อยู่ในรายการ \"แบบสอบถามทั้งหมด\"",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cleanup-extra-surveys",
+   "title": "ลบแบบสอบถามทดสอบที่สร้างเพิ่มและคำตอบของแบบสอบถามเหล่านั้น",
+   "role": "editor",
+   "start": "/cms",
+   "cleanup": true,
+   "intro": "ผู้ดูแลลบแบบสอบถามที่มีผู้ตอบแล้วได้โดยปิดรับคำตอบ ลบคำตอบทั้งหมด (พิมพ์ข้อความยืนยัน) แล้วจึงลบแบบสอบถาม เกียรติบัตรที่ออกไปแล้วจะตรวจสอบไม่ได้อีก",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/cms#surveys",
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-create"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แก้ไข / ดูผล",
+      "within": {
+       "css": "div.srv-card",
+       "has_text": "{{marker}} แบบสอบถามไม่ระบุตัวตน"
+      }
+     },
+     "wait_after": {
+      "id": "srv-form"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดรับคำตอบ",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "เปิดรับคำตอบ",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบคำตอบทั้งหมดของแบบสอบถามนี้",
+      "exact": true
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "ลบแบบสอบถาม",
+      "exact": true
+     },
+     "dialog_text": "ลบคำตอบ {{marker}} แบบสอบถามไม่ระบุตัวตน"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบแบบสอบถาม",
+      "exact": true
+     },
+     "wait_after": {
+      "id": "srv-create"
+     },
+     "dialog": "accept"
+    },
+    {
+     "do": "expect",
+     "that": {
+      "hidden": {
+       "css": "div.srv-card",
+       "has_text": "{{marker}} แบบสอบถามไม่ระบุตัวตน"
+      }
+     }
+    },
+    {
+     "do": "goto",
+     "url": "/cms#surveys",
+     "crop": "viewport",
+     "wait_after": {
+      "id": "srv-create"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "แก้ไข / ดูผล",
+      "within": {
+       "css": "div.srv-card",
+       "has_text": "{{marker}} แบบสอบถามมีคะแนน"
+      }
+     },
+     "wait_after": {
+      "id": "srv-form"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดรับคำตอบ",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "เปิดรับคำตอบ",
+      "exact": true,
+      "within": {
+       "id": "srv-form"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบคำตอบทั้งหมดของแบบสอบถามนี้",
+      "exact": true
+     },
+     "wait_after": {
+      "role": "button",
+      "name": "ลบแบบสอบถาม",
+      "exact": true
+     },
+     "dialog_text": "ลบคำตอบ {{marker}} แบบสอบถามมีคะแนน"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบแบบสอบถาม",
+      "exact": true
+     },
+     "wait_after": {
+      "id": "srv-create"
+     },
+     "dialog": "accept"
+    },
+    {
+     "do": "expect",
+     "that": {
+      "hidden": {
+       "css": "div.srv-card",
+       "has_text": "{{marker}} แบบสอบถามมีคะแนน"
+      }
+     }
+    }
+   ],
+   "expected": "แบบสอบถามทั้งสองหายจากรายการ",
+   "verify": [
+    {
+     "title": "เปิดรายการใหม่ ไม่พบแบบสอบถามทั้งสอง",
+     "steps": [
+      {
+       "do": "goto",
+       "url": "/cms#surveys",
+       "crop": "viewport",
+       "wait_after": {
+        "id": "srv-create"
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "hidden": {
+          "css": "div.srv-card",
+          "has_text": "{{marker}} แบบสอบถามไม่ระบุตัวตน"
+         }
+        },
+        {
+         "hidden": {
+          "css": "div.srv-card",
+          "has_text": "{{marker}} แบบสอบถามมีคะแนน"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "skeleton": [],
+ "untested": [
+  "โหมด \"กรอกชื่อ + อีเมล\" ที่ระบบส่งลิงก์ยืนยันทางอีเมลให้ผู้ตอบกดยืนยัน ไม่ได้ทดสอบ เพราะระบบทดลองไม่มีเซิร์ฟเวอร์อีเมลที่รับจดหมายจริง ขั้นตอนนี้ต้องเปิดอีเมลของผู้ตอบ",
+  "การลบคำตอบรายการเดียว (ปุ่ม \"ลบคำตอบนี้\" ต้องใส่รหัสคำตอบซึ่งอยู่ในไฟล์ CSV พร้อมรหัสเท่านั้น หน้าจอไม่แสดงรหัสคำตอบ) ไม่ได้ทดสอบ การลบคำตอบทั้งหมดทดสอบแล้วในขั้นตอน \"ลบคำตอบทั้งหมดของแบบสอบถามที่ปิดรับแล้ว\" กับแบบสอบถามทดสอบของรอบนี้เท่านั้น แบบสอบถามทดสอบยังอยู่ในรายการ (ไม่มีคำตอบ) มีเครื่องหมายทดสอบในชื่อ",
+  "โหมดไม่ระบุตัวตน: ตรวจการตอบหนึ่งครั้งและข้อความเมื่อครบจำนวน ไม่ได้ตรวจการจำกัดต่อ IP ต่อชั่วโมง (ค่าตั้งต้น 300 ครั้ง) เพราะต้องส่งคำตอบจำนวนมาก",
+  "เกียรติบัตรในโหมดกรอกชื่อและอีเมลที่ต้องยืนยันทางอีเมล ไม่ได้ทดสอบ (ต้องเปิดอีเมลของผู้ตอบ) ตรวจเกียรติบัตรในโหมดรหัสตามรายชื่อเท่านั้น",
+  "โหมดไม่ระบุตัวตน: ตรวจการตอบหนึ่งครั้งและข้อความเมื่อครบจำนวน ไม่ได้ตรวจการจำกัดต่อ IP ต่อชั่วโมง (ค่าตั้งต้น 300 ครั้ง) เพราะต้องส่งคำตอบจำนวนมาก",
+  "เกียรติบัตรในโหมดกรอกชื่อและอีเมลที่ต้องยืนยันทางอีเมล ไม่ได้ทดสอบ (ต้องเปิดอีเมลของผู้ตอบ) ตรวจเกียรติบัตรในโหมดรหัสตามรายชื่อเท่านั้น"
+ ]
+}

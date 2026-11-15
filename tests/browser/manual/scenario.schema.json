@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "saan-manual-scenario",
+  "title": "Saan manual scenario (one file per module)",
+  "type": "object",
+  "required": ["module", "title", "purpose", "roles", "menu", "workflows", "skeleton"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {"type": "string"},
+    "module": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$", "description": "module id = modules/<id>/module.json id = file name"},
+    "title": {"type": "string", "minLength": 2, "description": "Thai module name as the manual shows it"},
+    "area": {"type": "string", "description": "area of school work for the manual index (e.g. งานวิชาการ, งานบริหาร, เว็บไซต์โรงเรียน)"},
+    "purpose": {"type": "string", "minLength": 20, "description": "one paragraph"},
+    "roles": {"type": "array", "minItems": 1, "items": {"type": "string"}, "description": "who uses it, Thai, addressed by role"},
+    "menu": {"type": "array", "minItems": 1, "items": {"type": "string"}, "description": "where it is: menu path and URL; write [] semantics as the single string 'ไม่มีเมนู: ...' when it has no menu entry"},
+    "prerequisites": {
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["module", "text"], "additionalProperties": false,
+        "properties": {
+          "module": {"type": "string"},
+          "text": {"type": "string", "description": "what must exist, Thai"},
+          "workflows": {"type": "array", "items": {"type": "string"}, "description": "workflow ids of that module that must be 'works' (optional; checked against results.json)"}
+        }
+      }
+    },
+    "vars": {"type": "object", "additionalProperties": {"type": "string"}, "description": "module-level variables, usable as {{name}}"},
+    "workflows": {"type": "array", "items": {"$ref": "#/$defs/workflow"}},
+    "skeleton": {"type": "array", "items": {"$ref": "#/$defs/skeleton"}},
+    "coverage": {"enum": ["full", "partial"], "description": "partial = the scenario covers only part of the module (say which in coverage_note); the verdict can then never be higher than ใช้ได้บางส่วน. Default full."},
+    "coverage_note": {"type": "string", "description": "Thai: what the scenario covers and what it leaves out"},
+    "untested": {"type": "array", "items": {"type": "string"}, "description": "implemented features the author could not exercise with a browser (and why); printed in the manual and the audit as ยังไม่ได้ตรวจ"}
+  },
+  "$defs": {
+    "target": {
+      "type": "object",
+      "minProperties": 1,
+      "properties": {
+        "role": {"type": "string"}, "name": {"type": "string"}, "exact": {"type": "boolean"},
+        "text": {"type": "string"}, "label": {"type": "string"}, "placeholder": {"type": "string"}, "alt": {"type": "string"}, "title": {"type": "string"},
+        "attr": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "string"}, "description": "stable attributes, e.g. {\"data-save\": \"\"} or {\"name\": \"title\"}"},
+        "id": {"type": "string"}, "css": {"type": "string"},
+        "include_hidden": {"type": "boolean", "description": "also match hidden elements (e.g. an input[type=file] that is visually hidden)"}, "has_text": {"type": "string"}, "within": {"$ref": "#/$defs/target"}, "nth": {"type": "integer", "minimum": 0}, "first": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "step": {
+      "type": "object",
+      "required": ["do"],
+      "properties": {
+        "do": {"enum": ["goto", "click", "fill", "type", "select", "check", "uncheck", "upload", "press", "hover", "scroll", "wait_for", "expect", "capture", "close_tab", "reload", "note"]},
+        "target": {"$ref": "#/$defs/target"},
+        "url": {"type": "string"}, "value": {"type": "string"}, "label": {"type": "string"}, "key": {"type": "string"}, "file": {"type": "string"},
+        "say": {"type": "string", "description": "Thai instruction sentence shown in the manual; also the picture alt text"},
+        "shot": {"type": "boolean", "description": "take a picture after the step's effect is visible (needs say)"},
+        "highlight": {"oneOf": [{"type": "boolean", "const": false}, {"$ref": "#/$defs/target"}, {"type": "array", "items": {"$ref": "#/$defs/target"}}]},
+        "crop": {"oneOf": [{"enum": ["viewport", "page", "panel", "tight"]}, {"$ref": "#/$defs/target"}]},
+        "crop_pad": {"type": "integer", "minimum": 0, "maximum": 400},
+        "mask": {"oneOf": [{"$ref": "#/$defs/target"}, {"type": "array", "items": {"$ref": "#/$defs/target"}}], "description": "extra elements blurred in the picture (password fields are always blurred)"},
+        "that": {"oneOf": [{"type": "object"}, {"type": "array", "items": {"type": "object"}, "minItems": 1}]},
+        "timeout": {"type": "integer", "minimum": 100, "maximum": 120000},
+        "wait_after": {"oneOf": [{"$ref": "#/$defs/target"}, {"type": "array", "items": {"$ref": "#/$defs/target"}}], "description": "element that must be visible before the picture is taken"},
+        "var": {"type": "string"}, "regex": {"type": "string"}, "text": {"type": "string"}, "state": {"enum": ["visible", "hidden", "attached", "detached"]},
+        "expect_download": {"$ref": "#/$defs/download"},
+        "expect_popup": {"type": "object", "properties": {"url_regex": {"type": "string"}}, "additionalProperties": false},
+        "expect_response": {"type": "object", "required": ["url_contains"], "properties": {"url_contains": {"type": "string"}, "method": {"type": "string"}, "status": {"type": "integer"}}, "additionalProperties": false},
+        "repeat_until": {"type": "object", "required": ["visible"], "properties": {"visible": {"$ref": "#/$defs/target"}, "max": {"type": "integer", "minimum": 1, "maximum": 20}}, "additionalProperties": false, "description": "click step: click again (re-locating the target each time) until this element is visible, at most max times (default 6); for buttons that cycle through states"},
+        "from_attr": {"type": "string", "description": "capture: read this attribute (e.g. href) instead of the visible text"},
+        "dialog": {"enum": ["accept", "dismiss"], "description": "answer to a browser confirm()/alert() opened by this step (default accept)"},
+        "dialog_text": {"oneOf": [{"type": "string", "maxLength": 300}, {"type": "array", "minItems": 1, "maxItems": 6, "items": {"type": "string", "maxLength": 300}}], "description": "text typed into a browser prompt() opened by this step before it is accepted (e.g. the reason asked when voiding); a list answers several prompts of the same step in order; {{marker}} and captured values work"}, "via_chooser": {"type": "boolean"}, "force": {"type": "boolean"}, "exact": {"type": "boolean"}, "settle_ms": {"type": "integer", "minimum": 0, "maximum": 5000},
+        "secret": {"type": "boolean", "description": "the typed value is secret: never stored in results"},
+        "logins_ok": {"type": "boolean", "description": "picture step on a page that lists account sign-in names beside a password label by design (user management): take the picture anyway. A visible account password is still refused."},
+        "comment": {"type": "string", "description": "author-only remark, never rendered"},
+        "optional": {"type": "boolean", "description": "a failing step is recorded as a warning and the workflow goes on (use sparingly, e.g. an optional cookie banner)"},
+        "when": {"type": "object", "properties": {"equals": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 2}, "not_equals": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 2}}, "additionalProperties": false}
+      },
+      "additionalProperties": false
+    },
+    "download": {
+      "type": "object",
+      "properties": {
+        "ext": {"type": "string", "description": "e.g. .csv"},
+        "kind": {"enum": ["csv", "text", "pdf", "png", "jpeg", "xlsx", "zip"], "description": "checked by content signature, not by name"},
+        "min_bytes": {"type": "integer", "minimum": 1},
+        "contains": {"type": "string", "description": "text that must occur in the file (text kinds)"},
+        "name_regex": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "workflow": {
+      "type": "object",
+      "required": ["id", "title", "role", "start", "steps", "verify"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"},
+        "title": {"type": "string", "minLength": 2},
+        "intro": {"type": "string"},
+        "role": {"type": "string", "description": "key into the accounts file (homeroom, subject, editor, guardian1, student1, admin ...) or 'anonymous'"},
+        "start": {"type": "string", "description": "URL path (or absolute http URL) opened after sign-in; the manual prints it as 'เริ่มจากหน้า'"},
+        "viewport": {"type": "string", "pattern": "^\\d{3,4}x\\d{3,4}$"},
+        "cleanup": {"type": "boolean", "description": "undoes the data the other workflows of the module created; always runs last in its module and is never blocked by failures of the others"},
+        "core": {"type": "boolean", "description": "this workflow is the module's main task; if it does not work the verdict is 'มีแต่โครง'"},
+        "depends_on": {"type": "array", "items": {"type": "string"}, "description": "workflow ids (same module) or module.workflow; the runner runs them first and marks this one blocked when they do not work"},
+        "vars": {"type": "object", "additionalProperties": {"type": "string"}},
+        "steps": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/step"}},
+        "expected": {"type": "string", "description": "Thai text for 'ผลที่ควรเห็น'"},
+        "verify": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object", "required": ["title", "steps"], "additionalProperties": false,
+            "properties": {
+              "title": {"type": "string"},
+              "as": {"type": "string", "description": "another role: opens a fresh browser context signed in as it"},
+              "start": {"type": "string"},
+              "steps": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/step"}}
+            }
+          }
+        }
+      }
+    },
+    "skeleton": {
+      "type": "object",
+      "required": ["id", "promised", "where", "observed", "evidence", "confirmed"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string", "pattern": "^S[0-9]+$"},
+        "promised": {"type": "string", "description": "what the UI, menu or module.json promises"},
+        "where": {"type": "string", "description": "file:line or screen"},
+        "observed": {"type": "string", "description": "what actually happens"},
+        "evidence": {"type": "string", "description": "how it was seen: file:line read, screen clicked, picture path, route list"},
+        "confirmed": {"type": "boolean"},
+        "confirm_how": {"type": "string", "description": "required when confirmed is false: what would confirm it (the manual prints 'ยังไม่ได้ยืนยัน')"}
+      },
+      "allOf": [{"if": {"properties": {"confirmed": {"const": false}}}, "then": {"required": ["confirm_how"]}}]
+    }
+  }
+}
+
+

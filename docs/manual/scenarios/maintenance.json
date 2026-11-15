@@ -1,0 +1,649 @@
+{
+  "module": "maintenance",
+  "title": "แจ้งซ่อมและครุภัณฑ์",
+  "area": "งานบริหารทั่วไปและงานสำนักงาน",
+  "purpose": "บุคลากรของโรงเรียนแจ้งซ่อมได้จากคอมพิวเตอร์หรือโทรศัพท์ พร้อมแนบรูปถ่ายและเลือกครุภัณฑ์ที่ชำรุด ช่างซ่อมรับเรื่อง มอบหมายงาน เปลี่ยนสถานะ และปิดงานพร้อมสรุปผลและค่าใช้จ่าย ผู้แจ้งเห็นความคืบหน้าและได้รับอีเมลเมื่อซ่อมเสร็จหรือไม่ดำเนินการ ผู้อำนวยการและเจ้าหน้าที่ที่ได้รับสิทธิ์ลงทะเบียนครุภัณฑ์ ดูประวัติซ่อมรายชิ้น จัดการพัสดุสิ้นเปลืองพร้อมจุดสั่งซื้อ ดูรายงานงานค้างและค่าซ่อม ส่งออกไฟล์ CSV และพิมพ์แผ่นป้ายรหัสครุภัณฑ์",
+  "roles": [
+    "ครูและบุคลากรทุกคน รวมบรรณาธิการเว็บไซต์ (แจ้งซ่อมและดูเรื่องที่ตนแจ้ง ยกเลิกเรื่องของตนที่ยังรอรับเรื่อง)",
+    "ช่างซ่อมและเจ้าหน้าที่พัสดุ (บัญชีครูที่ผู้ดูแลระบบให้สิทธิ์: รับงาน ปิดงาน จัดการครุภัณฑ์ พัสดุ และรายงาน)",
+    "ผู้อำนวยการ (มีสิทธิ์ช่างซ่อมโดยอัตโนมัติ ใช้เมนู \"ครุภัณฑ์และพัสดุ\")",
+    "ผู้ดูแลระบบ (มีสิทธิ์ช่างซ่อมโดยอัตโนมัติ และเป็นผู้กำหนดว่าบัญชีใดเป็นช่างซ่อม)"
+  ],
+  "menu": [
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"แจ้งซ่อม\" (/work#repairs) ใช้ได้ทั้งผู้ดูแลระบบ ผู้อำนวยการ ครู และบรรณาธิการเว็บไซต์",
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"ครุภัณฑ์และพัสดุ\" (/work#assets) แสดงเฉพาะผู้ดูแลระบบและผู้อำนวยการ ช่างซ่อมที่เป็นครูเข้าหน้านี้ด้วยปุ่ม \"ครุภัณฑ์และพัสดุ\" ในหน้า \"แจ้งซ่อม\"",
+    "แผ่นป้ายรหัสครุภัณฑ์สำหรับพิมพ์: /maintenance/labels (เปิดจากปุ่ม \"พิมพ์ป้ายรหัส\")"
+  ],
+  "prerequisites": [
+    {"module": "admin-users", "text": "ผู้ดูแลระบบต้องสร้างบัญชีผู้ใช้ และกำหนดบัญชีของช่างซ่อมในแท็บ \"ช่างซ่อม\" ของหน้า \"ครุภัณฑ์และพัสดุ\" (ผู้อำนวยการและผู้ดูแลระบบมีสิทธิ์อยู่แล้ว)"}
+  ],
+  "vars": {
+    "asset_code": "MNT-{{run_id}}",
+    "asset_name": "โต๊ะประชุม {{marker}}",
+    "asset_place": "ห้องประชุมเล็ก",
+    "asset_place2": "ห้องพัสดุ",
+    "req1": "ก๊อกน้ำรั่ว {{marker}}",
+    "req2": "ไฟดับ {{marker}}",
+    "req3": "ประตูห้องเรียนฝืด {{marker}}",
+    "req3b": "ประตูห้องเรียนฝืดมาก {{marker}}",
+    "item_code": "ST-{{run_id}}",
+    "item_name": "หลอดไฟ {{marker}}",
+    "technician": "นางสาวศิริน วาดฝัน (สมมติ)",
+    "teacher_name": "นางสาวศิริน วาดฝัน"
+  },
+  "workflows": [
+    {
+      "id": "register-asset",
+      "title": "ลงทะเบียนครุภัณฑ์ใหม่",
+      "intro": "ผู้อำนวยการ ผู้ดูแลระบบ และช่างซ่อมที่ได้รับสิทธิ์ลงทะเบียนครุภัณฑ์ได้ เลขครุภัณฑ์ต้องไม่ซ้ำกันในโรงเรียน (ระบบไม่แยกตัวพิมพ์เล็กใหญ่) ระบบเริ่มต้นสถานะเป็น \"ใช้งาน\"",
+      "role": "principal",
+      "start": "/work",
+      "core": true,
+      "steps": [
+        {"do": "click", "target": {"role": "link", "name": "ครุภัณฑ์และพัสดุ", "exact": true, "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "say": "เลือกเมนู \"ครุภัณฑ์และพัสดุ\" ที่แถบเมนูด้านซ้าย ระบบแสดงหน้า \"ทะเบียนครุภัณฑ์\"", "shot": true, "crop": "viewport", "wait_after": {"role": "heading", "name": "ทะเบียนครุภัณฑ์"}},
+        {"do": "note", "target": {"role": "link", "name": "เพิ่มครุภัณฑ์", "exact": true}, "say": "หาปุ่ม \"เพิ่มครุภัณฑ์\" ที่มุมขวาบนของทะเบียน", "shot": true, "crop": "tight", "highlight": {"role": "link", "name": "เพิ่มครุภัณฑ์", "exact": true}},
+        {"do": "click", "target": {"role": "link", "name": "เพิ่มครุภัณฑ์", "exact": true}, "wait_after": {"role": "heading", "name": "เพิ่มครุภัณฑ์"}},
+        {"do": "fill", "target": {"label": "เลขครุภัณฑ์"}, "value": "{{asset_code}}", "say": "พิมพ์เลขครุภัณฑ์ในช่อง \"เลขครุภัณฑ์\" เลขนี้ใช้ซ้ำกับครุภัณฑ์ชิ้นอื่นไม่ได้", "shot": true, "crop": {"css": "form.mnt-form"}},
+        {"do": "fill", "target": {"label": "ชื่อ", "exact": true}, "value": "{{asset_name}}", "say": "พิมพ์ชื่อครุภัณฑ์ในช่อง \"ชื่อ\"", "shot": true, "crop": {"css": "form.mnt-form"}},
+        {"do": "fill", "target": {"label": "หมวด"}, "value": "ครุภัณฑ์สำนักงาน", "say": "พิมพ์หมวดของครุภัณฑ์ในช่อง \"หมวด\" หมวดที่พิมพ์แล้วจะไปอยู่ในตัวกรอง \"หมวด\" ของทะเบียน", "shot": true, "crop": {"css": "form.mnt-form"}},
+        {"do": "fill", "target": {"label": "สถานที่ตั้ง"}, "value": "{{asset_place}}", "say": "พิมพ์สถานที่ตั้งในช่อง \"สถานที่ตั้ง\"", "shot": true, "crop": {"css": "form.mnt-form"}},
+        {"do": "fill", "target": {"label": "วันที่ได้มา"}, "value": "{{today}}", "say": "เลือกวันที่ได้มาในช่อง \"วันที่ได้มา\"", "shot": true, "crop": {"css": "form.mnt-form"}},
+        {"do": "fill", "target": {"label": "ราคา (บาท)"}, "value": "4500.50", "say": "พิมพ์ราคาเป็นบาทในช่อง \"ราคา (บาท)\" ใส่สตางค์ได้ไม่เกิน 2 หลัก", "shot": true, "crop": {"css": "form.mnt-form"}},
+        {"do": "click", "target": {"role": "button", "name": "บันทึก", "exact": true}, "say": "กดปุ่ม \"บันทึก\" ระบบเพิ่มครุภัณฑ์และแสดงหน้ารายละเอียดของครุภัณฑ์ชิ้นนั้น สถานะเริ่มต้นคือ \"ใช้งาน\"", "shot": true, "crop": "viewport", "highlight": false, "wait_after": {"role": "heading", "name": "{{asset_code}}"}}
+      ],
+      "expected": "ระบบแสดงหน้ารายละเอียดของครุภัณฑ์ มีเลขครุภัณฑ์ ชื่อ หมวด สถานที่ วันที่ได้มา ราคา สถานะ \"ใช้งาน\" และข้อความ \"ยังไม่เคยแจ้งซ่อม\"",
+      "verify": [
+        {
+          "title": "เปิดทะเบียนครุภัณฑ์ใหม่ ค้นหาเลขครุภัณฑ์แล้วต้องพบรายการ",
+          "steps": [
+            {"do": "goto", "url": "/work#assets"},
+            {"do": "fill", "target": {"label": "ค้นหา (เลข ชื่อ สถานที่)"}, "value": "{{asset_code}}", "wait_after": {"role": "link", "name": "{{asset_code}}"}},
+            {"do": "expect", "that": [{"visible": {"role": "link", "name": "{{asset_code}}"}}, {"text": "ใช้งาน", "in": {"role": "link", "name": "{{asset_code}}"}}], "say": "เปิดหน้า \"ทะเบียนครุภัณฑ์\" ใหม่และค้นหาด้วยเลขครุภัณฑ์ ระบบแสดงครุภัณฑ์ที่เพิ่ม", "shot": true, "crop": "panel", "highlight": {"role": "link", "name": "{{asset_code}}"}}
+          ]
+        },
+        {
+          "title": "ช่างซ่อมเห็นครุภัณฑ์เดียวกันในทะเบียน",
+          "as": "clerk",
+          "start": "/work#assets",
+          "steps": [
+            {"do": "fill", "target": {"label": "ค้นหา (เลข ชื่อ สถานที่)"}, "value": "{{asset_code}}", "wait_after": {"role": "link", "name": "{{asset_code}}"}},
+            {"do": "expect", "that": {"visible": {"role": "link", "name": "{{asset_name}}"}}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-asset",
+      "title": "แก้ไขข้อมูลครุภัณฑ์",
+      "intro": "แก้ไขได้ทุกช่อง รวมถึงสถานะ ถ้าครุภัณฑ์ยังมีงานแจ้งซ่อมค้างอยู่ ระบบไม่ให้เปลี่ยนสถานะเป็น \"จำหน่ายแล้ว\" ครุภัณฑ์ที่จำหน่ายแล้วจะแจ้งซ่อมและพิมพ์ป้ายไม่ได้",
+      "role": "principal",
+      "start": "/work#assets",
+      "depends_on": ["register-asset"],
+      "steps": [
+        {"do": "fill", "target": {"label": "ค้นหา (เลข ชื่อ สถานที่)"}, "value": "{{asset_code}}", "say": "พิมพ์เลขครุภัณฑ์ในช่อง \"ค้นหา (เลข ชื่อ สถานที่)\" ระบบแสดงเฉพาะรายการที่ตรงกับคำค้น", "shot": true, "crop": "viewport", "wait_after": {"role": "link", "name": "{{asset_code}}"}, "settle_ms": 1500},
+        {"do": "click", "target": {"role": "link", "name": "{{asset_code}}"}, "wait_after": {"role": "heading", "name": "{{asset_code}}"}},
+        {"do": "note", "target": {"role": "link", "name": "แก้ไข", "exact": true}, "say": "ในหน้ารายละเอียดของครุภัณฑ์ หาปุ่ม \"แก้ไข\" ที่มุมขวาบน", "shot": true, "crop": "tight", "highlight": {"role": "link", "name": "แก้ไข", "exact": true}},
+        {"do": "click", "target": {"role": "link", "name": "แก้ไข", "exact": true}, "wait_after": {"role": "heading", "name": "แก้ไขครุภัณฑ์"}},
+        {"do": "fill", "target": {"label": "สถานที่ตั้ง"}, "value": "{{asset_place2}}", "say": "แก้ข้อความในช่อง \"สถานที่ตั้ง\" ตามที่ต้องการ", "shot": true, "crop": {"css": "form.mnt-form"}},
+        {"do": "select", "target": {"label": "ครูผู้รับผิดชอบ"}, "label": "{{teacher_name}}", "say": "เลือกครูที่ดูแลครุภัณฑ์ชิ้นนี้ในช่อง \"ครูผู้รับผิดชอบ\" (ไม่บังคับ)", "shot": true, "crop": {"css": "form.mnt-form"}},
+        {"do": "click", "target": {"role": "button", "name": "บันทึก", "exact": true}, "say": "กดปุ่ม \"บันทึก\" ระบบกลับไปหน้ารายละเอียดและแสดงสถานที่ใหม่", "shot": true, "crop": "viewport", "highlight": false, "wait_after": {"text": "{{asset_place2}}"}}
+      ],
+      "expected": "หน้ารายละเอียดของครุภัณฑ์แสดงสถานที่ตั้งใหม่",
+      "verify": [
+        {
+          "title": "เปิดทะเบียนใหม่ สถานที่ของครุภัณฑ์ต้องเป็นค่าที่แก้",
+          "steps": [
+            {"do": "goto", "url": "/work#assets"},
+            {"do": "fill", "target": {"label": "ค้นหา (เลข ชื่อ สถานที่)"}, "value": "{{asset_code}}", "wait_after": {"role": "link", "name": "{{asset_code}}"}},
+            {"do": "expect", "that": [{"text": "{{asset_place2}}", "in": {"role": "link", "name": "{{asset_code}}"}}, {"text": "ผู้รับผิดชอบ", "in": {"role": "link", "name": "{{asset_code}}"}}], "say": "เปิดทะเบียนครุภัณฑ์ใหม่ รายการของครุภัณฑ์ที่แก้ไขแสดงสถานที่ใหม่และชื่อครูผู้รับผิดชอบ", "shot": true, "crop": "panel", "highlight": {"role": "link", "name": "{{asset_code}}"}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "filter-assets",
+      "title": "กรองทะเบียนครุภัณฑ์ตามหมวดและสถานะ",
+      "intro": "ตัวกรอง \"หมวด\" แสดงหมวดทั้งหมดที่เคยลงทะเบียน ตัวกรอง \"สถานะ\" เลือกได้ \"ใช้งาน\" \"ซ่อม\" หรือ \"จำหน่ายแล้ว\" ใช้ร่วมกับช่องค้นหาได้",
+      "role": "principal",
+      "start": "/work#assets",
+      "depends_on": ["register-asset"],
+      "steps": [
+        {"do": "select", "target": {"label": "หมวด"}, "label": "ครุภัณฑ์สำนักงาน", "say": "เลือกหมวดที่ต้องการในช่อง \"หมวด\" ระบบแสดงเฉพาะครุภัณฑ์ของหมวดนั้น", "shot": true, "crop": "viewport", "wait_after": {"role": "link", "name": "{{asset_code}}"}},
+        {"do": "select", "target": {"label": "สถานะ"}, "label": "จำหน่ายแล้ว", "say": "เลือก \"จำหน่ายแล้ว\" ในช่อง \"สถานะ\" ระบบแสดงเฉพาะครุภัณฑ์ที่จำหน่ายแล้วของหมวดนี้ ครุภัณฑ์ที่เพิ่มใหม่ยังใช้งานอยู่จึงไม่อยู่ในรายการ", "shot": true, "crop": "panel", "settle_ms": 1500}
+      ],
+      "expected": "ตัวกรองเปลี่ยนรายการตามที่เลือก และบรรทัด \"พบ ... รายการ\" เปลี่ยนตาม",
+      "verify": [
+        {
+          "title": "เมื่อกรองสถานะ \"จำหน่ายแล้ว\" ต้องไม่พบครุภัณฑ์ที่เพิ่มใหม่",
+          "steps": [
+            {"do": "expect", "that": {"count": 0, "of": {"role": "link", "name": "{{asset_code}}"}}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "report-repair",
+      "title": "ครูแจ้งซ่อมพร้อมรูปถ่ายและเลือกครุภัณฑ์",
+      "intro": "ครูและบุคลากรทุกคนแจ้งซ่อมได้ ต้องกรอกสถานที่และเรื่องที่แจ้ง ส่วนครุภัณฑ์ รายละเอียด และรูปถ่ายเป็นข้อมูลเสริม รูปต้องเป็นไฟล์ JPG PNG หรือ WebP ขนาดไม่เกิน 8 MB ระบบปรับขนาดรูปและตัดข้อมูลตำแหน่งออกก่อนเก็บ ผู้แจ้งเห็นเฉพาะเรื่องที่ตนแจ้ง",
+      "role": "subject",
+      "start": "/work",
+      "depends_on": ["register-asset"],
+      "core": true,
+      "steps": [
+        {"do": "click", "target": {"role": "link", "name": "แจ้งซ่อม", "exact": true, "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "say": "เลือกเมนู \"แจ้งซ่อม\" ที่แถบเมนูด้านซ้าย ระบบแสดงเรื่องที่ท่านแจ้งและยังไม่ปิด", "shot": true, "crop": "viewport", "wait_after": {"role": "heading", "name": "แจ้งซ่อม", "exact": true}},
+        {"do": "note", "target": {"role": "link", "name": "แจ้งซ่อมใหม่", "exact": true}, "say": "หาปุ่ม \"แจ้งซ่อมใหม่\" ที่มุมขวาบน", "shot": true, "crop": "tight", "highlight": {"role": "link", "name": "แจ้งซ่อมใหม่", "exact": true}},
+        {"do": "click", "target": {"role": "link", "name": "แจ้งซ่อมใหม่", "exact": true}, "wait_after": {"role": "heading", "name": "แจ้งซ่อมใหม่", "exact": true}},
+        {"do": "fill", "target": {"label": "ค้นหาครุภัณฑ์ด้วยเลขหรือชื่อ"}, "value": "{{asset_code}}", "say": "ถ้าเรื่องที่แจ้งเกี่ยวกับครุภัณฑ์ ให้พิมพ์เลขหรือชื่อครุภัณฑ์ในช่อง \"ค้นหาครุภัณฑ์ด้วยเลขหรือชื่อ\" ระบบแสดงรายการที่ตรงกัน", "shot": true, "crop": {"css": "form.mnt-form"}, "wait_after": {"role": "button", "name": "{{asset_code}}"}, "settle_ms": 1500},
+        {"do": "click", "target": {"role": "button", "name": "{{asset_code}}"}, "say": "กดเลือกครุภัณฑ์ที่ต้องการ ระบบแสดงข้อความ \"ครุภัณฑ์ที่เลือก\" และเติมสถานที่ให้ถ้าช่อง \"สถานที่\" ยังว่าง", "shot": true, "crop": {"css": "form.mnt-form"}, "highlight": {"text": "ครุภัณฑ์ที่เลือก"}, "wait_after": {"text": "ครุภัณฑ์ที่เลือก"}},
+        {"do": "fill", "target": {"label": "สถานที่", "exact": true}, "value": "ห้องน้ำอาคาร 1", "say": "ตรวจช่อง \"สถานที่\" และแก้ให้ตรงกับที่ชำรุด", "shot": true, "crop": {"css": "form.mnt-form"}},
+        {"do": "fill", "target": {"label": "เรื่องที่แจ้ง"}, "value": "{{req1}}", "say": "พิมพ์เรื่องที่แจ้งในช่อง \"เรื่องที่แจ้ง\" ให้สั้นและชัดเจน", "shot": true, "crop": {"css": "form.mnt-form"}},
+        {"do": "fill", "target": {"label": "รายละเอียด"}, "value": "น้ำไหลตลอดเวลา ปิดไม่สนิท ขอให้ช่างตรวจ", "say": "พิมพ์อาการของงานที่ชำรุดในช่อง \"รายละเอียด\"", "shot": true, "crop": {"css": "form.mnt-form"}},
+        {"do": "select", "target": {"label": "ความเร่งด่วน"}, "label": "ด่วน", "say": "เลือก \"ด่วน\" ในช่อง \"ความเร่งด่วน\" เมื่อมีความเสียหายหรืออันตราย เรื่องด่วนอยู่ลำดับบนสุดของรายการงานของช่าง", "shot": true, "crop": {"css": "form.mnt-form"}},
+        {"do": "upload", "target": {"label": "รูปถ่าย", "include_hidden": true}, "file": "cover.png", "say": "กดเลือกไฟล์ในช่อง \"รูปถ่าย\" แล้วเลือกรูปถ่ายของงานที่ชำรุด ในโทรศัพท์ช่องนี้เปิดกล้องหรือคลังภาพได้", "shot": true, "crop": {"css": "form.mnt-form"}},
+        {"do": "click", "target": {"role": "button", "name": "ส่งเรื่องแจ้งซ่อม"}, "say": "กดปุ่ม \"ส่งเรื่องแจ้งซ่อม\" ระบบบันทึกเรื่องและแสดงหน้ารายละเอียด สถานะเริ่มต้นคือ \"รอรับเรื่อง\"", "shot": true, "crop": "viewport", "highlight": {"css": ".mnt-tag", "first": true}, "wait_after": {"role": "heading", "name": "{{req1}}"}}
+      ],
+      "expected": "หน้ารายละเอียดแสดงเรื่องที่แจ้ง ครุภัณฑ์ สถานที่ ผู้แจ้ง รูปประกอบ สถานะ \"รอรับเรื่อง\" และประวัติการดำเนินการ",
+      "verify": [
+        {
+          "title": "เปิดรายการแจ้งซ่อมใหม่ เรื่องที่แจ้งต้องอยู่ในรายการของผู้แจ้ง",
+          "steps": [
+            {"do": "goto", "url": "/work#repairs"},
+            {"do": "fill", "target": {"label": "ค้นหา"}, "value": "{{req1}}", "wait_after": {"role": "link", "name": "{{req1}}"}},
+            {"do": "click", "target": {"role": "link", "name": "{{req1}}"}, "wait_after": {"role": "heading", "name": "{{req1}}"}},
+            {"do": "scroll", "target": {"role": "heading", "name": "{{req1}}"}},
+            {"do": "expect", "that": [{"text": "รอรับเรื่อง", "in": {"css": ".mnt-tag", "first": true}}, {"visible": {"role": "img", "name": "รูปประกอบการแจ้งซ่อม"}}, {"text": "{{asset_code}}"}], "say": "เปิดเรื่องที่แจ้งจากรายการอีกครั้ง ระบบแสดงสถานะ \"รอรับเรื่อง\" ครุภัณฑ์ที่เลือก และรูปที่แนบ", "shot": true, "crop": "viewport", "highlight": [{"css": ".mnt-tag", "first": true}, {"role": "img", "name": "รูปประกอบการแจ้งซ่อม"}]}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "report-repair-phone",
+      "title": "แจ้งซ่อมจากโทรศัพท์มือถือ",
+      "intro": "หน้านี้ใช้ได้บนโทรศัพท์ ใช้ขั้นตอนเดียวกับคอมพิวเตอร์ ผู้ใช้เปิดเว็บสานของโรงเรียน เข้าสู่ระบบ แล้วเลือกเมนู \"แจ้งซ่อม\" ภาพในหัวข้อนี้เป็นหน้าจอขนาดโทรศัพท์",
+      "role": "subject",
+      "start": "/work#repairs/new",
+      "viewport": "390x844",
+      "steps": [
+        {"do": "wait_for", "target": {"role": "heading", "name": "แจ้งซ่อมใหม่", "exact": true}},
+        {"do": "fill", "target": {"label": "สถานที่", "exact": true}, "value": "ทางเดินอาคาร 2", "say": "เปิดหน้า \"แจ้งซ่อมใหม่\" พิมพ์สถานที่ในช่อง \"สถานที่\"", "shot": true, "crop": "viewport"},
+        {"do": "fill", "target": {"label": "เรื่องที่แจ้ง"}, "value": "{{req2}}", "say": "พิมพ์เรื่องที่แจ้งในช่อง \"เรื่องที่แจ้ง\"", "shot": true, "crop": "viewport"},
+        {"do": "scroll", "target": {"role": "button", "name": "ส่งเรื่องแจ้งซ่อม"}},
+        {"do": "click", "target": {"role": "button", "name": "ส่งเรื่องแจ้งซ่อม"}, "say": "เลื่อนลงแล้วกดปุ่ม \"ส่งเรื่องแจ้งซ่อม\" ระบบแสดงรายละเอียดของเรื่องที่แจ้ง", "shot": true, "crop": "viewport", "highlight": false, "wait_after": {"role": "heading", "name": "{{req2}}"}}
+      ],
+      "expected": "ระบบแสดงรายละเอียดเรื่องที่แจ้งบนหน้าจอโทรศัพท์ สถานะ \"รอรับเรื่อง\"",
+      "verify": [
+        {
+          "title": "เรื่องที่แจ้งจากโทรศัพท์ต้องอยู่ในรายการของผู้แจ้ง",
+          "steps": [
+            {"do": "goto", "url": "/work#repairs"},
+            {"do": "fill", "target": {"label": "ค้นหา"}, "value": "{{req2}}", "wait_after": {"role": "link", "name": "{{req2}}"}},
+            {"do": "expect", "that": {"text": "รอรับเรื่อง", "in": {"role": "link", "name": "{{req2}}"}}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edit-and-cancel-own-request",
+      "title": "แก้ไขและยกเลิกเรื่องที่แจ้งไว้เอง",
+      "intro": "ผู้แจ้งแก้ไขเรื่องของตนได้ก่อนที่ช่างรับเรื่อง และยกเลิกเรื่องของตนได้ตราบที่สถานะยังเป็น \"รอรับเรื่อง\" หลังช่างรับเรื่องแล้ว ผู้แจ้งยกเลิกเองไม่ได้ ต้องแจ้งช่าง",
+      "role": "subject",
+      "start": "/work#repairs/new",
+      "steps": [
+        {"do": "fill", "target": {"label": "สถานที่", "exact": true}, "value": "ห้อง 201"},
+        {"do": "fill", "target": {"label": "เรื่องที่แจ้ง"}, "value": "{{req3}}"},
+        {"do": "click", "target": {"role": "button", "name": "ส่งเรื่องแจ้งซ่อม"}, "wait_after": {"role": "heading", "name": "{{req3}}"}},
+        {"do": "note", "target": {"css": ".mnt-details summary"}, "say": "เรื่องที่ยังเป็น \"รอรับเรื่อง\" มีส่วน \"แก้ไขเรื่องที่แจ้ง\" ให้กดเพื่อเปิดแบบฟอร์ม", "shot": true, "crop": "viewport", "highlight": {"css": ".mnt-details summary"}},
+        {"do": "click", "target": {"css": ".mnt-details summary"}, "wait_after": {"role": "button", "name": "บันทึกการแก้ไข"}},
+        {"do": "fill", "target": {"label": "เรื่องที่แจ้ง", "within": {"attr": {"data-form": "edit"}}}, "value": "{{req3b}}", "say": "แก้ข้อความในช่อง \"เรื่องที่แจ้ง\" แล้วกดปุ่ม \"บันทึกการแก้ไข\"", "shot": true, "crop": "panel"},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกการแก้ไข"}, "say": "ระบบบันทึกและแสดงหัวข้อเรื่องที่แก้ไขแล้ว", "shot": true, "crop": "viewport", "highlight": false, "wait_after": {"role": "heading", "name": "{{req3b}}"}},
+        {"do": "select", "target": {"label": "เปลี่ยนสถานะเป็น"}, "label": "ยกเลิก", "say": "ถ้าไม่ต้องการให้ซ่อมแล้ว ให้เลือก \"ยกเลิก\" ในช่อง \"เปลี่ยนสถานะเป็น\" (ผู้แจ้งเลือกได้เพียงตัวเลือกนี้)", "shot": true, "crop": "panel"},
+        {"do": "fill", "target": {"label": "หมายเหตุ", "within": {"attr": {"data-form": "step"}}}, "value": "ลองซ่อมเองได้แล้ว {{marker}}", "say": "พิมพ์เหตุผลในช่อง \"หมายเหตุ / เหตุผล\" (ไม่บังคับสำหรับการยกเลิก)", "shot": true, "crop": "panel"},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกสถานะ"}, "say": "กดปุ่ม \"บันทึกสถานะ\" สถานะเปลี่ยนเป็น \"ยกเลิก\" และเรื่องนี้ย้ายไปอยู่ในรายการ \"ปิดแล้ว\"", "shot": true, "crop": "viewport", "highlight": {"css": ".mnt-tag", "first": true}, "wait_after": {"css": ".mnt-tag", "has_text": "ยกเลิก"}}
+      ],
+      "expected": "สถานะของเรื่องเป็น \"ยกเลิก\" ไม่มีปุ่มเปลี่ยนสถานะอีก และประวัติการดำเนินการมีบรรทัด \"ยกเลิก\" พร้อมเหตุผล",
+      "verify": [
+        {
+          "title": "เปิดรายการ \"ปิดแล้ว\" แล้วต้องพบเรื่องที่ยกเลิก",
+          "steps": [
+            {"do": "goto", "url": "/work#repairs"},
+            {"do": "select", "target": {"label": "สถานะ"}, "label": "ปิดแล้ว", "wait_after": {"role": "link", "name": "{{req3b}}"}},
+            {"do": "expect", "that": {"text": "ยกเลิก", "in": {"role": "link", "name": "{{req3b}}"}}, "say": "ที่หน้า \"แจ้งซ่อม\" เลือกสถานะ \"ปิดแล้ว\" รายการที่ยกเลิกแสดงอยู่ในรายการนี้", "shot": true, "crop": "panel", "highlight": {"role": "link", "name": "{{req3b}}"}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technician-handles-request",
+      "title": "ช่างรับงาน มอบหมาย เปลี่ยนสถานะ และปิดงานซ่อม",
+      "intro": "เฉพาะผู้อำนวยการ ผู้ดูแลระบบ และบัญชีที่ผู้ดูแลระบบกำหนดเป็นช่างซ่อมเท่านั้นที่เปลี่ยนสถานะได้ ลำดับสถานะคือ รอรับเรื่อง > รับเรื่องแล้ว > กำลังซ่อม หรือ รออะไหล่ > ซ่อมเสร็จ การปิดงานด้วย \"ซ่อมเสร็จ\" ต้องสรุปผลการซ่อม และกรอกค่าใช้จ่ายได้ (ไม่บังคับ) เมื่อปิดงาน ระบบส่งอีเมลแจ้งผู้แจ้งถ้าบัญชีนั้นมีอีเมล",
+      "role": "clerk",
+      "start": "/work",
+      "depends_on": ["report-repair"],
+      "core": true,
+      "steps": [
+        {"do": "click", "target": {"role": "link", "name": "แจ้งซ่อม", "exact": true, "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "say": "เลือกเมนู \"แจ้งซ่อม\" ที่แถบเมนูด้านซ้าย", "shot": true, "crop": "viewport", "wait_after": {"role": "heading", "name": "แจ้งซ่อม", "exact": true}},
+        {"do": "note", "target": {"label": "แสดง"}, "say": "ช่างซ่อมเห็นช่อง \"แสดง\" ที่เลือกได้ระหว่าง \"เรื่องที่ฉันแจ้ง\" กับ \"ทุกเรื่อง (งานช่าง)\" ระบบเลือก \"ทุกเรื่อง (งานช่าง)\" ให้ก่อน ตัวกรอง \"สถานะ\" และ \"ผู้รับผิดชอบ\" ช่วยหางานที่ยังไม่ปิดหรืองานของตนเอง", "shot": true, "crop": "panel", "highlight": {"label": "แสดง"}},
+        {"do": "fill", "target": {"label": "ค้นหา"}, "value": "{{req1}}", "say": "พิมพ์เรื่องที่แจ้งในช่อง \"ค้นหา\" เพื่อหางานที่ต้องการ", "shot": true, "crop": "panel", "wait_after": {"role": "link", "name": "{{req1}}"}, "settle_ms": 1500},
+        {"do": "click", "target": {"role": "link", "name": "{{req1}}"}, "say": "กดที่เรื่องที่แจ้ง ระบบแสดงหน้ารายละเอียด ผู้แจ้ง สถานที่ รูปประกอบ และประวัติการดำเนินการ", "shot": true, "crop": "viewport", "highlight": false, "wait_after": {"role": "heading", "name": "{{req1}}"}},
+        {"do": "select", "target": {"label": "มอบหมายให้"}, "label": "{{technician}}", "say": "เลือกช่างที่รับผิดชอบในช่อง \"มอบหมายให้\" รายชื่อมีเฉพาะผู้อำนวยการ ผู้ดูแลระบบ และช่างที่ได้รับสิทธิ์", "shot": true, "crop": "panel"},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกการมอบหมาย"}, "say": "กดปุ่ม \"บันทึกการมอบหมาย\" ระบบแสดงชื่อช่างในช่อง \"ผู้รับผิดชอบ\" และบันทึกลงประวัติการดำเนินการ", "shot": true, "crop": "viewport", "highlight": {"text": "มอบหมายให้", "within": {"css": ".mnt-log"}, "first": true}, "wait_after": {"css": ".mnt-log", "has_text": "มอบหมายให้"}},
+        {"do": "select", "target": {"label": "เปลี่ยนสถานะเป็น"}, "label": "รับเรื่องแล้ว", "say": "เลือก \"รับเรื่องแล้ว\" ในช่อง \"เปลี่ยนสถานะเป็น\" ช่องนี้แสดงเฉพาะสถานะถัดไปที่เลือกได้", "shot": true, "crop": "panel"},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกสถานะ"}, "say": "กดปุ่ม \"บันทึกสถานะ\" สถานะเปลี่ยนเป็น \"รับเรื่องแล้ว\" และครุภัณฑ์ที่เกี่ยวข้องเปลี่ยนเป็นสถานะ \"ซ่อม\" โดยอัตโนมัติ", "shot": true, "crop": "viewport", "highlight": {"css": ".mnt-tag", "first": true}, "wait_after": {"css": ".mnt-tag", "has_text": "รับเรื่องแล้ว"}},
+        {"do": "select", "target": {"label": "เปลี่ยนสถานะเป็น"}, "label": "รออะไหล่"},
+        {"do": "fill", "target": {"label": "หมายเหตุ", "within": {"attr": {"data-form": "step"}}}, "value": "สั่งซื้อวาล์วน้ำ {{marker}}", "say": "ถ้าต้องรออะไหล่ ให้เลือก \"รออะไหล่\" และพิมพ์หมายเหตุในช่อง \"หมายเหตุ / เหตุผล\"", "shot": true, "crop": "panel"},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกสถานะ"}, "say": "กดปุ่ม \"บันทึกสถานะ\" ระบบบันทึกหมายเหตุไว้ในประวัติการดำเนินการ", "shot": true, "crop": "viewport", "highlight": {"css": ".mnt-log"}, "wait_after": {"css": ".mnt-tag", "has_text": "รออะไหล่"}},
+        {"do": "select", "target": {"label": "เปลี่ยนสถานะเป็น"}, "label": "กำลังซ่อม"},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกสถานะ"}, "say": "เมื่ออะไหล่มาถึง เลือก \"กำลังซ่อม\" แล้วกดปุ่ม \"บันทึกสถานะ\"", "shot": true, "crop": "viewport", "highlight": {"css": ".mnt-tag", "first": true}, "wait_after": {"css": ".mnt-tag", "has_text": "กำลังซ่อม"}},
+        {"do": "select", "target": {"label": "เปลี่ยนสถานะเป็น"}, "label": "ซ่อมเสร็จ", "say": "เมื่อซ่อมเสร็จ เลือก \"ซ่อมเสร็จ\" ในช่อง \"เปลี่ยนสถานะเป็น\" ระบบแสดงช่อง \"สรุปผลการซ่อม\" และ \"ค่าใช้จ่าย (บาท)\"", "shot": true, "crop": "panel"},
+        {"do": "fill", "target": {"label": "สรุปผลการซ่อม"}, "value": "เปลี่ยนวาล์วน้ำและยางรอง ทดสอบแล้วไม่รั่ว", "say": "พิมพ์สรุปผลการซ่อมในช่อง \"สรุปผลการซ่อม (จำเป็น)\" ถ้าไม่พิมพ์ ระบบไม่ให้ปิดงาน", "shot": true, "crop": "panel"},
+        {"do": "fill", "target": {"label": "ค่าใช้จ่าย (บาท)"}, "value": "350.50", "say": "พิมพ์ค่าใช้จ่ายเป็นบาทในช่อง \"ค่าใช้จ่าย (บาท)\" (ไม่บังคับ)", "shot": true, "crop": "panel"},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกสถานะ"}, "say": "กดปุ่ม \"บันทึกสถานะ\" สถานะเปลี่ยนเป็น \"ซ่อมเสร็จ\" ระบบแสดงผลการซ่อม ค่าใช้จ่าย และเวลาที่ปิดงาน", "shot": true, "crop": "viewport", "highlight": {"css": ".mnt-tag", "first": true}, "wait_after": {"css": ".mnt-tag", "has_text": "ซ่อมเสร็จ"}}
+      ],
+      "expected": "สถานะเป็น \"ซ่อมเสร็จ\" มีผลการซ่อมและค่าใช้จ่าย 350.50 บาท ไม่มีฟอร์มเปลี่ยนสถานะอีก ประวัติการดำเนินการแสดงทุกขั้นพร้อมชื่อช่างและเวลา",
+      "verify": [
+        {
+          "title": "กรองรายการด้วย \"ผู้รับผิดชอบ\" เป็น \"งานที่มอบหมายให้ฉัน\" ต้องพบงานที่ปิดแล้ว",
+          "as": "clerk",
+          "start": "/work#repairs",
+          "steps": [
+            {"do": "select", "target": {"label": "สถานะ"}, "label": "ทั้งหมด"},
+            {"do": "select", "target": {"label": "ผู้รับผิดชอบ"}, "label": "งานที่มอบหมายให้ฉัน"},
+            {"do": "fill", "target": {"label": "ค้นหา"}, "value": "{{req1}}", "wait_after": {"role": "link", "name": "{{req1}}"}},
+            {"do": "expect", "that": {"text": "ซ่อมเสร็จ", "in": {"role": "link", "name": "{{req1}}"}}, "say": "ช่างเลือก \"งานที่มอบหมายให้ฉัน\" ในช่อง \"ผู้รับผิดชอบ\" และสถานะ \"ทั้งหมด\" ระบบแสดงงานที่ตนรับผิดชอบทั้งงานที่ปิดแล้วและยังไม่ปิด", "shot": true, "crop": "panel", "highlight": {"role": "link", "name": "{{req1}}"}}
+          ]
+        },
+        {
+          "title": "ผู้แจ้งเปิดดูเรื่องของตนในรายการ \"ปิดแล้ว\" ต้องเห็นผลการซ่อม",
+          "as": "subject",
+          "start": "/work#repairs",
+          "steps": [
+            {"do": "select", "target": {"label": "สถานะ"}, "label": "ปิดแล้ว", "wait_after": {"role": "link", "name": "{{req1}}"}},
+            {"do": "click", "target": {"role": "link", "name": "{{req1}}"}, "wait_after": {"role": "heading", "name": "{{req1}}"}},
+            {"do": "expect", "that": [{"text": "ซ่อมเสร็จ", "in": {"css": ".mnt-tag", "first": true}}, {"text": "เปลี่ยนวาล์วน้ำและยางรอง ทดสอบแล้วไม่รั่ว"}, {"text": "350.50 บาท"}, {"text": "ศิริน วาดฝัน", "in": {"css": ".mnt-log"}}], "say": "ผู้แจ้งเปิดเรื่องของตนจากรายการ \"ปิดแล้ว\" ระบบแสดงผู้รับผิดชอบ ผลการซ่อม และค่าใช้จ่าย", "shot": true, "crop": "viewport", "highlight": {"css": ".mnt-facts"}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reject-request",
+      "title": "ช่างปฏิเสธงานที่ไม่ใช่งานซ่อมบำรุง",
+      "intro": "เมื่อเลือก \"ไม่ดำเนินการ\" ต้องระบุเหตุผลอย่างน้อย 2 ตัวอักษร เหตุผลนี้ผู้แจ้งเห็นในหัวข้อ \"เหตุผล\" ของเรื่อง และระบบส่งอีเมลแจ้งผู้แจ้งถ้าบัญชีมีอีเมล",
+      "role": "clerk",
+      "start": "/work#repairs",
+      "depends_on": ["report-repair-phone"],
+      "steps": [
+        {"do": "fill", "target": {"label": "ค้นหา"}, "value": "{{req2}}", "say": "พิมพ์เรื่องที่แจ้งในช่อง \"ค้นหา\" ที่หน้า \"แจ้งซ่อม\"", "shot": true, "crop": "viewport", "wait_after": {"role": "link", "name": "{{req2}}"}, "settle_ms": 1500},
+        {"do": "click", "target": {"role": "link", "name": "{{req2}}"}, "wait_after": {"role": "heading", "name": "{{req2}}"}},
+        {"do": "select", "target": {"label": "เปลี่ยนสถานะเป็น"}, "label": "ไม่ดำเนินการ"},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกสถานะ"}, "say": "เลือก \"ไม่ดำเนินการ\" แล้วกดปุ่ม \"บันทึกสถานะ\" โดยยังไม่ระบุเหตุผล ระบบไม่บันทึกและแสดงข้อความ \"กรุณาระบุเหตุผลที่ไม่ดำเนินการ\"", "shot": true, "crop": "viewport", "highlight": {"id": "toast"}, "wait_after": {"id": "toast"}},
+        {"do": "fill", "target": {"label": "หมายเหตุ", "within": {"attr": {"data-form": "step"}}}, "value": "ให้ซ่อมโดยผู้รับเหมาอาคาร {{marker}}", "say": "พิมพ์เหตุผลในช่อง \"หมายเหตุ / เหตุผล\"", "shot": true, "crop": "panel"},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกสถานะ"}, "say": "กดปุ่ม \"บันทึกสถานะ\" สถานะเปลี่ยนเป็น \"ไม่ดำเนินการ\" และเหตุผลแสดงในหัวข้อ \"เหตุผล\"", "shot": true, "crop": "viewport", "highlight": {"css": ".mnt-facts"}, "wait_after": {"css": ".mnt-tag", "has_text": "ไม่ดำเนินการ"}}
+      ],
+      "expected": "สถานะเป็น \"ไม่ดำเนินการ\" มีหัวข้อ \"เหตุผล\" แสดงข้อความที่พิมพ์ และไม่มีฟอร์มเปลี่ยนสถานะอีก",
+      "verify": [
+        {
+          "title": "ผู้แจ้งเปิดเรื่องของตน ต้องเห็นสถานะและเหตุผลที่ช่างระบุ",
+          "as": "subject",
+          "start": "/work#repairs",
+          "steps": [
+            {"do": "select", "target": {"label": "สถานะ"}, "label": "ปิดแล้ว", "wait_after": {"role": "link", "name": "{{req2}}"}},
+            {"do": "click", "target": {"role": "link", "name": "{{req2}}"}, "wait_after": {"role": "heading", "name": "{{req2}}"}},
+            {"do": "expect", "that": [{"text": "ไม่ดำเนินการ", "in": {"css": ".mnt-tag", "first": true}}, {"text": "ให้ซ่อมโดยผู้รับเหมาอาคาร"}, {"text": "เหตุผล", "in": {"css": ".mnt-facts"}}], "say": "ผู้แจ้งเปิดเรื่องของตนจากรายการ \"ปิดแล้ว\" เห็นสถานะ \"ไม่ดำเนินการ\" และเหตุผลของช่าง", "shot": true, "crop": "viewport", "highlight": {"css": ".mnt-facts"}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "asset-repair-history",
+      "title": "ตรวจสอบประวัติการซ่อมของครุภัณฑ์รายชิ้น",
+      "intro": "หน้ารายละเอียดของครุภัณฑ์แสดงจำนวนครั้งที่แจ้งซ่อมและค่าใช้จ่ายรวมของงานที่ซ่อมเสร็จ พร้อมรายการงานซ่อมทั้งหมดของชิ้นนั้น ผู้อำนวยการ ผู้ดูแลระบบ และช่างซ่อมเปิดดูได้ ผู้แจ้งทั่วไปดูไม่ได้",
+      "role": "principal",
+      "start": "/work",
+      "depends_on": ["technician-handles-request"],
+      "core": true,
+      "steps": [
+        {"do": "click", "target": {"role": "link", "name": "ครุภัณฑ์และพัสดุ", "exact": true, "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "say": "เลือกเมนู \"ครุภัณฑ์และพัสดุ\" ที่แถบเมนูด้านซ้าย", "shot": true, "crop": "viewport", "wait_after": {"role": "heading", "name": "ทะเบียนครุภัณฑ์"}},
+        {"do": "fill", "target": {"label": "ค้นหา (เลข ชื่อ สถานที่)"}, "value": "{{asset_code}}", "say": "พิมพ์เลขครุภัณฑ์ในช่อง \"ค้นหา (เลข ชื่อ สถานที่)\"", "shot": true, "crop": "panel", "wait_after": {"role": "link", "name": "{{asset_code}}"}, "settle_ms": 1500},
+        {"do": "click", "target": {"role": "link", "name": "{{asset_code}}"}, "say": "กดที่รายการครุภัณฑ์ ระบบแสดงหัวข้อ \"ประวัติแจ้งซ่อม\" พร้อมจำนวนครั้งและค่าใช้จ่ายรวม สถานะครุภัณฑ์กลับเป็น \"ใช้งาน\" เมื่องานซ่อมปิดแล้ว", "shot": true, "crop": "viewport", "highlight": {"role": "heading", "name": "ประวัติแจ้งซ่อม"}, "wait_after": {"role": "heading", "name": "ประวัติแจ้งซ่อม"}},
+        {"do": "expect", "that": [{"text": "ประวัติแจ้งซ่อม (1 ครั้ง ค่าใช้จ่ายรวม 350.50 บาท)"}, {"text": "ใช้งาน", "in": {"css": ".mnt-facts"}}]},
+        {"do": "click", "target": {"role": "link", "name": "{{req1}}"}, "settle_ms": 1500, "say": "กดที่งานซ่อมในรายการประวัติ ระบบเปิดรายละเอียดงานซ่อมนั้น พร้อมผลการซ่อมและประวัติการดำเนินการ", "shot": true, "crop": "viewport", "highlight": false, "wait_after": {"role": "heading", "name": "{{req1}}"}}
+      ],
+      "expected": "หน้าครุภัณฑ์แสดง \"ประวัติแจ้งซ่อม (1 ครั้ง ค่าใช้จ่ายรวม 350.50 บาท)\" และงานซ่อมในรายการเปิดดูรายละเอียดได้",
+      "verify": [
+        {
+          "title": "จากหน้ารายละเอียดงานซ่อม มีลิงก์ \"ประวัติซ่อม\" กลับไปที่ครุภัณฑ์",
+          "steps": [
+            {"do": "click", "target": {"role": "link", "name": "ประวัติซ่อม", "exact": true}, "wait_after": {"role": "heading", "name": "ประวัติแจ้งซ่อม"}},
+            {"do": "expect", "that": {"visible": {"role": "heading", "name": "{{asset_code}}"}}, "say": "ในหน้ารายละเอียดงานซ่อม ช่างและผู้อำนวยการกดลิงก์ \"ประวัติซ่อม\" ข้างชื่อครุภัณฑ์ เพื่อกลับไปดูประวัติทั้งหมดของครุภัณฑ์ชิ้นนั้น", "shot": true, "crop": "viewport", "highlight": {"role": "heading", "name": "ประวัติแจ้งซ่อม"}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stock-add-and-withdraw",
+      "title": "เพิ่มรายการพัสดุสิ้นเปลือง เบิกออก และดูประวัติเคลื่อนไหว",
+      "intro": "พัสดุสิ้นเปลืองคือวัสดุที่ใช้ในงานซ่อม เช่น หลอดไฟ สายไฟ ช่างซ่อมและผู้อำนวยการจัดการได้ จุดสั่งซื้อคือจำนวนคงเหลือที่ระบบเริ่มแจ้งเตือน (ใส่ 0 เมื่อไม่ต้องการแจ้งเตือน) เมื่อคงเหลือเท่ากับหรือน้อยกว่าจุดสั่งซื้อ รายการมีป้าย \"ถึงจุดสั่งซื้อ\" และขึ้นในรายงาน เบิกเกินจำนวนที่เหลือไม่ได้ ระบบไม่ให้ลบรายการพัสดุ",
+      "role": "clerk",
+      "start": "/work#repairs",
+      "steps": [
+        {"do": "note", "target": {"role": "link", "name": "ครุภัณฑ์และพัสดุ", "exact": true, "within": {"css": "section.mnt"}}, "say": "ช่างซ่อมที่เป็นครูเข้าหน้าครุภัณฑ์และพัสดุได้จากปุ่ม \"ครุภัณฑ์และพัสดุ\" ที่มุมขวาบนของหน้า \"แจ้งซ่อม\" (ผู้อำนวยการและผู้ดูแลระบบใช้เมนูด้านซ้ายได้)", "shot": true, "crop": "viewport", "highlight": {"role": "link", "name": "ครุภัณฑ์และพัสดุ", "exact": true, "within": {"css": "section.mnt"}}},
+        {"do": "click", "target": {"role": "link", "name": "ครุภัณฑ์และพัสดุ", "exact": true, "within": {"css": "section.mnt"}}, "wait_after": {"role": "heading", "name": "ทะเบียนครุภัณฑ์"}},
+        {"do": "click", "target": {"role": "link", "name": "พัสดุ", "exact": true, "within": {"role": "navigation", "name": "เมนูย่อย"}}, "say": "กดแท็บ \"พัสดุ\" ในแถบเมนูย่อยด้านบน", "shot": true, "crop": "tight", "highlight": {"role": "link", "name": "พัสดุ", "exact": true, "within": {"role": "navigation", "name": "เมนูย่อย"}}, "wait_after": {"role": "heading", "name": "พัสดุ", "exact": true}},
+        {"do": "click", "target": {"css": ".mnt-details summary", "has_text": "เพิ่มรายการพัสดุ"}, "say": "กดหัวข้อ \"เพิ่มรายการพัสดุ\" ระบบเปิดแบบฟอร์ม", "shot": true, "crop": "panel", "wait_after": {"role": "button", "name": "เพิ่มพัสดุ"}},
+        {"do": "fill", "target": {"label": "รหัส", "within": {"attr": {"data-form": "item"}}}, "value": "{{item_code}}", "say": "พิมพ์รหัสพัสดุในช่อง \"รหัส\" รหัสนี้ใช้ซ้ำไม่ได้", "shot": true, "crop": "panel"},
+        {"do": "fill", "target": {"label": "ชื่อ", "within": {"attr": {"data-form": "item"}}}, "value": "{{item_name}}", "say": "พิมพ์ชื่อพัสดุในช่อง \"ชื่อ\"", "shot": true, "crop": "panel"},
+        {"do": "fill", "target": {"label": "หน่วยนับ", "within": {"attr": {"data-form": "item"}}}, "value": "หลอด", "say": "พิมพ์หน่วยนับในช่อง \"หน่วยนับ\"", "shot": true, "crop": "panel"},
+        {"do": "fill", "target": {"label": "จุดสั่งซื้อ", "within": {"attr": {"data-form": "item"}}}, "value": "5", "say": "พิมพ์จุดสั่งซื้อในช่อง \"จุดสั่งซื้อ\" เมื่อคงเหลือเท่านี้หรือน้อยกว่า ระบบแจ้งว่าถึงจุดสั่งซื้อ", "shot": true, "crop": "panel"},
+        {"do": "fill", "target": {"label": "ยอดยกมา", "within": {"attr": {"data-form": "item"}}}, "value": "8", "say": "พิมพ์จำนวนที่มีอยู่แล้วในช่อง \"ยอดยกมา\"", "shot": true, "crop": "panel"},
+        {"do": "click", "target": {"role": "button", "name": "เพิ่มพัสดุ"}, "wait_after": {"css": "li.mnt-item", "has_text": "{{item_name}}"}},
+        {"do": "fill", "target": {"label": "ค้นหา (รหัส ชื่อ)"}, "value": "{{item_code}}", "settle_ms": 1500, "say": "พิมพ์รหัสพัสดุในช่อง \"ค้นหา (รหัส ชื่อ)\" รายการที่เพิ่มแสดงคงเหลือ 8 หลอด", "shot": true, "crop": "viewport", "highlight": {"css": "li.mnt-item", "has_text": "{{item_name}}"}, "wait_after": {"css": "li.mnt-item", "has_text": "{{item_name}}"}},
+        {"do": "select", "target": {"label": "ประเภท", "within": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}, "label": "เบิกออก"},
+        {"do": "fill", "target": {"label": "จำนวน", "within": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}, "value": "4"},
+        {"do": "fill", "target": {"label": "อ้างอิง", "within": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}, "value": "งานซ่อม {{marker}}", "say": "ที่แถวของพัสดุ เลือกประเภท \"เบิกออก\" พิมพ์จำนวน 4 และอ้างอิงงานซ่อมในช่องที่อยู่ด้านขวา", "shot": true, "crop": "tight", "highlight": {"css": "form.mnt-move", "within": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}},
+        {"do": "click", "target": {"role": "button", "name": "บันทึก", "exact": true, "within": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}, "say": "กดปุ่ม \"บันทึก\" ที่แถวของพัสดุ คงเหลือเปลี่ยนเป็น 4 หลอด และแถวมีป้าย \"ถึงจุดสั่งซื้อ\"", "shot": true, "crop": "tight", "highlight": {"css": "li.mnt-item", "has_text": "{{item_name}}"}, "wait_after": {"css": "li.mnt-item", "has_text": "ถึงจุดสั่งซื้อ"}},
+        {"do": "fill", "target": {"label": "จำนวน", "within": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}, "value": "100"},
+        {"do": "click", "target": {"role": "button", "name": "บันทึก", "exact": true, "within": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}, "say": "ถ้าเบิกมากกว่าจำนวนที่เหลือ (เช่น 100 หลอด) ระบบไม่บันทึกและแจ้งข้อความผิดพลาด", "shot": true, "crop": "viewport", "highlight": {"id": "toast"}, "wait_after": {"id": "toast"}},
+        {"do": "click", "target": {"role": "link", "name": "ประวัติเคลื่อนไหว", "within": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}, "say": "กดลิงก์ \"ประวัติเคลื่อนไหว\" ที่แถวของพัสดุ ระบบแสดงรายการรับเข้าและเบิกออกพร้อมผู้บันทึกและเวลา", "shot": true, "crop": "viewport", "highlight": false, "wait_after": {"role": "heading", "name": "{{item_code}}"}}
+      ],
+      "expected": "หน้าประวัติเคลื่อนไหวแสดงคงเหลือ 4 หลอด รายการ \"รับเข้า 8\" ตอนยกมา และ \"เบิกออก 4\" พร้อมข้อความอ้างอิงงานซ่อม",
+      "verify": [
+        {
+          "title": "เปิดหน้าพัสดุใหม่ รายการต้องคงเหลือ 4 และมีป้ายถึงจุดสั่งซื้อ",
+          "steps": [
+            {"do": "goto", "url": "/work#assets/stock"},
+            {"do": "fill", "target": {"label": "ค้นหา (รหัส ชื่อ)"}, "value": "{{item_code}}", "wait_after": {"css": "li.mnt-item", "has_text": "{{item_name}}"}},
+            {"do": "expect", "that": [{"text": "คงเหลือ 4 หลอด", "in": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}, {"text": "ถึงจุดสั่งซื้อ", "in": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}], "say": "เปิดหน้า \"พัสดุ\" ใหม่และค้นหารหัสพัสดุ รายการแสดงคงเหลือ 4 หลอดและป้าย \"ถึงจุดสั่งซื้อ\"", "shot": true, "crop": "tight", "highlight": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stock-adjust",
+      "title": "ปรับยอดพัสดุและกรองเฉพาะรายการที่ถึงจุดสั่งซื้อ",
+      "intro": "ใช้ประเภท \"ปรับยอด\" เมื่อตรวจนับแล้วจำนวนจริงไม่ตรงกับระบบ ใส่ค่าบวกเพื่อเพิ่ม หรือค่าลบเพื่อลด ห้ามใส่ศูนย์",
+      "role": "clerk",
+      "start": "/work#assets/stock",
+      "depends_on": ["stock-add-and-withdraw"],
+      "steps": [
+        {"do": "fill", "target": {"label": "ค้นหา (รหัส ชื่อ)"}, "value": "{{item_code}}", "settle_ms": 1500, "say": "ค้นหารายการพัสดุด้วยรหัสในช่อง \"ค้นหา (รหัส ชื่อ)\"", "shot": true, "crop": "viewport", "wait_after": {"css": "li.mnt-item", "has_text": "{{item_name}}"}},
+        {"do": "select", "target": {"label": "ประเภท", "within": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}, "label": "ปรับยอด (ใส่ค่าบวกหรือลบ)"},
+        {"do": "fill", "target": {"label": "จำนวน", "within": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}, "value": "-1"},
+        {"do": "fill", "target": {"label": "อ้างอิง", "within": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}, "value": "ตรวจนับ {{marker}}", "say": "ที่แถวของพัสดุ เลือกประเภท \"ปรับยอด\" พิมพ์จำนวน -1 เพราะนับได้น้อยกว่าในระบบ 1 หลอด และพิมพ์ข้อความอ้างอิง", "shot": true, "crop": "tight", "highlight": {"css": "form.mnt-move", "within": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}},
+        {"do": "click", "target": {"role": "button", "name": "บันทึก", "exact": true, "within": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}, "say": "กดปุ่ม \"บันทึก\" คงเหลือเปลี่ยนเป็น 3 หลอด", "shot": true, "crop": "tight", "highlight": {"css": "li.mnt-item", "has_text": "{{item_name}}"}, "wait_after": {"text": "คงเหลือ 3 หลอด"}},
+        {"do": "fill", "target": {"label": "ค้นหา (รหัส ชื่อ)"}, "value": ""},
+        {"do": "select", "target": {"label": "แสดง"}, "label": "เฉพาะที่ถึงจุดสั่งซื้อ", "say": "เลือก \"เฉพาะที่ถึงจุดสั่งซื้อ\" ในช่อง \"แสดง\" ระบบแสดงเฉพาะพัสดุที่ต้องสั่งเพิ่ม", "shot": true, "crop": "viewport", "highlight": false, "wait_after": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}
+      ],
+      "expected": "พัสดุคงเหลือ 3 หลอด และรายการนี้อยู่ในรายการเมื่อกรองเฉพาะที่ถึงจุดสั่งซื้อ",
+      "verify": [
+        {
+          "title": "เปิดประวัติเคลื่อนไหวของพัสดุ ต้องมีรายการปรับยอด -1",
+          "steps": [
+            {"do": "click", "target": {"role": "link", "name": "ประวัติเคลื่อนไหว", "within": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}, "wait_after": {"role": "heading", "name": "{{item_code}}"}},
+            {"do": "expect", "that": [{"text": "ปรับยอด -1"}, {"text": "ตรวจนับ {{marker}}"}, {"text": "เบิกออก 4"}, {"text": "รับเข้า 8"}], "say": "เปิดประวัติเคลื่อนไหวของพัสดุ ระบบแสดงรายการรับเข้า เบิกออก และปรับยอดครบทุกครั้ง", "shot": true, "crop": "viewport", "highlight": false}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reports",
+      "title": "ดูรายงานงานค้าง ค่าซ่อมรายเดือน และพัสดุที่ถึงจุดสั่งซื้อ",
+      "intro": "หน้า \"รายงาน\" แสดงงานแจ้งซ่อมที่ยังไม่ปิดแบ่งตามอายุ ตารางค่าซ่อมรายเดือนของปีที่เลือก (นับงานที่ปิดด้วย \"ซ่อมเสร็จ\") และพัสดุที่ถึงจุดสั่งซื้อ ผู้อำนวยการ ผู้ดูแลระบบ และช่างซ่อมเปิดดูได้",
+      "role": "principal",
+      "start": "/work",
+      "depends_on": ["technician-handles-request", "stock-adjust"],
+      "steps": [
+        {"do": "click", "target": {"role": "link", "name": "ครุภัณฑ์และพัสดุ", "exact": true, "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "wait_after": {"role": "heading", "name": "ทะเบียนครุภัณฑ์"}},
+        {"do": "click", "target": {"role": "link", "name": "รายงาน", "exact": true, "within": {"role": "navigation", "name": "เมนูย่อย"}}, "say": "เลือกเมนู \"ครุภัณฑ์และพัสดุ\" แล้วกดแท็บ \"รายงาน\" ในแถบเมนูย่อยด้านบน", "shot": true, "crop": "viewport", "highlight": {"role": "link", "name": "รายงาน", "exact": true, "within": {"role": "navigation", "name": "เมนูย่อย"}}, "wait_after": {"role": "heading", "name": "ค่าซ่อมรายเดือน"}},
+        {"do": "scroll", "target": {"role": "heading", "name": "งานค้างตามอายุ"}},
+        {"do": "note", "target": {"role": "heading", "name": "งานค้างตามอายุ"}, "say": "ส่วน \"งานค้างตามอายุ\" นับงานที่ยังไม่ปิดแยกเป็น 5 ช่วง ตั้งแต่ 0-2 วันจนถึงเกิน 30 วัน และแสดงรายการงานด้านล่าง", "shot": true, "crop": "viewport", "highlight": {"role": "heading", "name": "งานค้างตามอายุ"}},
+        {"do": "scroll", "target": {"role": "heading", "name": "ค่าซ่อมรายเดือน"}},
+        {"do": "note", "target": {"css": "table.mnt-table"}, "say": "ส่วน \"ค่าซ่อมรายเดือน\" แสดงจำนวนงานที่ปิดและค่าใช้จ่ายของแต่ละเดือน เปลี่ยนปีได้ในช่อง \"ปี พ.ศ.\"", "shot": true, "crop": "panel", "highlight": {"css": "table.mnt-table"}},
+        {"do": "scroll", "target": {"role": "heading", "name": "พัสดุที่ถึงจุดสั่งซื้อ"}},
+        {"do": "note", "target": {"role": "link", "name": "{{item_name}}"}, "say": "ส่วน \"พัสดุที่ถึงจุดสั่งซื้อ\" แสดงรายการพัสดุที่คงเหลือเท่ากับหรือน้อยกว่าจุดสั่งซื้อ กดที่รายการเพื่อเปิดประวัติเคลื่อนไหว", "shot": true, "crop": "viewport", "highlight": {"role": "link", "name": "{{item_name}}"}}
+      ],
+      "expected": "หน้ารายงานแสดงงานค้างตามอายุ ตารางค่าซ่อมรายเดือนที่มีค่าใช้จ่ายของเดือนปัจจุบัน และรายการพัสดุที่ถึงจุดสั่งซื้อ",
+      "verify": [
+        {
+          "title": "รายงานต้องมีค่าซ่อมของงานที่ปิดแล้ว และพัสดุที่ถึงจุดสั่งซื้อ",
+          "steps": [
+            {"do": "expect", "that": [{"visible": {"role": "link", "name": "{{item_name}}"}}, {"visible": {"css": "table.mnt-table tfoot"}}, {"visible": {"role": "heading", "name": "งานค้างตามอายุ"}}]},
+            {"do": "expect", "that": {"text": "รวม", "in": {"css": "table.mnt-table tfoot"}}, "say": "แถว \"รวม\" ท้ายตารางค่าซ่อมรวมจำนวนงานที่ปิดและค่าใช้จ่ายทั้งปี", "shot": true, "crop": "tight", "crop_pad": 150, "highlight": {"css": "table.mnt-table tfoot"}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "export-csv",
+      "title": "ส่งออกข้อมูลเป็นไฟล์ CSV",
+      "intro": "ไฟล์ CSV เปิดใน Excel ได้และแสดงภาษาไทยถูกต้อง ระบบส่งออกได้ 4 ชุด ได้แก่ ทะเบียนครุภัณฑ์ งานแจ้งซ่อม รายการพัสดุ และความเคลื่อนไหวของพัสดุ ผู้อำนวยการ ผู้ดูแลระบบ และช่างซ่อมส่งออกได้",
+      "role": "principal",
+      "start": "/work#assets",
+      "depends_on": ["stock-adjust"],
+      "steps": [
+        {"do": "wait_for", "target": {"role": "heading", "name": "ทะเบียนครุภัณฑ์"}},
+        {"do": "click", "target": {"role": "link", "name": "ส่งออก CSV", "exact": true}, "expect_download": {"ext": ".csv", "kind": "csv", "min_bytes": 50, "contains": "{{asset_code}}"}, "say": "ที่หน้า \"ทะเบียนครุภัณฑ์\" กดปุ่ม \"ส่งออก CSV\" เบราว์เซอร์ดาวน์โหลดไฟล์ทะเบียนครุภัณฑ์", "shot": true, "crop": "viewport"},
+        {"do": "click", "target": {"role": "link", "name": "พัสดุ", "exact": true, "within": {"role": "navigation", "name": "เมนูย่อย"}}, "wait_after": {"role": "heading", "name": "พัสดุ", "exact": true}},
+        {"do": "click", "target": {"role": "link", "name": "ส่งออกพัสดุ CSV"}, "expect_download": {"ext": ".csv", "kind": "csv", "min_bytes": 50, "contains": "{{item_code}}"}, "say": "ที่หน้า \"พัสดุ\" กดปุ่ม \"ส่งออกพัสดุ CSV\" เพื่อดาวน์โหลดรายการและยอดคงเหลือ", "shot": true, "crop": "tight"},
+        {"do": "click", "target": {"role": "link", "name": "ส่งออกความเคลื่อนไหว CSV"}, "expect_download": {"ext": ".csv", "kind": "csv", "min_bytes": 50, "contains": "{{item_code}}"}, "say": "กดปุ่ม \"ส่งออกความเคลื่อนไหว CSV\" เพื่อดาวน์โหลดประวัติรับเข้า เบิกออก และปรับยอด", "shot": true, "crop": "tight"},
+        {"do": "click", "target": {"role": "link", "name": "รายงาน", "exact": true, "within": {"role": "navigation", "name": "เมนูย่อย"}}, "wait_after": {"role": "heading", "name": "ค่าซ่อมรายเดือน"}},
+        {"do": "click", "target": {"role": "link", "name": "ส่งออกงานแจ้งซ่อม CSV"}, "expect_download": {"ext": ".csv", "kind": "csv", "min_bytes": 50, "contains": "{{req1}}"}, "say": "ที่หน้า \"รายงาน\" กดปุ่ม \"ส่งออกงานแจ้งซ่อม CSV\" เพื่อดาวน์โหลดงานแจ้งซ่อมทั้งหมดพร้อมสถานะและค่าใช้จ่าย", "shot": true, "crop": "tight"}
+      ],
+      "expected": "เบราว์เซอร์ดาวน์โหลดไฟล์ CSV ทั้ง 4 ชุด ไฟล์เปิดด้วย Excel ได้และมีข้อมูลที่เพิ่มไว้",
+      "verify": [
+        {
+          "title": "ไฟล์ทะเบียนครุภัณฑ์ที่ดาวน์โหลดซ้ำ ต้องมีเลขครุภัณฑ์ที่เพิ่มไว้",
+          "steps": [
+            {"do": "goto", "url": "/work#assets"},
+            {"do": "wait_for", "target": {"role": "heading", "name": "ทะเบียนครุภัณฑ์"}},
+            {"do": "click", "target": {"role": "link", "name": "ส่งออก CSV", "exact": true}, "expect_download": {"ext": ".csv", "kind": "csv", "min_bytes": 50, "contains": "{{asset_name}}"}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "print-labels",
+      "title": "พิมพ์แผ่นป้ายรหัสครุภัณฑ์",
+      "intro": "ระบบสร้างหน้าป้ายรหัสแบบเรียงต่อกัน ป้ายหนึ่งใบมีชื่อโรงเรียน เลขครุภัณฑ์ ชื่อ และสถานที่ ใช้พิมพ์บนกระดาษสติกเกอร์ ไม่พิมพ์ป้ายของครุภัณฑ์ที่จำหน่ายแล้ว ปุ่ม \"พิมพ์ป้ายรหัส\" ที่ทะเบียนพิมพ์ทุกชิ้น (หรือเฉพาะหมวดที่เลือก) ปุ่ม \"พิมพ์ป้าย\" ที่หน้ารายละเอียดพิมพ์เฉพาะชิ้นนั้น",
+      "role": "principal",
+      "start": "/work#assets",
+      "depends_on": ["register-asset"],
+      "steps": [
+        {"do": "fill", "target": {"label": "ค้นหา (เลข ชื่อ สถานที่)"}, "value": "{{asset_code}}", "say": "ที่หน้า \"ทะเบียนครุภัณฑ์\" ค้นหาครุภัณฑ์ที่ต้องการพิมพ์ป้าย", "shot": true, "crop": "viewport", "wait_after": {"role": "link", "name": "{{asset_code}}"}, "settle_ms": 1500},
+        {"do": "click", "target": {"role": "link", "name": "{{asset_code}}"}, "wait_after": {"role": "heading", "name": "{{asset_code}}"}},
+        {"do": "note", "target": {"role": "link", "name": "พิมพ์ป้าย", "exact": true}, "say": "ที่หน้ารายละเอียดของครุภัณฑ์ หาปุ่ม \"พิมพ์ป้าย\" ที่มุมขวาบน", "shot": true, "crop": "tight", "highlight": {"role": "link", "name": "พิมพ์ป้าย", "exact": true}},
+        {"do": "click", "target": {"role": "link", "name": "พิมพ์ป้าย", "exact": true}, "expect_popup": {"url_regex": "/maintenance/labels\\?ids=\\d+"}, "say": "กดปุ่ม \"พิมพ์ป้าย\" ระบบเปิดแท็บใหม่แสดงแผ่นป้ายของครุภัณฑ์ชิ้นนี้ พร้อมปุ่ม \"พิมพ์ / บันทึกเป็น PDF\" ที่แถบด้านบน", "shot": true, "crop": "viewport", "highlight": {"css": ".ml-label", "first": true}, "wait_after": {"css": ".ml-label"}},
+        {"do": "expect", "that": [{"text": "{{asset_code}}", "in": {"css": ".ml-label"}}, {"text": "{{asset_name}}", "in": {"css": ".ml-label"}}, {"visible": {"role": "button", "name": "พิมพ์ / บันทึกเป็น PDF"}}]},
+        {"do": "close_tab"}
+      ],
+      "expected": "แท็บใหม่แสดงป้ายหนึ่งใบมีเลขครุภัณฑ์และชื่อที่เลือก กดปุ่ม \"พิมพ์ / บันทึกเป็น PDF\" เพื่อสั่งพิมพ์จากเบราว์เซอร์",
+      "verify": [
+        {
+          "title": "ปุ่ม \"พิมพ์ป้ายรหัส\" ที่ทะเบียนเปิดแผ่นป้ายรวมของทุกชิ้น และมีป้ายของครุภัณฑ์ที่เพิ่มไว้",
+          "steps": [
+            {"do": "goto", "url": "/work#assets"},
+            {"do": "wait_for", "target": {"role": "heading", "name": "ทะเบียนครุภัณฑ์"}},
+            {"do": "click", "target": {"role": "link", "name": "พิมพ์ป้ายรหัส", "exact": true}, "expect_popup": {"url_regex": "/maintenance/labels"}, "wait_after": {"css": ".ml-label"}},
+            {"do": "expect", "that": {"text": "{{asset_code}}", "in": {"css": "main.ml-sheet"}}, "say": "ปุ่ม \"พิมพ์ป้ายรหัส\" ที่หน้า \"ทะเบียนครุภัณฑ์\" เปิดแผ่นป้ายของครุภัณฑ์ทุกชิ้น (หรือเฉพาะหมวดที่เลือก) เรียงตามเลขครุภัณฑ์", "shot": true, "crop": "viewport", "highlight": false},
+            {"do": "close_tab"}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technicians-view",
+      "title": "ผู้ดูแลระบบดูรายชื่อช่างซ่อมและระยะเก็บรูป",
+      "intro": "เฉพาะผู้ดูแลระบบเห็นแท็บ \"ช่างซ่อม\" ใช้เลือกบุคลากรที่รับงานซ่อมและจัดการครุภัณฑ์ได้ และกำหนดจำนวนเดือนที่เก็บรูปของงานที่ปิดแล้ว (0 คือไม่ลบ) ระบบลบรูปที่เกินกำหนดโดยอัตโนมัติทุกวัน",
+      "role": "admin",
+      "start": "/work#assets/techs",
+      "steps": [
+        {"do": "wait_for", "target": {"role": "heading", "name": "ช่างซ่อมและเจ้าหน้าที่พัสดุ"}},
+        {"do": "note", "target": {"role": "link", "name": "ช่างซ่อม", "exact": true, "within": {"role": "navigation", "name": "เมนูย่อย"}}, "say": "ผู้ดูแลระบบเปิดหน้า \"ครุภัณฑ์และพัสดุ\" แล้วกดแท็บ \"ช่างซ่อม\" ที่แถบเมนูย่อย", "shot": true, "crop": "viewport", "highlight": {"role": "link", "name": "ช่างซ่อม", "exact": true, "within": {"role": "navigation", "name": "เมนูย่อย"}}},
+        {"do": "note", "target": {"label": "{{technician}}"}, "say": "ติ๊กชื่อบุคลากรที่ต้องการให้เป็นช่างซ่อมหรือเจ้าหน้าที่พัสดุ ช่อง \"เก็บรูปแจ้งซ่อมหลังปิดงานกี่เดือน\" ใช้กำหนดระยะเก็บรูป จากนั้นกดปุ่ม \"บันทึกสิทธิ์\" (ตัวอย่างนี้ช่างซ่อมคือครูที่ติ๊กไว้)", "shot": true, "crop": "panel", "highlight": {"label": "{{technician}}"}}
+      ],
+      "expected": "แสดงรายชื่อบุคลากรที่เลือกเป็นช่างซ่อมได้ พร้อมช่องกำหนดระยะเก็บรูป",
+      "verify": [
+        {
+          "title": "รายชื่อช่างซ่อมแสดงครูที่เป็นช่าง และมีปุ่มบันทึกสิทธิ์",
+          "steps": [
+            {"do": "expect", "that": [{"checked": {"label": "{{technician}}"}}, {"visible": {"role": "button", "name": "บันทึกสิทธิ์"}}, {"visible": {"label": "เก็บรูปแจ้งซ่อมหลังปิดงานกี่เดือน"}}]}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "change-technician-rights",
+      "title": "ผู้ดูแลระบบเพิ่มครูเป็นช่างซ่อม และกำหนดระยะเก็บรูปใหม่",
+      "intro": "ผู้ดูแลระบบติ๊กบุคลากรที่ให้รับงานซ่อมและจัดการครุภัณฑ์ได้ และกำหนดจำนวนเดือนที่เก็บรูปของงานที่ปิดแล้ว การตั้งค่านี้ใช้ทั้งโรงเรียน ในการทดสอบคู่มือนี้เปลี่ยนเป็นครูหนึ่งคนและ 24 เดือน แล้วคืนค่าเดิมในขั้นตอนล้างข้อมูลท้ายคู่มือ",
+      "role": "admin",
+      "start": "/work#assets",
+      "steps": [
+        {"do": "click", "target": {"role": "link", "name": "ช่างซ่อม", "exact": true, "within": {"role": "navigation", "name": "เมนูย่อย"}}, "say": "เปิดหน้า \"ครุภัณฑ์และพัสดุ\" แล้วกดแท็บ \"ช่างซ่อม\" ที่แถบเมนูย่อย", "shot": true, "crop": "viewport", "highlight": {"role": "link", "name": "ช่างซ่อม", "exact": true, "within": {"role": "navigation", "name": "เมนูย่อย"}}, "wait_after": {"role": "heading", "name": "ช่างซ่อมและเจ้าหน้าที่พัสดุ"}},
+        {"do": "expect", "that": [{"unchecked": {"label": "วรินทร์", "within": {"css": "form[data-form=techs]"}}}, {"value": "12", "of": {"label": "เก็บรูปแจ้งซ่อมหลังปิดงานกี่เดือน"}}]},
+        {"do": "check", "target": {"label": "วรินทร์", "within": {"css": "form[data-form=techs]"}}, "say": "ในรายชื่อบุคลากร ติ๊กบัญชีของ \"นางสาววรินทร์ ทดสอบดี\" ให้เป็นช่างซ่อมหรือเจ้าหน้าที่พัสดุ", "shot": true, "crop": "panel", "highlight": {"label": "วรินทร์", "within": {"css": "form[data-form=techs]"}}},
+        {"do": "fill", "target": {"label": "เก็บรูปแจ้งซ่อมหลังปิดงานกี่เดือน"}, "value": "24", "say": "ในช่อง \"เก็บรูปแจ้งซ่อมหลังปิดงานกี่เดือน (0 = เก็บไว้ไม่ลบ)\" พิมพ์ 24 รูปของงานที่ปิดแล้วเกิน 24 เดือนจะถูกลบโดยอัตโนมัติ", "shot": true, "crop": "panel", "highlight": {"label": "เก็บรูปแจ้งซ่อมหลังปิดงานกี่เดือน"}},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกสิทธิ์", "exact": true}, "say": "กดปุ่ม \"บันทึกสิทธิ์\" ระบบแสดงข้อความ \"บันทึกสิทธิ์แล้ว\"", "shot": true, "crop": "viewport", "highlight": {"id": "toast"}, "wait_after": {"id": "toast"}}
+      ],
+      "expected": "ระบบแสดงข้อความ \"บันทึกสิทธิ์แล้ว\" บุคลากรที่ติ๊กเป็นช่างซ่อมได้ และระยะเก็บรูปเป็น 24 เดือน",
+      "verify": [
+        {
+          "title": "หน้าช่างซ่อมแสดงบุคลากรที่ติ๊กไว้และระยะเก็บรูปใหม่",
+          "start": "/work#assets/techs",
+          "steps": [
+            {"do": "wait_for", "target": {"role": "heading", "name": "ช่างซ่อมและเจ้าหน้าที่พัสดุ"}},
+            {"do": "expect", "that": [{"checked": {"label": "วรินทร์", "within": {"css": "form[data-form=techs]"}}}, {"value": "24", "of": {"label": "เก็บรูปแจ้งซ่อมหลังปิดงานกี่เดือน"}}]}
+          ]
+        },
+        {
+          "title": "ครูที่ได้สิทธิ์ช่างซ่อมเห็นปุ่ม \"ครุภัณฑ์และพัสดุ\" ในหน้าแจ้งซ่อม",
+          "as": "finance",
+          "start": "/work#repairs",
+          "steps": [
+            {"do": "expect", "that": {"visible": {"role": "link", "name": "ครุภัณฑ์และพัสดุ", "exact": true, "within": {"css": "section.mnt"}}}, "say": "ครูที่ได้สิทธิ์ช่างซ่อมเห็นปุ่ม \"ครุภัณฑ์และพัสดุ\" ที่มุมขวาบนของหน้า \"แจ้งซ่อม\"", "shot": true, "crop": "viewport", "highlight": {"role": "link", "name": "ครุภัณฑ์และพัสดุ", "exact": true, "within": {"css": "section.mnt"}}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "non-technician-limits",
+      "title": "ครูที่ไม่ใช่ช่างซ่อมเปิดหน้าครุภัณฑ์ไม่ได้",
+      "intro": "ครูทั่วไปไม่มีเมนู \"ครุภัณฑ์และพัสดุ\" ถ้าพิมพ์ที่อยู่หน้านั้นเอง ระบบแสดงข้อความว่าไม่มีสิทธิ์ และหน้า \"แจ้งซ่อม\" แสดงเฉพาะเรื่องที่ตนแจ้ง",
+      "role": "subject",
+      "start": "/work",
+      "steps": [
+        {"do": "note", "target": {"role": "navigation", "name": "ระบบงานโรงเรียน"}, "say": "เมนูด้านซ้ายของครูทั่วไปมี \"แจ้งซ่อม\" แต่ไม่มี \"ครุภัณฑ์และพัสดุ\"", "shot": true, "crop": "viewport", "highlight": {"role": "link", "name": "แจ้งซ่อม", "exact": true, "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}},
+        {"do": "goto", "url": "/work#assets"},
+        {"do": "wait_for", "target": {"role": "alert", "has_text": "บัญชีนี้ไม่ได้รับสิทธิ์ช่างซ่อม"}},
+        {"do": "note", "target": {"role": "alert", "has_text": "บัญชีนี้ไม่ได้รับสิทธิ์ช่างซ่อม"}, "say": "ถ้าครูเปิดหน้าครุภัณฑ์เอง ระบบแสดงข้อความ \"บัญชีนี้ไม่ได้รับสิทธิ์ช่างซ่อมหรือเจ้าหน้าที่พัสดุ ผู้ดูแลระบบให้สิทธิ์ได้ในหน้าตั้งค่า\"", "shot": true, "crop": "panel", "highlight": {"role": "alert", "has_text": "บัญชีนี้ไม่ได้รับสิทธิ์ช่างซ่อม"}}
+      ],
+      "expected": "ครูทั่วไปเห็นข้อความไม่มีสิทธิ์ และไม่เห็นรายการครุภัณฑ์",
+      "verify": [
+        {
+          "title": "หน้า \"แจ้งซ่อม\" ของครูไม่มีตัวเลือกดูงานของคนอื่น",
+          "steps": [
+            {"do": "goto", "url": "/work#repairs"},
+            {"do": "wait_for", "target": {"role": "heading", "name": "แจ้งซ่อม", "exact": true}},
+            {"do": "expect", "that": [{"visible": {"role": "link", "name": "แจ้งซ่อมใหม่", "exact": true}}, {"count": 0, "of": {"label": "แสดง"}}], "say": "หน้า \"แจ้งซ่อม\" ของครูมีเพียงตัวกรอง \"สถานะ\" และ \"ค้นหา\" และไม่มีช่อง \"แสดง\" ที่ใช้ดูงานทั้งหมดของช่าง", "shot": true, "crop": "panel", "highlight": false}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "editor-views-repairs",
+      "title": "บรรณาธิการเว็บไซต์ใช้เมนูแจ้งซ่อม",
+      "intro": "บรรณาธิการเว็บไซต์แจ้งซ่อมได้เหมือนครู บัญชีนี้ไม่มีเมนูด้านซ้ายของงานโรงเรียน ให้เปิดเมนู \"แจ้งซ่อม\" จากหน้า \"งานโรงเรียน\" และไม่มีเมนู \"ครุภัณฑ์และพัสดุ\" (เว้นแต่ผู้ดูแลระบบให้สิทธิ์ช่างซ่อม)",
+      "role": "editor",
+      "start": "/work",
+      "steps": [
+        {"do": "click", "target": {"role": "link", "name": "แจ้งซ่อม", "exact": true, "first": true}, "say": "เลือก \"แจ้งซ่อม\" ที่แถบด้านบนหรือในหน้า \"งานโรงเรียน\" ระบบแสดงเรื่องที่ผู้ใช้แจ้งเอง", "shot": true, "crop": "viewport", "wait_after": {"role": "heading", "name": "แจ้งซ่อม", "exact": true}}
+      ],
+      "expected": "หน้า \"แจ้งซ่อม\" แสดงปุ่ม \"แจ้งซ่อมใหม่\" และรายการเรื่องที่ผู้ใช้แจ้งเอง",
+      "verify": [
+        {
+          "title": "บรรณาธิการเห็นปุ่มแจ้งซ่อมใหม่และไม่เห็นเมนูครุภัณฑ์",
+          "steps": [
+            {"do": "expect", "that": [{"visible": {"role": "link", "name": "แจ้งซ่อมใหม่", "exact": true}}, {"count": 0, "of": {"role": "link", "name": "ครุภัณฑ์และพัสดุ", "exact": true}}]}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "retire-test-stock",
+      "title": "ปิดการแจ้งเตือนของรายการพัสดุ (ตั้งจุดสั่งซื้อเป็น 0)",
+      "intro": "ระบบไม่มีปุ่มลบรายการพัสดุ ถ้าเลิกใช้รายการใด ให้แก้จุดสั่งซื้อเป็น 0 เพื่อไม่ให้รายการขึ้นในรายงาน \"พัสดุที่ถึงจุดสั่งซื้อ\"",
+      "role": "clerk",
+      "start": "/work#assets/stock",
+      "cleanup": true,
+      "steps": [
+        {"do": "fill", "target": {"label": "ค้นหา (รหัส ชื่อ)"}, "value": "{{item_code}}", "settle_ms": 1500, "say": "ค้นหารายการพัสดุด้วยรหัสในช่อง \"ค้นหา (รหัส ชื่อ)\"", "shot": true, "crop": "viewport", "wait_after": {"css": "li.mnt-item", "has_text": "{{item_name}}"}},
+        {"do": "click", "target": {"css": "summary", "has_text": "แก้ไขรายการ", "within": {"css": "li.mnt-item", "has_text": "{{item_name}}"}}, "say": "กดหัวข้อ \"แก้ไขรายการ\" ที่แถวของพัสดุ", "shot": true, "crop": "tight", "wait_after": {"role": "button", "name": "บันทึกการแก้ไข"}},
+        {"do": "fill", "target": {"label": "จุดสั่งซื้อ", "within": {"attr": {"data-form": "itemedit"}}}, "value": "0", "say": "พิมพ์ 0 ในช่อง \"จุดสั่งซื้อ (0 = ไม่แจ้งเตือน)\"", "shot": true, "crop": "tight"},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกการแก้ไข"}, "say": "กดปุ่ม \"บันทึกการแก้ไข\" ป้าย \"ถึงจุดสั่งซื้อ\" หายไปจากรายการ", "shot": true, "crop": "tight", "highlight": {"css": "li.mnt-item", "has_text": "{{item_name}}"}, "wait_after": {"css": "li.mnt-item", "has_text": "จุดสั่งซื้อ 0"}}
+      ],
+      "expected": "แถวของพัสดุแสดง \"จุดสั่งซื้อ 0\" และไม่มีป้าย \"ถึงจุดสั่งซื้อ\"",
+      "verify": [
+        {
+          "title": "พัสดุนี้ไม่อยู่ในรายการที่ถึงจุดสั่งซื้อแล้ว",
+          "steps": [
+            {"do": "goto", "url": "/work#assets/reports"},
+            {"do": "wait_for", "target": {"role": "heading", "name": "ค่าซ่อมรายเดือน"}},
+            {"do": "expect", "that": {"count": 0, "of": {"role": "link", "name": "{{item_name}}"}}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "retire-test-asset",
+      "title": "จำหน่ายครุภัณฑ์ที่เลิกใช้",
+      "intro": "ระบบไม่มีปุ่มลบครุภัณฑ์ที่มีประวัติแจ้งซ่อม ให้เปลี่ยนสถานะเป็น \"จำหน่ายแล้ว\" ครุภัณฑ์ที่จำหน่ายแล้วยังอยู่ในทะเบียนและประวัติ แต่แจ้งซ่อมไม่ได้และไม่ถูกพิมพ์ป้าย ถ้ายังมีงานซ่อมค้างอยู่ ต้องปิดงานก่อน",
+      "role": "principal",
+      "start": "/work#assets",
+      "cleanup": true,
+      "steps": [
+        {"do": "fill", "target": {"label": "ค้นหา (เลข ชื่อ สถานที่)"}, "value": "{{asset_code}}", "say": "ค้นหาครุภัณฑ์ที่ต้องการจำหน่ายในช่อง \"ค้นหา (เลข ชื่อ สถานที่)\"", "shot": true, "crop": "viewport", "wait_after": {"role": "link", "name": "{{asset_code}}"}, "settle_ms": 1500},
+        {"do": "click", "target": {"role": "link", "name": "{{asset_code}}"}, "wait_after": {"role": "heading", "name": "{{asset_code}}"}},
+        {"do": "click", "target": {"role": "link", "name": "แก้ไข", "exact": true}, "wait_after": {"role": "heading", "name": "แก้ไขครุภัณฑ์"}},
+        {"do": "select", "target": {"label": "สถานะ"}, "label": "จำหน่ายแล้ว", "say": "เปิดหน้าแก้ไขครุภัณฑ์ และเลือก \"จำหน่ายแล้ว\" ในช่อง \"สถานะ\"", "shot": true, "crop": "panel"},
+        {"do": "click", "target": {"role": "button", "name": "บันทึก", "exact": true}, "say": "กดปุ่ม \"บันทึก\" สถานะของครุภัณฑ์เปลี่ยนเป็น \"จำหน่ายแล้ว\"", "shot": true, "crop": "viewport", "highlight": {"css": ".mnt-tag", "first": true}, "wait_after": {"css": ".mnt-tag", "has_text": "จำหน่ายแล้ว"}}
+      ],
+      "expected": "หน้ารายละเอียดของครุภัณฑ์แสดงสถานะ \"จำหน่ายแล้ว\"",
+      "verify": [
+        {
+          "title": "ครุภัณฑ์ที่จำหน่ายแล้วแจ้งซ่อมไม่ได้ (ไม่อยู่ในรายการค้นหาตอนแจ้งซ่อม)",
+          "as": "subject",
+          "start": "/work#repairs/new",
+          "steps": [
+            {"do": "fill", "target": {"label": "ค้นหาครุภัณฑ์ด้วยเลขหรือชื่อ"}, "value": "{{asset_code}}", "wait_after": {"text": "ไม่พบครุภัณฑ์"}},
+            {"do": "expect", "that": {"visible": {"text": "ไม่พบครุภัณฑ์"}}, "say": "เมื่อครูค้นหาครุภัณฑ์ที่จำหน่ายแล้วในหน้า \"แจ้งซ่อมใหม่\" ระบบแสดง \"ไม่พบครุภัณฑ์\"", "shot": true, "crop": "panel", "highlight": {"text": "ไม่พบครุภัณฑ์"}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "restore-technician-rights",
+      "title": "คืนสิทธิ์ช่างซ่อมและระยะเก็บรูปให้เหมือนเดิม (ล้างข้อมูลทดสอบ)",
+      "intro": "ขั้นตอนนี้ใช้ตอนทดสอบเท่านั้น เอาครูที่ติ๊กเพิ่มออกจากรายชื่อช่างซ่อม และตั้งระยะเก็บรูปกลับเป็น 12 เดือน (ค่าเริ่มต้นของระบบ) ตรวจว่าช่างซ่อมเดิมยังอยู่ครบ",
+      "role": "admin",
+      "start": "/work#assets/techs",
+      "cleanup": true,
+      "steps": [
+        {"do": "wait_for", "target": {"role": "heading", "name": "ช่างซ่อมและเจ้าหน้าที่พัสดุ"}},
+        {"do": "uncheck", "target": {"label": "วรินทร์", "within": {"css": "form[data-form=techs]"}}},
+        {"do": "fill", "target": {"label": "เก็บรูปแจ้งซ่อมหลังปิดงานกี่เดือน"}, "value": "12"},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกสิทธิ์", "exact": true}, "wait_after": {"id": "toast"}}
+      ],
+      "expected": "รายชื่อช่างซ่อมกลับเป็นเหมือนก่อนทดสอบ และระยะเก็บรูปเป็น 12 เดือน",
+      "verify": [
+        {
+          "title": "เปิดหน้าช่างซ่อมใหม่ ครูที่ติ๊กเพิ่มถูกเอาออก ช่างซ่อมเดิมยังอยู่ และระยะเก็บรูปเป็น 12 เดือน",
+          "start": "/work#assets/techs",
+          "steps": [
+            {"do": "wait_for", "target": {"role": "heading", "name": "ช่างซ่อมและเจ้าหน้าที่พัสดุ"}},
+            {"do": "expect", "that": [{"unchecked": {"label": "วรินทร์", "within": {"css": "form[data-form=techs]"}}}, {"checked": {"label": "ศิริน", "within": {"css": "form[data-form=techs]"}}}, {"value": "12", "of": {"label": "เก็บรูปแจ้งซ่อมหลังปิดงานกี่เดือน"}}]}
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": ["ปุ่ม \"พิมพ์ / บันทึกเป็น PDF\" ในหน้าแผ่นป้าย: ปุ่มเรียกหน้าต่างพิมพ์ของเบราว์เซอร์ (window.print) ซึ่งเครื่องมือทดสอบสั่งไม่ได้ ทดสอบเพียงว่าแผ่นป้ายเปิดและมีป้ายตามที่เลือก","การลบรูปแจ้งซ่อมอัตโนมัติเมื่อปิดงานเกินกำหนด (คำสั่ง saan:maintenance-prune): ทำงานตามเวลาที่ตั้งไว้ทุกวัน เวลา 04:10 ไม่ได้ทำงานผ่านหน้าจอ มีชุดทดสอบอัตโนมัติของโมดูลครอบคลุม","อีเมลแจ้งผู้แจ้งเมื่อซ่อมเสร็จหรือไม่ดำเนินการ: ส่งทางอีเมลเท่านั้น ไม่มีหน้าจอในระบบให้ตรวจ และไม่ส่งเมื่อบัญชีผู้แจ้งไม่มีอีเมล","การลบครุภัณฑ์ (DELETE /api/maintenance/assets/{id}): มีเส้นทางฝั่งเซิร์ฟเวอร์แต่หน้าจอไม่มีปุ่มลบ ผู้ใช้ทำได้เพียงเปลี่ยนสถานะเป็น \"จำหน่ายแล้ว\" ซึ่งเป็นขั้นตอนทำความสะอาดของชุดทดสอบ","การลบรายการพัสดุและงานแจ้งซ่อม: หน้าจอไม่มีปุ่มลบ ข้อมูลที่ทดสอบสร้างไว้ (งานแจ้งซ่อมที่ปิดแล้วและรายการพัสดุที่ตั้งจุดสั่งซื้อเป็น 0) จึงคงอยู่และค้นหาได้ด้วยข้อความ \"ทดสอบคู่มือ\""]
+}

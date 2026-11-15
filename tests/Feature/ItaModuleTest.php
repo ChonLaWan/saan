@@ -57,4 +57,16 @@ class ItaModuleTest extends TestCase
         $this->assertContains('web-ita',array_column(app(\App\Support\Modules\ModuleRegistry::class)->summary(),'id'));
         $this->actingAs(User::where('role','admin')->first())->get('/cms')->assertOk()->assertSee('assets/modules/web-ita/ita-admin.js',false)->assertSee('ITA เปิดเผยข้อมูลสาธารณะ');
     }
+
+    public function test_public_page_prefixes_internal_links_with_the_install_folder_and_keeps_external_ones(): void
+    {
+        $y=$this->postJson('/api/ita/years',['fiscal_year'=>2568])->assertCreated()->json();
+        $topics=[['code'=>'O1','title'=>'t','items'=>[['title'=>'ข่าวภายใน','url'=>'/portal/news','media_id'=>null,'note'=>''],['title'=>'ลิงก์ภายนอก','url'=>'https://example.org/ext','media_id'=>null,'note'=>'']]]];
+        $s=$this->putJson('/api/ita/years/'.$y['year']['id'],['version'=>$y['year']['version'],'title'=>'sub','topics'=>$topics])->assertOk()->json();
+        $this->postJson('/api/ita/years/'.$y['year']['id'].'/status',['version'=>$s['year']['version'],'action'=>'publish'])->assertOk();
+        $this->app['auth']->forgetGuards();
+        \Illuminate\Support\Facades\URL::forceRootUrl('http://localhost/some-folder');
+        try { $this->get('http://localhost/portal/ita/2568')->assertOk()->assertSee('href="http://localhost/some-folder/portal/news"',false)->assertSee('href="https://example.org/ext"',false)->assertDontSee('href="/portal/news"',false); }
+        finally { \Illuminate\Support\Facades\URL::forceRootUrl(null); }
+    }
 }

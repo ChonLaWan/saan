@@ -147,6 +147,8 @@ final class DemoSchool
             $learning->assessment();
             $learning->behavior();
             $learning->health();
+            $more = new DemoCoverage($ctx);
+            $more->learning();
             $office = new DemoOffice($ctx);
             $office->personnel();
             $office->leaveDuty();
@@ -155,6 +157,7 @@ final class DemoSchool
             $office->documents();
             $office->maintenance();
             $office->projects();
+            $more->office();
             $life = new DemoStudentLife($ctx);
             $life->activities();
             $life->projectLearning();
@@ -162,15 +165,25 @@ final class DemoSchool
             $life->learningLinks();
             $life->connectors();
             $life->gateway();
+            $more->studentLife();
             $academic->portalAccounts();
+            $more->guardians();
+            $more->studentPins();
             $web = new DemoWebsite($ctx);
             $web->news();
             $web->hubs();
             $web->surveys();
+            $more->surveys();
             $web->notices();
+            $more->notices();
             $web->complaints();
+            $more->complaints();
+            $web->complaintsReport();
+            $more->complaintsReports();
             $web->messages();
             $web->social();
+            $more->site();
+            $more->registry(); // last of the people data: it moves a few students to "left" and "transferred out"
             $web->markSite();
             $web->ita(); // last: its automatic links look at the news, hubs, complaints and the staff directory made above
 

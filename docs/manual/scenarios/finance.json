@@ -1,0 +1,6040 @@
+{
+ "module": "finance",
+ "title": "การเงินนักเรียน",
+ "area": "งานบริหารและงานสนับสนุน",
+ "purpose": "เจ้าหน้าที่การเงินออกใบแจ้งหนี้ค่าธรรมเนียมให้นักเรียนรายคนหรือทั้งห้อง รับเงินสดและออกใบเสร็จที่มีเลขที่ของตนเอง ผู้ปกครองดูใบแจ้งหนี้ในพอร์ทัล โอนเงินเข้าบัญชีของโรงเรียน และแนบสลิป เจ้าหน้าที่ตรวจสลิปแล้วอนุมัติหรือไม่รับ ผู้อำนวยการและผู้ดูแลระบบจัดการรายการค่าธรรมเนียม บัญชีรับเงิน และปิดงวดรายเดือน ระบบมีรายงานยอดค้างรายห้อง สรุปรับเงินรายวัน และสมุดเงินสดอย่างง่าย ไม่ใช่ระบบบัญชีภาครัฐเต็มรูปแบบ",
+ "roles": [
+  "เจ้าหน้าที่การเงิน (ครูที่ผู้ดูแลระบบเลือกไว้)",
+  "ผู้อำนวยการและผู้ดูแลระบบ (จัดการรายการค่าธรรมเนียม บัญชีรับเงิน ปิดงวด และตั้งค่า)",
+  "ผู้ปกครอง (ดูใบแจ้งหนี้ แจ้งโอนพร้อมสลิป ดูใบเสร็จในพอร์ทัลผู้ปกครอง)"
+ ],
+ "menu": [
+  "เมนูด้านซ้าย \"งานโรงเรียน\" > \"การเงิน\" (/work#finance) แท็บด้านบน: ค้นหาและรับเงิน, ออกใบแจ้งหนี้, ตรวจสลิป, ยอดค้างรายห้อง, บัญชีรับเงิน, สรุปรายวัน, สมุดเงินสด, ตั้งค่า (เฉพาะผู้อำนวยการและผู้ดูแลระบบ)",
+  "พอร์ทัลผู้ปกครอง (/guardian) แท็บ \"ค่าธรรมเนียม\""
+ ],
+ "prerequisites": [
+  {
+   "module": "academic",
+   "text": "ต้องมีปีการศึกษา ภาคเรียน และห้องเรียน"
+  },
+  {
+   "module": "registry",
+   "text": "ต้องมีรายชื่อนักเรียนในห้อง"
+  },
+  {
+   "module": "guardian-portal",
+   "text": "ผู้ปกครองต้องมีบัญชีและผูกกับนักเรียนจึงจะเห็นใบแจ้งหนี้และแจ้งโอนได้"
+  }
+ ],
+ "vars": {},
+ "workflows": [
+  {
+   "id": "add-fee-item",
+   "title": "เพิ่มรายการค่าธรรมเนียมใหม่",
+   "role": "principal",
+   "start": "/work",
+   "intro": "ผู้อำนวยการหรือผู้ดูแลระบบเพิ่มรายการค่าธรรมเนียมที่ใช้ออกใบแจ้งหนี้ ระบบไม่มีปุ่มลบรายการ ใช้ปุ่ม \"ปิดใช้\" เมื่อไม่ต้องการให้เลือกอีก เจ้าหน้าที่การเงินระดับครูไม่เห็นแท็บ \"ตั้งค่า\"",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ตั้งค่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "crop": "tight",
+     "wait_after": {
+      "css": "form.fin-fee"
+     },
+     "say": "เลือกแท็บ \"ตั้งค่า\" ด้านบนของหน้า",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัส",
+      "exact": true,
+      "within": {
+       "css": "form.fin-fee"
+      }
+     },
+     "value": "TST-{{run_id}}",
+     "crop": "panel",
+     "say": "พิมพ์รหัสรายการในช่อง \"รหัส\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ชื่อรายการ",
+      "within": {
+       "css": "form.fin-fee"
+      }
+     },
+     "value": "{{marker}} ค่ากิจกรรมทดสอบ",
+     "crop": "panel",
+     "say": "พิมพ์ชื่อรายการในช่อง \"ชื่อรายการ\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จำนวนเงิน (บาท)",
+      "within": {
+       "css": "form.fin-fee"
+      }
+     },
+     "value": "300.00",
+     "crop": "panel",
+     "say": "พิมพ์จำนวนเงินเป็นบาทในช่อง \"จำนวนเงิน (บาท)\" ช่อง \"ระดับชั้น\" เว้นว่างได้ ถ้าเว้นว่างรายการนี้ใช้กับทุกชั้น",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มรายการ",
+      "exact": true,
+      "within": {
+       "css": "form.fin-fee"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/finance/fee-items",
+      "method": "POST",
+      "status": 201
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"เพิ่มรายการ\" ระบบแสดงข้อความ \"เพิ่มรายการแล้ว\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "visible": {
+       "css": "ul.fin-cards li",
+       "has_text": "{{marker}}"
+      }
+     }
+    }
+   ],
+   "expected": "รายการใหม่อยู่ในรายการค่าธรรมเนียมของหน้า \"ตั้งค่า\" พร้อมปุ่ม \"ปิดใช้\"",
+   "verify": [
+    {
+     "title": "เปิดหน้าตั้งค่าใหม่ รายการต้องยังอยู่และเปิดใช้",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "expect",
+       "crop": "tight",
+       "highlight": {
+        "css": "ul.fin-cards li",
+        "has_text": "{{marker}}"
+       },
+       "that": [
+        {
+         "visible": {
+          "css": "ul.fin-cards li",
+          "has_text": "{{marker}}"
+         }
+        },
+        {
+         "visible": {
+          "role": "button",
+          "name": "ปิดใช้",
+          "exact": true,
+          "within": {
+           "css": "ul.fin-cards li",
+           "has_text": "{{marker}}"
+          }
+         }
+        }
+       ],
+       "say": "เปิดหน้า \"ตั้งค่า\" ใหม่ รายการค่าธรรมเนียมที่เพิ่มยังอยู่ในรายการ",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "issue-invoice-student",
+   "title": "ออกใบแจ้งหนี้ให้นักเรียนรายคน",
+   "role": "finance",
+   "start": "/work",
+   "core": true,
+   "depends_on": [
+    "add-fee-item"
+   ],
+   "intro": "เจ้าหน้าที่การเงินค้นหานักเรียนด้วยรหัสหรือชื่อ แล้วเลือกรายการค่าธรรมเนียมที่ต้องการเก็บ ระบบออกเลขที่ใบแจ้งหนี้ให้เอง ใบแจ้งหนี้แสดงในพอร์ทัลผู้ปกครองทันที",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสหรือชื่อนักเรียน"
+     },
+     "value": "อคิน",
+     "wait_after": {
+      "role": "link",
+      "name": "อคิน ธารใส"
+     },
+     "crop": "panel",
+     "say": "พิมพ์รหัสหรือส่วนหนึ่งของชื่อนักเรียนในช่อง \"รหัสหรือชื่อนักเรียน\" ระบบแสดงรายชื่อที่ตรงและยอดค้างชำระของแต่ละคน",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "อคิน ธารใส"
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "อคิน ธารใส"
+     },
+     "crop": "viewport",
+     "say": "กดที่ชื่อ \"อคิน ธารใส\" ระบบเปิดหน้าบัญชีของนักเรียน แสดงใบแจ้งหนี้และยอดค้างรวม",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "details.fin-new > summary"
+     },
+     "crop": "tight",
+     "wait_after": {
+      "css": "form.fin-inv"
+     },
+     "say": "กดหัวข้อ \"ออกใบแจ้งหนี้ใหม่\" เพื่อเปิดแบบฟอร์ม",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "checkbox",
+      "name": "{{marker}} ค่ากิจกรรมทดสอบ"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "div.fin-line",
+      "has_text": "{{marker}}"
+     },
+     "say": "ติ๊กรายการค่าธรรมเนียมที่ต้องการเก็บ ในที่นี้คือ \"ค่ากิจกรรมทดสอบ\" จำนวนเงินของรายการแสดงในวงเล็บ",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ออกใบแจ้งหนี้",
+      "exact": true,
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/finance/invoices",
+      "method": "POST",
+      "status": 201
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"ออกใบแจ้งหนี้\" ระบบแสดงข้อความ \"ออกใบแจ้งหนี้แล้ว\" และใบแจ้งหนี้ใหม่ปรากฏในหน้า",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "visible": {
+       "css": "article.fin-invoice",
+       "has_text": "ยอดรวม 300.00 / ชำระแล้ว 0.00 / ค้าง 300.00"
+      }
+     }
+    }
+   ],
+   "expected": "หน้าบัญชีของนักเรียนมีใบแจ้งหนี้ใหม่ ยอดรวม 300.00 บาท สถานะ \"ค้างชำระ\" พร้อมแบบฟอร์มรับเงิน",
+   "verify": [
+    {
+     "title": "เปิดหน้าบัญชีของนักเรียนใหม่ ใบแจ้งหนี้ต้องยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.fin-invoice",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "article.fin-invoice",
+        "has_text": "ยอดรวม 300.00 / ชำระแล้ว 0.00 / ค้าง 300.00"
+       },
+       "that": {
+        "visible": {
+         "css": "article.fin-invoice",
+         "has_text": "ยอดรวม 300.00 / ชำระแล้ว 0.00 / ค้าง 300.00"
+        }
+       },
+       "say": "เปิดหน้าบัญชีของ \"อคิน ธารใส\" ใหม่ ใบแจ้งหนี้ยอด 300.00 บาทยังอยู่ในรายการ",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "issue-custom-invoice",
+   "title": "ออกใบแจ้งหนี้รายการอื่นที่ไม่อยู่ในรายการค่าธรรมเนียม",
+   "role": "finance",
+   "start": "/work",
+   "intro": "เมื่อต้องเก็บเงินที่ไม่มีในรายการค่าธรรมเนียม ให้พิมพ์ชื่อรายการและจำนวนเงินในช่อง \"รายการอื่น\" ของแบบฟอร์มออกใบแจ้งหนี้",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสหรือชื่อนักเรียน"
+     },
+     "value": "มนสิชา",
+     "wait_after": {
+      "role": "link",
+      "name": "มนสิชา แสงเช้าใส"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "มนสิชา แสงเช้าใส"
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "มนสิชา แสงเช้าใส"
+     },
+     "crop": "viewport",
+     "say": "ค้นหาด้วยชื่อ \"มนสิชา\" แล้วกดที่ชื่อ \"มนสิชา แสงเช้าใส\" ในรายการ",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "details.fin-new > summary"
+     },
+     "crop": "tight",
+     "wait_after": {
+      "css": "form.fin-inv"
+     },
+     "say": "กดหัวข้อ \"ออกใบแจ้งหนี้ใหม่\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รายการอื่น (ชื่อ)",
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "value": "{{marker}} ค่าชุดกีฬา",
+     "crop": "panel",
+     "say": "พิมพ์ชื่อรายการในช่อง \"รายการอื่น (ชื่อ)\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จำนวนเงิน (บาท)",
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "value": "200.00",
+     "crop": "panel",
+     "say": "พิมพ์จำนวนเงินเป็นบาทในช่อง \"จำนวนเงิน (บาท)\" ทศนิยมได้ไม่เกิน 2 ตำแหน่ง",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ออกใบแจ้งหนี้",
+      "exact": true,
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/finance/invoices",
+      "method": "POST",
+      "status": 201
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"ออกใบแจ้งหนี้\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "visible": {
+       "css": "article.fin-invoice",
+       "has_text": "ชำระแล้ว 0.00 / ค้าง 200.00",
+       "first": true
+      }
+     }
+    }
+   ],
+   "expected": "บัญชีของนักเรียนมีใบแจ้งหนี้ใหม่ยอด 200.00 บาท สถานะ \"ค้างชำระ\"",
+   "verify": [
+    {
+     "title": "เปิดหน้าบัญชีของนักเรียนใหม่ ใบแจ้งหนี้ต้องยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.fin-invoice",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "article.fin-invoice",
+        "has_text": "ชำระแล้ว 0.00 / ค้าง 200.00",
+        "first": true
+       },
+       "that": {
+        "visible": {
+         "css": "article.fin-invoice",
+         "has_text": "ชำระแล้ว 0.00 / ค้าง 200.00",
+         "first": true
+        }
+       },
+       "say": "เปิดหน้าบัญชีของ \"มนสิชา แสงเช้าใส\" ใหม่ ใบแจ้งหนี้ยอด 200.00 บาทยังอยู่",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "receive-cash-payment",
+   "title": "รับเงินสดและพิมพ์ใบเสร็จ",
+   "role": "finance",
+   "start": "/work",
+   "depends_on": [
+    "issue-custom-invoice"
+   ],
+   "intro": "เจ้าหน้าที่การเงินรับเงินที่เคาน์เตอร์ หรือบันทึกการโอนที่ตรวจแล้วได้ที่ใบแจ้งหนี้ ระบบเสนอจำนวนที่ค้างทั้งหมดให้ แก้เป็นจำนวนบางส่วนได้ วันที่รับเงินเลือกได้เฉพาะวันนี้และวันที่ผ่านมา ใบเสร็จมีเลขที่ของตนเองและยกเลิกได้โดยเลขที่เดิมยังคงอยู่",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสหรือชื่อนักเรียน"
+     },
+     "value": "มนสิชา",
+     "wait_after": {
+      "role": "link",
+      "name": "มนสิชา แสงเช้าใส"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "มนสิชา แสงเช้าใส"
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "มนสิชา แสงเช้าใส"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "details.fin-new > summary"
+     },
+     "crop": "tight",
+     "wait_after": {
+      "css": "form.fin-inv"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รายการอื่น (ชื่อ)",
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "value": "{{marker}} ค่าใบเสร็จรับเงิน"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จำนวนเงิน (บาท)",
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "value": "200.00"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ออกใบแจ้งหนี้",
+      "exact": true,
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/finance/invoices",
+      "method": "POST",
+      "status": 201
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "ออกใบแจ้งหนี้ทดสอบ 200.00 บาทให้นักเรียนคนนี้ เพื่อรับเงินในขั้นตอนถัดไป",
+     "shot": true
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "text": "ค้าง 200.00"
+     },
+     "settle_ms": 1500
+    },
+    {
+     "do": "capture",
+     "target": {
+      "css": "article.fin-invoice",
+      "first": true
+     },
+     "var": "inv",
+     "regex": "(INV-[0-9-]+)"
+    },
+    {
+     "do": "expect",
+     "crop": "panel",
+     "highlight": {
+      "css": "article.fin-invoice",
+      "has_text": "{{inv}}",
+      "first": true
+     },
+     "that": {
+      "visible": {
+       "css": "article.fin-invoice",
+       "has_text": "{{inv}}",
+       "first": true
+      }
+     },
+     "say": "ในหน้าบัญชีของนักเรียน หาใบแจ้งหนี้ที่ต้องการรับเงิน ใต้ใบแจ้งหนี้ที่ยังค้างมีแบบฟอร์มรับเงิน",
+     "shot": true
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "วิธีชำระ",
+      "within": {
+       "css": "form.fin-pay",
+       "within": {
+        "css": "article.fin-invoice",
+        "has_text": "{{inv}}",
+        "first": true
+       }
+      }
+     },
+     "label": "เงินสด",
+     "crop": "panel",
+     "highlight": {
+      "css": "form.fin-pay",
+      "within": {
+       "css": "article.fin-invoice",
+       "has_text": "{{inv}}",
+       "first": true
+      }
+     },
+     "say": "เลือกวิธีชำระในช่อง \"วิธีชำระ\" ในที่นี้ใช้ \"เงินสด\" ช่อง \"จำนวนเงิน (บาท)\" และ \"วันที่รับเงิน\" ระบบกรอกให้แล้ว แก้ได้",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "อ้างอิง (ถ้ามี)",
+      "within": {
+       "css": "form.fin-pay",
+       "within": {
+        "css": "article.fin-invoice",
+        "has_text": "{{inv}}",
+        "first": true
+       }
+      }
+     },
+     "value": "{{marker}}",
+     "crop": "panel",
+     "highlight": {
+      "css": "form.fin-pay",
+      "within": {
+       "css": "article.fin-invoice",
+       "has_text": "{{inv}}",
+       "first": true
+      }
+     },
+     "say": "พิมพ์เลขอ้างอิงในช่อง \"อ้างอิง (ถ้ามี)\" เช่น เลขที่รายการโอน (ไม่บังคับ)",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "รับเงินและออกใบเสร็จ",
+      "within": {
+       "css": "form.fin-pay",
+       "within": {
+        "css": "article.fin-invoice",
+        "has_text": "{{inv}}",
+        "first": true
+       }
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": ".fin-receipt-ok"
+     },
+     "expect_response": {
+      "url_contains": "/payments",
+      "method": "POST",
+      "status": 201
+     },
+     "wait_after": {
+      "css": ".fin-receipt-ok"
+     },
+     "say": "กดปุ่ม \"รับเงินและออกใบเสร็จ\" ระบบแสดงข้อความ \"ออกใบเสร็จ ... แล้ว\" และลิงก์พิมพ์ใบเสร็จที่ด้านบนของหน้า",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "พิมพ์ใบเสร็จ RC",
+      "within": {
+       "css": ".fin-receipt-ok"
+      }
+     },
+     "crop": "viewport",
+     "highlight": false,
+     "expect_popup": {
+      "url_regex": "/api/finance/payments/\\d+/receipt"
+     },
+     "wait_after": {
+      "text": "มนสิชา"
+     },
+     "say": "กดลิงก์ \"พิมพ์ใบเสร็จ\" ระบบเปิดใบเสร็จในแท็บใหม่ สั่งพิมพ์หรือบันทึกเป็น PDF จากเบราว์เซอร์ได้",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "200.00"
+     }
+    },
+    {
+     "do": "close_tab"
+    },
+    {
+     "do": "expect",
+     "that": {
+      "visible": {
+       "css": "article.fin-invoice",
+       "has_text": "ชำระแล้ว 200.00 / ค้าง 0.00",
+       "first": true
+      }
+     }
+    }
+   ],
+   "expected": "ใบแจ้งหนี้แสดงยอดชำระแล้ว 200.00 บาท ค้าง 0.00 บาท มีรายการใบเสร็จเลขที่ RC-... พร้อมลิงก์ \"พิมพ์ใบเสร็จ\" และปุ่ม \"ยกเลิกใบเสร็จ\"",
+   "verify": [
+    {
+     "title": "เปิดหน้าบัญชีของนักเรียนใหม่ ใบเสร็จต้องยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.fin-invoice",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "article.fin-invoice",
+        "has_text": "ชำระแล้ว 200.00 / ค้าง 0.00",
+        "first": true
+       },
+       "that": [
+        {
+         "visible": {
+          "css": "article.fin-invoice",
+          "has_text": "ชำระแล้ว 200.00 / ค้าง 0.00",
+          "first": true
+         }
+        },
+        {
+         "text": "RC-",
+         "in": {
+          "css": "article.fin-invoice",
+          "has_text": "ชำระแล้ว 200.00 / ค้าง 0.00",
+          "first": true
+         }
+        }
+       ],
+       "say": "เปิดหน้าบัญชีของ \"มนสิชา แสงเช้าใส\" ใหม่ ใบแจ้งหนี้ยอด 200.00 บาทแสดงว่าชำระแล้ว พร้อมเลขที่ใบเสร็จ",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "preview-bulk-invoices",
+   "title": "ดูตัวอย่างการออกใบแจ้งหนี้ทั้งห้อง",
+   "role": "finance",
+   "start": "/work",
+   "depends_on": [
+    "add-fee-item"
+   ],
+   "intro": "แท็บ \"ออกใบแจ้งหนี้\" ออกใบแจ้งหนี้ให้ทั้งห้องหรือทั้งระดับชั้นในครั้งเดียว ระบบแสดงตัวอย่างก่อนว่าจะออกกี่ใบและข้ามใคร (คนที่มีใบแจ้งหนี้ของรายการนั้นแล้วจะถูกข้าม) แล้วจึงกดยืนยัน ขั้นตอนในคู่มือนี้หยุดที่ตัวอย่าง ไม่กดยืนยัน",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ออกใบแจ้งหนี้",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "wait_after": {
+      "css": "form.fin-bulk"
+     },
+     "say": "เลือกแท็บ \"ออกใบแจ้งหนี้\" ด้านบนของหน้า",
+     "shot": true,
+     "crop": "panel"
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ห้องเรียน",
+      "within": {
+       "css": "form.fin-bulk"
+      }
+     },
+     "label": "ม.5/1",
+     "crop": "panel",
+     "say": "เลือกห้องเรียนในช่อง \"ห้องเรียน\" หรือเลือกทั้งระดับชั้นในช่อง \"หรือทั้งระดับชั้น\" อย่างใดอย่างหนึ่ง",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "checkbox",
+      "name": "{{marker}} ค่ากิจกรรมทดสอบ"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "div.fin-line",
+      "has_text": "{{marker}}"
+     },
+     "say": "ติ๊กรายการค่าธรรมเนียมที่ต้องการ และแก้จำนวนเงินของรายการในช่องด้านขวาได้ ช่อง \"วันที่ออก\" และ \"ครบกำหนด\" กรอกเมื่อจำเป็น",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ดูตัวอย่าง",
+      "exact": true
+     },
+     "crop": "tight",
+     "crop_pad": 200,
+     "highlight": {
+      "css": "#fin-preview p",
+      "first": true
+     },
+     "expect_response": {
+      "url_contains": "/invoices/bulk/preview",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "css": "table.fin-table"
+     },
+     "say": "กดปุ่ม \"ดูตัวอย่าง\" ระบบแสดงจำนวนใบที่จะออก ยอดรวม และรายชื่อนักเรียนที่จะถูกข้าม",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "text": "จะออก",
+       "in": {
+        "id": "fin-preview"
+       }
+      },
+      {
+       "visible": {
+        "role": "button",
+        "name": "ยืนยันออกใบแจ้งหนี้",
+        "within": {
+         "id": "fin-preview"
+        }
+       }
+      }
+     ]
+    }
+   ],
+   "expected": "ตารางตัวอย่างแสดงนักเรียนทั้งห้อง และปุ่ม \"ยืนยันออกใบแจ้งหนี้ ... ใบ\" ยังไม่ถูกกด จึงไม่มีใบแจ้งหนี้เกิดขึ้น",
+   "verify": [
+    {
+     "title": "ตัวอย่างแสดงจำนวนใบและมีปุ่มยืนยัน",
+     "steps": [
+      {
+       "do": "expect",
+       "crop": "tight",
+       "highlight": {
+        "role": "button",
+        "name": "ยืนยันออกใบแจ้งหนี้",
+        "within": {
+         "id": "fin-preview"
+        }
+       },
+       "that": [
+        {
+         "text": "จะออก",
+         "in": {
+          "id": "fin-preview"
+         }
+        },
+        {
+         "enabled": {
+          "role": "button",
+          "name": "ยืนยันออกใบแจ้งหนี้",
+          "within": {
+           "id": "fin-preview"
+          }
+         }
+        }
+       ],
+       "say": "ตัวอย่างบอกจำนวนใบที่จะออกและยอดรวมของทั้งห้อง ปุ่มยืนยันอยู่ใต้ตาราง",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "issue-class-invoices",
+   "title": "ออกใบแจ้งหนี้ให้ทั้งห้องในครั้งเดียว",
+   "role": "finance",
+   "start": "/work",
+   "depends_on": [
+    "preview-bulk-invoices"
+   ],
+   "intro": "การออกทั้งห้องสร้างใบแจ้งหนี้จริงให้นักเรียนทุกคนที่กำลังศึกษาในห้องในครั้งเดียว และไม่มีปุ่มยกเลิกเป็นชุด ต้องยกเลิกทีละใบจากบัญชีของนักเรียน ตรวจตัวอย่างให้ครบก่อนกดยืนยันทุกครั้ง",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "role": "link",
+      "name": "ออกใบแจ้งหนี้",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"การเงิน\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ออกใบแจ้งหนี้",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "say": "เลือกแท็บ \"ออกใบแจ้งหนี้\"",
+     "shot": true
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ห้องเรียน",
+      "within": {
+       "css": "form.fin-bulk"
+      }
+     },
+     "label": "ม.5/1",
+     "crop": "panel",
+     "highlight": {
+      "label": "ห้องเรียน",
+      "within": {
+       "css": "form.fin-bulk"
+      }
+     },
+     "say": "เลือก \"ห้องเรียน\" ที่จะออกใบแจ้งหนี้ ในที่นี้คือ \"ม.5/1\" (เลือก \"หรือทั้งระดับชั้น\" แทนได้ถ้าต้องการออกทั้งระดับ)",
+     "shot": true
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "checkbox",
+      "name": "{{marker}} ค่ากิจกรรมทดสอบ"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "fieldset.fin-lines"
+     },
+     "say": "ติ๊กรายการค่าธรรมเนียมที่จะเรียกเก็บ ช่องจำนวนเงินข้างรายการแก้ได้",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ดูตัวอย่าง",
+      "exact": true
+     },
+     "crop": "panel",
+     "highlight": {
+      "id": "fin-preview"
+     },
+     "wait_after": {
+      "css": "p",
+      "has_text": "จะออก",
+      "within": {
+       "id": "fin-preview"
+      }
+     },
+     "say": "กดปุ่ม \"ดูตัวอย่าง\" ระบบแสดงจำนวนใบที่จะออก ยอดรวม และรายชื่อนักเรียนแต่ละคน ผู้ที่มีใบแจ้งหนี้รายการนี้อยู่แล้วจะถูกข้าม",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยืนยันออกใบแจ้งหนี้",
+      "within": {
+       "id": "fin-preview"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": "p.fin-ok"
+     },
+     "wait_after": {
+      "css": "p.fin-ok"
+     },
+     "say": "ตรวจตัวอย่างแล้วกดปุ่ม \"ยืนยันออกใบแจ้งหนี้\" ระบบออกใบแจ้งหนี้ให้ทั้งห้อง และแจ้งจำนวนที่ออกกับจำนวนที่ข้าม",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ออกแล้ว",
+      "in": {
+       "css": "p.fin-ok"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ดูตัวอย่าง",
+      "exact": true
+     },
+     "crop": "panel",
+     "highlight": {
+      "id": "fin-preview"
+     },
+     "wait_after": {
+      "css": "p",
+      "has_text": "จะออก 0 ใบ",
+      "within": {
+       "id": "fin-preview"
+      }
+     },
+     "say": "กดปุ่ม \"ดูตัวอย่าง\" อีกครั้ง ทุกคนมีใบแจ้งหนี้แล้ว ระบบแจ้ง \"จะออก 0 ใบ\" และปุ่มยืนยันกดไม่ได้ เพื่อกันการออกซ้ำ",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "disabled": {
+       "role": "button",
+       "name": "ยืนยันออกใบแจ้งหนี้",
+       "within": {
+        "id": "fin-preview"
+       }
+      }
+     }
+    }
+   ],
+   "expected": "ใบแจ้งหนี้ของรายการนี้ถูกออกให้นักเรียนทุกคนที่กำลังศึกษาในห้อง ม.5/1 และออกซ้ำไม่ได้",
+   "verify": [
+    {
+     "title": "เปิดบัญชีของนักเรียนในห้อง พบใบแจ้งหนี้ใหม่ 300.00 บาท",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "การเงิน",
+        "exact": true,
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        }
+       },
+       "wait_after": {
+        "label": "รหัสหรือชื่อนักเรียน"
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "รหัสหรือชื่อนักเรียน"
+       },
+       "value": "มนสิชา"
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "มนสิชา แสงเช้าใส"
+       },
+       "wait_after": {
+        "css": "article.fin-invoice",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "visible": {
+         "css": "article.fin-invoice",
+         "has_text": "ยอดรวม 300.00 / ชำระแล้ว 0.00 / ค้าง 300.00",
+         "first": true
+        }
+       },
+       "crop": "panel",
+       "highlight": {
+        "css": "article.fin-invoice",
+        "has_text": "ยอดรวม 300.00 / ชำระแล้ว 0.00 / ค้าง 300.00",
+        "first": true
+       },
+       "say": "เปิดบัญชีของนักเรียนในห้อง ม.5/1 พบใบแจ้งหนี้ใหม่ ยอดรวม 300.00 บาท",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "guardian-views-fees",
+   "title": "ผู้ปกครองดูใบแจ้งหนี้และบัญชีที่โอนเงินได้",
+   "role": "guardian1",
+   "start": "/guardian",
+   "depends_on": [
+    "issue-invoice-student"
+   ],
+   "intro": "ผู้ปกครองเข้าพอร์ทัลผู้ปกครอง เลือกบุตรหลาน แล้วเปิดแท็บ \"ค่าธรรมเนียม\" เพื่อดูใบแจ้งหนี้ ยอดค้าง บัญชีรับเงินของโรงเรียน และเลขที่ที่ต้องใส่ในบันทึกการโอน พอร์ทัลนักเรียนไม่มีแท็บค่าธรรมเนียม ผู้ปกครองเป็นผู้ดูและแจ้งชำระ",
+   "steps": [
+    {
+     "do": "select",
+     "target": {
+      "label": "เลือกบุตรหลาน"
+     },
+     "label": "อคิน ธารใส",
+     "wait_after": {
+      "role": "heading",
+      "name": "อคิน ธารใส"
+     },
+     "crop": "viewport",
+     "say": "เลือกบุตรหลานในช่อง \"เลือกบุตรหลาน\" ให้เป็น \"อคิน ธารใส\" ผู้ปกครองที่มีบุตรหลายคนเปลี่ยนคนได้ที่ช่องนี้",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ค่าธรรมเนียม",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "div.gp-card",
+      "has_text": "{{marker}} ค่ากิจกรรมทดสอบ",
+      "first": true
+     },
+     "crop": "tight",
+     "say": "เลือกแท็บ \"ค่าธรรมเนียม\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "crop": "panel",
+     "highlight": {
+      "css": "div.gp-card",
+      "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+     },
+     "that": {
+      "text": "ค้างชำระ",
+      "in": {
+       "css": "div.gp-card",
+       "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+      }
+     },
+     "say": "ใบแจ้งหนี้ใหม่แสดงรายการ ยอดรวม และยอดค้างชำระ ส่วนใบแจ้งหนี้เดิมของนักเรียนอยู่ในรายการเดียวกัน",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "crop": "panel",
+     "highlight": {
+      "css": "h3",
+      "has_text": "โอนเงินเข้าบัญชีใดบัญชีหนึ่ง",
+      "within": {
+       "css": "div.gp-card",
+       "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+      }
+     },
+     "that": {
+      "text": "โอนเงินเข้าบัญชีใดบัญชีหนึ่ง",
+      "in": {
+       "css": "div.gp-card",
+       "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+      }
+     },
+     "say": "ใต้ใบแจ้งหนี้ที่ค้างอยู่ ระบบแสดงบัญชีรับเงิน เลขบัญชี และข้อความบอกเลขที่ใบแจ้งหนี้ที่ต้องใส่ในบันทึกการโอน",
+     "shot": true
+    }
+   ],
+   "expected": "ผู้ปกครองเห็นใบแจ้งหนี้ใหม่ ยอด 300.00 บาท บัญชีรับเงิน และแบบฟอร์ม \"แจ้งการโอนเงินพร้อมแนบสลิป\"",
+   "verify": [
+    {
+     "title": "ผู้ปกครองเปิดหน้าใหม่ ใบแจ้งหนี้ต้องยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "select",
+       "target": {
+        "label": "เลือกบุตรหลาน"
+       },
+       "label": "อคิน ธารใส",
+       "wait_after": {
+        "role": "heading",
+        "name": "อคิน ธารใส"
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ค่าธรรมเนียม",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่ากิจกรรมทดสอบ",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "300.00",
+        "in": {
+         "css": "div.gp-card",
+         "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+        }
+       }
+      }
+     ]
+    },
+    {
+     "title": "พอร์ทัลนักเรียนไม่มีแท็บค่าธรรมเนียม",
+     "as": "student2",
+     "start": "/student",
+     "steps": [
+      {
+       "do": "expect",
+       "crop": "tight",
+       "highlight": {
+        "css": "nav.gp-tabs"
+       },
+       "that": [
+        {
+         "visible": {
+          "role": "button",
+          "name": "การมาเรียน",
+          "exact": true
+         }
+        },
+        {
+         "hidden": {
+          "role": "button",
+          "name": "ค่าธรรมเนียม",
+          "exact": true
+         }
+        }
+       ],
+       "say": "นักเรียนเข้าพอร์ทัลนักเรียน มีแท็บผลการเรียน ตารางเรียน การมาเรียน ความประพฤติ และบัญชีของฉัน ไม่มีแท็บค่าธรรมเนียม",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "guardian-sends-slip",
+   "title": "ผู้ปกครองแจ้งการโอนเงินพร้อมแนบสลิป",
+   "role": "guardian1",
+   "start": "/guardian",
+   "depends_on": [
+    "guardian-views-fees"
+   ],
+   "intro": "หลังโอนเงินเข้าบัญชีของโรงเรียน ผู้ปกครองแนบรูปสลิปที่ใบแจ้งหนี้ ระบบส่งเรื่องให้เจ้าหน้าที่การเงินตรวจสอบ สลิปยังไม่ใช่ใบเสร็จ โรงเรียนออกใบเสร็จเมื่อตรวจและอนุมัติแล้ว",
+   "steps": [
+    {
+     "do": "select",
+     "target": {
+      "label": "เลือกบุตรหลาน"
+     },
+     "label": "อคิน ธารใส",
+     "wait_after": {
+      "role": "heading",
+      "name": "อคิน ธารใส"
+     },
+     "crop": "viewport",
+     "say": "เลือกบุตรหลานในช่อง \"เลือกบุตรหลาน\" ให้เป็น \"อคิน ธารใส\" ผู้ปกครองที่มีบุตรหลายคนเปลี่ยนคนได้ที่ช่องนี้",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ค่าธรรมเนียม",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "div.gp-card",
+      "has_text": "{{marker}} ค่ากิจกรรมทดสอบ",
+      "first": true
+     },
+     "crop": "tight",
+     "say": "เลือกแท็บ \"ค่าธรรมเนียม\"",
+     "shot": true
+    },
+    {
+     "do": "upload",
+     "target": {
+      "label": "ไฟล์สลิป",
+      "within": {
+       "css": "form[data-form=claim]",
+       "within": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+       }
+      }
+     },
+     "file": "sample.pdf",
+     "crop": "panel",
+     "highlight": {
+      "label": "ไฟล์สลิป",
+      "within": {
+       "css": "form[data-form=claim]",
+       "within": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+       }
+      }
+     },
+     "say": "กดปุ่มเลือกไฟล์ในช่อง \"ไฟล์สลิป\" แล้วเลือกรูปสลิปการโอน (PNG, JPEG, WebP หรือ PDF ไม่เกิน 3 ไฟล์) ช่อง \"จำนวนเงินที่โอน\" และ \"โอนเข้าบัญชี\" ระบบกรอกให้ก่อน แก้ได้",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งสลิป",
+      "within": {
+       "css": "form[data-form=claim]",
+       "within": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+       }
+      }
+     },
+     "crop": "viewport",
+     "expect_response": {
+      "url_contains": "/claims",
+      "method": "POST",
+      "status": 201
+     },
+     "wait_after": {
+      "text": "ส่งสลิปแล้ว"
+     },
+     "highlight": {
+      "css": ".gp-msg"
+     },
+     "say": "กดปุ่ม \"ส่งสลิป\" ระบบแสดงข้อความ \"ส่งสลิปแล้ว รอโรงเรียนตรวจสอบ\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "รอโรงเรียนตรวจสอบ",
+      "in": {
+       "css": "div.gp-card",
+       "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+      }
+     }
+    }
+   ],
+   "expected": "ใต้ใบแจ้งหนี้มีหัวข้อ \"รายการที่แจ้งไว้\" ซึ่งมีรายการแจ้งโอน 300.00 บาท สถานะ \"รอโรงเรียนตรวจสอบ\" พร้อมลิงก์สลิปและปุ่ม \"ถอนรายการนี้\"",
+   "verify": [
+    {
+     "title": "ผู้ปกครองเปิดหน้าใหม่ รายการแจ้งโอนต้องยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "select",
+       "target": {
+        "label": "เลือกบุตรหลาน"
+       },
+       "label": "อคิน ธารใส",
+       "wait_after": {
+        "role": "heading",
+        "name": "อคิน ธารใส"
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ค่าธรรมเนียม",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่ากิจกรรมทดสอบ",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "li.gp-item",
+        "has_text": "รอโรงเรียนตรวจสอบ",
+        "within": {
+         "css": "div.gp-card",
+         "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+        }
+       },
+       "that": [
+        {
+         "text": "รอโรงเรียนตรวจสอบ",
+         "in": {
+          "css": "div.gp-card",
+          "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+         }
+        },
+        {
+         "visible": {
+          "role": "button",
+          "name": "ถอนรายการนี้",
+          "within": {
+           "css": "div.gp-card",
+           "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+          }
+         }
+        }
+       ],
+       "say": "เปิดแท็บ \"ค่าธรรมเนียม\" ใหม่ รายการแจ้งโอนยังอยู่ในสถานะ \"รอโรงเรียนตรวจสอบ\"",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "reject-slip",
+   "title": "เจ้าหน้าที่การเงินตรวจสลิปและไม่รับรายการ",
+   "role": "finance",
+   "start": "/work",
+   "depends_on": [
+    "guardian-sends-slip"
+   ],
+   "intro": "แท็บ \"ตรวจสลิป\" แสดงรายการที่ผู้ปกครองแจ้งโอน เจ้าหน้าที่เปิดดูสลิป เทียบกับรายการเดินบัญชี แล้วอนุมัติหรือไม่รับ ถ้าไม่รับต้องกรอกเหตุผล ผู้ปกครองเห็นเหตุผลในพอร์ทัลและแจ้งใหม่ได้",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ตรวจสลิป",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "wait_after": {
+      "id": "fc-filter"
+     },
+     "say": "เลือกแท็บ \"ตรวจสลิป\" ด้านบนของหน้า",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ห้องเรียน",
+      "within": {
+       "id": "fc-filter"
+      }
+     },
+     "label": "ม.4/1",
+     "wait_after": {
+      "role": "link",
+      "name": "อคิน ธารใส"
+     },
+     "crop": "panel",
+     "say": "เลือกห้องเรียนในช่อง \"ห้องเรียน\" เพื่อกรองรายการให้เหลือนักเรียนของห้องนั้น",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "อคิน ธารใส"
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "id": "fc-decide"
+     },
+     "say": "กดที่รายการของ \"อคิน ธารใส\" ระบบเปิดหน้ารายละเอียดพร้อมรูปสลิป",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เหตุผล",
+      "within": {
+       "id": "fc-decide"
+      }
+     },
+     "value": "{{marker}} สลิปไม่ชัด",
+     "crop": "panel",
+     "say": "พิมพ์เหตุผลที่ไม่รับในช่อง \"เหตุผล (ต้องกรอกเมื่อไม่รับ)\" ต้องมีอย่างน้อย 3 ตัวอักษร",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ไม่รับ",
+      "exact": true,
+      "within": {
+       "id": "fc-decide"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/reject",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"ไม่รับ\" ระบบบันทึกและแจ้งผู้ปกครองในพอร์ทัล",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "เหตุผล: ",
+      "in": {
+       "css": "section.fin-card"
+      }
+     }
+    }
+   ],
+   "expected": "หน้ารายละเอียดแสดงสถานะ \"ไม่รับ\" พร้อมเหตุผล และแบบฟอร์มตัดสินหายไป",
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ สถานะ \"ไม่รับ\" ต้องยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "section.fin-card .fin-badge"
+       },
+       "that": [
+        {
+         "text": "ไม่รับ",
+         "in": {
+          "css": "section.fin-card"
+         }
+        },
+        {
+         "text": "สลิปไม่ชัด",
+         "in": {
+          "css": "section.fin-card"
+         }
+        },
+        {
+         "hidden": {
+          "id": "fc-decide"
+         }
+        }
+       ],
+       "say": "เปิดหน้ารายละเอียดใหม่ สถานะ \"ไม่รับ\" และเหตุผลยังอยู่",
+       "shot": true
+      }
+     ]
+    },
+    {
+     "title": "ผู้ปกครองเห็นเหตุผลในพอร์ทัล",
+     "as": "guardian1",
+     "start": "/guardian",
+     "steps": [
+      {
+       "do": "select",
+       "target": {
+        "label": "เลือกบุตรหลาน"
+       },
+       "label": "อคิน ธารใส",
+       "wait_after": {
+        "role": "heading",
+        "name": "อคิน ธารใส"
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ค่าธรรมเนียม",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่ากิจกรรมทดสอบ",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "li.gp-item",
+        "has_text": "โรงเรียนไม่รับรายการนี้",
+        "within": {
+         "css": "div.gp-card",
+         "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+        }
+       },
+       "that": [
+        {
+         "text": "โรงเรียนไม่รับรายการนี้",
+         "in": {
+          "css": "div.gp-card",
+          "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+         }
+        },
+        {
+         "text": "สลิปไม่ชัด",
+         "in": {
+          "css": "div.gp-card",
+          "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+         }
+        }
+       ],
+       "say": "ผู้ปกครองเห็นรายการสถานะ \"โรงเรียนไม่รับรายการนี้\" พร้อมเหตุผล และส่งสลิปใหม่ได้",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "guardian-resends-and-withdraws",
+   "title": "ผู้ปกครองแจ้งใหม่ และถอนรายการที่ส่งผิด",
+   "role": "guardian1",
+   "start": "/guardian",
+   "depends_on": [
+    "reject-slip"
+   ],
+   "intro": "ผู้ปกครองแจ้งโอนใหม่ได้เมื่อรายการเดิมไม่ถูกรับ รายการที่ยังอยู่ในสถานะ \"รอโรงเรียนตรวจสอบ\" ถอนคืนเองได้ด้วยปุ่ม \"ถอนรายการนี้\" เมื่อแนบสลิปผิดไฟล์หรือกรอกจำนวนผิด",
+   "steps": [
+    {
+     "do": "select",
+     "target": {
+      "label": "เลือกบุตรหลาน"
+     },
+     "label": "อคิน ธารใส",
+     "wait_after": {
+      "role": "heading",
+      "name": "อคิน ธารใส"
+     },
+     "crop": "viewport",
+     "say": "เลือกบุตรหลานในช่อง \"เลือกบุตรหลาน\" ให้เป็น \"อคิน ธารใส\" ผู้ปกครองที่มีบุตรหลายคนเปลี่ยนคนได้ที่ช่องนี้",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ค่าธรรมเนียม",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "div.gp-card",
+      "has_text": "{{marker}} ค่ากิจกรรมทดสอบ",
+      "first": true
+     },
+     "crop": "tight",
+     "say": "เลือกแท็บ \"ค่าธรรมเนียม\"",
+     "shot": true
+    },
+    {
+     "do": "upload",
+     "target": {
+      "label": "ไฟล์สลิป",
+      "within": {
+       "css": "form[data-form=claim]",
+       "within": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+       }
+      }
+     },
+     "file": "sample.pdf",
+     "crop": "panel",
+     "highlight": {
+      "label": "ไฟล์สลิป",
+      "within": {
+       "css": "form[data-form=claim]",
+       "within": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+       }
+      }
+     },
+     "say": "กดปุ่มเลือกไฟล์ในช่อง \"ไฟล์สลิป\" แล้วเลือกรูปสลิปการโอน (PNG, JPEG, WebP หรือ PDF ไม่เกิน 3 ไฟล์) ช่อง \"จำนวนเงินที่โอน\" และ \"โอนเข้าบัญชี\" ระบบกรอกให้ก่อน แก้ได้",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งสลิป",
+      "within": {
+       "css": "form[data-form=claim]",
+       "within": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+       }
+      }
+     },
+     "crop": "viewport",
+     "expect_response": {
+      "url_contains": "/claims",
+      "method": "POST",
+      "status": 201
+     },
+     "wait_after": {
+      "text": "ส่งสลิปแล้ว"
+     },
+     "highlight": {
+      "css": ".gp-msg"
+     },
+     "say": "กดปุ่ม \"ส่งสลิป\" ระบบแสดงข้อความ \"ส่งสลิปแล้ว รอโรงเรียนตรวจสอบ\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ถอนรายการนี้",
+      "within": {
+       "css": "div.gp-card",
+       "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": ".gp-msg"
+     },
+     "expect_response": {
+      "url_contains": "/withdraw",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "text": "ถอนรายการแล้ว"
+     },
+     "say": "ถ้าแนบสลิปผิด กดปุ่ม \"ถอนรายการนี้\" ที่รายการสถานะ \"รอโรงเรียนตรวจสอบ\" ระบบถามยืนยัน แล้วเปลี่ยนสถานะเป็น \"ถอนคืนแล้ว\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ถอนคืนแล้ว",
+      "in": {
+       "css": "div.gp-card",
+       "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+      }
+     }
+    }
+   ],
+   "expected": "รายการที่ส่งในขั้นนี้เปลี่ยนเป็น \"ถอนคืนแล้ว\" ไม่มีปุ่ม \"ถอนรายการนี้\" และใบแจ้งหนี้ยังค้างชำระเท่าเดิม",
+   "verify": [
+    {
+     "title": "เจ้าหน้าที่การเงินเห็นรายการสถานะ \"ถอนคืน\"",
+     "as": "finance",
+     "start": "/work#finance/claims",
+     "steps": [
+      {
+       "do": "select",
+       "target": {
+        "label": "สถานะ",
+        "within": {
+         "id": "fc-filter"
+        }
+       },
+       "label": "ถอนคืน",
+       "wait_after": {
+        "role": "link",
+        "name": "อคิน ธารใส",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "ul.fin-cards li",
+        "has_text": "อคิน ธารใส",
+        "first": true
+       },
+       "that": {
+        "visible": {
+         "role": "link",
+         "name": "อคิน ธารใส",
+         "first": true
+        }
+       },
+       "say": "เจ้าหน้าที่การเงินเลือกสถานะ \"ถอนคืน\" ในหน้า \"ตรวจสลิป\" และเห็นรายการที่ผู้ปกครองถอน",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "guardian-sends-final-slip",
+   "title": "ผู้ปกครองแจ้งโอนเงินอีกครั้งด้วยสลิปที่ถูกต้อง",
+   "role": "guardian1",
+   "start": "/guardian",
+   "depends_on": [
+    "guardian-resends-and-withdraws"
+   ],
+   "steps": [
+    {
+     "do": "select",
+     "target": {
+      "label": "เลือกบุตรหลาน"
+     },
+     "label": "อคิน ธารใส",
+     "wait_after": {
+      "role": "heading",
+      "name": "อคิน ธารใส"
+     },
+     "crop": "viewport",
+     "say": "เลือกบุตรหลานในช่อง \"เลือกบุตรหลาน\" ให้เป็น \"อคิน ธารใส\" ผู้ปกครองที่มีบุตรหลายคนเปลี่ยนคนได้ที่ช่องนี้",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ค่าธรรมเนียม",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "div.gp-card",
+      "has_text": "{{marker}} ค่ากิจกรรมทดสอบ",
+      "first": true
+     },
+     "crop": "tight",
+     "say": "เลือกแท็บ \"ค่าธรรมเนียม\"",
+     "shot": true
+    },
+    {
+     "do": "upload",
+     "target": {
+      "label": "ไฟล์สลิป",
+      "within": {
+       "css": "form[data-form=claim]",
+       "within": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+       }
+      }
+     },
+     "file": "sample.pdf",
+     "crop": "panel",
+     "highlight": {
+      "label": "ไฟล์สลิป",
+      "within": {
+       "css": "form[data-form=claim]",
+       "within": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+       }
+      }
+     },
+     "say": "กดปุ่มเลือกไฟล์ในช่อง \"ไฟล์สลิป\" แล้วเลือกรูปสลิปการโอน (PNG, JPEG, WebP หรือ PDF ไม่เกิน 3 ไฟล์) ช่อง \"จำนวนเงินที่โอน\" และ \"โอนเข้าบัญชี\" ระบบกรอกให้ก่อน แก้ได้",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ส่งสลิป",
+      "within": {
+       "css": "form[data-form=claim]",
+       "within": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+       }
+      }
+     },
+     "crop": "viewport",
+     "expect_response": {
+      "url_contains": "/claims",
+      "method": "POST",
+      "status": 201
+     },
+     "wait_after": {
+      "text": "ส่งสลิปแล้ว"
+     },
+     "highlight": {
+      "css": ".gp-msg"
+     },
+     "say": "กดปุ่ม \"ส่งสลิป\" ระบบแสดงข้อความ \"ส่งสลิปแล้ว รอโรงเรียนตรวจสอบ\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "รอโรงเรียนตรวจสอบ",
+      "in": {
+       "css": "div.gp-card",
+       "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+      }
+     }
+    }
+   ],
+   "expected": "ใต้ใบแจ้งหนี้มีรายการใหม่สถานะ \"รอโรงเรียนตรวจสอบ\" ส่วนรายการเดิมยังแสดงสถานะ \"ไม่รับ\" และ \"ถอนคืนแล้ว\"",
+   "verify": [
+    {
+     "title": "รายการใหม่ยังอยู่หลังเปิดหน้าใหม่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "select",
+       "target": {
+        "label": "เลือกบุตรหลาน"
+       },
+       "label": "อคิน ธารใส",
+       "wait_after": {
+        "role": "heading",
+        "name": "อคิน ธารใส"
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ค่าธรรมเนียม",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่ากิจกรรมทดสอบ",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "รอโรงเรียนตรวจสอบ",
+         "in": {
+          "css": "div.gp-card",
+          "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+         }
+        },
+        {
+         "text": "ถอนคืนแล้ว",
+         "in": {
+          "css": "div.gp-card",
+          "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+         }
+        },
+        {
+         "text": "โรงเรียนไม่รับรายการนี้",
+         "in": {
+          "css": "div.gp-card",
+          "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "approve-slip",
+   "title": "เจ้าหน้าที่การเงินอนุมัติรายการและออกใบเสร็จ",
+   "role": "finance",
+   "start": "/work",
+   "depends_on": [
+    "guardian-sends-final-slip"
+   ],
+   "intro": "เมื่อยอดและบัญชีตรงกับรายการเดินบัญชี เจ้าหน้าที่กด \"อนุมัติและออกใบเสร็จ\" ระบบออกใบเสร็จเลขที่ใหม่ ตัดยอดค้างของใบแจ้งหนี้ และแจ้งผู้ปกครอง ถ้าพบรายการยอดและเวลาโอนใกล้เคียงกัน ระบบเตือนก่อนอนุมัติ",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ตรวจสลิป",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "wait_after": {
+      "id": "fc-filter"
+     },
+     "say": "เลือกแท็บ \"ตรวจสลิป\" ด้านบนของหน้า",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ห้องเรียน",
+      "within": {
+       "id": "fc-filter"
+      }
+     },
+     "label": "ม.4/1",
+     "wait_after": {
+      "role": "link",
+      "name": "อคิน ธารใส"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "อคิน ธารใส"
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "id": "fc-decide"
+     },
+     "say": "กดที่รายการของ \"อคิน ธารใส\" ที่มีสถานะ \"รอตรวจสอบ\" ระบบเปิดหน้ารายละเอียดพร้อมรูปสลิป",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "crop": "panel",
+     "highlight": {
+      "id": "fc-decide"
+     },
+     "that": {
+      "visible": {
+       "id": "fc-decide"
+      }
+     },
+     "say": "ตรวจรูปสลิปและช่อง \"จำนวนที่รับ (บาท)\" ระบบกรอกยอดที่แจ้งโอนให้ แก้เป็นยอดที่รับจริงได้ ช่อง \"วันที่รับเงิน\" เว้นว่างได้ ระบบใช้วันที่โอน",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "อนุมัติและออกใบเสร็จ",
+      "within": {
+       "id": "fc-decide"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/approve",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"อนุมัติและออกใบเสร็จ\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "text": "อนุมัติแล้ว",
+       "in": {
+        "css": "section.fin-card"
+       }
+      },
+      {
+       "visible": {
+        "role": "link",
+        "name": "เปิดใบเสร็จ",
+        "within": {
+         "css": "section.fin-card"
+        }
+       }
+      }
+     ]
+    }
+   ],
+   "expected": "หน้ารายละเอียดแสดงสถานะ \"อนุมัติแล้ว\" และปุ่ม \"เปิดใบเสร็จ\" ใบแจ้งหนี้เหลือค้างชำระ 0.00 บาท",
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ สถานะ \"อนุมัติแล้ว\" และใบเสร็จต้องยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "role": "link",
+        "name": "เปิดใบเสร็จ",
+        "within": {
+         "css": "section.fin-card"
+        }
+       },
+       "that": [
+        {
+         "text": "อนุมัติแล้ว",
+         "in": {
+          "css": "section.fin-card"
+         }
+        },
+        {
+         "text": "ค้างชำระ 0.00",
+         "in": {
+          "css": "section.fin-card"
+         }
+        },
+        {
+         "visible": {
+          "role": "link",
+          "name": "เปิดใบเสร็จ",
+          "within": {
+           "css": "section.fin-card"
+          }
+         }
+        }
+       ],
+       "say": "เปิดหน้ารายละเอียดใหม่ สถานะ \"อนุมัติแล้ว\" และลิงก์ \"เปิดใบเสร็จ\" ยังอยู่",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "review-claims-queue",
+   "title": "ค้นรายการแจ้งโอนตามสถานะและห้อง",
+   "role": "finance",
+   "start": "/work",
+   "depends_on": [
+    "approve-slip"
+   ],
+   "intro": "แท็บ \"ตรวจสลิป\" เปิดมาที่รายการ \"รอตรวจสอบ\" เปลี่ยนสถานะ ห้อง หรือช่วงวันที่เพื่อดูรายการที่ตรวจแล้ว ด้านล่างมีแบบฟอร์ม \"บันทึกสลิปแทนผู้ปกครอง\" สำหรับผู้ที่ชำระที่โรงเรียนและไม่ได้ใช้พอร์ทัล",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ตรวจสลิป",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "wait_after": {
+      "id": "fc-filter"
+     },
+     "say": "เลือกแท็บ \"ตรวจสลิป\" ด้านบนของหน้า",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "สถานะ",
+      "within": {
+       "id": "fc-filter"
+      }
+     },
+     "label": "อนุมัติแล้ว",
+     "crop": "panel",
+     "wait_after": {
+      "css": "ul.fin-cards li",
+      "first": true
+     },
+     "say": "เลือกสถานะในช่อง \"สถานะ\" ในที่นี้เลือก \"อนุมัติแล้ว\"",
+     "shot": true
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ห้องเรียน",
+      "within": {
+       "id": "fc-filter"
+      }
+     },
+     "label": "ม.4/1",
+     "crop": "panel",
+     "wait_after": {
+      "role": "link",
+      "name": "อคิน ธารใส",
+      "first": true
+     },
+     "say": "เลือกห้องเรียนในช่อง \"ห้องเรียน\" รายการแสดงเฉพาะนักเรียนของห้องนั้น",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "details.fin-card > summary"
+     },
+     "crop": "tight",
+     "wait_after": {
+      "id": "fc-new"
+     },
+     "say": "กดหัวข้อ \"บันทึกสลิปแทนผู้ปกครอง (ชำระที่โรงเรียน)\" เพื่อเปิดแบบฟอร์มสำหรับเจ้าหน้าที่",
+     "shot": true
+    }
+   ],
+   "expected": "รายการที่อนุมัติแล้วของ ม.4/1 มีรายการของนักเรียนทดสอบ และแบบฟอร์มบันทึกสลิปแทนผู้ปกครองแสดงช่องเลขที่ใบแจ้งหนี้ จำนวนเงิน วันเวลาที่โอน บัญชี และไฟล์สลิป",
+   "verify": [
+    {
+     "title": "รายการที่อนุมัติแล้วมีสถานะ \"อนุมัติแล้ว\"",
+     "steps": [
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "ul.fin-cards li",
+        "has_text": "อคิน ธารใส",
+        "first": true
+       },
+       "that": {
+        "text": "อนุมัติแล้ว",
+        "in": {
+         "css": "ul.fin-cards li",
+         "has_text": "อคิน ธารใส",
+         "first": true
+        }
+       },
+       "say": "รายการของ \"อคิน ธารใส\" แสดงสถานะ \"อนุมัติแล้ว\" ในรายการที่กรอง",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "guardian-sees-receipt",
+   "title": "ผู้ปกครองดูผลการอนุมัติและเปิดใบเสร็จ",
+   "role": "guardian1",
+   "start": "/guardian",
+   "depends_on": [
+    "approve-slip"
+   ],
+   "intro": "เมื่อโรงเรียนอนุมัติ ใบแจ้งหนี้เปลี่ยนเป็นชำระแล้ว รายการแจ้งโอนแสดง \"โรงเรียนอนุมัติแล้ว\" และมีใบเสร็จรับเงินให้เปิดพิมพ์หรือบันทึกเป็น PDF",
+   "steps": [
+    {
+     "do": "select",
+     "target": {
+      "label": "เลือกบุตรหลาน"
+     },
+     "label": "อคิน ธารใส",
+     "wait_after": {
+      "role": "heading",
+      "name": "อคิน ธารใส"
+     },
+     "crop": "viewport",
+     "say": "เลือกบุตรหลานในช่อง \"เลือกบุตรหลาน\" ให้เป็น \"อคิน ธารใส\" ผู้ปกครองที่มีบุตรหลายคนเปลี่ยนคนได้ที่ช่องนี้",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ค่าธรรมเนียม",
+      "exact": true
+     },
+     "wait_after": {
+      "css": "div.gp-card",
+      "has_text": "{{marker}} ค่ากิจกรรมทดสอบ",
+      "first": true
+     },
+     "crop": "tight",
+     "say": "เลือกแท็บ \"ค่าธรรมเนียม\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "crop": "panel",
+     "highlight": {
+      "css": "h3",
+      "has_text": "ใบเสร็จรับเงิน",
+      "within": {
+       "css": "div.gp-card",
+       "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+      }
+     },
+     "that": [
+      {
+       "text": "โรงเรียนอนุมัติแล้ว",
+       "in": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+       }
+      },
+      {
+       "text": "ใบเสร็จรับเงิน",
+       "in": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+       }
+      }
+     ],
+     "say": "รายการแจ้งโอนแสดงสถานะ \"โรงเรียนอนุมัติแล้ว\" และมีหัวข้อ \"ใบเสร็จรับเงิน\" ของใบแจ้งหนี้นี้",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "เปิดใบเสร็จ",
+      "within": {
+       "css": "div.gp-card",
+       "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+      }
+     },
+     "crop": "viewport",
+     "highlight": false,
+     "expect_popup": {
+      "url_regex": "receipt|ใบเสร็จ|/guardian"
+     },
+     "wait_after": {
+      "text": "300.00"
+     },
+     "say": "กดปุ่ม \"เปิดใบเสร็จ (พิมพ์เป็น PDF ได้)\" ระบบเปิดใบเสร็จในแท็บใหม่",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "300.00"
+     }
+    },
+    {
+     "do": "close_tab"
+    }
+   ],
+   "expected": "ผู้ปกครองเห็นใบเสร็จรับเงินเลขที่ RC-... วันที่ และจำนวน 300.00 บาท",
+   "verify": [
+    {
+     "title": "ผู้ปกครองเปิดหน้าใหม่ ใบเสร็จต้องยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "select",
+       "target": {
+        "label": "เลือกบุตรหลาน"
+       },
+       "label": "อคิน ธารใส",
+       "wait_after": {
+        "role": "heading",
+        "name": "อคิน ธารใส"
+       }
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ค่าธรรมเนียม",
+        "exact": true
+       },
+       "wait_after": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่ากิจกรรมทดสอบ",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "โรงเรียนอนุมัติแล้ว",
+        "in": {
+         "css": "div.gp-card",
+         "has_text": "{{marker}} ค่ากิจกรรมทดสอบ"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "guardian-acknowledges-notices",
+   "title": "ผู้ปกครองกดรับทราบข่าวจากโรงเรียนหลังตรวจสลิป",
+   "role": "guardian1",
+   "start": "/guardian",
+   "depends_on": [
+    "guardian-sees-receipt"
+   ],
+   "intro": "ข่าวจากโรงเรียนในแท็บ \"ค่าธรรมเนียม\" เกิดจากระบบเองเมื่อโรงเรียนอนุมัติหรือไม่รับสลิปของผู้ปกครอง ไม่มีหน้าจอให้เจ้าหน้าที่พิมพ์ข่าวทั่วไปส่งถึงผู้ปกครอง",
+   "steps": [
+    {
+     "do": "select",
+     "target": {
+      "label": "เลือกบุตรหลาน"
+     },
+     "label": "อคิน ธารใส",
+     "crop": "viewport",
+     "highlight": {
+      "label": "เลือกบุตรหลาน"
+     },
+     "say": "ผู้ปกครองเข้าหน้า \"ผู้ปกครอง\" แล้วเลือกบุตรหลาน",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ค่าธรรมเนียม",
+      "exact": true
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "div.gp-card",
+      "has_text": "ข่าวจากโรงเรียน"
+     },
+     "wait_after": {
+      "css": "div.gp-card",
+      "has_text": "ข่าวจากโรงเรียน"
+     },
+     "say": "เปิดแท็บ \"ค่าธรรมเนียม\" กล่อง \"ข่าวจากโรงเรียน\" แจ้งผลการตรวจสลิป เช่น อนุมัติแล้ว หรือไม่รับ",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "รับทราบข่าวทั้งหมด"
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "div.gp-card",
+      "has_text": "ค่าธรรมเนียม",
+      "first": true
+     },
+     "say": "กดปุ่ม \"รับทราบข่าวทั้งหมด\" กล่องข่าวหายไป",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "hidden": {
+       "role": "button",
+       "name": "รับทราบข่าวทั้งหมด"
+      }
+     }
+    }
+   ],
+   "expected": "กล่อง \"ข่าวจากโรงเรียน\" หายไปและไม่กลับมาเมื่อเปิดหน้าใหม่",
+   "verify": [
+    {
+     "title": "เปิดหน้าใหม่ ไม่มีข่าวค้าง",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "select",
+       "target": {
+        "label": "เลือกบุตรหลาน"
+       },
+       "label": "อคิน ธารใส"
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ค่าธรรมเนียม",
+        "exact": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "hidden": {
+         "role": "button",
+         "name": "รับทราบข่าวทั้งหมด"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "outstanding-by-room",
+   "title": "ดูยอดค้างชำระรายห้องและรายชื่อผู้ค้าง",
+   "role": "finance",
+   "start": "/work",
+   "intro": "แท็บ \"ยอดค้างรายห้อง\" สรุปยอดค้างชำระรวมและยอดของแต่ละห้อง กดที่ห้องเพื่อดูรายชื่อนักเรียนที่ค้าง และกดที่ชื่อเพื่อไปหน้าบัญชีของนักเรียนคนนั้น",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ยอดค้างรายห้อง",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "wait_after": {
+      "css": "p.fin-ok"
+     },
+     "say": "เลือกแท็บ \"ยอดค้างรายห้อง\" ด้านบนของหน้า",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ม.4/1"
+     },
+     "crop": "panel",
+     "wait_after": {
+      "role": "link",
+      "name": "อคิน ธารใส"
+     },
+     "say": "กดที่ห้อง \"ม.4/1\" ระบบแสดงรายชื่อนักเรียนของห้องที่ยังค้างชำระ",
+     "shot": true
+    }
+   ],
+   "expected": "รายการแสดงนักเรียนที่ค้างชำระของห้อง พร้อมยอดค้างและจำนวนใบแจ้งหนี้ที่ยังไม่ชำระ",
+   "verify": [
+    {
+     "title": "รายชื่อของห้องมีนักเรียนที่ค้างชำระ",
+     "steps": [
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "role": "link",
+        "name": "อคิน ธารใส"
+       },
+       "that": {
+        "visible": {
+         "role": "link",
+         "name": "อคิน ธารใส"
+        }
+       },
+       "say": "รายชื่อของ ม.4/1 มีนักเรียนที่ค้างชำระ พร้อมยอดค้าง กดที่ชื่อเพื่อเปิดหน้าบัญชี",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "view-accounts",
+   "title": "ดูบัญชีรับเงินของโรงเรียน",
+   "role": "finance",
+   "start": "/work",
+   "intro": "แท็บ \"บัญชีรับเงิน\" แสดงบัญชีที่ผู้ปกครองโอนเข้า เจ้าหน้าที่การเงินระดับครูดูได้อย่างเดียว ผู้อำนวยการและผู้ดูแลระบบเพิ่ม แก้ไข ปิดใช้งาน และอัปโหลดภาพ QR ได้",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "บัญชีรับเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "wait_after": {
+      "css": "ul.fin-cards li",
+      "first": true
+     },
+     "say": "เลือกแท็บ \"บัญชีรับเงิน\" ด้านบนของหน้า",
+     "shot": true,
+     "crop": "viewport"
+    }
+   ],
+   "expected": "รายการบัญชีแสดงธนาคาร ชื่อบัญชี เลขบัญชี สาขา ลำดับ และสถานะ พร้อมข้อความว่าเพิ่มหรือแก้ไขได้เฉพาะผู้อำนวยการหรือผู้ดูแลระบบ",
+   "verify": [
+    {
+     "title": "เจ้าหน้าที่การเงินเห็นข้อความจำกัดสิทธิ์",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "text": "เพิ่มหรือแก้ไขบัญชีได้เฉพาะผู้อำนวยการหรือผู้ดูแลระบบ"
+       }
+      }
+     ]
+    },
+    {
+     "title": "ผู้อำนวยการเห็นแบบฟอร์มเพิ่มบัญชี ปุ่มอัปโหลด QR และปุ่มปิดใช้งาน",
+     "as": "principal",
+     "start": "/work#finance/accounts",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "role": "heading",
+        "name": "เพิ่มบัญชีรับเงิน"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "viewport",
+       "highlight": {
+        "role": "heading",
+        "name": "เพิ่มบัญชีรับเงิน"
+       },
+       "that": [
+        {
+         "visible": {
+          "role": "heading",
+          "name": "เพิ่มบัญชีรับเงิน"
+         }
+        },
+        {
+         "visible": {
+          "role": "button",
+          "name": "ปิดใช้งาน",
+          "first": true
+         }
+        }
+       ],
+       "say": "ผู้อำนวยการเห็นแบบฟอร์ม \"เพิ่มบัญชีรับเงิน\" ใต้รายการบัญชี และปุ่ม \"อัปโหลด QR\" กับ \"ปิดใช้งาน\" ที่แต่ละบัญชี",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "add-bank-account-with-qr",
+   "title": "เพิ่มบัญชีรับเงินพร้อมภาพ QR และดูที่ใบแจ้งหนี้ของผู้ปกครอง",
+   "role": "principal",
+   "start": "/work",
+   "depends_on": [
+    "view-accounts"
+   ],
+   "intro": "เจ้าหน้าที่ที่เป็นผู้อำนวยการหรือผู้ดูแลระบบเท่านั้นเพิ่มและแก้บัญชีรับเงินได้ บัญชีที่เพิ่มแสดงให้ผู้ปกครองทุกคนเห็นเลขบัญชีครบทุกหลักบนใบแจ้งหนี้ที่ค้าง (ถ้ารายการค่าธรรมเนียมไม่ได้กำหนดบัญชีเฉพาะ) จึงต้องตรวจเลขให้ถูกก่อนบันทึก ระบบไม่มีปุ่มลบบัญชี ใช้ \"ปิดใช้งาน\" แทน ในคู่มือนี้ใช้เลขบัญชีสมมติ",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "label": "รหัสหรือชื่อนักเรียน"
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"การเงิน\" แล้วเปิดบัญชีของนักเรียนที่จะใช้ทดสอบ (ออกใบแจ้งหนี้ตัวอย่างก่อน เพื่อให้ผู้ปกครองเห็นบัญชีบนใบแจ้งหนี้)",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสหรือชื่อนักเรียน"
+     },
+     "value": "อคิน"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "อคิน ธารใส"
+     },
+     "wait_after": {
+      "css": "details.fin-new"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "details.fin-new > summary"
+     },
+     "wait_after": {
+      "label": "รายการอื่น (ชื่อ)",
+      "within": {
+       "css": "form.fin-inv"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รายการอื่น (ชื่อ)",
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "value": "{{marker}} ค่าทดสอบบัญชี",
+     "crop": "panel",
+     "highlight": {
+      "css": "form.fin-inv"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จำนวนเงิน (บาท)",
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "value": "111.11"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ออกใบแจ้งหนี้",
+      "exact": true,
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "wait_after": {
+      "css": "article.fin-invoice",
+      "has_text": "ยอดรวม 111.11"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "บัญชีรับเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "say": "เลือกแท็บ \"บัญชีรับเงิน\"",
+     "shot": true
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "heading",
+      "name": "เพิ่มบัญชีรับเงิน"
+     }
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "ธนาคาร",
+      "within": {
+       "id": "fa-new"
+      }
+     },
+     "label": "ธนาคารกรุงเทพ"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ชื่อบัญชี",
+      "within": {
+       "id": "fa-new"
+      }
+     },
+     "value": "บัญชีทดสอบ {{marker}} (สมมติ)"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เลขบัญชี (10-15 หลัก)",
+      "within": {
+       "id": "fa-new"
+      }
+     },
+     "value": "0000000000"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "สาขา (ไม่บังคับ)",
+      "within": {
+       "id": "fa-new"
+      }
+     },
+     "value": "ต้นธาร (สมมติ)"
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "id": "fa-new"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เพิ่มบัญชี",
+      "exact": true,
+      "within": {
+       "id": "fa-new"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "ul.fin-cards li",
+      "has_text": "{{marker}}"
+     },
+     "wait_after": {
+      "css": "ul.fin-cards li",
+      "has_text": "{{marker}}"
+     },
+     "say": "เลือกธนาคาร พิมพ์ชื่อบัญชี เลขบัญชี 10-15 หลัก และสาขา แล้วกดปุ่ม \"เพิ่มบัญชี\" (ภาพใช้เลขบัญชีสมมติ) บัญชีใหม่ปรากฏในรายการ",
+     "shot": true,
+     "settle_ms": 600
+    },
+    {
+     "do": "upload",
+     "target": {
+      "css": "input[data-qr]",
+      "within": {
+       "css": "ul.fin-cards li",
+       "has_text": "{{marker}}"
+      },
+      "include_hidden": true
+     },
+     "file": "cover.png",
+     "crop": "panel",
+     "highlight": {
+      "css": "ul.fin-cards li",
+      "has_text": "{{marker}}"
+     },
+     "say": "กดปุ่ม \"อัปโหลด QR\" ที่บัญชีนั้น แล้วเลือกภาพ QR รับเงินของบัญชี (ภาพนี้ใช้ภาพตัวอย่างแทน QR จริง) ภาพ QR แสดงที่บัญชีและที่ใบแจ้งหนี้ของผู้ปกครอง",
+     "shot": true
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "img[alt=\"QR รับเงิน\"]",
+      "within": {
+       "css": "ul.fin-cards li",
+       "has_text": "{{marker}}"
+      }
+     }
+    }
+   ],
+   "expected": "บัญชีใหม่อยู่ในรายการ มีภาพ QR และปุ่ม \"ปิดใช้งาน\"",
+   "verify": [
+    {
+     "title": "ผู้ปกครองเห็นบัญชีและ QR ที่ใบแจ้งหนี้ใบใหม่",
+     "steps": [
+      {
+       "do": "select",
+       "target": {
+        "label": "เลือกบุตรหลาน"
+       },
+       "label": "อคิน ธารใส"
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ค่าธรรมเนียม",
+        "exact": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "text": "0000000000",
+         "in": {
+          "css": "div.gp-card",
+          "has_text": "{{marker}} ค่าทดสอบบัญชี"
+         }
+        },
+        {
+         "visible": {
+          "css": "img.gp-qr",
+          "within": {
+           "css": "div.gp-card",
+           "has_text": "{{marker}} ค่าทดสอบบัญชี"
+          }
+         }
+        }
+       ],
+       "crop": "panel",
+       "highlight": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่าทดสอบบัญชี"
+       },
+       "say": "ผู้ปกครองเปิดแท็บ \"ค่าธรรมเนียม\" ของบุตร ใบแจ้งหนี้ที่ค้างแสดงบัญชีรับเงินที่เพิ่ม พร้อมภาพ QR",
+       "shot": true
+      }
+     ],
+     "as": "guardian1",
+     "start": "/guardian"
+    }
+   ]
+  },
+  {
+   "id": "disable-bank-account",
+   "title": "ปิดใช้งานบัญชีรับเงินที่ไม่ใช้แล้ว",
+   "role": "principal",
+   "start": "/work",
+   "depends_on": [
+    "add-bank-account-with-qr"
+   ],
+   "intro": "บัญชีที่ปิดใช้งานไม่แสดงบนใบแจ้งหนี้ใหม่ แต่ข้อมูลเดิมและประวัติยังอยู่ เปิดใช้งานกลับได้ เมื่อไม่มีบัญชีใดเปิดใช้งาน ผู้ปกครองจะไม่เห็นช่องแจ้งโอน",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "role": "link",
+      "name": "บัญชีรับเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"การเงิน\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "บัญชีรับเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "say": "เลือกแท็บ \"บัญชีรับเงิน\"",
+     "shot": true
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "ul.fin-cards li",
+      "has_text": "{{marker}}"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดใช้งาน",
+      "exact": true,
+      "within": {
+       "css": "ul.fin-cards li",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "ul.fin-cards li",
+      "has_text": "{{marker}}"
+     },
+     "wait_after": {
+      "css": "span",
+      "has_text": "ปิดใช้งาน",
+      "within": {
+       "css": "ul.fin-cards li",
+       "has_text": "{{marker}}"
+      }
+     },
+     "say": "กดปุ่ม \"ปิดใช้งาน\" ที่บัญชีนั้น บัญชียังอยู่ในรายการแต่ขึ้น \"ปิดใช้งาน\" และผู้ปกครองไม่เห็นอีก (กด \"เปิดใช้งาน\" เพื่อใช้ใหม่ได้)",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "visible": {
+       "role": "button",
+       "name": "เปิดใช้งาน",
+       "exact": true,
+       "within": {
+        "css": "ul.fin-cards li",
+        "has_text": "{{marker}}"
+       }
+      }
+     }
+    }
+   ],
+   "expected": "บัญชีขึ้น \"ปิดใช้งาน\" และมีปุ่ม \"เปิดใช้งาน\"",
+   "verify": [
+    {
+     "title": "ผู้ปกครองไม่เห็นบัญชีที่ปิดแล้ว",
+     "steps": [
+      {
+       "do": "select",
+       "target": {
+        "label": "เลือกบุตรหลาน"
+       },
+       "label": "อคิน ธารใส"
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "button",
+        "name": "ค่าธรรมเนียม",
+        "exact": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "{{marker}} ค่าทดสอบบัญชี",
+        "in": {
+         "css": "div.gp-card",
+         "has_text": "{{marker}} ค่าทดสอบบัญชี"
+        }
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "not_text": "0000000000",
+        "in": {
+         "css": "div.gp-card",
+         "has_text": "{{marker}} ค่าทดสอบบัญชี"
+        }
+       },
+       "crop": "panel",
+       "highlight": {
+        "css": "div.gp-card",
+        "has_text": "{{marker}} ค่าทดสอบบัญชี"
+       },
+       "say": "ผู้ปกครองเปิดใบแจ้งหนี้เดิมอีกครั้ง บัญชีที่ปิดใช้งานไม่แสดงแล้ว",
+       "shot": true
+      }
+     ],
+     "as": "guardian1",
+     "start": "/guardian"
+    }
+   ]
+  },
+  {
+   "id": "daily-summary",
+   "title": "ดูสรุปการรับเงินรายวันและส่งออก CSV",
+   "role": "finance",
+   "start": "/work",
+   "depends_on": [
+    "receive-cash-payment",
+    "approve-slip"
+   ],
+   "intro": "แท็บ \"สรุปรายวัน\" รวมยอดรับของวันที่เลือกแยกตามวิธีชำระ แสดงรายการใบเสร็จของวันนั้น และส่งออกเป็นไฟล์ CSV ได้ ใบเสร็จที่ยกเลิกแสดงในรายการแต่ไม่นับในยอดรวม",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "สรุปรายวัน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "wait_after": {
+      "css": "table.fin-table"
+     },
+     "say": "เลือกแท็บ \"สรุปรายวัน\" ด้านบนของหน้า",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "expect",
+     "crop": "panel",
+     "highlight": {
+      "css": "div.fin-sums"
+     },
+     "that": {
+      "text": "มนสิชา",
+      "in": {
+       "css": "table.fin-table"
+      }
+     },
+     "say": "อ่านยอดรับแยกตามวิธีชำระ \"เงินสด\" \"โอนเงิน\" \"พร้อมเพย์\" \"อื่น ๆ\" และ \"รวมวันนี้\" ตารางด้านล่างแสดงใบเสร็จของวัน ช่อง \"วันที่\" เปลี่ยนวันได้",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ส่งออก CSV"
+     },
+     "crop": "tight",
+     "expect_download": {
+      "ext": ".csv",
+      "kind": "csv",
+      "min_bytes": 50
+     },
+     "say": "กดลิงก์ \"ส่งออก CSV\" เบราว์เซอร์บันทึกไฟล์สรุปของวันที่เลือก",
+     "shot": true
+    }
+   ],
+   "expected": "ตารางมีใบเสร็จของนักเรียนที่รับเงินสดวันนี้ และรายการที่อนุมัติจากสลิป ไฟล์ CSV เปิดด้วยโปรแกรมตารางคำนวณได้",
+   "verify": [
+    {
+     "title": "ไฟล์ CSV เป็น CSV จริงและมีเลขที่ใบเสร็จ",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ส่งออก CSV"
+       },
+       "expect_download": {
+        "ext": ".csv",
+        "kind": "csv",
+        "min_bytes": 100,
+        "contains": "RC-"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "staff-records-slip-for-guardian",
+   "title": "เจ้าหน้าที่บันทึกสลิปการโอนแทนผู้ปกครองและอนุมัติ",
+   "role": "finance",
+   "start": "/work",
+   "depends_on": [],
+   "intro": "ใช้เมื่อผู้ปกครองชำระด้วยการโอนแต่ไม่ได้ส่งสลิปผ่านระบบเอง เจ้าหน้าที่การเงินบันทึกสลิปให้ รายการจะเข้าคิว \"ตรวจสลิป\" เหมือนที่ผู้ปกครองส่งเอง ต้องอนุมัติก่อนจึงออกใบเสร็จ ต้องมีเลขที่ใบแจ้งหนี้ที่ยังค้างอยู่จริง",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "label": "รหัสหรือชื่อนักเรียน"
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"การเงิน\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสหรือชื่อนักเรียน"
+     },
+     "value": "มนสิชา"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "มนสิชา แสงเช้าใส"
+     },
+     "wait_after": {
+      "css": "details.fin-new"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "details.fin-new > summary"
+     },
+     "wait_after": {
+      "label": "รายการอื่น (ชื่อ)",
+      "within": {
+       "css": "form.fin-inv"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รายการอื่น (ชื่อ)",
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "value": "{{marker}} ค่าสลิปแทนผู้ปกครอง",
+     "crop": "panel",
+     "highlight": {
+      "css": "form.fin-inv"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จำนวนเงิน (บาท)",
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "value": "133.33"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ออกใบแจ้งหนี้",
+      "exact": true,
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "wait_after": {
+      "css": "article.fin-invoice",
+      "has_text": "ยอดรวม 133.33"
+     }
+    },
+    {
+     "do": "capture",
+     "target": {
+      "css": "article.fin-invoice",
+      "first": true
+     },
+     "var": "invno",
+     "regex": "([A-Za-z0-9]+-\\d{4}-\\d{6})"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ตรวจสลิป",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "ตรวจสลิป",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "wait_after": {
+      "css": "details.fin-card > summary"
+     },
+     "say": "เลือกแท็บ \"ตรวจสลิป\" ส่วน \"บันทึกสลิปแทนผู้ปกครอง (ชำระที่โรงเรียน)\" อยู่ใต้รายการ ใช้เมื่อผู้ปกครองโอนแล้วส่งสลิปให้เจ้าหน้าที่ทางอื่น",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "details.fin-card > summary",
+      "has_text": "บันทึกสลิปแทนผู้ปกครอง"
+     },
+     "wait_after": {
+      "id": "fc-new"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "เลขที่ใบแจ้งหนี้",
+      "within": {
+       "id": "fc-new"
+      }
+     },
+     "value": "{{invno}}"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จำนวนเงินที่โอน (บาท)",
+      "within": {
+       "id": "fc-new"
+      }
+     },
+     "value": "133.33"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วันเวลาที่โอน",
+      "within": {
+       "id": "fc-new"
+      }
+     },
+     "value": "{{today}}T00:30"
+    },
+    {
+     "do": "upload",
+     "target": {
+      "label": "ไฟล์สลิป",
+      "within": {
+       "id": "fc-new"
+      },
+      "include_hidden": true
+     },
+     "file": "cover.png"
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "บัญชีที่โอนเข้า",
+      "within": {
+       "id": "fc-new"
+      }
+     },
+     "label": "ธนาคารกรุงไทย โรงเรียนต้นธารวิทยา (บัญชีสมมติ)"
+    },
+    {
+     "do": "scroll",
+     "target": {
+      "id": "fc-new"
+     }
+    },
+    {
+     "do": "note",
+     "crop": "panel",
+     "highlight": {
+      "id": "fc-new"
+     },
+     "say": "พิมพ์เลขที่ใบแจ้งหนี้ จำนวนเงินที่โอน วันเวลาที่โอน (เลือกบัญชีที่โอนเข้าได้) และแนบไฟล์สลิปอย่างน้อย 1 ไฟล์ (ภาพนี้ใช้ภาพตัวอย่างแทนสลิป) ระบบไม่รับสลิปไฟล์เดียวกันซ้ำ",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกสลิป",
+      "exact": true,
+      "within": {
+       "id": "fc-new"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "css": "section.fin-card"
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"บันทึกสลิป\" ระบบเปิดหน้ารายการแจ้งโอนนั้น สถานะ \"รอตรวจสอบ\" และระบุว่า \"เจ้าหน้าที่บันทึกแทน\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "บันทึกสลิปแล้ว",
+      "in": {
+       "id": "toast"
+      }
+     }
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "role": "link",
+      "name": "กลับไปรายการ"
+     }
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "เจ้าหน้าที่บันทึกแทน"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "อนุมัติและออกใบเสร็จ",
+      "within": {
+       "id": "fc-decide"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "section.fin-card"
+     },
+     "wait_after": {
+      "css": "span.fin-badge",
+      "has_text": "อนุมัติแล้ว"
+     },
+     "say": "ตรวจสลิปแล้วกดปุ่ม \"อนุมัติและออกใบเสร็จ\" สถานะเป็น \"อนุมัติแล้ว\" ระบบออกใบเสร็จและปิดยอดค้างของใบแจ้งหนี้",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "visible": {
+       "role": "link",
+       "name": "เปิดใบเสร็จ",
+       "within": {
+        "css": "section.fin-card"
+       }
+      }
+     }
+    }
+   ],
+   "expected": "รายการแจ้งโอนขึ้น \"อนุมัติแล้ว\" และมีลิงก์ \"เปิดใบเสร็จ\"",
+   "verify": [
+    {
+     "title": "บัญชีของนักเรียนแสดงใบแจ้งหนี้ชำระครบ",
+     "steps": [
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "การเงิน",
+        "exact": true,
+        "within": {
+         "role": "navigation",
+         "name": "ระบบงานโรงเรียน"
+        }
+       },
+       "wait_after": {
+        "label": "รหัสหรือชื่อนักเรียน"
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "รหัสหรือชื่อนักเรียน"
+       },
+       "value": "มนสิชา"
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "มนสิชา แสงเช้าใส"
+       },
+       "wait_after": {
+        "css": "article.fin-invoice",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "visible": {
+         "css": "article.fin-invoice",
+         "has_text": "ยอดรวม 133.33 / ชำระแล้ว 133.33 / ค้าง 0.00",
+         "first": true
+        }
+       },
+       "crop": "panel",
+       "highlight": {
+        "css": "article.fin-invoice",
+        "has_text": "ยอดรวม 133.33 / ชำระแล้ว 133.33 / ค้าง 0.00",
+        "first": true
+       },
+       "say": "เปิดบัญชีของนักเรียน ใบแจ้งหนี้ใบนั้นชำระแล้ว 133.33 ค้าง 0.00",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cash-book-entry",
+   "title": "บันทึกรายจ่ายอื่นในสมุดเงินสด",
+   "role": "finance",
+   "start": "/work",
+   "depends_on": [
+    "receive-cash-payment"
+   ],
+   "intro": "สมุดเงินสดรวมใบเสร็จที่ออกกับรายรับรายจ่ายอื่นที่เจ้าหน้าที่บันทึกเอง แสดงยอดยกมา รับ จ่าย และคงเหลือของช่วงวันที่เลือก รายการที่มาจากใบเสร็จลบไม่ได้ ต้องยกเลิกที่ใบเสร็จ รายการที่บันทึกเองลบได้จนกว่าจะปิดงวด",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "สมุดเงินสด",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "wait_after": {
+      "css": "div.fin-sums"
+     },
+     "say": "เลือกแท็บ \"สมุดเงินสด\" ด้านบนของหน้า",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "details.fin-new > summary"
+     },
+     "crop": "panel",
+     "wait_after": {
+      "css": "form.fin-entry"
+     },
+     "say": "กดหัวข้อ \"บันทึกรายรับ/รายจ่ายอื่น\" เพื่อเปิดแบบฟอร์ม",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หมวด",
+      "within": {
+       "css": "form.fin-entry"
+      }
+     },
+     "value": "ค่าใช้จ่ายทั่วไป",
+     "crop": "panel",
+     "say": "พิมพ์หมวดของรายการในช่อง \"หมวด\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จำนวนเงิน (บาท)",
+      "within": {
+       "css": "form.fin-entry"
+      }
+     },
+     "value": "150.00",
+     "crop": "panel",
+     "say": "พิมพ์จำนวนเงินเป็นบาทในช่อง \"จำนวนเงิน (บาท)\" ช่อง \"ประเภท\" เป็น \"รายจ่าย\" เป็นค่าเริ่มต้น เปลี่ยนเป็น \"รายรับ\" ได้",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รายการ",
+      "exact": true,
+      "within": {
+       "css": "form.fin-entry"
+      }
+     },
+     "value": "{{marker}} ซื้อกระดาษ",
+     "crop": "panel",
+     "say": "พิมพ์คำอธิบายในช่อง \"รายการ\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "form.fin-entry"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/finance/ledger",
+      "method": "POST",
+      "status": 201
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกแล้ว\" และรายการใหม่ปรากฏในตาราง",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "visible": {
+       "css": "table.fin-table tbody tr",
+       "has_text": "{{marker}}"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ส่งออก CSV"
+     },
+     "crop": "tight",
+     "expect_download": {
+      "ext": ".csv",
+      "kind": "csv",
+      "min_bytes": 50
+     },
+     "say": "กดลิงก์ \"ส่งออก CSV\" เหนือตารางเพื่อบันทึกสมุดเงินสดของช่วงวันที่เลือกเป็นไฟล์",
+     "shot": true
+    }
+   ],
+   "expected": "ตารางมีรายการรายจ่าย 150.00 บาท และยอดจ่ายกับยอดคงเหลือเปลี่ยนตาม",
+   "verify": [
+    {
+     "title": "เปิดสมุดเงินสดใหม่ รายการต้องยังอยู่ และไฟล์ CSV มีรายการ",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "table.fin-table tbody tr",
+        "has_text": "{{marker}}"
+       },
+       "that": {
+        "visible": {
+         "css": "table.fin-table tbody tr",
+         "has_text": "{{marker}}"
+        }
+       },
+       "say": "เปิดแท็บ \"สมุดเงินสด\" ใหม่ รายการที่บันทึกยังอยู่ในตาราง",
+       "shot": true
+      },
+      {
+       "do": "click",
+       "target": {
+        "role": "link",
+        "name": "ส่งออก CSV"
+       },
+       "expect_download": {
+        "ext": ".csv",
+        "kind": "csv",
+        "min_bytes": 50,
+        "contains": "{{marker}}"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "close-period",
+   "title": "ปิดงวดบัญชีรายเดือน",
+   "role": "principal",
+   "start": "/work",
+   "intro": "ผู้อำนวยการหรือผู้ดูแลระบบปิดงวดเมื่อสิ้นเดือนหลังตรวจสมุดเงินสดแล้ว งวดที่ปิดแล้วบันทึกหรือยกเลิกใบเสร็จและรายการของเดือนนั้นไม่ได้ ผู้ดูแลระบบเปิดงวดอีกครั้งได้ ในคู่มือนี้ใช้งวดเก่า (มกราคม 2563) ซึ่งไม่มีรายการ เพื่อไม่กระทบข้อมูลที่ใช้อยู่",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "สมุดเงินสด",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "wait_after": {
+      "id": "fin-periods"
+     },
+     "say": "เลือกแท็บ \"สมุดเงินสด\" ด้านบนของหน้า",
+     "shot": true,
+     "crop": "viewport"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ปิดงวด (เดือน)"
+     },
+     "value": "2020-01",
+     "crop": "panel",
+     "highlight": {
+      "css": "form.fin-close"
+     },
+     "say": "เลือกเดือนที่ต้องการปิดในช่อง \"ปิดงวด (เดือน)\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดงวด",
+      "exact": true,
+      "within": {
+       "css": "form.fin-close"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/periods/2020-01/close",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"ปิดงวด\" ระบบถามยืนยัน แล้วบันทึกว่างวดนี้ปิดแล้ว",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ปิดแล้ว",
+      "in": {
+       "css": "ul.fin-cards li",
+       "has_text": "2020-01"
+      }
+     }
+    }
+   ],
+   "expected": "รายการงวดมี \"2020-01\" สถานะ \"ปิดแล้ว\"",
+   "verify": [
+    {
+     "title": "เปิดสมุดเงินสดใหม่ งวดต้องยังปิดอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "ul.fin-cards li",
+        "has_text": "2020-01"
+       },
+       "that": {
+        "text": "ปิดแล้ว",
+        "in": {
+         "css": "ul.fin-cards li",
+         "has_text": "2020-01"
+        }
+       },
+       "say": "เปิดแท็บ \"สมุดเงินสด\" ใหม่ งวด 2020-01 ยังเป็น \"ปิดแล้ว\"",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "close-month-and-refuse-entry",
+   "title": "ปิดงวดเดือนหนึ่งแล้วระบบไม่ให้บันทึกรายการลงเดือนนั้น",
+   "role": "principal",
+   "start": "/work",
+   "depends_on": [
+    "close-period"
+   ],
+   "intro": "เมื่อปิดงวดบัญชีของเดือนใด ระบบไม่ให้บันทึก ลบ หรือยกเลิกรายการที่ลงวันที่ในเดือนนั้น (รวมถึงออกใบแจ้งหนี้และรับเงินลงวันที่ในเดือนนั้น) ผู้อำนวยการหรือผู้ดูแลระบบปิดงวดได้ ส่วนการเปิดงวดอีกครั้งทำได้เฉพาะผู้ดูแลระบบ ในคู่มือนี้ใช้เดือนเก่าที่ไม่มีข้อมูลจริง",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "role": "link",
+      "name": "สมุดเงินสด",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"การเงิน\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "สมุดเงินสด",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "say": "เลือกแท็บ \"สมุดเงินสด\"",
+     "shot": true
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "div.fin-sums"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ตั้งแต่",
+      "within": {
+       "css": "form.fin-range"
+      }
+     },
+     "value": "2020-03-01",
+     "settle_ms": 500
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ถึง",
+      "within": {
+       "css": "form.fin-range"
+      }
+     },
+     "value": "2020-03-31",
+     "crop": "panel",
+     "highlight": {
+      "css": "form.fin-range"
+     },
+     "say": "ตั้งช่วงวันที่ \"ตั้งแต่\" และ \"ถึง\" ให้ครอบคลุมเดือนที่ต้องการดู (ในที่นี้ มีนาคม 2020 ซึ่งยังไม่มีรายการ)",
+     "shot": true,
+     "settle_ms": 800
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "details.fin-new > summary"
+     },
+     "wait_after": {
+      "css": "form.fin-entry"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วันที่",
+      "within": {
+       "css": "form.fin-entry"
+      }
+     },
+     "value": "2020-03-10"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หมวด",
+      "within": {
+       "css": "form.fin-entry"
+      }
+     },
+     "value": "ค่าใช้จ่ายทั่วไป"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จำนวนเงิน (บาท)",
+      "within": {
+       "css": "form.fin-entry"
+      }
+     },
+     "value": "75.00"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รายการ",
+      "exact": true,
+      "within": {
+       "css": "form.fin-entry"
+      }
+     },
+     "value": "{{marker}} ซื้อปากกา"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "form.fin-entry"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "table.fin-table tbody tr",
+      "has_text": "{{marker}} ซื้อปากกา"
+     },
+     "wait_after": {
+      "css": "table.fin-table tbody tr",
+      "has_text": "{{marker}} ซื้อปากกา"
+     },
+     "say": "บันทึกรายจ่ายลงวันที่ 10 ของเดือนนั้นตามปกติ (เดือนยังเปิดอยู่จึงบันทึกได้) รายการขึ้นในตาราง",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ปิดงวด (เดือน)"
+     },
+     "value": "2020-03"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดงวด",
+      "exact": true,
+      "within": {
+       "css": "form.fin-close"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "ul.fin-cards li",
+      "has_text": "2020-03"
+     },
+     "wait_after": {
+      "css": "span",
+      "has_text": "ปิดแล้ว",
+      "within": {
+       "css": "ul.fin-cards li",
+       "has_text": "2020-03"
+      }
+     },
+     "say": "พิมพ์เดือนในช่อง \"ปิดงวด (เดือน)\" กดปุ่ม \"ปิดงวด\" แล้วกดยืนยัน ในหัวข้อ \"ปิดงวดบัญชี\" เดือนนั้นขึ้น \"ปิดแล้ว\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "วันที่",
+      "within": {
+       "css": "form.fin-entry"
+      }
+     },
+     "value": "2020-03-20"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "หมวด",
+      "within": {
+       "css": "form.fin-entry"
+      }
+     },
+     "value": "ค่าใช้จ่ายทั่วไป"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จำนวนเงิน (บาท)",
+      "within": {
+       "css": "form.fin-entry"
+      }
+     },
+     "value": "50.00"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รายการ",
+      "exact": true,
+      "within": {
+       "css": "form.fin-entry"
+      }
+     },
+     "value": "{{marker}} ซื้อกระดาษหลังปิดงวด"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "form.fin-entry"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "wait_after": {
+      "css": "#toast.show"
+     },
+     "say": "ลองบันทึกรายการลงวันที่ในเดือนที่ปิดแล้ว ระบบไม่บันทึกและแจ้งว่างวดนั้น \"ปิดบัญชีแล้ว\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ปิดบัญชีแล้ว",
+      "in": {
+       "id": "toast"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบ",
+      "exact": true,
+      "within": {
+       "css": "table.fin-table tbody tr",
+       "has_text": "{{marker}} ซื้อปากกา"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "wait_after": {
+      "css": "#toast.show"
+     },
+     "say": "ลองลบรายการเดิมของเดือนที่ปิดแล้ว ระบบไม่ให้ลบเช่นกัน",
+     "shot": true,
+     "dialog": "accept"
+    },
+    {
+     "do": "expect",
+     "that": [
+      {
+       "text": "ปิดบัญชีแล้ว",
+       "in": {
+        "id": "toast"
+       }
+      },
+      {
+       "visible": {
+        "css": "table.fin-table tbody tr",
+        "has_text": "{{marker}} ซื้อปากกา"
+       }
+      }
+     ]
+    }
+   ],
+   "expected": "เดือนที่ปิดแล้วบันทึกหรือลบรายการไม่ได้ รายการเดิมยังอยู่ครบ",
+   "verify": [
+    {
+     "title": "เปิดสมุดเงินสดใหม่ งวดยังปิดและรายการเดิมยังอยู่",
+     "steps": [
+      {
+       "do": "goto",
+       "url": "/work#finance/ledger",
+       "crop": "viewport",
+       "wait_after": {
+        "css": "div.fin-sums"
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ตั้งแต่",
+        "within": {
+         "css": "form.fin-range"
+        }
+       },
+       "value": "2020-03-01",
+       "settle_ms": 500
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ถึง",
+        "within": {
+         "css": "form.fin-range"
+        }
+       },
+       "value": "2020-03-31",
+       "settle_ms": 800
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "visible": {
+          "css": "table.fin-table tbody tr",
+          "has_text": "{{marker}} ซื้อปากกา"
+         }
+        },
+        {
+         "text": "ปิดแล้ว",
+         "in": {
+          "css": "ul.fin-cards li",
+          "has_text": "2020-03"
+         }
+        },
+        {
+         "hidden": {
+          "css": "table.fin-table tbody tr",
+          "has_text": "ซื้อกระดาษหลังปิดงวด"
+         }
+        }
+       ],
+       "crop": "panel",
+       "highlight": {
+        "css": "table.fin-table tbody tr",
+        "has_text": "{{marker}} ซื้อปากกา"
+       },
+       "say": "เปิดสมุดเงินสดอีกครั้งและเลือกช่วงเดือนเดิม พบเฉพาะรายการที่บันทึกก่อนปิดงวด ไม่มีรายการที่ถูกปฏิเสธ",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "change-settings",
+   "title": "ตั้งคำนำหน้าเลขที่ใบแจ้งหนี้ ใบเสร็จ และเลือกเจ้าหน้าที่การเงิน",
+   "role": "admin",
+   "start": "/work",
+   "depends_on": [
+    "receive-cash-payment",
+    "approve-slip"
+   ],
+   "intro": "ผู้ดูแลระบบกำหนดอักษรนำหน้าเลขที่ใบแจ้งหนี้และใบเสร็จ (ตัวอักษรอังกฤษหรือตัวเลข 1-8 ตัว และต้องไม่ซ้ำกัน) และเลือกครูที่ทำงานการเงินได้ ผู้อำนวยการและผู้ดูแลระบบทำงานการเงินได้อยู่แล้ว การเปลี่ยนมีผลกับเลขที่ที่ออกใหม่ เลขที่เดิมไม่เปลี่ยน",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ตั้งค่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "crop": "tight",
+     "wait_after": {
+      "css": "form.fin-settings"
+     },
+     "say": "เลือกแท็บ \"ตั้งค่า\" ด้านบนของหน้า แล้วเลื่อนลงไปที่หัวข้อ \"เลขที่เอกสารและเจ้าหน้าที่การเงิน\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "คำนำหน้าใบเสร็จ",
+      "within": {
+       "css": "form.fin-settings"
+      }
+     },
+     "value": "RCX",
+     "crop": "panel",
+     "highlight": {
+      "css": "form.fin-settings"
+     },
+     "say": "พิมพ์อักษรนำหน้าใหม่ในช่อง \"คำนำหน้าใบเสร็จ\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกการตั้งค่า",
+      "within": {
+       "css": "form.fin-settings"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/finance/settings",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"บันทึกการตั้งค่า\" ระบบแสดงข้อความ \"บันทึกการตั้งค่าแล้ว\"",
+     "shot": true
+    }
+   ],
+   "expected": "ช่อง \"คำนำหน้าใบเสร็จ\" แสดงค่าใหม่หลังเปิดหน้าอีกครั้ง",
+   "verify": [
+    {
+     "title": "เปิดหน้าตั้งค่าใหม่ ค่าที่บันทึกต้องยังอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "label": "คำนำหน้าใบเสร็จ",
+        "within": {
+         "css": "form.fin-settings"
+        }
+       },
+       "that": {
+        "value": "RCX",
+        "of": {
+         "label": "คำนำหน้าใบเสร็จ",
+         "within": {
+          "css": "form.fin-settings"
+         }
+        }
+       },
+       "say": "เปิดหน้า \"ตั้งค่า\" ใหม่ ช่อง \"คำนำหน้าใบเสร็จ\" แสดงค่าที่บันทึก",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "teacher-without-finance-role",
+   "title": "ครูที่ไม่ได้รับสิทธิ์การเงินเปิดหน้าการเงิน",
+   "role": "homeroom",
+   "start": "/work",
+   "intro": "ครูต้องได้รับการเลือกเป็นเจ้าหน้าที่การเงินจากผู้ดูแลระบบจึงจะใช้หน้านี้ได้ ครูที่ไม่มีสิทธิ์เห็นข้อความแจ้งแทนข้อมูล",
+   "steps": [
+    {
+     "do": "goto",
+     "url": "/work#finance",
+     "wait_after": {
+      "css": "section.fin"
+     }
+    },
+    {
+     "do": "expect",
+     "crop": "viewport",
+     "highlight": {
+      "css": "section.fin"
+     },
+     "that": {
+      "text": "ไม่ได้รับสิทธิ์งานการเงิน",
+      "in": {
+       "css": "section.fin"
+      }
+     },
+     "say": "ครูที่ไม่ได้รับสิทธิ์เปิดหน้า \"การเงิน\" แล้วเห็นข้อความ \"บัญชีนี้ไม่ได้รับสิทธิ์งานการเงิน กรุณาติดต่อผู้ดูแลระบบ\" ไม่มีแท็บและข้อมูลการเงิน",
+     "shot": true
+    }
+   ],
+   "expected": "หน้าแสดงเฉพาะข้อความแจ้งสิทธิ์ ไม่มีรายชื่อนักเรียนหรือยอดเงิน",
+   "verify": [
+    {
+     "title": "ไม่มีแท็บการเงินในหน้า",
+     "steps": [
+      {
+       "do": "expect",
+       "that": [
+        {
+         "hidden": {
+          "role": "link",
+          "name": "ค้นหาและรับเงิน"
+         }
+        },
+        {
+         "text": "ไม่ได้รับสิทธิ์งานการเงิน"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "add-finance-officer",
+   "title": "เลือกครูเป็นเจ้าหน้าที่การเงิน แล้วครูเปิดหน้าการเงินได้",
+   "role": "admin",
+   "start": "/work#module-settings",
+   "depends_on": [
+    "teacher-without-finance-role"
+   ],
+   "intro": "ผู้ดูแลระบบเลือกครูที่ทำงานการเงินได้ในหน้า \"ตั้งค่าโมดูล\" ของโมดูลการเงิน ติ๊กชื่อครูแล้วกดบันทึก ครูคนนั้นเปิดหน้าการเงินได้ทันที ขั้นตอนถัดไปคืนค่าเดิมให้",
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "div.ms-item",
+      "has_text": "finance.staff_user_ids"
+     }
+    },
+    {
+     "do": "check",
+     "target": {
+      "role": "checkbox",
+      "name": "พิมพ์ใจ",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "finance.staff_user_ids"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "div.ms-item",
+      "has_text": "finance.staff_user_ids"
+     },
+     "say": "ในหน้า \"ตั้งค่าโมดูล\" หัวข้อ \"เจ้าหน้าที่การเงิน\" ติ๊กชื่อครู \"นางสาวพิมพ์ใจ ใฝ่รู้\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "finance.staff_user_ids"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"บันทึก\" ของรายการ ระบบแสดงข้อความ \"บันทึกการตั้งค่าแล้ว\"",
+     "shot": true
+    }
+   ],
+   "expected": "ชื่อครูที่ติ๊กอยู่ในรายการเจ้าหน้าที่การเงิน และครูคนนั้นเปิดหน้าการเงินได้",
+   "verify": [
+    {
+     "title": "ครูที่ถูกเลือกเปิดหน้าการเงินได้",
+     "as": "homeroom",
+     "start": "/work#finance",
+     "steps": [
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "section.fin"
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "viewport",
+       "highlight": {
+        "css": "section.fin .fin-tabs"
+       },
+       "that": [
+        {
+         "visible": {
+          "css": "section.fin .fin-tabs"
+         }
+        },
+        {
+         "hidden": {
+          "text": "ไม่ได้รับสิทธิ์งานการเงิน"
+         }
+        }
+       ],
+       "say": "เมื่อครูคนนั้นเปิดหน้า \"การเงิน\" จะเห็นแท็บการเงินและไม่มีข้อความ \"ไม่ได้รับสิทธิ์งานการเงิน\"",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restore-finance-officer",
+   "title": "คืนค่าเจ้าหน้าที่การเงินให้เป็นค่าเดิม (ล้างข้อมูลทดสอบ)",
+   "role": "admin",
+   "start": "/work#module-settings",
+   "cleanup": true,
+   "depends_on": [
+    "add-finance-officer"
+   ],
+   "steps": [
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "div.ms-item",
+      "has_text": "finance.staff_user_ids"
+     }
+    },
+    {
+     "do": "uncheck",
+     "target": {
+      "role": "checkbox",
+      "name": "พิมพ์ใจ",
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "finance.staff_user_ids"
+      }
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึก",
+      "exact": true,
+      "within": {
+       "css": "div.ms-item",
+       "has_text": "finance.staff_user_ids"
+      }
+     },
+     "expect_response": {
+      "url_contains": "/api/module-settings",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "ครูคนนั้นไม่อยู่ในรายการเจ้าหน้าที่การเงินแล้ว",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "div.ms-item",
+        "has_text": "finance.staff_user_ids"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "unchecked": {
+         "role": "checkbox",
+         "name": "พิมพ์ใจ",
+         "within": {
+          "css": "div.ms-item",
+          "has_text": "finance.staff_user_ids"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cleanup-fee-item",
+   "title": "ปิดใช้รายการค่าธรรมเนียมที่เพิ่มไว้ (ล้างข้อมูลทดสอบ)",
+   "role": "principal",
+   "start": "/work",
+   "cleanup": true,
+   "intro": "ขั้นตอนนี้ใช้ตอนทดสอบเท่านั้น ในการใช้งานจริงใช้ปุ่ม \"ปิดใช้\" เมื่อไม่ต้องการให้เลือกรายการอีก ระบบไม่มีปุ่มลบรายการ",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ตั้งค่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "wait_after": {
+      "css": "form.fin-fee"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ปิดใช้",
+      "exact": true,
+      "within": {
+       "css": "ul.fin-cards li",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "ul.fin-cards li",
+      "has_text": "{{marker}}"
+     },
+     "expect_response": {
+      "url_contains": "/api/finance/fee-items",
+      "method": "PUT",
+      "status": 200
+     },
+     "say": "กดปุ่ม \"ปิดใช้\" ที่รายการค่าธรรมเนียม ระบบเปลี่ยนรายการเป็น \"(ปิดใช้)\" และไม่ให้เลือกในใบแจ้งหนี้อีก",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "(ปิดใช้)",
+      "in": {
+       "css": "ul.fin-cards li",
+       "has_text": "{{marker}}"
+      }
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "เปิดหน้าตั้งค่าใหม่ รายการต้องเป็น \"ปิดใช้\"",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "expect",
+       "that": {
+        "text": "(ปิดใช้)",
+        "in": {
+         "css": "ul.fin-cards li",
+         "has_text": "{{marker}}"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cleanup-ledger-entry",
+   "title": "ลบรายการที่บันทึกเองในสมุดเงินสด (ล้างข้อมูลทดสอบ)",
+   "role": "finance",
+   "start": "/work",
+   "cleanup": true,
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "สมุดเงินสด",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "wait_after": {
+      "css": "div.fin-sums"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบ",
+      "exact": true,
+      "within": {
+       "css": "table.fin-table tbody tr",
+       "has_text": "{{marker}}"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "table.fin-table tbody tr",
+      "has_text": "{{marker}}"
+     },
+     "expect_response": {
+      "url_contains": "/api/finance/ledger/",
+      "method": "DELETE"
+     },
+     "say": "กดปุ่ม \"ลบ\" ที่แถวของรายการที่บันทึกเอง ระบบถามยืนยัน แล้วรายการหายจากตาราง",
+     "shot": true
+    }
+   ],
+   "verify": [
+    {
+     "title": "เปิดสมุดเงินสดใหม่ รายการต้องไม่มีปุ่มลบของรายการทดสอบ",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "div.fin-sums"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "hidden": {
+         "role": "button",
+         "name": "ลบ",
+         "exact": true,
+         "within": {
+          "css": "table.fin-table tbody tr",
+          "has_text": "{{marker}}"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cleanup-period",
+   "title": "เปิดงวดบัญชีที่ปิดไว้อีกครั้ง (ล้างข้อมูลทดสอบ)",
+   "role": "admin",
+   "start": "/work",
+   "cleanup": true,
+   "intro": "เฉพาะผู้ดูแลระบบเปิดงวดที่ปิดแล้วอีกครั้งได้ ปุ่ม \"เปิดงวดอีกครั้ง\" อยู่ที่รายการงวดในแท็บ \"สมุดเงินสด\"",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "สมุดเงินสด",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "wait_after": {
+      "id": "fin-periods"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปิดงวดอีกครั้ง",
+      "within": {
+       "css": "ul.fin-cards li",
+       "has_text": "2020-01"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "ul.fin-cards li",
+      "has_text": "2020-01"
+     },
+     "expect_response": {
+      "url_contains": "/periods/2020-01/reopen",
+      "method": "POST",
+      "status": 200
+     },
+     "say": "กดปุ่ม \"เปิดงวดอีกครั้ง\" ที่งวดที่ต้องการ ระบบถามยืนยัน แล้วงวดเปลี่ยนเป็น \"เปิด\"",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "เปิด",
+      "in": {
+       "css": "ul.fin-cards li",
+       "has_text": "2020-01"
+      }
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "เปิดสมุดเงินสดใหม่ งวดต้องไม่ใช่ \"ปิดแล้ว\"",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "id": "fin-periods"
+       }
+      },
+      {
+       "do": "expect",
+       "that": {
+        "not_text": "ปิดแล้ว",
+        "in": {
+         "css": "ul.fin-cards li",
+         "has_text": "2020-01"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cleanup-settings",
+   "title": "คืนคำนำหน้าเลขที่ใบเสร็จเป็นค่าเดิม (ล้างข้อมูลทดสอบ)",
+   "role": "admin",
+   "start": "/work",
+   "cleanup": true,
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "ตั้งค่า",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "wait_after": {
+      "css": "form.fin-settings"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "คำนำหน้าใบเสร็จ",
+      "within": {
+       "css": "form.fin-settings"
+      }
+     },
+     "value": "RC",
+     "crop": "panel",
+     "highlight": {
+      "css": "form.fin-settings"
+     },
+     "say": "พิมพ์ค่าเดิมในช่อง \"คำนำหน้าใบเสร็จ\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "บันทึกการตั้งค่า",
+      "within": {
+       "css": "form.fin-settings"
+      }
+     },
+     "expect_response": {
+      "url_contains": "/api/finance/settings",
+      "method": "PUT",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     }
+    }
+   ],
+   "verify": [
+    {
+     "title": "เปิดหน้าตั้งค่าใหม่ ค่าต้องเป็น RC",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "expect",
+       "that": {
+        "value": "RC",
+        "of": {
+         "label": "คำนำหน้าใบเสร็จ",
+         "within": {
+          "css": "form.fin-settings"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cleanup-pay-leftover",
+   "title": "รับชำระใบแจ้งหนี้ทดสอบที่ค้างอยู่ (ล้างข้อมูลทดสอบ)",
+   "role": "finance",
+   "start": "/work",
+   "cleanup": true,
+   "intro": "ขั้นตอนนี้ใช้ตอนทดสอบเพื่อไม่ให้ใบแจ้งหนี้ทดสอบค้างอยู่ เพราะระบบทดสอบยกเลิกใบแจ้งหนี้ไม่ได้",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสหรือชื่อนักเรียน"
+     },
+     "value": "มนสิชา",
+     "wait_after": {
+      "role": "link",
+      "name": "มนสิชา แสงเช้าใส"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "มนสิชา แสงเช้าใส"
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "มนสิชา แสงเช้าใส"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "รับเงินและออกใบเสร็จ",
+      "within": {
+       "css": "form.fin-pay",
+       "within": {
+        "css": "article.fin-invoice",
+        "has_text": "ชำระแล้ว 0.00 / ค้าง 200.00",
+        "first": true
+       }
+      }
+     },
+     "optional": true,
+     "timeout": 5000,
+     "wait_after": {
+      "css": ".fin-receipt-ok"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "รับเงินและออกใบเสร็จ",
+      "within": {
+       "css": "form.fin-pay",
+       "within": {
+        "css": "article.fin-invoice",
+        "has_text": "ชำระแล้ว 0.00 / ค้าง 200.00",
+        "first": true
+       }
+      }
+     },
+     "optional": true,
+     "timeout": 5000
+    }
+   ],
+   "verify": [
+    {
+     "title": "หน้าบัญชีของนักเรียนเปิดได้",
+     "steps": [
+      {
+       "do": "expect",
+       "that": {
+        "visible": {
+         "role": "heading",
+         "name": "มนสิชา แสงเช้าใส"
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "reopen-month-and-delete-entry",
+   "title": "เปิดงวดอีกครั้งและลบรายการทดสอบของเดือนนั้น (ล้างข้อมูลทดสอบ)",
+   "role": "admin",
+   "start": "/work",
+   "cleanup": true,
+   "depends_on": [
+    "close-month-and-refuse-entry"
+   ],
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "role": "link",
+      "name": "สมุดเงินสด",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"การเงิน\"",
+     "shot": true
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "สมุดเงินสด",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "เมนูการเงิน"
+      }
+     },
+     "say": "เลือกแท็บ \"สมุดเงินสด\"",
+     "shot": true
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "css": "ul.fin-cards li",
+      "has_text": "2020-03"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "เปิดงวดอีกครั้ง",
+      "within": {
+       "css": "ul.fin-cards li",
+       "has_text": "2020-03"
+      }
+     },
+     "crop": "panel",
+     "highlight": {
+      "css": "ul.fin-cards li",
+      "has_text": "2020-03"
+     },
+     "wait_after": {
+      "css": "span",
+      "has_text": "เปิด",
+      "within": {
+       "css": "ul.fin-cards li",
+       "has_text": "2020-03"
+      }
+     },
+     "say": "ผู้ดูแลระบบกดปุ่ม \"เปิดงวดอีกครั้ง\" ที่เดือนนั้นแล้วกดยืนยัน เดือนกลับเป็น \"เปิด\" บันทึกและลบรายการได้อีก (ผู้อำนวยการเปิดงวดไม่ได้)",
+     "shot": true,
+     "dialog": "accept"
+    },
+    {
+     "do": "expect",
+     "that": {
+      "not_text": "ปิดแล้ว",
+      "in": {
+       "css": "ul.fin-cards li",
+       "has_text": "2020-03"
+      }
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ตั้งแต่",
+      "within": {
+       "css": "form.fin-range"
+      }
+     },
+     "value": "2020-03-01",
+     "settle_ms": 500
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "ถึง",
+      "within": {
+       "css": "form.fin-range"
+      }
+     },
+     "value": "2020-03-31",
+     "settle_ms": 800
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ลบ",
+      "exact": true,
+      "within": {
+       "css": "table.fin-table tbody tr",
+       "has_text": "{{marker}} ซื้อปากกา"
+      }
+     },
+     "wait_after": {
+      "css": "td",
+      "has_text": "ไม่มีรายการ"
+     },
+     "dialog": "accept"
+    }
+   ],
+   "expected": "เดือนกลับเป็น \"เปิด\" และรายการทดสอบถูกลบ",
+   "verify": [
+    {
+     "title": "เปิดสมุดเงินสดใหม่ ไม่มีรายการทดสอบ",
+     "steps": [
+      {
+       "do": "goto",
+       "url": "/work#finance/ledger",
+       "crop": "viewport",
+       "wait_after": {
+        "css": "div.fin-sums"
+       }
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ตั้งแต่",
+        "within": {
+         "css": "form.fin-range"
+        }
+       },
+       "value": "2020-03-01",
+       "settle_ms": 500
+      },
+      {
+       "do": "fill",
+       "target": {
+        "label": "ถึง",
+        "within": {
+         "css": "form.fin-range"
+        }
+       },
+       "value": "2020-03-31",
+       "settle_ms": 800
+      },
+      {
+       "do": "expect",
+       "that": [
+        {
+         "hidden": {
+          "css": "table.fin-table tbody tr",
+          "has_text": "{{marker}} ซื้อปากกา"
+         }
+        },
+        {
+         "not_text": "ปิดแล้ว",
+         "in": {
+          "css": "ul.fin-cards li",
+          "has_text": "2020-03"
+         }
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cleanup-account-test-invoice",
+   "title": "ยกเลิกใบแจ้งหนี้ทดสอบบัญชีรับเงิน (ล้างข้อมูลทดสอบ)",
+   "role": "principal",
+   "start": "/work",
+   "cleanup": true,
+   "depends_on": [
+    "add-bank-account-with-qr"
+   ],
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "wait_after": {
+      "label": "รหัสหรือชื่อนักเรียน"
+     },
+     "say": "เลือกเมนู \"งานโรงเรียน\" > \"การเงิน\"",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสหรือชื่อนักเรียน"
+     },
+     "value": "อคิน"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "อคิน ธารใส"
+     },
+     "wait_after": {
+      "css": "details.fin-new"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกใบแจ้งหนี้",
+      "exact": true,
+      "within": {
+       "css": "article.fin-invoice",
+       "has_text": "ยอดรวม 111.11 / ชำระแล้ว 0.00"
+      }
+     },
+     "wait_after": {
+      "css": "article.fin-invoice",
+      "has_text": "ยกเลิก"
+     },
+     "dialog_text": "{{marker}} ยกเลิกใบแจ้งหนี้ทดสอบบัญชี"
+    }
+   ],
+   "expected": "ใบแจ้งหนี้ทดสอบขึ้นสถานะ \"ยกเลิก\"",
+   "verify": [
+    {
+     "title": "ไม่มีใบแจ้งหนี้ 111.11 ที่ค้างอยู่",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "expect",
+       "that": {
+        "hidden": {
+         "role": "button",
+         "name": "ยกเลิกใบแจ้งหนี้",
+         "exact": true,
+         "within": {
+          "css": "article.fin-invoice",
+          "has_text": "ยอดรวม 111.11"
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "void-custom-invoice",
+   "title": "ยกเลิกใบแจ้งหนี้ที่ยังไม่มีการชำระ",
+   "role": "finance",
+   "start": "/work",
+   "intro": "ใบแจ้งหนี้ที่ยังค้างชำระยกเลิกได้ ระบบถามเหตุผลในกล่องข้อความ ต้องพิมพ์อย่างน้อยสามตัวอักษร เมื่อยกเลิกแล้วใบแจ้งหนี้ยังอยู่ในประวัติ แต่สถานะเป็น \"ยกเลิก\" และไม่นับยอดค้าง ใบแจ้งหนี้ที่ชำระแล้วยกเลิกไม่ได้ ต้องยกเลิกใบเสร็จก่อน",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสหรือชื่อนักเรียน"
+     },
+     "value": "มนสิชา",
+     "wait_after": {
+      "role": "link",
+      "name": "มนสิชา แสงเช้าใส"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "มนสิชา แสงเช้าใส"
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "มนสิชา แสงเช้าใส"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "details.fin-new > summary"
+     },
+     "crop": "tight",
+     "wait_after": {
+      "css": "form.fin-inv"
+     },
+     "say": "กดหัวข้อ \"ออกใบแจ้งหนี้ใหม่\""
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รายการอื่น (ชื่อ)",
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "value": "{{marker}} ค่าทดสอบยกเลิก"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จำนวนเงิน (บาท)",
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "value": "150.00"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ออกใบแจ้งหนี้",
+      "exact": true,
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "crop": "viewport",
+     "highlight": {
+      "id": "toast"
+     },
+     "expect_response": {
+      "url_contains": "/api/finance/invoices",
+      "method": "POST",
+      "status": 201
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"ออกใบแจ้งหนี้\" เพื่อสร้างใบแจ้งหนี้ทดสอบ 150.00 บาท ที่จะยกเลิกในขั้นตอนถัดไป",
+     "shot": true
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "text": "ค้าง 150.00"
+     }
+    },
+    {
+     "do": "capture",
+     "target": {
+      "css": "article.fin-invoice",
+      "first": true
+     },
+     "var": "inv",
+     "regex": "(INV-[0-9-]+)"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกใบแจ้งหนี้",
+      "exact": true,
+      "within": {
+       "css": "article.fin-invoice",
+       "has_text": "{{inv}}",
+       "first": true
+      }
+     },
+     "dialog_text": "{{marker}} ยกเลิกทดสอบ",
+     "crop": "panel",
+     "highlight": {
+      "css": "article.fin-invoice",
+      "has_text": "{{inv}}",
+      "first": true
+     },
+     "expect_response": {
+      "url_contains": "/void",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"ยกเลิกใบแจ้งหนี้\" ของใบแจ้งหนี้ทดสอบ ระบบถามเหตุผลในกล่องข้อความ พิมพ์เหตุผลแล้วกดตกลง",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ยกเลิก",
+      "in": {
+       "css": "article.fin-invoice",
+       "has_text": "{{inv}}",
+       "first": true
+      }
+     }
+    }
+   ],
+   "expected": "ใบแจ้งหนี้ทดสอบแสดงสถานะ \"ยกเลิก\" และปุ่ม \"ยกเลิกใบแจ้งหนี้\" หายไป",
+   "verify": [
+    {
+     "title": "เปิดหน้าบัญชีของนักเรียนใหม่ ใบแจ้งหนี้ที่ยกเลิกต้องเป็นสถานะยกเลิก",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.fin-invoice",
+        "has_text": "{{inv}}",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "article.fin-invoice",
+        "has_text": "{{inv}}",
+        "first": true
+       },
+       "that": [
+        {
+         "text": "ยกเลิก",
+         "in": {
+          "css": "article.fin-invoice",
+          "has_text": "{{inv}}",
+          "first": true
+         }
+        },
+        {
+         "hidden": {
+          "role": "button",
+          "name": "ยกเลิกใบแจ้งหนี้",
+          "within": {
+           "css": "article.fin-invoice",
+           "has_text": "{{inv}}",
+           "first": true
+          }
+         }
+        }
+       ],
+       "say": "เปิดหน้าบัญชีของนักเรียนใหม่ ใบแจ้งหนี้ทดสอบแสดงสถานะ \"ยกเลิก\" และไม่มีปุ่มยกเลิกอีก",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "void-receipt",
+   "title": "ยกเลิกใบเสร็จและเก็บเลขที่เดิมไว้",
+   "role": "finance",
+   "start": "/work",
+   "intro": "ใบเสร็จยกเลิกได้โดยระบบถามเหตุผล เลขที่ใบเสร็จเดิมยังอยู่ ใบแจ้งหนี้กลับมาค้างชำระตามยอดที่ยกเลิก เมื่อยกเลิกแล้วรายการนี้ไม่นับในยอดรับของวัน ในที่นี้สร้างใบแจ้งหนี้ทดสอบ รับเงินสด แล้วยกเลิกใบเสร็จนั้น",
+   "steps": [
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "การเงิน",
+      "exact": true,
+      "within": {
+       "role": "navigation",
+       "name": "ระบบงานโรงเรียน"
+      }
+     },
+     "crop": "viewport",
+     "wait_after": {
+      "css": "section.fin .fin-tabs"
+     },
+     "say": "เลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย",
+     "shot": true
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รหัสหรือชื่อนักเรียน"
+     },
+     "value": "มนสิชา",
+     "wait_after": {
+      "role": "link",
+      "name": "มนสิชา แสงเช้าใส"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "link",
+      "name": "มนสิชา แสงเช้าใส"
+     },
+     "wait_after": {
+      "role": "heading",
+      "name": "มนสิชา แสงเช้าใส"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "css": "details.fin-new > summary"
+     },
+     "crop": "tight",
+     "wait_after": {
+      "css": "form.fin-inv"
+     }
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "รายการอื่น (ชื่อ)",
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "value": "{{marker}} ค่าทดสอบใบเสร็จ"
+    },
+    {
+     "do": "fill",
+     "target": {
+      "label": "จำนวนเงิน (บาท)",
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "value": "120.00"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ออกใบแจ้งหนี้",
+      "exact": true,
+      "within": {
+       "css": "form.fin-inv"
+      }
+     },
+     "expect_response": {
+      "url_contains": "/api/finance/invoices",
+      "method": "POST",
+      "status": 201
+     },
+     "wait_after": {
+      "id": "toast"
+     }
+    },
+    {
+     "do": "wait_for",
+     "target": {
+      "text": "ค้าง 120.00"
+     }
+    },
+    {
+     "do": "capture",
+     "target": {
+      "css": "article.fin-invoice",
+      "first": true
+     },
+     "var": "inv",
+     "regex": "(INV-[0-9-]+)"
+    },
+    {
+     "do": "select",
+     "target": {
+      "label": "วิธีชำระ",
+      "within": {
+       "css": "form.fin-pay",
+       "within": {
+        "css": "article.fin-invoice",
+        "has_text": "{{inv}}",
+        "first": true
+       }
+      }
+     },
+     "label": "เงินสด",
+     "crop": "panel",
+     "highlight": {
+      "css": "form.fin-pay",
+      "within": {
+       "css": "article.fin-invoice",
+       "has_text": "{{inv}}",
+       "first": true
+      }
+     },
+     "say": "ในใบแจ้งหนี้ทดสอบ เลือกวิธีชำระ \"เงินสด\" แล้วกดรับเงิน"
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "รับเงินและออกใบเสร็จ",
+      "within": {
+       "css": "form.fin-pay",
+       "within": {
+        "css": "article.fin-invoice",
+        "has_text": "{{inv}}",
+        "first": true
+       }
+      }
+     },
+     "crop": "viewport",
+     "expect_response": {
+      "url_contains": "/payments",
+      "method": "POST",
+      "status": 201
+     },
+     "wait_after": {
+      "css": ".fin-receipt-ok"
+     }
+    },
+    {
+     "do": "click",
+     "target": {
+      "role": "button",
+      "name": "ยกเลิกใบเสร็จ",
+      "exact": true,
+      "within": {
+       "css": "article.fin-invoice",
+       "has_text": "{{inv}}",
+       "first": true
+      }
+     },
+     "dialog_text": "{{marker}} ยกเลิกใบเสร็จทดสอบ",
+     "crop": "panel",
+     "highlight": {
+      "css": "article.fin-invoice",
+      "has_text": "{{inv}}",
+      "first": true
+     },
+     "expect_response": {
+      "url_contains": "/void",
+      "method": "POST",
+      "status": 200
+     },
+     "wait_after": {
+      "id": "toast"
+     },
+     "say": "กดปุ่ม \"ยกเลิกใบเสร็จ\" ที่รายการรับเงินทดสอบ ระบบถามเหตุผลในกล่องข้อความ พิมพ์เหตุผลแล้วกดตกลง เลขที่ใบเสร็จเดิมยังแสดงอยู่",
+     "shot": true
+    },
+    {
+     "do": "expect",
+     "that": {
+      "text": "ยกเลิก:",
+      "in": {
+       "css": "article.fin-invoice",
+       "has_text": "{{inv}}",
+       "first": true
+      }
+     }
+    }
+   ],
+   "expected": "รายการรับเงินของใบแจ้งหนี้ทดสอบแสดง \"(ยกเลิก: เหตุผล)\" และเลขที่ใบเสร็จเดิมยังอยู่",
+   "verify": [
+    {
+     "title": "เปิดหน้าบัญชีใหม่ ใบเสร็จที่ยกเลิกต้องแสดงเหตุผลการยกเลิก",
+     "steps": [
+      {
+       "do": "reload"
+      },
+      {
+       "do": "wait_for",
+       "target": {
+        "css": "article.fin-invoice",
+        "has_text": "{{inv}}",
+        "first": true
+       }
+      },
+      {
+       "do": "expect",
+       "crop": "panel",
+       "highlight": {
+        "css": "article.fin-invoice",
+        "has_text": "{{inv}}",
+        "first": true
+       },
+       "that": {
+        "text": "ยกเลิก:",
+        "in": {
+         "css": "article.fin-invoice",
+         "has_text": "{{inv}}",
+         "first": true
+        }
+       },
+       "say": "เปิดหน้าบัญชีของนักเรียนใหม่ รายการรับเงินของใบแจ้งหนี้ทดสอบแสดง \"(ยกเลิก: เหตุผล)\"",
+       "shot": true
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "skeleton": [],
+ "untested": [
+  "ใบแจ้งหนี้ทดสอบที่ยกเลิกแล้วยังอยู่ในประวัติบัญชีของนักเรียนเป็นสถานะ \"ยกเลิก\" และใบเสร็จทดสอบที่ยกเลิกแล้วแสดง \"(ยกเลิก: เหตุผล)\" เลขที่ใบเสร็จเดิมยังอยู่ ระบบไม่มีการลบประวัติการเงิน ข้อมูลทดสอบนี้จึงเหลืออยู่ในบัญชีนักเรียนทุกครั้งที่รัน และมีเครื่องหมายทดสอบในรายการ",
+  "การลบไฟล์สลิปเมื่อครบกำหนดเก็บ (ตั้งค่า finance.slip_retention_years และคำสั่ง modules/finance/src/Console/PruneCommand.php) เป็นงานตามกำหนดเวลาของระบบ ไม่มีหน้าจอ จึงไม่ได้ตรวจด้วยเบราว์เซอร์",
+  "การออกใบแจ้งหนี้ทั้งห้อง: ใบแจ้งหนี้ที่ออกยังอยู่ในบัญชีนักเรียนของห้อง ม.5/1 ทุกคน ระบบไม่มีปุ่มยกเลิกเป็นชุด ต้องยกเลิกทีละใบ ข้อมูลทดสอบนี้เหลือค้างในระบบทดลอง",
+  "บัญชีรับเงินทดสอบที่เพิ่มไว้ยังอยู่ในรายการ (สถานะปิดใช้งาน) เพราะระบบไม่มีปุ่มลบบัญชี การแก้ไขข้อมูลบัญชีที่มีบันทึกการแก้ไขและกล่องยืนยันเมื่อเปลี่ยนเลขบัญชี ไม่ได้ทดสอบ การลบภาพ QR ไม่ได้ทดสอบ ภาพที่อัปโหลดเป็นภาพตัวอย่าง ไม่ใช่ QR พร้อมเพย์จริง และระบบไม่สร้าง QR พร้อมเพย์เองจากเลขบัญชี",
+  "ใบเสร็จและรายการแจ้งโอนที่เจ้าหน้าที่บันทึกแทนไม่มีปุ่มลบ เหลือเป็นประวัติของนักเรียนทดสอบ (ใบแจ้งหนี้ใบนี้ชำระครบแล้ว)",
+  "การปฏิเสธรายการในงวดที่ปิดตรวจกับสมุดเงินสด (บันทึกและลบรายการ) เท่านั้น การออกใบแจ้งหนี้ การรับเงิน และการอนุมัติสลิปลงวันที่ในงวดที่ปิดแล้วใช้ตรวจชุดเดียวกัน (modules/finance/src/Billing.php) แต่ไม่ได้ทดสอบด้วยเบราว์เซอร์",
+  "การออกใบแจ้งหนี้ทั้งห้อง: ใบแจ้งหนี้ที่ออกยังอยู่ในบัญชีนักเรียนของห้อง ม.5/1 ทุกคน ระบบไม่มีปุ่มยกเลิกเป็นชุด ต้องยกเลิกทีละใบ ข้อมูลทดสอบนี้เหลือค้างในระบบทดลอง",
+  "บัญชีรับเงินทดสอบที่เพิ่มไว้ยังอยู่ในรายการ (สถานะปิดใช้งาน) เพราะระบบไม่มีปุ่มลบบัญชี การแก้ไขข้อมูลบัญชีที่มีบันทึกการแก้ไขและกล่องยืนยันเมื่อเปลี่ยนเลขบัญชี ไม่ได้ทดสอบ การลบภาพ QR ไม่ได้ทดสอบ ภาพที่อัปโหลดเป็นภาพตัวอย่าง ไม่ใช่ QR พร้อมเพย์จริง และระบบไม่สร้าง QR พร้อมเพย์เองจากเลขบัญชี",
+  "ใบเสร็จและรายการแจ้งโอนที่เจ้าหน้าที่บันทึกแทนไม่มีปุ่มลบ เหลือเป็นประวัติของนักเรียนทดสอบ (ใบแจ้งหนี้ใบนี้ชำระครบแล้ว)",
+  "การปฏิเสธรายการในงวดที่ปิดตรวจกับสมุดเงินสด (บันทึกและลบรายการ) เท่านั้น การออกใบแจ้งหนี้ การรับเงิน และการอนุมัติสลิปลงวันที่ในงวดที่ปิดแล้วใช้ตรวจชุดเดียวกัน (modules/finance/src/Billing.php) แต่ไม่ได้ทดสอบด้วยเบราว์เซอร์",
+  "การออกใบแจ้งหนี้ทั้งห้อง: ใบแจ้งหนี้ที่ออกยังอยู่ในบัญชีนักเรียนของห้อง ม.5/1 ทุกคน ระบบไม่มีปุ่มยกเลิกเป็นชุด ต้องยกเลิกทีละใบ ข้อมูลทดสอบนี้เหลือค้างในระบบทดลอง",
+  "บัญชีรับเงินทดสอบที่เพิ่มไว้ยังอยู่ในรายการ (สถานะปิดใช้งาน) เพราะระบบไม่มีปุ่มลบบัญชี การแก้ไขข้อมูลบัญชีที่มีบันทึกการแก้ไขและกล่องยืนยันเมื่อเปลี่ยนเลขบัญชี ไม่ได้ทดสอบ การลบภาพ QR ไม่ได้ทดสอบ ภาพที่อัปโหลดเป็นภาพตัวอย่าง ไม่ใช่ QR พร้อมเพย์จริง และระบบไม่สร้าง QR พร้อมเพย์เองจากเลขบัญชี",
+  "ใบเสร็จและรายการแจ้งโอนที่เจ้าหน้าที่บันทึกแทนไม่มีปุ่มลบ เหลือเป็นประวัติของนักเรียนทดสอบ (ใบแจ้งหนี้ใบนี้ชำระครบแล้ว)",
+  "การปฏิเสธรายการในงวดที่ปิดตรวจกับสมุดเงินสด (บันทึกและลบรายการ) เท่านั้น การออกใบแจ้งหนี้ การรับเงิน และการอนุมัติสลิปลงวันที่ในงวดที่ปิดแล้วใช้ตรวจชุดเดียวกัน (modules/finance/src/Billing.php) แต่ไม่ได้ทดสอบด้วยเบราว์เซอร์",
+  "การออกใบแจ้งหนี้ทั้งห้อง: ใบแจ้งหนี้ที่ออกยังอยู่ในบัญชีนักเรียนของห้อง ม.5/1 ทุกคน ระบบไม่มีปุ่มยกเลิกเป็นชุด ต้องยกเลิกทีละใบ ข้อมูลทดสอบนี้เหลือค้างในระบบทดลอง",
+  "บัญชีรับเงินทดสอบที่เพิ่มไว้ยังอยู่ในรายการ (สถานะปิดใช้งาน) เพราะระบบไม่มีปุ่มลบบัญชี การแก้ไขข้อมูลบัญชีที่มีบันทึกการแก้ไขและกล่องยืนยันเมื่อเปลี่ยนเลขบัญชี ไม่ได้ทดสอบ การลบภาพ QR ไม่ได้ทดสอบ ภาพที่อัปโหลดเป็นภาพตัวอย่าง ไม่ใช่ QR พร้อมเพย์จริง และระบบไม่สร้าง QR พร้อมเพย์เองจากเลขบัญชี",
+  "ใบเสร็จและรายการแจ้งโอนที่เจ้าหน้าที่บันทึกแทนไม่มีปุ่มลบ เหลือเป็นประวัติของนักเรียนทดสอบ (ใบแจ้งหนี้ใบนี้ชำระครบแล้ว)",
+  "การปฏิเสธรายการในงวดที่ปิดตรวจกับสมุดเงินสด (บันทึกและลบรายการ) เท่านั้น การออกใบแจ้งหนี้ การรับเงิน และการอนุมัติสลิปลงวันที่ในงวดที่ปิดแล้วใช้ตรวจชุดเดียวกัน (modules/finance/src/Billing.php) แต่ไม่ได้ทดสอบด้วยเบราว์เซอร์",
+  "การออกใบแจ้งหนี้ทั้งห้อง: ใบแจ้งหนี้ที่ออกยังอยู่ในบัญชีนักเรียนของห้อง ม.5/1 ทุกคน ระบบไม่มีปุ่มยกเลิกเป็นชุด ต้องยกเลิกทีละใบ ข้อมูลทดสอบนี้เหลือค้างในระบบทดลอง",
+  "บัญชีรับเงินทดสอบที่เพิ่มไว้ยังอยู่ในรายการ (สถานะปิดใช้งาน) เพราะระบบไม่มีปุ่มลบบัญชี การแก้ไขข้อมูลบัญชีที่มีบันทึกการแก้ไขและกล่องยืนยันเมื่อเปลี่ยนเลขบัญชี ไม่ได้ทดสอบ การลบภาพ QR ไม่ได้ทดสอบ ภาพที่อัปโหลดเป็นภาพตัวอย่าง ไม่ใช่ QR พร้อมเพย์จริง และระบบไม่สร้าง QR พร้อมเพย์เองจากเลขบัญชี",
+  "ใบเสร็จและรายการแจ้งโอนที่เจ้าหน้าที่บันทึกแทนไม่มีปุ่มลบ เหลือเป็นประวัติของนักเรียนทดสอบ (ใบแจ้งหนี้ใบนี้ชำระครบแล้ว)",
+  "การปฏิเสธรายการในงวดที่ปิดตรวจกับสมุดเงินสด (บันทึกและลบรายการ) เท่านั้น การออกใบแจ้งหนี้ การรับเงิน และการอนุมัติสลิปลงวันที่ในงวดที่ปิดแล้วใช้ตรวจชุดเดียวกัน (modules/finance/src/Billing.php) แต่ไม่ได้ทดสอบด้วยเบราว์เซอร์",
+  "การออกใบแจ้งหนี้ทั้งห้อง: ใบแจ้งหนี้ที่ออกยังอยู่ในบัญชีนักเรียนของห้อง ม.5/1 ทุกคน ระบบไม่มีปุ่มยกเลิกเป็นชุด ต้องยกเลิกทีละใบ ข้อมูลทดสอบนี้เหลือค้างในระบบทดลอง",
+  "บัญชีรับเงินทดสอบที่เพิ่มไว้ยังอยู่ในรายการ (สถานะปิดใช้งาน) เพราะระบบไม่มีปุ่มลบบัญชี การแก้ไขข้อมูลบัญชีที่มีบันทึกการแก้ไขและกล่องยืนยันเมื่อเปลี่ยนเลขบัญชี ไม่ได้ทดสอบ การลบภาพ QR ไม่ได้ทดสอบ ภาพที่อัปโหลดเป็นภาพตัวอย่าง ไม่ใช่ QR พร้อมเพย์จริง และระบบไม่สร้าง QR พร้อมเพย์เองจากเลขบัญชี",
+  "ใบเสร็จและรายการแจ้งโอนที่เจ้าหน้าที่บันทึกแทนไม่มีปุ่มลบ เหลือเป็นประวัติของนักเรียนทดสอบ (ใบแจ้งหนี้ใบนี้ชำระครบแล้ว)",
+  "การปฏิเสธรายการในงวดที่ปิดตรวจกับสมุดเงินสด (บันทึกและลบรายการ) เท่านั้น การออกใบแจ้งหนี้ การรับเงิน และการอนุมัติสลิปลงวันที่ในงวดที่ปิดแล้วใช้ตรวจชุดเดียวกัน (modules/finance/src/Billing.php) แต่ไม่ได้ทดสอบด้วยเบราว์เซอร์",
+  "การออกใบแจ้งหนี้ทั้งห้อง: ใบแจ้งหนี้ที่ออกยังอยู่ในบัญชีนักเรียนของห้อง ม.5/1 ทุกคน ระบบไม่มีปุ่มยกเลิกเป็นชุด ต้องยกเลิกทีละใบ ข้อมูลทดสอบนี้เหลือค้างในระบบทดลอง",
+  "บัญชีรับเงินทดสอบที่เพิ่มไว้ยังอยู่ในรายการ (สถานะปิดใช้งาน) เพราะระบบไม่มีปุ่มลบบัญชี การแก้ไขข้อมูลบัญชีที่มีบันทึกการแก้ไขและกล่องยืนยันเมื่อเปลี่ยนเลขบัญชี ไม่ได้ทดสอบ การลบภาพ QR ไม่ได้ทดสอบ ภาพที่อัปโหลดเป็นภาพตัวอย่าง ไม่ใช่ QR พร้อมเพย์จริง และระบบไม่สร้าง QR พร้อมเพย์เองจากเลขบัญชี",
+  "ใบเสร็จและรายการแจ้งโอนที่เจ้าหน้าที่บันทึกแทนไม่มีปุ่มลบ เหลือเป็นประวัติของนักเรียนทดสอบ (ใบแจ้งหนี้ใบนี้ชำระครบแล้ว)",
+  "การปฏิเสธรายการในงวดที่ปิดตรวจกับสมุดเงินสด (บันทึกและลบรายการ) เท่านั้น การออกใบแจ้งหนี้ การรับเงิน และการอนุมัติสลิปลงวันที่ในงวดที่ปิดแล้วใช้ตรวจชุดเดียวกัน (modules/finance/src/Billing.php) แต่ไม่ได้ทดสอบด้วยเบราว์เซอร์",
+  "ไม่มีหน้าจอให้เจ้าหน้าที่พิมพ์ข่าวหรือประกาศถึงผู้ปกครองในโมดูลการเงิน ข่าวในแท็บ \"ค่าธรรมเนียม\" ของผู้ปกครองเกิดจากระบบเองเมื่ออนุมัติหรือไม่รับสลิป (modules/guardian-portal/src/Notices.php) ตรวจฝั่งผู้ปกครองในงาน \"ผู้ปกครองกดรับทราบข่าว...\" พอร์ทัลนักเรียนไม่มีแท็บค่าธรรมเนียม ตรวจแล้ว"
+ ]
+}

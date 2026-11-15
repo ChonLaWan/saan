@@ -1,0 +1,2104 @@
+{
+  "module": "guardian-portal",
+  "title": "พอร์ทัลผู้ปกครองและลิงก์ผู้ปกครอง",
+  "area": "งานวิชาการและงานนักเรียน",
+  "purpose": "ผู้ปกครองดูข้อมูลของบุตรหลานบนโทรศัพท์มือถือหรือคอมพิวเตอร์ ได้แก่ การมาเรียน พฤติกรรม ผลการเรียนที่โรงเรียนประกาศแล้ว ตารางเรียน น้ำหนักส่วนสูง และค่าธรรมเนียม แล้วกดรับทราบหรือเขียนความเห็นถึงครู ผู้ปกครองเข้าได้สองทาง คือเปิดลิงก์ใช้ครั้งเดียวที่ครูประจำชั้นออกให้ หรือเข้าสู่ระบบด้วยบัญชีที่ตั้งไว้แล้ว (อีเมลหรือชื่อผู้ใช้ที่ครูออกให้) ผู้ปกครองเห็นเฉพาะบุตรหลานที่ผูกไว้ในทะเบียนและยังไม่ถูกยกเลิกสิทธิ์ ครูประจำชั้นออกลิงก์ ออกรหัสชั่วคราว ปิดบัญชี และยกเลิกสิทธิ์ได้จากหน้า \"ลิงก์ผู้ปกครอง\"",
+  "roles": [
+    "ผู้ปกครอง (เข้าดูข้อมูลบุตรหลานที่ /guardian)",
+    "ครูประจำชั้น (ออกลิงก์และรหัสให้ผู้ปกครองของห้องตนเอง ปิดบัญชี ยกเลิกสิทธิ์)",
+    "ผู้อำนวยการและผู้ดูแลระบบ (ทำได้ทุกห้อง และตั้งค่าสิทธิ์ของผู้ปกครองที่ถูกจำกัด)"
+  ],
+  "menu": [
+    "ผู้ปกครอง: เปิดที่อยู่ของโรงเรียนต่อท้ายด้วย /guardian หรือเปิดลิงก์ที่ครูให้ (ไม่มีเมนูให้กด)",
+    "ครู: เมนูด้านซ้าย \"งานโรงเรียน\" > \"ลิงก์ผู้ปกครอง\" (/work#guardians) และ \"รหัสเข้าระบบนักเรียน\" (/work#student-accounts) สำหรับออกรหัสผ่านชั่วคราวให้ผู้ปกครอง"
+  ],
+  "prerequisites": [
+    {
+      "module": "registry",
+      "text": "ต้องมีผู้ปกครองในทะเบียนและผูกกับนักเรียน และผู้ปกครองต้องไม่ถูกจำกัดสิทธิ์การดูข้อมูล"
+    },
+    {
+      "module": "attendance",
+      "text": "แท็บ \"การมาเรียน\" ต้องมีโมดูลเช็คชื่อเปิดใช้งาน"
+    },
+    {
+      "module": "behavior",
+      "text": "แท็บ \"พฤติกรรม\" ต้องมีโมดูลพฤติกรรมเปิดใช้งาน และแสดงเฉพาะรายการที่ครูติ๊ก \"ให้ผู้ปกครองเห็น\""
+    },
+    {
+      "module": "health",
+      "text": "แท็บ \"น้ำหนักส่วนสูง\" ต้องมีโมดูลน้ำหนักส่วนสูงเปิดใช้งาน"
+    },
+    {
+      "module": "finance",
+      "text": "แท็บ \"ค่าธรรมเนียม\" ต้องมีโมดูลการเงินเปิดใช้งาน"
+    }
+  ],
+  "vars": {
+    "linkstu": "คณิน",
+    "invitestu": "ริมธาร",
+    "tempstu": "ขวัญข้าว",
+    "tempcode": "69004",
+    "gstu": "ทอฝัน",
+    "note_g": "{{marker}} เป็นผู้นำกิจกรรม",
+    "ack_note": "{{marker}} รับทราบแล้วค่ะ",
+    "g_email": "g{{run_id}}@example.test",
+    "g_pw": "Saan-Parent-Key-2569",
+    "g_pw2": "Saan-Parent-Key-2570"
+  },
+  "workflows": [
+    {
+      "id": "guardian-sign-in",
+      "title": "ผู้ปกครองเข้าสู่ระบบด้วยบัญชีผู้ปกครอง",
+      "intro": "ผู้ปกครองเปิดที่อยู่ของพอร์ทัลผู้ปกครองของโรงเรียน (ลงท้ายด้วย /guardian) บนโทรศัพท์ แล้วเข้าด้วยอีเมลหรือชื่อผู้ใช้ที่ตั้งไว้ ระบบไม่เปิดดูด้วยรหัสนักเรียน ผู้ปกครองที่ยังไม่มีบัญชีขอลิงก์หรือรหัสจากครูประจำชั้น",
+      "role": "anonymous",
+      "start": "/guardian",
+      "viewport": "390x844",
+      "core": true,
+      "steps": [
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมลหรือชื่อผู้ใช้"
+          },
+          "value": "{{secret:guardian2.login}}",
+          "say": "พิมพ์อีเมลหรือชื่อผู้ใช้ในช่อง \"อีเมลหรือชื่อผู้ใช้\"",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสผ่าน"
+          },
+          "value": "{{secret:guardian2.password}}",
+          "secret": true,
+          "say": "พิมพ์รหัสผ่านในช่อง \"รหัสผ่าน\" (ภาพนี้ปิดรหัสผ่านไว้)",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เข้าสู่ระบบ"
+          },
+          "say": "กดปุ่ม \"เข้าสู่ระบบ\" ระบบแสดงชื่อและห้องของบุตรหลาน พร้อมแถบหัวข้อ \"การมาเรียน\" \"พฤติกรรม\" \"ผลการเรียน\" \"ตารางเรียน\" \"น้ำหนักส่วนสูง\" \"ค่าธรรมเนียม\" และ \"บัญชีของฉัน\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "{{gstu}}"
+          }
+        }
+      ],
+      "expected": "ระบบแสดงข้อมูลของบุตรหลานที่ผูกกับบัญชี และปุ่ม \"ออกจากระบบ\" ที่มุมบน",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ ระบบยังจำผู้ปกครองไว้และมีแถบหัวข้อครบ",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "heading",
+                    "name": "{{gstu}}"
+                  }
+                },
+                {
+                  "visible": {
+                    "role": "button",
+                    "name": "ค่าธรรมเนียม",
+                    "exact": true
+                  }
+                },
+                {
+                  "visible": {
+                    "role": "button",
+                    "name": "ออกจากระบบ"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guardian-wrong-password",
+      "title": "ผู้ปกครองพิมพ์รหัสผ่านผิด",
+      "intro": "ระบบแสดงข้อความเดียวกันไม่ว่าชื่อผู้ใช้จะไม่มีอยู่ รหัสผ่านจะผิด หรือบัญชีถูกปิด",
+      "role": "anonymous",
+      "start": "/guardian",
+      "viewport": "390x844",
+      "steps": [
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมลหรือชื่อผู้ใช้"
+          },
+          "value": "ไม่มีผู้ใช้นี้-{{run_id}}"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสผ่าน"
+          },
+          "value": "ผิดรหัส-{{run_id}}"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เข้าสู่ระบบ"
+          },
+          "say": "พิมพ์ชื่อผู้ใช้หรือรหัสผ่านที่ไม่ถูกต้อง แล้วกดปุ่ม \"เข้าสู่ระบบ\" ระบบแสดงข้อความสีแดงและไม่เปิดข้อมูล",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "alert",
+            "first": true
+          },
+          "wait_after": {
+            "role": "alert",
+            "first": true
+          }
+        }
+      ],
+      "expected": "ระบบไม่เปิดข้อมูลและแสดงข้อความแจ้งว่าเข้าสู่ระบบไม่สำเร็จ",
+      "verify": [
+        {
+          "title": "หน้ายังเป็นหน้าเข้าสู่ระบบ",
+          "steps": [
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "alert",
+                    "first": true
+                  }
+                },
+                {
+                  "visible": {
+                    "role": "button",
+                    "name": "เข้าสู่ระบบ"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guardian-tabs",
+      "title": "ผู้ปกครองดูข้อมูลบุตรหลานทุกหัวข้อบนมือถือและเลือกบุตรหลานอีกคน",
+      "intro": "ทุกหัวข้อดูได้อย่างเดียว ยกเว้นปุ่ม \"รับทราบ\" และการแจ้งชำระค่าธรรมเนียม ผู้ปกครองที่มีบุตรหลานมากกว่าหนึ่งคนเลือกคนที่ต้องการดูได้ที่ช่อง \"เลือกบุตรหลาน\" ด้านบนของหน้า ผลการเรียนแสดงหลังโรงเรียนกดประกาศผลของภาคเรียนนั้นแล้ว",
+      "role": "guardian1",
+      "start": "/guardian",
+      "viewport": "390x844",
+      "steps": [
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "label": "เลือกบุตรหลาน"
+            }
+          },
+          "say": "ผู้ปกครองที่ผูกกับนักเรียนหลายคนเห็นช่อง \"เลือกบุตรหลาน\" ที่ด้านบน เลือกชื่อเพื่อสลับดูข้อมูลของแต่ละคน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "label": "เลือกบุตรหลาน"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "พฤติกรรม",
+            "exact": true
+          },
+          "say": "เลือกหัวข้อ \"พฤติกรรม\" แสดงคะแนนความดี คะแนนควรปรับปรุง และรายการที่ครูเปิดให้ผู้ปกครองเห็น",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "text": "คะแนนความดี"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ผลการเรียน",
+            "exact": true
+          },
+          "say": "เลือกหัวข้อ \"ผลการเรียน\" แสดงเกรดรายวิชาและเกรดเฉลี่ยของภาคเรียนที่ประกาศแล้ว",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "text": "ภาคเรียนที่"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ตารางเรียน",
+            "exact": true
+          },
+          "say": "เลือกหัวข้อ \"ตารางเรียน\" แตะชื่อวันเพื่อดูคาบเรียนของวันนั้น",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "nav[aria-label=\"เลือกวัน\"]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "น้ำหนักส่วนสูง",
+            "exact": true
+          },
+          "say": "เลือกหัวข้อ \"น้ำหนักส่วนสูง\" แสดงวันที่วัด น้ำหนัก และส่วนสูงของทุกรอบ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "table.gp-table"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ค่าธรรมเนียม",
+            "exact": true
+          },
+          "say": "เลือกหัวข้อ \"ค่าธรรมเนียม\" แสดงยอดค้างชำระและใบแจ้งหนี้ ถ้าโรงเรียนไม่ได้เปิดใช้การแจ้งค่าธรรมเนียม หน้านี้แจ้งว่ายังไม่เปิดใช้",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "#gp-root[aria-busy=\"false\"]"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "เลือกบุตรหลาน"
+          },
+          "label": "อคิน",
+          "comment": "label is matched by substring below",
+          "optional": true
+        }
+      ],
+      "expected": "ทุกหัวข้อแสดงข้อมูลของบุตรหลานที่เลือก ไม่มีปุ่มแก้ไขข้อมูล",
+      "verify": [
+        {
+          "title": "หัวข้อ \"การมาเรียน\" เปิดได้และแสดงสรุปการเช็คชื่อ",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "การมาเรียน",
+                "exact": true
+              },
+              "wait_after": {
+                "text": "แสดงเฉพาะวันที่ไม่ได้มาเรียนตามปกติ"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "button",
+                  "name": "เดือนก่อน"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guardian-desktop",
+      "title": "ผู้ปกครองดูข้อมูลบุตรหลานบนคอมพิวเตอร์",
+      "intro": "หน้าเดียวกันใช้ได้บนคอมพิวเตอร์ ตารางเรียนมีมุมมองทั้งสัปดาห์และปุ่มสำหรับพิมพ์",
+      "role": "guardian1",
+      "start": "/guardian",
+      "steps": [
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "label": "เลือกบุตรหลาน"
+            }
+          },
+          "say": "เปิดพอร์ทัลผู้ปกครองบนคอมพิวเตอร์ หัวข้อ \"การมาเรียน\" แสดงวันที่ขาด สาย ลา หรือป่วยของเดือนที่เลือก",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ผลการเรียน",
+            "exact": true
+          },
+          "say": "เลือกหัวข้อ \"ผลการเรียน\" ตารางแสดงวิชา หน่วยกิต ผลการเรียน และเกรดเฉลี่ยสะสม",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "text": "ภาคเรียนที่"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ตารางเรียน",
+            "exact": true
+          },
+          "say": "เลือกหัวข้อ \"ตารางเรียน\" ตารางทั้งสัปดาห์แสดงใต้คาบเรียนของวัน และมีปุ่ม \"พิมพ์ตารางเรียนทั้งสัปดาห์\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "role": "button",
+            "name": "พิมพ์ตารางเรียนทั้งสัปดาห์"
+          },
+          "wait_after": {
+            "role": "button",
+            "name": "พิมพ์ตารางเรียนทั้งสัปดาห์"
+          }
+        }
+      ],
+      "expected": "ตารางเรียนทั้งสัปดาห์แสดงครบทุกวันและทุกคาบ",
+      "verify": [
+        {
+          "title": "ตารางเรียนทั้งสัปดาห์มีคอลัมน์วันและคาบ",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": "table.gp-week"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "teacher-issues-view-link",
+      "title": "ครูประจำชั้นสร้างลิงก์ดูข้อมูลให้ผู้ปกครอง",
+      "intro": "ลิงก์ดูข้อมูลใช้ได้ครั้งเดียวและหมดอายุตามจำนวนวันที่ครูกำหนด (ช่อง \"อายุลิงก์ (วัน)\") ระบบแสดงลิงก์เพียงครั้งเดียว ครูส่งให้ผู้ปกครองทางแอปแชตหรือพิมพ์ใบลิงก์ หากปิดแล้วต้องสร้างใหม่ ลิงก์เก่าที่ยังไม่ได้เปิดจะถูกยกเลิกเอง ครูเห็นเฉพาะผู้ปกครองของนักเรียนห้องตนเอง และผู้ปกครองที่ถูกจำกัดสิทธิ์ไม่มีปุ่มสร้างลิงก์",
+      "role": "homeroom",
+      "start": "/work",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ลิงก์ผู้ปกครอง",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ลิงก์ผู้ปกครอง\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "article.gps-card",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "article.gps-card",
+              "has_text": "{{linkstu}}"
+            }
+          },
+          "say": "หน้านี้แสดงนักเรียนทุกคนของห้องที่เลือกในช่อง \"ห้องเรียน\" ใต้ชื่อนักเรียนมีผู้ปกครอง สถานะลิงก์ และสถานะบัญชี",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "article.gps-card",
+            "has_text": "{{linkstu}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างลิงก์ดูข้อมูล",
+            "first": true,
+            "within": {
+              "css": "article.gps-card",
+              "has_text": "{{linkstu}}"
+            }
+          },
+          "say": "กดปุ่ม \"สร้างลิงก์ดูข้อมูล\" ใต้ชื่อผู้ปกครองที่ต้องการ",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "button",
+            "name": "สร้างลิงก์ดูข้อมูล",
+            "first": true,
+            "within": {
+              "css": "article.gps-card",
+              "has_text": "{{linkstu}}"
+            }
+          },
+          "wait_after": {
+            "role": "region",
+            "name": "ใบลิงก์ผู้ปกครอง"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "role": "region",
+              "name": "ใบลิงก์ผู้ปกครอง"
+            }
+          },
+          "say": "ระบบแสดง \"ใบลิงก์ผู้ปกครอง\" ที่ด้านบนของหน้า (ภาพนี้ปิดลิงก์ไว้) กดปุ่ม \"คัดลอกลิงก์\" แล้วส่งให้ผู้ปกครอง หรือกดปุ่ม \"พิมพ์ใบลิงก์\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "role": "region",
+            "name": "ใบลิงก์ผู้ปกครอง"
+          },
+          "mask": {
+            "css": ".gps-url code"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ปิด",
+            "exact": true,
+            "within": {
+              "role": "region",
+              "name": "ใบลิงก์ผู้ปกครอง"
+            }
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ลิงก์ดูข้อมูล: รอเปิด",
+            "in": {
+              "css": "article.gps-card",
+              "has_text": "{{linkstu}}"
+            }
+          },
+          "say": "เมื่อปิดใบลิงก์ สถานะ \"ลิงก์ดูข้อมูล\" ของผู้ปกครองเป็น \"รอเปิด\" และแสดงวันหมดอายุ",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "css": "article.gps-card",
+            "has_text": "{{linkstu}}"
+          }
+        }
+      ],
+      "expected": "สถานะลิงก์ของผู้ปกครองเป็น \"รอเปิด\" พร้อมวันหมดอายุ และมีปุ่ม \"ยกเลิก\" ให้ครูเพิกถอนลิงก์ได้",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ สถานะลิงก์ยังเป็น \"รอเปิด\" และไม่แสดงลิงก์ซ้ำ",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "article.gps-card",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "รอเปิด",
+                  "in": {
+                    "css": "article.gps-card",
+                    "has_text": "{{linkstu}}"
+                  }
+                },
+                {
+                  "hidden": {
+                    "role": "region",
+                    "name": "ใบลิงก์ผู้ปกครอง"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guardian-opens-link",
+      "title": "ผู้ปกครองเปิดลิงก์ที่ครูให้เพื่อดูข้อมูลบุตรหลาน",
+      "intro": "ผู้ปกครองเปิดลิงก์บนโทรศัพท์ ระบบแสดงหน้ายืนยันก่อน กดปุ่มแล้วจึงเปิดข้อมูล ลิงก์ใช้ได้ครั้งเดียว ระบบจำอุปกรณ์ไว้ชั่วคราว ผู้ปกครองที่เข้าด้วยลิงก์ยังไม่มีบัญชี จึงเปลี่ยนรหัสผ่านไม่ได้",
+      "role": "homeroom",
+      "start": "/work#guardians",
+      "viewport": "390x844",
+      "depends_on": [
+        "teacher-issues-view-link"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "article.gps-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างลิงก์ดูข้อมูล",
+            "first": true,
+            "within": {
+              "css": "article.gps-card",
+              "has_text": "{{linkstu}}"
+            }
+          },
+          "comment": "silent: the teacher makes a fresh link for the guardian of this workflow",
+          "wait_after": {
+            "role": "region",
+            "name": "ใบลิงก์ผู้ปกครอง"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": ".gps-url code"
+          },
+          "var": "view_link"
+        },
+        {
+          "do": "goto",
+          "url": "{{view_link}}",
+          "wait_after": {
+            "role": "button",
+            "name": "เปิดดูข้อมูล"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "role": "heading",
+              "name": "เปิดดูข้อมูลบุตรหลาน"
+            }
+          },
+          "say": "ผู้ปกครองเปิดลิงก์ที่ครูให้ ระบบแสดงหน้า \"เปิดดูข้อมูลบุตรหลาน\" ที่อยู่ของลิงก์ไม่แสดงในภาพนี้เพื่อความปลอดภัย",
+          "shot": true,
+          "crop": "viewport",
+          "mask": {
+            "css": "input"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปิดดูข้อมูล"
+          },
+          "say": "กดปุ่ม \"เปิดดูข้อมูล\" ระบบแสดงชื่อและห้องของบุตรหลาน พร้อมแถบหัวข้อ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "{{linkstu}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บัญชีของฉัน",
+            "exact": true
+          },
+          "say": "เลือกหัวข้อ \"บัญชีของฉัน\" ผู้ปกครองที่เข้าด้วยลิงก์เห็นข้อความแจ้งว่ายังไม่มีบัญชี และให้ขอลิงก์ตั้งบัญชีจากครู",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "text": "คุณเข้าด้วยลิงก์ชั่วคราว"
+          }
+        }
+      ],
+      "expected": "ผู้ปกครองเห็นข้อมูลของบุตรหลานคนเดียวที่ลิงก์ผูกไว้ และลิงก์ใช้ซ้ำไม่ได้",
+      "verify": [
+        {
+          "title": "เปิดลิงก์เดิมซ้ำ ระบบแจ้งว่าลิงก์ใช้ไม่ได้",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "{{view_link}}"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "heading",
+                  "name": "ลิงก์นี้ใช้ไม่ได้"
+                }
+              },
+              "say": "เปิดลิงก์เดิมอีกครั้ง ระบบแจ้งว่า \"ลิงก์นี้ใช้ไม่ได้\" เพราะลิงก์ใช้ได้ครั้งเดียว ให้ขอลิงก์ใหม่จากครู",
+              "shot": true,
+              "crop": "viewport"
+            }
+          ]
+        },
+        {
+          "title": "ครูเห็นสถานะลิงก์เป็น \"เปิดแล้ว\"",
+          "as": "homeroom",
+          "start": "/work#guardians",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "article.gps-card",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "เปิดแล้ว",
+                "in": {
+                  "css": "article.gps-card",
+                  "has_text": "{{linkstu}}"
+                }
+              },
+              "say": "ครูเปิดหน้า \"ลิงก์ผู้ปกครอง\" สถานะ \"ลิงก์ดูข้อมูล\" เปลี่ยนเป็น \"เปิดแล้ว\" พร้อมวันที่เปิด และมีปุ่ม \"ยกเลิกสิทธิ์ที่เปิดอยู่\"",
+              "shot": true,
+              "crop": "tight",
+              "highlight": {
+                "css": "article.gps-card",
+                "has_text": "{{linkstu}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "revoke-link",
+      "title": "ครูยกเลิกสิทธิ์ของลิงก์ที่ผู้ปกครองเปิดแล้ว",
+      "intro": "ใช้เมื่อผู้ปกครองทำลิงก์หลุดหรือเปลี่ยนโทรศัพท์ การยกเลิกทำให้อุปกรณ์ที่เปิดลิงก์ไว้เข้าไม่ได้ทันที ลิงก์ที่ยังไม่ได้เปิดก็ยกเลิกได้ด้วยปุ่ม \"ยกเลิก\"",
+      "role": "homeroom",
+      "start": "/work#guardians",
+      "depends_on": [
+        "guardian-opens-link"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "article.gps-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ยกเลิกสิทธิ์ที่เปิดอยู่",
+            "within": {
+              "css": "article.gps-card",
+              "has_text": "{{linkstu}}"
+            }
+          },
+          "say": "กดปุ่ม \"ยกเลิกสิทธิ์ที่เปิดอยู่\" ข้างสถานะ \"ลิงก์ดูข้อมูล\" ระบบแสดงข้อความ \"ยกเลิกลิงก์แล้ว\"",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "button",
+            "name": "ยกเลิกสิทธิ์ที่เปิดอยู่",
+            "within": {
+              "css": "article.gps-card",
+              "has_text": "{{linkstu}}"
+            }
+          },
+          "wait_after": {
+            "text": "ยกเลิกลิงก์แล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ยกเลิกแล้ว",
+            "in": {
+              "css": "article.gps-card",
+              "has_text": "{{linkstu}}"
+            }
+          },
+          "say": "สถานะของลิงก์เปลี่ยนเป็น \"ยกเลิกแล้ว\" ผู้ปกครองต้องขอลิงก์ใหม่จากครู",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "css": "article.gps-card",
+            "has_text": "{{linkstu}}"
+          }
+        }
+      ],
+      "expected": "สถานะลิงก์เป็น \"ยกเลิกแล้ว\" และไม่มีปุ่มยกเลิกค้างอยู่",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ สถานะยังเป็น \"ยกเลิกแล้ว\"",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "article.gps-card",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "ยกเลิกแล้ว",
+                  "in": {
+                    "css": "article.gps-card",
+                    "has_text": "{{linkstu}}"
+                  }
+                },
+                {
+                  "hidden": {
+                    "role": "button",
+                    "name": "ยกเลิกสิทธิ์ที่เปิดอยู่",
+                    "within": {
+                      "css": "article.gps-card",
+                      "has_text": "{{linkstu}}"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "invite-guardian-account",
+      "title": "ครูออกลิงก์ตั้งบัญชี และผู้ปกครองตั้งอีเมลกับรหัสผ่านของตนเอง",
+      "intro": "บัญชีทำให้ผู้ปกครองเข้าดูข้อมูลได้โดยไม่ต้องขอลิงก์ใหม่ทุกครั้ง ลิงก์ตั้งบัญชีใช้ได้ครั้งเดียว ผู้ปกครองตั้งอีเมลและรหัสผ่านอย่างน้อย 10 ตัวอักษร ครูเห็นสถานะบัญชีและปิดบัญชีได้",
+      "role": "homeroom",
+      "start": "/work#guardians",
+      "viewport": "390x844",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "article.gps-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "สร้างลิงก์ตั้งบัญชี",
+            "first": true,
+            "within": {
+              "css": "article.gps-card",
+              "has_text": "{{invitestu}}"
+            }
+          },
+          "comment": "silent: the teacher makes the account invitation",
+          "wait_after": {
+            "role": "region",
+            "name": "ใบลิงก์ผู้ปกครอง"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": ".gps-url code"
+          },
+          "var": "invite_link"
+        },
+        {
+          "do": "goto",
+          "url": "{{invite_link}}",
+          "wait_after": {
+            "role": "heading",
+            "name": "ตั้งบัญชีผู้ปกครอง"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมล",
+            "exact": true
+          },
+          "value": "{{g_email}}",
+          "say": "ผู้ปกครองเปิดลิงก์ตั้งบัญชีที่ครูให้ พิมพ์อีเมลในช่อง \"อีเมล\"",
+          "shot": true,
+          "crop": "viewport",
+          "mask": {
+            "css": "input[type=text]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสผ่าน (อย่างน้อย 10 ตัวอักษร)"
+          },
+          "value": "{{g_pw}}",
+          "secret": true
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ยืนยันรหัสผ่าน"
+          },
+          "value": "{{g_pw}}",
+          "secret": true
+        },
+        {
+          "do": "note",
+          "say": "พิมพ์รหัสผ่านอย่างน้อย 10 ตัวอักษรในช่อง \"รหัสผ่าน\" และพิมพ์ซ้ำในช่อง \"ยืนยันรหัสผ่าน\" (ภาพนี้ปิดรหัสผ่านไว้)",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกและเข้าใช้งาน"
+          },
+          "say": "กดปุ่ม \"บันทึกและเข้าใช้งาน\" ระบบสร้างบัญชีและเปิดข้อมูลของบุตรหลานทันที",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "{{invitestu}}"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ออกจากระบบ"
+          },
+          "wait_after": {
+            "label": "อีเมลหรือชื่อผู้ใช้"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/guardian",
+          "wait_after": {
+            "label": "อีเมลหรือชื่อผู้ใช้"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมลหรือชื่อผู้ใช้"
+          },
+          "value": "{{g_email}}",
+          "say": "ครั้งต่อไป ผู้ปกครองเปิดหน้าพอร์ทัลผู้ปกครอง พิมพ์อีเมลที่ตั้งไว้ในช่อง \"อีเมลหรือชื่อผู้ใช้\"",
+          "shot": true,
+          "crop": "viewport",
+          "mask": {
+            "css": "input[type=text]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสผ่าน"
+          },
+          "value": "{{g_pw}}",
+          "secret": true
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เข้าสู่ระบบ"
+          },
+          "say": "พิมพ์รหัสผ่านแล้วกดปุ่ม \"เข้าสู่ระบบ\" ระบบเปิดข้อมูลของบุตรหลาน",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "{{invitestu}}"
+          }
+        }
+      ],
+      "expected": "ผู้ปกครองเข้าสู่ระบบด้วยอีเมลและรหัสผ่านที่ตั้งเองได้ และครูเห็นว่าผู้ปกครองรายนี้ \"มีบัญชี\"",
+      "verify": [
+        {
+          "title": "ครูเห็นสถานะ \"มีบัญชี\" ของผู้ปกครอง และลิงก์ตั้งบัญชีเป็น \"เปิดแล้ว\"",
+          "as": "homeroom",
+          "start": "/work#guardians",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "article.gps-card",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "มีบัญชี",
+                  "in": {
+                    "css": "article.gps-card",
+                    "has_text": "{{invitestu}}"
+                  }
+                },
+                {
+                  "text": "ลิงก์ตั้งบัญชี: เปิดแล้ว",
+                  "in": {
+                    "css": "article.gps-card",
+                    "has_text": "{{invitestu}}"
+                  }
+                }
+              ],
+              "say": "ครูเปิดหน้า \"ลิงก์ผู้ปกครอง\" ใต้ชื่อผู้ปกครองแสดง \"บัญชี: มีบัญชี\" พร้อมวันที่เข้าล่าสุด และปุ่ม \"ปิดบัญชี\"",
+              "shot": true,
+              "crop": "tight",
+              "highlight": {
+                "css": "article.gps-card",
+                "has_text": "{{invitestu}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "disable-guardian-account",
+      "title": "ครูปิดบัญชีผู้ปกครอง",
+      "intro": "ใช้เมื่อผู้ปกครองไม่ควรเข้าดูข้อมูลอีกต่อไป การปิดบัญชีทำให้เข้าสู่ระบบไม่ได้ทันที ครูสร้างลิงก์ตั้งบัญชีให้ใหม่ได้ภายหลัง",
+      "role": "homeroom",
+      "start": "/work#guardians",
+      "depends_on": [
+        "invite-guardian-account"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "article.gps-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ปิดบัญชี",
+            "within": {
+              "css": "article.gps-card",
+              "has_text": "{{invitestu}}"
+            }
+          },
+          "say": "กดปุ่ม \"ปิดบัญชี\" ท้ายบรรทัด \"บัญชี\" ของผู้ปกครอง ระบบแสดงข้อความ \"ปิดบัญชีผู้ปกครองแล้ว\" และสถานะเป็น \"ปิดใช้งาน\"",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "button",
+            "name": "ปิดบัญชี",
+            "within": {
+              "css": "article.gps-card",
+              "has_text": "{{invitestu}}"
+            }
+          },
+          "wait_after": {
+            "text": "ปิดบัญชีผู้ปกครองแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "ปิดใช้งาน",
+            "in": {
+              "css": "article.gps-card",
+              "has_text": "{{invitestu}}"
+            }
+          }
+        }
+      ],
+      "expected": "สถานะบัญชีเป็น \"ปิดใช้งาน\" และผู้ปกครองเข้าสู่ระบบด้วยบัญชีนั้นไม่ได้",
+      "verify": [
+        {
+          "title": "ผู้ปกครองเข้าสู่ระบบด้วยบัญชีที่ปิดแล้วไม่ได้",
+          "as": "anonymous",
+          "start": "/guardian",
+          "steps": [
+            {
+              "do": "fill",
+              "target": {
+                "label": "อีเมลหรือชื่อผู้ใช้"
+              },
+              "value": "{{g_email}}"
+            },
+            {
+              "do": "fill",
+              "target": {
+                "label": "รหัสผ่าน"
+              },
+              "value": "{{g_pw}}",
+              "secret": true
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "เข้าสู่ระบบ"
+              },
+              "wait_after": {
+                "role": "alert",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "visible": {
+                    "role": "alert",
+                    "first": true
+                  }
+                },
+                {
+                  "visible": {
+                    "role": "button",
+                    "name": "เข้าสู่ระบบ"
+                  }
+                }
+              ],
+              "say": "ผู้ปกครองลองเข้าสู่ระบบด้วยบัญชีที่ปิดแล้ว ระบบแสดงข้อความสีแดงและไม่เปิดข้อมูล",
+              "shot": true,
+              "crop": "viewport",
+              "highlight": {
+                "role": "alert",
+                "first": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guardian-temp-password",
+      "title": "ครูออกรหัสผ่านชั่วคราวให้ผู้ปกครองที่ไม่มีอีเมล และผู้ปกครองตั้งรหัสผ่านใหม่",
+      "intro": "ผู้ปกครองที่ไม่มีอีเมลเข้าด้วยชื่อผู้ใช้ที่ระบบสร้างให้และรหัสผ่านชั่วคราวบนใบรหัส ที่หน้า \"รหัสเข้าระบบนักเรียน\" ใต้ชื่อนักเรียนมีปุ่ม \"ออกรหัสผู้ปกครอง\" ของผู้ปกครองแต่ละคน รหัสแสดงครั้งเดียว ผู้ปกครองต้องตั้งรหัสผ่านใหม่เมื่อเข้าครั้งแรก",
+      "role": "homeroom",
+      "start": "/work",
+      "viewport": "390x844",
+      "steps": [
+        {
+          "do": "goto",
+          "url": "/work#student-accounts",
+          "wait_after": {
+            "css": "article.sps-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "attr": {
+              "data-act": "issue-g"
+            },
+            "nth": 1,
+            "within": {
+              "css": "article.sps-card",
+              "has_text": "{{tempcode}}"
+            }
+          },
+          "comment": "silent: the teacher issues the temporary password; the slip is read by the runner",
+          "wait_after": {
+            "css": ".sps-slip"
+          }
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "code",
+            "nth": 0,
+            "within": {
+              "css": ".sps-slip"
+            }
+          },
+          "var": "g_user"
+        },
+        {
+          "do": "capture",
+          "target": {
+            "css": "code",
+            "nth": 1,
+            "within": {
+              "css": ".sps-slip"
+            }
+          },
+          "var": "g_tmp"
+        },
+        {
+          "do": "goto",
+          "url": "/guardian",
+          "wait_after": {
+            "label": "อีเมลหรือชื่อผู้ใช้"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "อีเมลหรือชื่อผู้ใช้"
+          },
+          "value": "{{g_user}}",
+          "say": "ผู้ปกครองพิมพ์ชื่อผู้ใช้จากใบรหัสในช่อง \"อีเมลหรือชื่อผู้ใช้\"",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสผ่าน"
+          },
+          "value": "{{g_tmp}}",
+          "secret": true,
+          "say": "พิมพ์รหัสผ่านชั่วคราวจากใบรหัสในช่อง \"รหัสผ่าน\" (ภาพนี้ปิดรหัสผ่านไว้)",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เข้าสู่ระบบ"
+          },
+          "say": "กดปุ่ม \"เข้าสู่ระบบ\" ระบบแจ้งให้ตั้งรหัสผ่านใหม่ก่อนใช้งาน",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "ตั้งรหัสผ่านใหม่"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสผ่านปัจจุบัน"
+          },
+          "value": "{{g_tmp}}",
+          "secret": true
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "รหัสผ่านใหม่"
+          },
+          "value": "{{g_pw}}",
+          "secret": true
+        },
+        {
+          "do": "note",
+          "say": "พิมพ์รหัสผ่านชั่วคราวในช่อง \"รหัสผ่านปัจจุบัน\" และพิมพ์รหัสผ่านที่ต้องการใช้ในช่อง \"รหัสผ่านใหม่\" (ภาพนี้ปิดรหัสผ่านไว้)",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "เปลี่ยนรหัสผ่าน"
+          },
+          "say": "กดปุ่ม \"เปลี่ยนรหัสผ่าน\" ระบบเปิดข้อมูลของบุตรหลานทันที",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "{{tempstu}}"
+          }
+        }
+      ],
+      "expected": "ผู้ปกครองเข้าดูข้อมูลของบุตรหลานได้ด้วยรหัสผ่านที่ตั้งเอง และรหัสชั่วคราวใช้ไม่ได้อีก",
+      "verify": [
+        {
+          "title": "ครูเห็นว่าผู้ปกครองมีบัญชีและตั้งรหัสผ่านเองแล้ว",
+          "as": "homeroom",
+          "start": "/work#student-accounts",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "article.sps-card",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "ชื่อผู้ใช้",
+                "in": {
+                  "css": "article.sps-card",
+                  "has_text": "{{tempcode}}"
+                }
+              },
+              "say": "ครูเปิดหน้า \"รหัสเข้าระบบนักเรียน\" ใต้ชื่อนักเรียนแสดงผู้ปกครองพร้อมชื่อผู้ใช้ และปุ่ม \"รีเซ็ตรหัสผู้ปกครอง\"",
+              "shot": true,
+              "crop": "tight",
+              "highlight": {
+                "css": "article.sps-card",
+                "has_text": "{{tempcode}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guardian-acknowledge",
+      "title": "ผู้ปกครองรับทราบรายการพฤติกรรมและเขียนความเห็นถึงครู",
+      "intro": "รายการพฤติกรรมที่ครูเปิดให้ผู้ปกครองเห็นมีปุ่ม \"รับทราบ\" และช่อง \"ความเห็น (ไม่บังคับ)\" ความเห็นยาวได้ไม่เกิน 500 ตัวอักษรและครูเห็นในหน้า \"ลิงก์ผู้ปกครอง\" หากผู้ปกครองอีกท่านรับทราบแล้ว ระบบแจ้งไว้ใต้รายการ การรับทราบแล้วเปลี่ยนกลับไม่ได้",
+      "role": "guardian2",
+      "start": "/guardian",
+      "viewport": "390x844",
+      "depends_on": [
+        "behavior.record-for-guardian"
+      ],
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "พฤติกรรม",
+            "exact": true
+          },
+          "say": "ผู้ปกครองเลือกหัวข้อ \"พฤติกรรม\" รายการที่ครูเปิดให้เห็นแสดงคะแนนและหมายเหตุ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "li.gp-item",
+            "has_text": "{{note_g}}"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "attr": {
+              "data-note": ""
+            },
+            "within": {
+              "css": "li.gp-item",
+              "has_text": "{{note_g}}"
+            }
+          },
+          "value": "{{ack_note}}",
+          "say": "พิมพ์ความเห็นถึงครูในช่อง \"ความเห็น (ไม่บังคับ)\" ใต้รายการ หรือเว้นว่างไว้",
+          "shot": true,
+          "crop": "tight"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "รับทราบ",
+            "exact": true,
+            "within": {
+              "css": "li.gp-item",
+              "has_text": "{{note_g}}"
+            }
+          },
+          "say": "กดปุ่ม \"รับทราบ\" ระบบแสดงข้อความ \"บันทึกการรับทราบแล้ว\" และรายการแสดงป้าย \"รับทราบแล้ว\" พร้อมวันที่",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "text": "บันทึกการรับทราบแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "รับทราบแล้ว",
+            "in": {
+              "css": "li.gp-item",
+              "has_text": "{{note_g}}"
+            }
+          }
+        }
+      ],
+      "expected": "รายการแสดงป้าย \"รับทราบแล้ว\" ไม่มีปุ่ม \"รับทราบ\" ค้างอยู่",
+      "verify": [
+        {
+          "title": "เปิดพอร์ทัลใหม่ รายการยังเป็น \"รับทราบแล้ว\"",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "พฤติกรรม",
+                "exact": true
+              },
+              "wait_after": {
+                "css": "li.gp-item",
+                "has_text": "{{note_g}}"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "รับทราบแล้ว",
+                  "in": {
+                    "css": "li.gp-item",
+                    "has_text": "{{note_g}}"
+                  }
+                },
+                {
+                  "hidden": {
+                    "role": "button",
+                    "name": "รับทราบ",
+                    "exact": true,
+                    "within": {
+                      "css": "li.gp-item",
+                      "has_text": "{{note_g}}"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "ครูเห็นความเห็นและสถานะรับทราบในหน้า \"ลิงก์ผู้ปกครอง\"",
+          "as": "admin",
+          "start": "/work#guardians/2",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "article.gps-card",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "css": ".gps-notes li",
+                  "has_text": "{{ack_note}}"
+                }
+              },
+              "say": "ผู้ดูแลระบบเปิดหน้า \"ลิงก์ผู้ปกครอง\" เลือกห้อง ม.2/1 ใต้ชื่อนักเรียนแสดงสถานะรับทราบและความเห็นของผู้ปกครอง",
+              "shot": true,
+              "crop": "tight",
+              "highlight": {
+                "css": ".gps-notes li",
+                "has_text": "{{ack_note}}"
+              }
+            }
+          ]
+        },
+        {
+          "title": "ผู้ดูแลระบบเห็นว่ารายการพฤติกรรมรับทราบแล้วในหน้า \"พฤติกรรมนักเรียน\"",
+          "as": "admin",
+          "start": "/work#behavior",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "label": "ห้องเรียน",
+                "within": {
+                  "css": "section.bhv-page"
+                }
+              }
+            },
+            {
+              "do": "select",
+              "target": {
+                "label": "ห้องเรียน",
+                "within": {
+                  "css": "section.bhv-page"
+                }
+              },
+              "label": "ม.2/1",
+              "wait_after": {
+                "css": "ul.bhv-students li",
+                "has_text": "{{gstu}}"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "ประวัติ",
+                "within": {
+                  "css": "ul.bhv-students li",
+                  "has_text": "{{gstu}}"
+                }
+              },
+              "wait_after": {
+                "css": "ol.bhv-timeline"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "ผู้ปกครองรับทราบแล้ว",
+                "in": {
+                  "css": "ol.bhv-timeline li",
+                  "has_text": "{{note_g}}"
+                }
+              },
+              "say": "ครูเปิดหน้า \"พฤติกรรมนักเรียน\" เลือกห้อง ม.2/1 แล้วกดชื่อ \"ประวัติ\" ของนักเรียน รายการที่ผู้ปกครองรับทราบแสดงป้าย \"ผู้ปกครองรับทราบแล้ว\" (หมายเหตุของผู้ปกครองไม่แสดงในหน้านี้ ดูได้ที่หน้า \"ลิงก์ผู้ปกครอง\")",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": "ol.bhv-timeline li",
+                "has_text": "{{note_g}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guardian-acknowledge-attendance",
+      "title": "ผู้ปกครองรับทราบการมาเรียนของบุตรหลานประจำเดือนนี้",
+      "intro": "ผู้ปกครองรับทราบรายการขาด สาย ลา หรือป่วยของเดือนปัจจุบันได้หนึ่งครั้งต่อเดือน ปุ่ม \"รับทราบการมาเรียนเดือนนี้\" อยู่ท้ายหน้า \"การมาเรียน\" การรับทราบแล้วเปลี่ยนกลับไม่ได้",
+      "role": "guardian2",
+      "start": "/guardian",
+      "viewport": "390x844",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "การมาเรียน",
+            "exact": true
+          },
+          "say": "ผู้ปกครองเลือกหัวข้อ \"การมาเรียน\" ระบบแสดงวันที่ขาด สาย ลา หรือป่วยของเดือนที่เลือก",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "text": "แสดงเฉพาะวันที่ไม่ได้มาเรียนตามปกติ"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "role": "button",
+              "name": "รับทราบการมาเรียนเดือนนี้",
+              "exact": true
+            }
+          },
+          "say": "ท้ายหน้ามีปุ่ม \"รับทราบการมาเรียนเดือนนี้\" ที่ยังไม่ได้กด",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "button",
+            "name": "รับทราบการมาเรียนเดือนนี้",
+            "exact": true
+          }
+        },
+        {
+          "do": "note",
+          "say": "การรับทราบเปลี่ยนกลับไม่ได้ ระบบไม่มีปุ่มยกเลิกการรับทราบ ให้กดเมื่อผู้ปกครองดูข้อมูลการมาเรียนแล้วเท่านั้น"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "รับทราบการมาเรียนเดือนนี้",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"รับทราบการมาเรียนเดือนนี้\" ระบบแสดงข้อความ \"บันทึกการรับทราบแล้ว\" ปุ่มหายไป และมีป้าย \"รับทราบแล้ว\" พร้อมวันที่",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "text": "บันทึกการรับทราบแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "text": "รับทราบแล้ว",
+              "in": {
+                "css": "section"
+              }
+            },
+            {
+              "hidden": {
+                "role": "button",
+                "name": "รับทราบการมาเรียนเดือนนี้",
+                "exact": true
+              }
+            }
+          ]
+        }
+      ],
+      "expected": "เดือนนี้แสดงป้าย \"รับทราบแล้ว\" พร้อมวันที่ และไม่มีปุ่ม \"รับทราบการมาเรียนเดือนนี้\" ค้างอยู่",
+      "verify": [
+        {
+          "title": "เปิดพอร์ทัลใหม่ การมาเรียนเดือนนี้ยังเป็นรับทราบแล้ว",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "การมาเรียน",
+                "exact": true
+              },
+              "wait_after": {
+                "text": "แสดงเฉพาะวันที่ไม่ได้มาเรียนตามปกติ"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "text": "รับทราบแล้ว",
+                  "in": {
+                    "css": "section"
+                  }
+                },
+                {
+                  "hidden": {
+                    "role": "button",
+                    "name": "รับทราบการมาเรียนเดือนนี้",
+                    "exact": true
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "ครูเห็นว่าการมาเรียนเดือนนี้ของนักเรียนรับทราบแล้ว",
+          "as": "admin",
+          "start": "/work#guardians/2",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "article.gps-card",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "การมาเรียนเดือนนี้ รับทราบแล้ว",
+                "in": {
+                  "css": "article.gps-card",
+                  "has_text": "{{gstu}}"
+                }
+              },
+              "say": "ครูเปิดหน้า \"ลิงก์ผู้ปกครอง\" ห้อง ม.2/1 ใต้ชื่อนักเรียนแสดง \"การมาเรียนเดือนนี้ รับทราบแล้ว\"",
+              "shot": true,
+              "crop": "tight",
+              "highlight": {
+                "css": "article.gps-card",
+                "has_text": "{{gstu}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guardian-acknowledge-term-result",
+      "title": "ผู้ปกครองรับทราบผลการเรียนของภาคเรียนที่โรงเรียนประกาศแล้ว",
+      "intro": "ปุ่ม \"รับทราบผลการเรียนภาคนี้\" แสดงเฉพาะภาคเรียนที่โรงเรียนประกาศผลแล้ว ผู้ปกครองรับทราบได้หนึ่งครั้งต่อภาคเรียน การรับทราบแล้วเปลี่ยนกลับไม่ได้",
+      "role": "guardian2",
+      "start": "/guardian",
+      "viewport": "390x844",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ผลการเรียน",
+            "exact": true
+          },
+          "say": "ผู้ปกครองเลือกหัวข้อ \"ผลการเรียน\" ระบบแสดงตารางวิชาและเกรดของภาคเรียนที่โรงเรียนประกาศแล้ว",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "text": "ภาคเรียนที่"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "role": "button",
+              "name": "รับทราบผลการเรียนภาคนี้",
+              "first": true
+            }
+          },
+          "say": "ใต้ตารางของภาคเรียนที่ยังไม่รับทราบ มีปุ่ม \"รับทราบผลการเรียนภาคนี้\"",
+          "shot": true,
+          "crop": "tight",
+          "highlight": {
+            "role": "button",
+            "name": "รับทราบผลการเรียนภาคนี้",
+            "first": true
+          }
+        },
+        {
+          "do": "note",
+          "say": "การรับทราบเปลี่ยนกลับไม่ได้ ระบบไม่มีปุ่มยกเลิกการรับทราบ ให้กดเมื่อผู้ปกครองดูผลการเรียนแล้วเท่านั้น"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "รับทราบผลการเรียนภาคนี้",
+            "first": true
+          },
+          "say": "กดปุ่ม \"รับทราบผลการเรียนภาคนี้\" ระบบแสดงข้อความ \"บันทึกการรับทราบแล้ว\" และปุ่มของภาคเรียนนั้นเปลี่ยนเป็นป้าย \"รับทราบแล้ว\" พร้อมวันที่",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "text": "บันทึกการรับทราบแล้ว"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "รับทราบแล้ว",
+            "in": {
+              "css": "section"
+            }
+          }
+        }
+      ],
+      "expected": "ภาคเรียนที่รับทราบแสดงป้าย \"รับทราบแล้ว\" พร้อมวันที่ ไม่มีปุ่ม \"รับทราบผลการเรียนภาคนี้\" ของภาคเรียนนั้นค้างอยู่",
+      "verify": [
+        {
+          "title": "เปิดพอร์ทัลใหม่ ผลการเรียนภาคนั้นยังเป็นรับทราบแล้ว",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "ผลการเรียน",
+                "exact": true
+              },
+              "wait_after": {
+                "text": "ภาคเรียนที่"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "รับทราบแล้ว",
+                "in": {
+                  "css": "section"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "ครูเห็นว่าผู้ปกครองรับทราบผลการเรียนแล้ว 1 ภาค",
+          "as": "admin",
+          "start": "/work#guardians/2",
+          "steps": [
+            {
+              "do": "wait_for",
+              "target": {
+                "css": "article.gps-card",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "ผลการเรียน 1 ภาค",
+                "in": {
+                  "css": "article.gps-card",
+                  "has_text": "{{gstu}}"
+                }
+              },
+              "say": "ครูเปิดหน้า \"ลิงก์ผู้ปกครอง\" ห้อง ม.2/1 ใต้ชื่อนักเรียนแสดง \"ผลการเรียน 1 ภาค\" ซึ่งหมายถึงภาคเรียนที่ผู้ปกครองรับทราบแล้ว",
+              "shot": true,
+              "crop": "tight",
+              "highlight": {
+                "css": "article.gps-card",
+                "has_text": "{{gstu}}"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guardian-forgot-password",
+      "title": "ผู้ปกครองขอลิงก์ตั้งรหัสผ่านใหม่เมื่อลืมรหัสผ่าน",
+      "intro": "ลิงก์ส่งทางอีเมลได้เฉพาะบัญชีที่ยืนยันอีเมลไว้แล้ว ระบบตอบข้อความเดียวกันไม่ว่าชื่อผู้ใช้จะมีบัญชีหรือไม่ ผู้ปกครองที่ไม่มีอีเมลที่ยืนยันไว้ต้องแจ้งครูประจำชั้นเพื่อออกรหัสชั่วคราวใหม่",
+      "role": "anonymous",
+      "start": "/guardian",
+      "viewport": "390x844",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ลืมรหัสผ่าน"
+          },
+          "say": "ที่หน้าเข้าสู่ระบบ กดลิงก์ \"ลืมรหัสผ่าน\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "heading",
+            "name": "ลืมรหัสผ่าน"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ชื่อผู้ใช้หรืออีเมล"
+          },
+          "value": "ไม่มีผู้ใช้นี้-{{run_id}}",
+          "say": "พิมพ์ชื่อผู้ใช้หรืออีเมลของบัญชีผู้ปกครองในช่อง \"ชื่อผู้ใช้หรืออีเมล\"",
+          "shot": true,
+          "crop": "viewport"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ขอลิงก์ตั้งรหัสผ่านใหม่"
+          },
+          "say": "กดปุ่ม \"ขอลิงก์ตั้งรหัสผ่านใหม่\" ระบบแสดงข้อความยืนยันการรับคำขอ หากบัญชีมีอีเมลที่ยืนยันไว้ ลิงก์ส่งไปที่อีเมลนั้น",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "role": "status",
+            "first": true
+          }
+        }
+      ],
+      "expected": "ระบบแสดงข้อความรับคำขอโดยไม่บอกว่าชื่อผู้ใช้นั้นมีบัญชีหรือไม่",
+      "verify": [
+        {
+          "title": "หน้าแสดงข้อความรับคำขอ",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "visible": {
+                  "role": "status",
+                  "first": true
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pp6-setting",
+      "title": "ผู้ดูแลระบบเปิดการแสดง ปพ.6 ให้ผู้ปกครองดูอย่างเดียว",
+      "role": "admin",
+      "start": "/work#module-settings",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": ".ms-item[data-key=\"portal.show_pp6\"]"
+          }
+        },
+        {
+          "do": "check",
+          "target": {
+            "css": ".ms-item[data-key=\"portal.show_pp6\"] [data-ctl]"
+          },
+          "say": "ที่หน้า \"ตั้งค่าโมดูล\" ติ๊ก \"แสดง ปพ.6 (ดูอย่างเดียว) ให้นักเรียนและผู้ปกครอง\" แล้วกดบันทึกการตั้งค่านั้น",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".ms-item[data-key=\"portal.show_pp6\"]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": ".ms-item[data-key=\"portal.show_pp6\"] button[data-save]"
+          },
+          "expect_response": {
+            "url_contains": "/api/module-settings",
+            "method": "PUT"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "checked": {
+              "css": ".ms-item[data-key=\"portal.show_pp6\"] [data-ctl]"
+            }
+          }
+        }
+      ],
+      "expected": "เมื่อเปิดการตั้งค่า ผู้ปกครองเห็นส่วน ปพ.6 (ดูอย่างเดียว) และเมื่อทดสอบเสร็จตั้งค่ากลับเป็นปิด",
+      "verify": [
+        {
+          "title": "ผู้ปกครองเห็น ปพ.6 ในหัวข้อผลการเรียน",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "ผลการเรียน",
+                "exact": true
+              },
+              "wait_after": {
+                "text": "ภาคเรียนที่"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "text": "ปพ.6 (ดูอย่างเดียว)"
+              },
+              "say": "ผู้ปกครองเปิดหัวข้อ \"ผลการเรียน\" เห็นส่วน \"ปพ.6 (ดูอย่างเดียว)\" หลังเปิดการตั้งค่า",
+              "shot": true,
+              "crop": "viewport"
+            }
+          ],
+          "as": "guardian1",
+          "start": "/guardian"
+        }
+      ]
+    },
+    {
+      "id": "restore-clean",
+      "title": "ล้างข้อมูลทดสอบ (ปิดบัญชีที่สร้างไว้และยกเลิกรายการพฤติกรรมของผู้ปกครองทดสอบ)",
+      "intro": "ขั้นตอนนี้ใช้ตอนทดสอบเท่านั้น ในการใช้งานจริงครูปิดบัญชีด้วยปุ่ม \"ปิดบัญชี\" และยกเลิกรายการพฤติกรรมที่บันทึกผิดด้วยวิธีที่อธิบายไว้ในหน้าพฤติกรรมนักเรียน",
+      "role": "admin",
+      "start": "/work#guardians/1",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "article.gps-card",
+            "first": true
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/work#behavior/class",
+          "wait_after": {
+            "css": "table.bhv-table tbody tr",
+            "first": true
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "label": "ห้องเรียน",
+            "within": {
+              "css": "section.bhv-page"
+            }
+          },
+          "label": "ม.2/1",
+          "wait_after": {
+            "css": "table.bhv-table tbody tr",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "{{gstu}}",
+            "within": {
+              "css": "table.bhv-table"
+            }
+          },
+          "wait_after": {
+            "css": "ol.bhv-timeline"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "เหตุผลที่ยกเลิก",
+            "first": true,
+            "within": {
+              "css": "ol.bhv-timeline li",
+              "has_text": "{{marker}}"
+            }
+          },
+          "value": "{{marker}} ล้างข้อมูลทดสอบ",
+          "optional": true,
+          "timeout": 3000
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ยกเลิกรายการนี้",
+            "first": true,
+            "within": {
+              "css": "ol.bhv-timeline li",
+              "has_text": "{{marker}}"
+            }
+          },
+          "optional": true,
+          "timeout": 3000,
+          "settle_ms": 800
+        }
+      ],
+      "verify": [
+        {
+          "title": "ไม่มีรายการทดสอบที่ยังใช้งานของนักเรียนค้างอยู่ในประวัติ",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "role": "button",
+                  "name": "ยกเลิกรายการนี้",
+                  "within": {
+                    "css": "ol.bhv-timeline li",
+                    "has_text": "{{marker}}"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "restore-pp6-setting",
+      "title": "ปิดการแสดง ปพ.6 กลับเป็นค่าเริ่มต้น (ล้างข้อมูลทดสอบ)",
+      "role": "admin",
+      "start": "/work#module-settings",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": ".ms-item[data-key=\"portal.show_pp6\"]"
+          }
+        },
+        {
+          "do": "uncheck",
+          "target": {
+            "css": ".ms-item[data-key=\"portal.show_pp6\"] [data-ctl]"
+          },
+          "say": "เอาเครื่องหมายถูกออกจาก \"แสดง ปพ.6 (ดูอย่างเดียว) ให้นักเรียนและผู้ปกครอง\" แล้วกดบันทึก",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".ms-item[data-key=\"portal.show_pp6\"]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": ".ms-item[data-key=\"portal.show_pp6\"] button[data-save]"
+          },
+          "expect_response": {
+            "url_contains": "/api/module-settings",
+            "method": "PUT"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "unchecked": {
+              "css": ".ms-item[data-key=\"portal.show_pp6\"] [data-ctl]"
+            }
+          }
+        }
+      ],
+      "expected": "ค่าเริ่มต้นของ ปพ.6 คือปิด",
+      "verify": [
+        {
+          "title": "ยืนยันหลังคืนค่า",
+          "steps": [
+            {
+              "do": "reload"
+            },
+            {
+              "do": "wait_for",
+              "target": {
+                "css": ".ms-item[data-key=\"portal.show_pp6\"]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "unchecked": {
+                  "css": ".ms-item[data-key=\"portal.show_pp6\"] [data-ctl]"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [
+    {
+      "id": "S1",
+      "promised": "หน้าตั้งบัญชีผู้ปกครองที่ถูกปิดแจ้งว่า \"กรุณาติดต่อโรงเรียนเพื่อเปิดใช้งานอีกครั้ง\"",
+      "where": "หน้า \"ลิงก์ผู้ปกครอง\" (/work#guardians) ปุ่ม \"ปิดบัญชี\" และ public/assets/modules/guardian-portal/staff.js ส่วนบัญชีของผู้ปกครอง (บรรทัด 44)",
+      "observed": "ครูปิดบัญชีผู้ปกครองได้ แต่ไม่มีปุ่มเปิดบัญชีอีกครั้งในหน้าจอใด และลิงก์ตั้งบัญชีที่สร้างให้ผู้ปกครองที่ถูกปิดแล้วใช้ไม่ได้ ระบบตอบ \"บัญชีผู้ปกครองรายนี้ถูกปิดใช้งาน กรุณาติดต่อโรงเรียนเพื่อเปิดใช้งานอีกครั้ง\" ผู้ปกครองที่ถูกปิดบัญชีจึงเข้าอีกไม่ได้จากหน้าจอ",
+      "evidence": "modules/guardian-portal/src/Http/StaffController.php:172 ระบุว่าการเปิดใช้ใหม่ทำโดยออกลิงก์ตั้งบัญชี แต่เมื่อทดลองสร้างลิงก์ตั้งบัญชีให้ผู้ปกครองที่ปิดบัญชีไว้แล้ว หน้าลิงก์กลับแจ้งข้อความข้างต้นและไม่ตั้งบัญชีให้ (ภาพความล้มเหลวของการทดสอบ) และ staff.js:44 มีเฉพาะปุ่ม \"ปิดบัญชี\"",
+      "confirmed": true
+    }
+  ],
+  "untested": [
+    "การล็อกบัญชีผู้ปกครองและปุ่ม \"ปลดล็อก\" ยังไม่ได้ทดสอบ เพราะการล็อกนับต่อบัญชีต่อเครือข่าย (และมีเพดานรวมของโรงเรียน) ตัวรันทดสอบใช้เครือข่ายเดียว จึงล็อกบัญชีทดลองไม่ได้",
+    "ตัวเลือก \"ให้ผู้ปกครองที่ถูกจำกัดการรับนักเรียนดูข้อมูลได้\" ยังไม่ได้ทดสอบ เพราะการจำกัดผู้ปกครองทำในโมดูลทะเบียน (งานกลุ่ม G1) และข้อมูลทดลองไม่มีผู้ปกครองที่ถูกจำกัดการรับนักเรียน",
+    "การแจ้งชำระค่าธรรมเนียม (แนบสลิป ถอนรายการ รับใบเสร็จ) ยังไม่ได้ทดสอบ เพราะเป็นงานของโมดูลการเงิน (งานกลุ่ม G4) ยังไม่ได้ตัดสินว่าจะทดสอบซ้ำในไฟล์นี้หรือไม่",
+    "การยืนยันอีเมลของผู้ปกครองและการตั้งรหัสผ่านใหม่จากลิงก์ในอีเมล ยังไม่ได้ทดสอบ เพราะการส่งอีเมลจริงไม่ได้ทดสอบในระบบทดลอง (ไม่มีกล่องอีเมลที่เปิดอ่านได้)",
+    "ปุ่ม \"พิมพ์ใบลิงก์\" และ \"คัดลอกลิงก์\" ใช้หน้าต่างพิมพ์และคลิปบอร์ดของเบราว์เซอร์ ตัวรันทดสอบไม่ได้ทดสอบ",
+    "บัญชีและลิงก์ที่ทดสอบสร้างไม่มีปุ่มลบ และบัญชีที่ปิดแล้วเปิดคืนไม่ได้ (ข้อบกพร่องที่รู้แล้ว: skeleton S1) ขั้นตอน \"ครูออกลิงก์ตั้งบัญชี\" และ \"ครูปิดบัญชี\" จึงทำซ้ำได้เพียงครั้งเดียวต่อผู้ปกครองหนึ่งคนในข้อมูลทดลองที่ไม่รีเซ็ต",
+    "ผู้ปกครองของนักเรียน ม.1/1 เลขที่ 4 มีบัญชีชื่อผู้ใช้ที่ครูออกรหัสชั่วคราวและตั้งรหัสเองแล้ว ซึ่งลบไม่ได้ เหลืออยู่ในข้อมูลทดลอง"
+  ]
+}

@@ -93,3 +93,10 @@ release-key*.json
 /node_modules/
 /__pycache__/
 *.pyc
+
+# User manual pipeline: scenarios, fixtures, inventory and tools are source. Run output and the generated pages with their
+# pictures are not: they are published on the project website (wiki).
+/docs/manual/run*/
+/docs/manual/th/
+/docs/manual/wiki-bundle/
+/docs/manual/audit.th.md

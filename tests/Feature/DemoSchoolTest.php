@@ -116,9 +116,11 @@ class DemoSchoolTest extends TestCase
         foreach (['pending', 'approved', 'rejected'] as $state) $this->assertTrue(DB::table('fin_payment_claims')->where('status', $state)->exists(), 'slip '.$state);
         foreach (['open', 'partial', 'paid'] as $state) $this->assertTrue(DB::table('fin_invoices')->where('status', $state)->exists(), 'invoice '.$state);
         $this->assertSame(1, DB::table('psl_periods')->where('status', 'published')->count());
-        $this->assertSame(['closed', 'open'], DB::table('srv_surveys')->orderBy('status')->pluck('status')->all());
+        // the two surveys of the original trial (the coverage test checks the others): one still open, one closed
+        $this->assertSame(['closed', 'open'], DB::table('srv_surveys')->where(fn ($q) => $q->where('slug', 'like', 'satisfaction-%')->orWhere('slug', 'like', 'green-school-quiz-%'))->orderBy('status')->pluck('status')->all());
         $this->assertGreaterThanOrEqual(5, DB::table('srv_responses')->whereNotNull('certificate_no')->count());
-        $this->assertSame(['received', 'received', 'replied'], DB::table('cmp_cases')->orderBy('status')->pluck('status')->all());
+        // the first three cases are the ones of the original trial (the coverage test checks the stages added after them)
+        $this->assertSame(['received', 'received', 'replied'], DB::table('cmp_cases')->orderBy('id')->limit(3)->pluck('status')->sort()->values()->all());
         $this->assertSame('published', DB::table('ita_years')->value('status'));
         foreach (['foreign', 'stateless', 'undetermined'] as $status) $this->assertTrue(DB::table('students')->where('nationality_status', $status)->exists(), $status);
         foreach (['thai_id', 'passport', 'g_code', 'other', 'pending'] as $kind) $this->assertTrue(DB::table('reg_identifiers')->where('kind', $kind)->exists(), $kind);

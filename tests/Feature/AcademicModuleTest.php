@@ -688,4 +688,18 @@ class AcademicModuleTest extends TestCase
         $this->assertDoesNotMatchRegularExpression('/[\x{1F300}-\x{1FAFF}\x{2600}-\x{27BF}]/u', $js.file_get_contents(public_path('assets/modules/academic/academic.css')));
         $this->assertStringContainsString('@media (max-width', file_get_contents(public_path('assets/modules/academic/academic.css')));
     }
+
+    public function test_set_current_term_moves_what_the_modules_and_the_sidebar_footer_use(): void
+    {
+        $this->as('admin');
+        $this->term();
+        $second = $this->term(['term' => 2, 'starts_on' => '2026-11-01', 'ends_on' => '2027-03-01']);
+        $this->get('/work')->assertOk()->assertSee('ภาคเรียนที่ 1 / 2569')->assertDontSee('ภาคเรียนที่ 2 / 2569');
+        $this->postJson(self::BASE.'/terms/'.$second['id'].'/current')->assertOk();
+        $this->assertSame($second['id'], \App\Support\Saan\TermScope::currentId(), 'the modules follow the button');
+        $this->get('/work')->assertOk()->assertSee('ภาคเรียนที่ 2 / 2569')->assertDontSee('ภาคเรียนที่ 1 / 2569');
+        $js = file_get_contents(public_path('assets/modules/academic/academic.js'));
+        $this->assertStringNotContainsString('ยังไม่เปลี่ยนภาคเรียนของหน้าเหล่านั้น', $js);
+        $this->assertStringContainsString('การกดตั้งเป็นปัจจุบันจะเปลี่ยนภาคเรียนที่ตารางสอน', $js);
+    }
 }

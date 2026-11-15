@@ -154,7 +154,7 @@
                 ${classes.length ? `<div class="gw-noprint"><label class="gw-field"><span>ห้องเรียน</span><select id="gw-class">${classes.map(c => `<option value="${esc(c.id)}"${String(c.id) === state.classroom ? ' selected' : ''}>${esc(c.name)}</option>`).join('')}</select></label>
                 <div class="gw-actions"><button class="gw-btn gw-primary" type="button" data-act="issue-missing">ออก PIN ให้คนที่ยังไม่มี</button>
                 <button class="gw-btn gw-danger" type="button" data-act="issue-all">รีเซ็ต PIN ทั้งห้อง</button></div>
-                <p class="gw-lead">นักเรียนใช้รหัสนักเรียนคู่กับ PIN 6 หลัก ใส่ผิด 5 ครั้งจะถูกล็อก 30 นาที ครูประจำชั้นรีเซ็ตเพื่อปลดล็อกได้ทันที</p>
+                <p class="gw-lead">นักเรียนใช้รหัสนักเรียนคู่กับ PIN 6 หลัก ใส่ผิด 5 ครั้งจากเครือข่ายเดียวกัน ระบบพักการรับจากเครือข่ายนั้น 30 นาที และเมื่อใส่ผิดรวม 12 ครั้ง PIN จะถูกล็อก 30 นาที (นานขึ้นถ้าเกิดซ้ำ) ครูประจำชั้นรีเซ็ตเพื่อปลดล็อกได้ทันที</p>
                 ${rosterTable()}</div>` : '<p class="gw-empty">บัญชีนี้ไม่ได้เป็นครูประจำชั้นของห้องใด</p>'}
                 ${slipSheet()}</section>`;
         };

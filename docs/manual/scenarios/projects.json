@@ -1,0 +1,651 @@
+{
+  "module": "projects",
+  "title": "โครงการและแผนปฏิบัติการ",
+  "area": "งานบริหารและงานบุคคล",
+  "purpose": "โรงเรียนวางแผนปฏิบัติการประจำปีงบประมาณ ครูเสนอโครงการพร้อมงบประมาณและแหล่งงบ ผู้อำนวยการอนุมัติ ครูแบ่งงบเป็นกิจกรรม บันทึกการใช้จ่ายจริง (เก็บเป็นสตางค์ ไม่คลาดเคลื่อน) และส่งรายงานผลพร้อมไฟล์หลักฐาน ผู้บริหารดูสรุปงบรายแผนและรายแหล่งงบ พิมพ์แบบเสนอโครงการขนาด A4 และส่งออกข้อมูลเป็นไฟล์ CSV เมื่อปิดแผนปีงบประมาณ ข้อมูลทั้งหมดของแผนนั้นเป็นแบบอ่านอย่างเดียว",
+  "roles": [
+    "ครู (เสนอโครงการของตน แบ่งกิจกรรม บันทึกการใช้จ่าย ส่งรายงานผล ดูโครงการของครูท่านอื่นแบบอ่านอย่างเดียว)",
+    "ผู้อำนวยการและผู้ดูแลระบบ (อนุมัติหรือส่งกลับโครงการ แก้ไขได้ทุกโครงการ จัดการแผนประจำปี ส่งออก CSV)"
+  ],
+  "menu": [
+    "เมนูด้านซ้าย \"โครงการ/แผนปฏิบัติการ\" (/work#projects) เห็นได้เฉพาะครู ผู้อำนวยการ และผู้ดูแลระบบ"
+  ],
+  "prerequisites": [
+    {"module": "academic", "text": "ครูที่จะเสนอโครงการต้องมีรายชื่อในทะเบียนครูและบัญชีผู้ใช้ผูกกับทะเบียนครูนั้น ผู้ดูแลระบบหรือผู้อำนวยการต้องสร้างแผนปฏิบัติการของปีงบประมาณก่อนจึงเสนอโครงการได้"}
+  ],
+  "vars": {
+    "code_a": "ทค-{{run_id}}",
+    "title_a": "{{marker}} อบรมการใช้สื่อดิจิทัล",
+    "code_b": "ทค-{{run_id}}-ข",
+    "title_b": "{{marker}} ซ่อมแซมห้องสมุด",
+    "act1": "{{marker}} วิทยากรและเอกสารอบรม",
+    "plan_title": "แผนปฏิบัติการ {{marker}}",
+    "plan_title2": "แผนปฏิบัติการ {{marker}} (แก้ชื่อแล้ว)"
+  },
+  "workflows": [
+    {
+      "id": "browse-project-list",
+      "title": "เปิดหน้าโครงการ ดูสรุปงบ และค้นหาโครงการ",
+      "role": "subject",
+      "start": "/work",
+      "intro": "หน้านี้แสดงสรุปงบของแผนปีงบประมาณที่เลือก ตารางสรุปแยกตามแหล่งงบ และรายการโครงการทุกโครงการของแผนนั้น ครูทุกคนดูได้ทุกโครงการ แต่แก้ไขได้เฉพาะโครงการที่ตนรับผิดชอบ",
+      "steps": [
+        {"do": "click", "target": {"role": "link", "name": "โครงการ/แผนปฏิบัติการ", "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "say": "เลือกเมนู \"โครงการ/แผนปฏิบัติการ\" ที่แถบเมนูด้านซ้าย ระบบแสดงแผนของปีงบประมาณปัจจุบันและรายการโครงการ", "shot": true, "crop": "viewport", "wait_after": {"css": "#prj-cards li a"}},
+        {"do": "note", "target": {"css": ".prj-sums"}, "say": "ส่วนบนของหน้าแสดงงบรวม ยอดใช้จ่ายแล้ว งบคงเหลือ และจำนวนโครงการ โครงการที่ยกเลิกไม่นับรวมในตัวเลขนี้", "shot": true, "crop": "tight", "crop_pad": 60, "highlight": {"css": ".prj-sums"}},
+        {"do": "note", "target": {"css": ".prj-table"}, "say": "ตารางสรุปแสดงจำนวนโครงการ งบ งบที่อนุมัติแล้ว ยอดใช้จ่าย และงบคงเหลือ แยกตามแหล่งงบ ได้แก่ อุดหนุนรายหัว เรียนฟรี 15 ปี รายได้สถานศึกษา และอื่นๆ", "shot": true, "crop": "tight", "crop_pad": 40, "highlight": {"css": ".prj-table"}},
+        {"do": "select", "target": {"id": "prj-f-status"}, "label": "อนุมัติแล้ว", "say": "เลือกสถานะ \"อนุมัติแล้ว\" ในช่อง \"สถานะ\" เพื่อดูเฉพาะโครงการที่อนุมัติแล้ว", "shot": true, "crop": "viewport", "highlight": {"id": "prj-f-status"}},
+        {"do": "select", "target": {"id": "prj-f-status"}, "label": "ทุกสถานะ"},
+        {"do": "fill", "target": {"id": "prj-f-q"}, "value": "วช.01", "say": "พิมพ์รหัสหรือชื่อโครงการในช่อง \"ค้นหา\" รายการกรองให้เหลือโครงการที่ตรงกัน", "shot": true, "crop": "viewport", "highlight": {"id": "prj-f-q"}, "wait_after": {"css": "#prj-cards li a"}},
+        {"do": "expect", "that": {"count": 1, "of": {"css": "#prj-cards li a"}}}
+      ],
+      "expected": "หน้าแสดงสรุปงบ ตารางแยกตามแหล่งงบ และรายการโครงการ การเลือกสถานะและการค้นหากรองรายการได้ทันที",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่แล้วยังเห็นแผนและโครงการตัวอย่าง",
+          "steps": [
+            {"do": "goto", "url": "/work#projects"},
+            {"do": "expect", "that": [{"visible": {"css": "#prj-cards li a"}}, {"text": "งบรวม"}, {"visible": {"id": "prj-plan"}}], "say": "เปิดหน้า \"โครงการ/แผนปฏิบัติการ\" อีกครั้ง ระบบแสดงรายการโครงการและช่อง \"แผนปีงบประมาณ\" ตามเดิม", "shot": true, "crop": "viewport", "highlight": false}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "propose-project",
+      "title": "ครูเสนอโครงการใหม่",
+      "role": "subject",
+      "start": "/work",
+      "core": true,
+      "intro": "ครูกรอกรหัสโครงการ ชื่อ แหล่งงบ งบประมาณ ระยะเวลา และวัตถุประสงค์ เมื่อกดเสนอ โครงการอยู่ในสถานะ \"เสนอโครงการ\" รอผู้อำนวยการอนุมัติ ผู้รับผิดชอบโครงการคือครูผู้เสนอ รหัสโครงการต้องไม่ซ้ำกับโครงการอื่นในแผนเดียวกัน บัญชีของครูต้องผูกกับทะเบียนครูจึงเสนอได้ งบประมาณพิมพ์เป็นบาทได้ไม่เกิน 2 ตำแหน่งทศนิยม",
+      "steps": [
+        {"do": "click", "target": {"role": "link", "name": "โครงการ/แผนปฏิบัติการ", "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "say": "เลือกเมนู \"โครงการ/แผนปฏิบัติการ\" ที่แถบเมนูด้านซ้าย", "shot": true, "crop": "viewport", "wait_after": {"css": "#prj-cards li a"}},
+        {"do": "note", "target": {"css": "details#prj-new > summary"}, "say": "เลื่อนลงไปด้านล่างของหน้า หาหัวข้อ \"เสนอโครงการใหม่\" ซึ่งอยู่ใต้รายการโครงการ", "shot": true, "crop": "tight", "crop_pad": 140, "highlight": {"css": "details#prj-new > summary"}},
+        {"do": "click", "target": {"css": "details#prj-new > summary"}, "say": "กดหัวข้อ \"เสนอโครงการใหม่\" แบบฟอร์มเปิดออก", "shot": true, "crop": "tight", "crop_pad": 140, "wait_after": {"role": "button", "name": "เสนอโครงการ", "exact": true}},
+        {"do": "fill", "target": {"label": "รหัสโครงการ", "within": {"id": "prj-new"}}, "value": "{{code_a}}"},
+        {"do": "fill", "target": {"label": "ชื่อโครงการ", "within": {"id": "prj-new"}}, "value": "{{title_a}}", "say": "พิมพ์รหัสโครงการในช่อง \"รหัสโครงการ\" และชื่อโครงการในช่อง \"ชื่อโครงการ\"", "shot": true, "crop": "panel", "highlight": [{"label": "รหัสโครงการ", "within": {"id": "prj-new"}}, {"label": "ชื่อโครงการ", "within": {"id": "prj-new"}}]},
+        {"do": "note", "target": {"label": "ผู้รับผิดชอบ", "within": {"id": "prj-new"}}, "say": "ช่อง \"ผู้รับผิดชอบ\" ระบบกำหนดเป็นชื่อครูผู้เสนอและครูเปลี่ยนไม่ได้ เฉพาะผู้บริหารเลือกครูท่านอื่นเป็นผู้รับผิดชอบได้", "shot": true, "crop": "panel", "highlight": {"label": "ผู้รับผิดชอบ", "within": {"id": "prj-new"}}},
+        {"do": "fill", "target": {"label": "กลุ่มงาน/ฝ่าย", "within": {"id": "prj-new"}}, "value": "กลุ่มบริหารวิชาการ"},
+        {"do": "fill", "target": {"label": "ยุทธศาสตร์/มาตรฐาน", "within": {"id": "prj-new"}}, "value": "พัฒนาคุณภาพผู้เรียน", "say": "พิมพ์ชื่อกลุ่มงานในช่อง \"กลุ่มงาน/ฝ่าย\" และยุทธศาสตร์ในช่อง \"ยุทธศาสตร์/มาตรฐาน\" (ไม่บังคับ)", "shot": true, "crop": "panel", "highlight": [{"label": "กลุ่มงาน/ฝ่าย", "within": {"id": "prj-new"}}, {"label": "ยุทธศาสตร์/มาตรฐาน", "within": {"id": "prj-new"}}]},
+        {"do": "select", "target": {"label": "แหล่งงบประมาณ", "within": {"id": "prj-new"}}, "label": "อุดหนุนรายหัว"},
+        {"do": "fill", "target": {"label": "งบประมาณ (บาท)", "within": {"id": "prj-new"}}, "value": "50000", "say": "เลือกแหล่งงบในช่อง \"แหล่งงบประมาณ\" และพิมพ์งบประมาณเป็นบาทในช่อง \"งบประมาณ (บาท)\" ตัวอย่างนี้ 50000 บาท", "shot": true, "crop": "panel", "highlight": [{"label": "แหล่งงบประมาณ", "within": {"id": "prj-new"}}, {"label": "งบประมาณ (บาท)", "within": {"id": "prj-new"}}]},
+        {"do": "fill", "target": {"label": "วันเริ่ม", "within": {"id": "prj-new"}}, "value": "{{last_weekday}}"},
+        {"do": "fill", "target": {"label": "วันสิ้นสุด", "within": {"id": "prj-new"}}, "value": "{{today}}", "say": "เลือกวันที่ในช่อง \"วันเริ่ม\" และ \"วันสิ้นสุด\" วันสิ้นสุดต้องไม่ก่อนวันเริ่ม", "shot": true, "crop": "panel", "highlight": [{"label": "วันเริ่ม", "within": {"id": "prj-new"}}, {"label": "วันสิ้นสุด", "within": {"id": "prj-new"}}]},
+        {"do": "fill", "target": {"label": "วัตถุประสงค์", "within": {"id": "prj-new"}}, "value": "เพื่อให้ครูใช้สื่อดิจิทัลในการสอนได้อย่างมั่นใจ (ข้อมูลสมมติ {{marker}})"},
+        {"do": "fill", "target": {"label": "เป้าหมาย", "within": {"id": "prj-new"}}, "value": "ครูทุกคนของโรงเรียนสมมติ", "say": "พิมพ์วัตถุประสงค์ในช่อง \"วัตถุประสงค์\" (บังคับ) และเป้าหมายในช่อง \"เป้าหมาย\" (ไม่บังคับ)", "shot": true, "crop": "panel", "highlight": [{"label": "วัตถุประสงค์", "within": {"id": "prj-new"}}, {"label": "เป้าหมาย", "within": {"id": "prj-new"}}]},
+        {"do": "click", "target": {"role": "button", "name": "เสนอโครงการ", "exact": true}, "say": "กดปุ่ม \"เสนอโครงการ\" ระบบแสดงข้อความ \"เสนอโครงการแล้ว\" และเปิดหน้ารายละเอียดของโครงการ สถานะเป็น \"เสนอโครงการ\"", "shot": true, "crop": "viewport", "highlight": {"css": ".prj-head .prj-badge", "first": true}, "wait_after": {"role": "link", "name": "รายการโครงการ"}}
+      ],
+      "expected": "ระบบเปิดหน้ารายละเอียดโครงการ แสดงรหัสและชื่อโครงการ ป้ายสถานะ \"เสนอโครงการ\" งบโครงการ 50,000.00 บาท และผู้รับผิดชอบเป็นครูผู้เสนอ",
+      "verify": [
+        {
+          "title": "ผู้อำนวยการเห็นโครงการใหม่ในรายการ สถานะ \"เสนอโครงการ\"",
+          "as": "principal",
+          "start": "/work#projects",
+          "steps": [
+            {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}"},
+            {"do": "expect", "that": [{"visible": {"css": "#prj-cards li", "has_text": "{{title_a}}"}}, {"text": "เสนอโครงการ", "in": {"css": "#prj-cards li", "has_text": "{{title_a}}"}}, {"text": "50,000.00", "in": {"css": "#prj-cards li", "has_text": "{{title_a}}"}}], "say": "ผู้อำนวยการเปิดหน้า \"โครงการ/แผนปฏิบัติการ\" แล้วค้นหาชื่อโครงการ จะเห็นโครงการที่ครูเสนอ สถานะ \"เสนอโครงการ\" และงบ 50,000.00 บาท", "shot": true, "crop": "viewport", "highlight": {"css": "#prj-cards li", "has_text": "{{title_a}}"}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "approve-project",
+      "title": "ผู้อำนวยการอนุมัติโครงการ",
+      "role": "principal",
+      "start": "/work",
+      "depends_on": ["propose-project"],
+      "intro": "ผู้อำนวยการและผู้ดูแลระบบอนุมัติโครงการที่ครูเสนอ ผู้บริหารที่เป็นผู้รับผิดชอบโครงการเองอนุมัติโครงการของตนไม่ได้ หากยังมีผู้บริหารคนอื่นในโรงเรียน เมื่ออนุมัติแล้ว ระบบเก็บชื่อผู้อนุมัติและวันเวลา",
+      "steps": [
+        {"do": "click", "target": {"role": "link", "name": "โครงการ/แผนปฏิบัติการ", "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "say": "เลือกเมนู \"โครงการ/แผนปฏิบัติการ\" ที่แถบเมนูด้านซ้าย", "shot": true, "crop": "viewport", "wait_after": {"css": "#prj-cards li a"}},
+        {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}", "say": "พิมพ์ชื่อโครงการในช่อง \"ค้นหา\" โครงการที่รอการอนุมัติมีป้าย \"เสนอโครงการ\"", "shot": true, "crop": "viewport", "highlight": {"css": "#prj-cards li", "has_text": "{{title_a}}"}, "wait_after": {"css": "#prj-cards li", "has_text": "{{title_a}}"}},
+        {"do": "click", "target": {"role": "link", "has_text": "{{title_a}}", "within": {"id": "prj-cards"}}, "say": "กดที่ชื่อโครงการเพื่อเปิดรายละเอียด ตรวจงบประมาณ วัตถุประสงค์ และระยะเวลา", "shot": true, "crop": "viewport", "highlight": false, "wait_after": {"role": "link", "name": "รายการโครงการ"}},
+        {"do": "click", "target": {"role": "button", "name": "อนุมัติโครงการ", "exact": true}, "say": "กดปุ่ม \"อนุมัติโครงการ\" ระบบแสดงข้อความ \"เปลี่ยนสถานะแล้ว\" และป้ายสถานะเป็น \"อนุมัติแล้ว\"", "shot": true, "crop": "viewport", "highlight": {"css": ".prj-head .prj-badge", "first": true}, "wait_after": {"css": ".prj-head .prj-badge", "has_text": "อนุมัติแล้ว"}}
+      ],
+      "expected": "ป้ายสถานะของโครงการเป็น \"อนุมัติแล้ว\" ปุ่มที่ใช้ได้ต่อไปคือ \"ส่งกลับแก้ไข\" \"เริ่มดำเนินการ\" และ \"ยกเลิกโครงการ\"",
+      "verify": [
+        {
+          "title": "ครูเจ้าของโครงการเห็นสถานะ \"อนุมัติแล้ว\"",
+          "as": "subject",
+          "start": "/work#projects",
+          "steps": [
+            {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}"},
+            {"do": "expect", "that": {"text": "อนุมัติแล้ว", "in": {"css": "#prj-cards li", "has_text": "{{title_a}}"}}, "say": "ครูผู้เสนอเปิดหน้าโครงการและค้นหาชื่อโครงการ จะเห็นสถานะ \"อนุมัติแล้ว\"", "shot": true, "crop": "viewport", "highlight": {"css": "#prj-cards li", "has_text": "{{title_a}}"}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "start-project",
+      "title": "ครูเริ่มดำเนินการโครงการที่อนุมัติแล้ว",
+      "role": "subject",
+      "start": "/work#projects",
+      "depends_on": ["approve-project"],
+      "intro": "ครูบันทึกการใช้จ่ายและส่งรายงานผลได้ต่อเมื่อโครงการอยู่ในสถานะ \"กำลังดำเนินการ\" เจ้าของโครงการหรือผู้บริหารเป็นผู้กดเริ่มดำเนินการ",
+      "steps": [
+        {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}", "say": "ที่หน้า \"โครงการ/แผนปฏิบัติการ\" พิมพ์ชื่อโครงการในช่อง \"ค้นหา\"", "shot": true, "crop": "viewport", "highlight": {"css": "#prj-cards li", "has_text": "{{title_a}}"}, "wait_after": {"css": "#prj-cards li", "has_text": "{{title_a}}"}},
+        {"do": "click", "target": {"role": "link", "has_text": "{{title_a}}", "within": {"id": "prj-cards"}}, "wait_after": {"role": "link", "name": "รายการโครงการ"}},
+        {"do": "note", "target": {"role": "button", "name": "เริ่มดำเนินการ", "exact": true}, "say": "เปิดโครงการที่อนุมัติแล้ว หาปุ่ม \"เริ่มดำเนินการ\" ใต้แถบสรุปงบ", "shot": true, "crop": "viewport", "highlight": {"role": "button", "name": "เริ่มดำเนินการ", "exact": true}},
+        {"do": "click", "target": {"role": "button", "name": "เริ่มดำเนินการ", "exact": true}, "say": "กดปุ่ม \"เริ่มดำเนินการ\" ป้ายสถานะเป็น \"กำลังดำเนินการ\" และช่อง \"ใช้จ่ายจริง (บาท)\" ของกิจกรรมเปิดให้กรอกได้", "shot": true, "crop": "viewport", "highlight": {"css": ".prj-head .prj-badge", "first": true}, "wait_after": {"css": ".prj-head .prj-badge", "has_text": "กำลังดำเนินการ"}}
+      ],
+      "expected": "ป้ายสถานะของโครงการเป็น \"กำลังดำเนินการ\" ปุ่มที่ใช้ได้ต่อไปคือ \"จบโครงการ (เสร็จสิ้น)\"",
+      "verify": [
+        {
+          "title": "ผู้อำนวยการเห็นว่าโครงการกำลังดำเนินการ",
+          "as": "principal",
+          "start": "/work#projects",
+          "steps": [
+            {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}"},
+            {"do": "expect", "that": {"text": "กำลังดำเนินการ", "in": {"css": "#prj-cards li", "has_text": "{{title_a}}"}}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "add-activity",
+      "title": "แบ่งงบเป็นกิจกรรมของโครงการ",
+      "role": "subject",
+      "start": "/work#projects",
+      "depends_on": ["start-project"],
+      "intro": "งบของกิจกรรมทุกกิจกรรมรวมกันต้องไม่เกินงบของโครงการ หากเกิน ระบบไม่บันทึกและแจ้งว่าเหลือแบ่งได้เท่าใด",
+      "steps": [
+        {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}", "wait_after": {"css": "#prj-cards li", "has_text": "{{title_a}}"}},
+        {"do": "click", "target": {"role": "link", "has_text": "{{title_a}}", "within": {"id": "prj-cards"}}, "say": "เปิดหน้ารายละเอียดของโครงการ ส่วน \"กิจกรรมและการใช้จ่าย\" ยังว่างอยู่", "shot": true, "crop": "viewport", "highlight": false, "wait_after": {"role": "heading", "name": "กิจกรรมและการใช้จ่าย"}},
+        {"do": "click", "target": {"css": "details.prj-panel > summary", "has_text": "เพิ่มกิจกรรม"}, "say": "เลื่อนลงไปกดหัวข้อ \"เพิ่มกิจกรรม\" แบบฟอร์มเปิดออก", "shot": true, "crop": "tight", "crop_pad": 140, "wait_after": {"role": "button", "name": "เพิ่มกิจกรรม", "exact": true}},
+        {"do": "fill", "target": {"label": "กิจกรรม", "exact": true, "within": {"css": "form.prj-act-form:not([data-id])"}}, "value": "{{act1}}"},
+        {"do": "fill", "target": {"label": "งบกิจกรรม (บาท)", "within": {"css": "form.prj-act-form:not([data-id])"}}, "value": "20000", "say": "พิมพ์ชื่อกิจกรรมในช่อง \"กิจกรรม\" และงบของกิจกรรมเป็นบาทในช่อง \"งบกิจกรรม (บาท)\" ตัวอย่างนี้ 20000 บาท", "shot": true, "crop": "panel", "highlight": [{"label": "กิจกรรม", "exact": true, "within": {"css": "form.prj-act-form:not([data-id])"}}, {"label": "งบกิจกรรม (บาท)", "within": {"css": "form.prj-act-form:not([data-id])"}}]},
+        {"do": "click", "target": {"role": "button", "name": "เพิ่มกิจกรรม", "exact": true}, "say": "กดปุ่ม \"เพิ่มกิจกรรม\" ระบบแสดงข้อความ \"บันทึกกิจกรรมแล้ว\" กิจกรรมขึ้นในรายการ และ \"แบ่งให้กิจกรรม\" เป็น 20,000.00", "shot": true, "crop": "viewport", "highlight": {"css": "#prj-acts li", "has_text": "{{act1}}"}, "wait_after": {"css": "#prj-acts li", "has_text": "{{act1}}"}}
+      ],
+      "expected": "กิจกรรมอยู่ในรายการ \"กิจกรรมและการใช้จ่าย\" พร้อมงบ 20,000.00 บาท และช่อง \"แบ่งให้กิจกรรม\" ที่สรุปด้านบนเป็น 20,000.00",
+      "verify": [
+        {
+          "title": "ผู้อำนวยการเปิดโครงการแล้วเห็นกิจกรรมที่เพิ่ม",
+          "as": "principal",
+          "start": "/work#projects",
+          "steps": [
+            {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}"},
+            {"do": "click", "target": {"role": "link", "has_text": "{{title_a}}", "within": {"id": "prj-cards"}}, "wait_after": {"role": "heading", "name": "กิจกรรมและการใช้จ่าย"}},
+            {"do": "expect", "that": [{"visible": {"css": "#prj-acts li", "has_text": "{{act1}}"}}, {"text": "20,000.00", "in": {"css": "#prj-acts li", "has_text": "{{act1}}"}}]}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "record-spending",
+      "title": "บันทึกการใช้จ่ายจริงของกิจกรรม",
+      "role": "subject",
+      "start": "/work#projects",
+      "depends_on": ["add-activity"],
+      "intro": "ครูบันทึกยอดที่ใช้จ่ายจริงเป็นบาท (ทศนิยมไม่เกิน 2 ตำแหน่ง) ระบบเก็บเป็นสตางค์ วันที่ทำกิจกรรมเลือกได้เฉพาะวันนี้และวันที่ผ่านมาแล้ว ยอดใช้จ่ายที่รวมกันแล้วเกินงบ ระบบแสดงป้าย \"เกินงบ\"",
+      "steps": [
+        {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}", "wait_after": {"css": "#prj-cards li", "has_text": "{{title_a}}"}},
+        {"do": "click", "target": {"role": "link", "has_text": "{{title_a}}", "within": {"id": "prj-cards"}}, "wait_after": {"css": "#prj-acts li", "has_text": "{{act1}}"}},
+        {"do": "click", "target": {"css": "summary", "has_text": "แก้ไข", "within": {"css": "#prj-acts li", "has_text": "{{act1}}"}}, "say": "ที่กิจกรรมที่ต้องการ กดหัวข้อ \"แก้ไข\" ท้ายรายการกิจกรรม แบบฟอร์มเปิดออก", "shot": true, "crop": "viewport", "highlight": {"css": "summary", "has_text": "แก้ไข", "within": {"css": "#prj-acts li", "has_text": "{{act1}}"}}, "wait_after": {"role": "button", "name": "บันทึกกิจกรรม"}},
+        {"do": "fill", "target": {"label": "ใช้จ่ายจริง (บาท)", "within": {"css": "form.prj-act-form[data-id]"}}, "value": "15000.50", "say": "พิมพ์ยอดที่ใช้จ่ายจริงในช่อง \"ใช้จ่ายจริง (บาท)\" ตัวอย่างนี้ 15000.50 บาท", "shot": true, "crop": "panel", "highlight": {"label": "ใช้จ่ายจริง (บาท)", "within": {"css": "form.prj-act-form[data-id]"}}},
+        {"do": "fill", "target": {"label": "วันที่ทำกิจกรรม", "within": {"css": "form.prj-act-form[data-id]"}}, "value": "{{last_weekday}}", "say": "เลือกวันที่ทำกิจกรรมในช่อง \"วันที่ทำกิจกรรม\" และพิมพ์หมายเหตุในช่อง \"หมายเหตุ\" ถ้ามี", "shot": true, "crop": "panel", "highlight": {"label": "วันที่ทำกิจกรรม", "within": {"css": "form.prj-act-form[data-id]"}}},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกกิจกรรม"}, "say": "กดปุ่ม \"บันทึกกิจกรรม\" ระบบแสดงข้อความ \"บันทึกกิจกรรมแล้ว\" แถบสรุป \"ใช้จ่ายแล้ว\" เป็น 15,000.50 และแถบความคืบหน้าของกิจกรรมเพิ่มขึ้น", "shot": true, "crop": "viewport", "highlight": {"css": "#prj-acts li", "has_text": "{{act1}}"}, "wait_after": {"text": "ใช้ 15,000.50"}}
+      ],
+      "expected": "กิจกรรมแสดง \"ใช้ 15,000.50 บาท\" จากงบ 20,000.00 และสรุปด้านบนของโครงการแสดงยอดใช้จ่ายแล้ว 15,000.50 บาท",
+      "verify": [
+        {
+          "title": "ผู้อำนวยการเห็นยอดใช้จ่ายของโครงการในรายการและในสรุปแหล่งงบ",
+          "as": "principal",
+          "start": "/work#projects",
+          "steps": [
+            {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}"},
+            {"do": "expect", "that": {"text": "ใช้ 15,000.50 จากงบ 50,000.00", "in": {"css": "#prj-cards li", "has_text": "{{title_a}}"}}, "say": "ผู้อำนวยการค้นหาโครงการในรายการ แถวของโครงการแสดง \"ใช้ 15,000.50 จากงบ 50,000.00 บาท\"", "shot": true, "crop": "viewport", "highlight": {"css": "#prj-cards li", "has_text": "{{title_a}}"}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "overspend-needs-reason",
+      "title": "ใช้จ่ายเกินงบกิจกรรมต้องระบุเหตุผล",
+      "role": "subject",
+      "start": "/work#projects",
+      "depends_on": ["record-spending"],
+      "intro": "ถ้ายอดใช้จ่ายจริงมากกว่างบของกิจกรรม หรือรวมทั้งโครงการแล้วเกินงบโครงการ ระบบไม่รับบันทึกจนกว่าครูจะกรอกเหตุผลที่เกินงบ เหตุผลถูกเก็บในรายการกิจกรรมและในบันทึกตรวจสอบของระบบ",
+      "steps": [
+        {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}", "wait_after": {"css": "#prj-cards li", "has_text": "{{title_a}}"}},
+        {"do": "click", "target": {"role": "link", "has_text": "{{title_a}}", "within": {"id": "prj-cards"}}, "wait_after": {"css": "#prj-acts li", "has_text": "{{act1}}"}},
+        {"do": "click", "target": {"css": "summary", "has_text": "แก้ไข", "within": {"css": "#prj-acts li", "has_text": "{{act1}}"}}, "wait_after": {"role": "button", "name": "บันทึกกิจกรรม"}},
+        {"do": "fill", "target": {"label": "ใช้จ่ายจริง (บาท)", "within": {"css": "form.prj-act-form[data-id]"}}, "value": "25000", "say": "พิมพ์ยอดใช้จ่ายจริงที่มากกว่างบกิจกรรมในช่อง \"ใช้จ่ายจริง (บาท)\" ตัวอย่างนี้ 25000 บาท จากงบกิจกรรม 20000 บาท", "shot": true, "crop": "panel", "highlight": {"label": "ใช้จ่ายจริง (บาท)", "within": {"css": "form.prj-act-form[data-id]"}}},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกกิจกรรม"}, "say": "กดปุ่ม \"บันทึกกิจกรรม\" โดยยังไม่กรอกเหตุผล ระบบไม่บันทึกและแจ้งข้อความ \"ใช้จ่ายเกินงบ ต้องระบุเหตุผลที่เกินงบ\"", "shot": true, "crop": "viewport", "highlight": {"id": "toast"}, "wait_after": {"text": "ต้องระบุเหตุผลที่เกินงบ"}},
+        {"do": "fill", "target": {"label": "เหตุผลที่ใช้จ่ายเกินงบ", "within": {"css": "form.prj-act-form[data-id]"}}, "value": "ราคาวิทยากรสูงกว่าที่ประมาณไว้ ({{marker}})", "say": "พิมพ์เหตุผลในช่อง \"เหตุผลที่ใช้จ่ายเกินงบ\"", "shot": true, "crop": "panel", "highlight": {"label": "เหตุผลที่ใช้จ่ายเกินงบ", "within": {"css": "form.prj-act-form[data-id]"}}},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกกิจกรรม"}, "say": "กดปุ่ม \"บันทึกกิจกรรม\" อีกครั้ง ระบบบันทึกและแสดงป้าย \"เกินงบ\" พร้อมเหตุผลใต้ชื่อกิจกรรม", "shot": true, "crop": "viewport", "highlight": {"css": "#prj-acts li", "has_text": "{{act1}}"}, "wait_after": {"text": "เหตุผลที่เกินงบ"}}
+      ],
+      "expected": "กิจกรรมมีป้าย \"เกินงบ\" และข้อความ \"เหตุผลที่เกินงบ\" โครงการแสดงยอดใช้จ่าย 25,000.00 บาท",
+      "verify": [
+        {
+          "title": "ผู้อำนวยการเห็นป้าย \"เกินงบ\" ที่กิจกรรม",
+          "as": "principal",
+          "start": "/work#projects",
+          "steps": [
+            {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}"},
+            {"do": "click", "target": {"role": "link", "has_text": "{{title_a}}", "within": {"id": "prj-cards"}}, "wait_after": {"css": "#prj-acts li", "has_text": "{{act1}}"}},
+            {"do": "expect", "that": [{"text": "เกินงบ", "in": {"css": "#prj-acts li", "has_text": "{{act1}}"}}, {"text": "ราคาวิทยากรสูงกว่าที่ประมาณไว้", "in": {"css": "#prj-acts li", "has_text": "{{act1}}"}}], "say": "ผู้อำนวยการเปิดโครงการ กิจกรรมแสดงป้าย \"เกินงบ\" และเหตุผลที่ครูกรอก", "shot": true, "crop": "viewport", "highlight": {"css": "#prj-acts li", "has_text": "{{act1}}"}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "submit-report",
+      "title": "ครูส่งรายงานผลพร้อมไฟล์หลักฐาน",
+      "role": "subject",
+      "start": "/work#projects",
+      "depends_on": ["start-project"],
+      "intro": "ส่งรายงานได้เมื่อโครงการกำลังดำเนินการหรือเสร็จสิ้นแล้ว ไฟล์หลักฐานเป็น PDF, JPEG หรือ PNG ขนาดไม่เกิน 10 MB ระบบตรวจชนิดไฟล์จากเนื้อไฟล์จริง เฉพาะเจ้าของโครงการและผู้บริหารดาวน์โหลดหลักฐานได้ เพราะภาพอาจมีนักเรียน",
+      "steps": [
+        {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}", "wait_after": {"css": "#prj-cards li", "has_text": "{{title_a}}"}},
+        {"do": "click", "target": {"role": "link", "has_text": "{{title_a}}", "within": {"id": "prj-cards"}}, "wait_after": {"role": "heading", "name": "รายงานผล"}},
+        {"do": "click", "target": {"css": "details.prj-panel > summary", "has_text": "ส่งรายงานผล"}, "say": "เลื่อนลงไปส่วน \"รายงานผล\" แล้วกดหัวข้อ \"ส่งรายงานผล\" แบบฟอร์มเปิดออก", "shot": true, "crop": "viewport", "wait_after": {"role": "button", "name": "ส่งรายงาน", "exact": true}},
+        {"do": "fill", "target": {"label": "สรุปผลการดำเนินงาน", "within": {"id": "prj-report-new"}}, "value": "จัดอบรมครบตามแผนในวันเดียว ครูเข้าร่วมครบทุกคน ({{marker}})", "say": "พิมพ์สรุปผลในช่อง \"สรุปผลการดำเนินงาน\"", "shot": true, "crop": "panel", "highlight": {"label": "สรุปผลการดำเนินงาน", "within": {"id": "prj-report-new"}}},
+        {"do": "fill", "target": {"label": "ผลสำเร็จ (ร้อยละ 0-100)", "within": {"id": "prj-report-new"}}, "value": "80", "say": "พิมพ์ร้อยละของผลสำเร็จในช่อง \"ผลสำเร็จ (ร้อยละ 0-100)\" (ไม่บังคับ)", "shot": true, "crop": "panel", "highlight": {"label": "ผลสำเร็จ (ร้อยละ 0-100)", "within": {"id": "prj-report-new"}}},
+        {"do": "upload", "target": {"css": "#prj-report-new input[name=evidence]", "include_hidden": true}, "file": "sample.pdf", "say": "กดปุ่มเลือกไฟล์ในช่อง \"หลักฐาน (PDF, JPEG, PNG ไม่เกิน 10 MB)\" แล้วเลือกไฟล์หลักฐาน ระบบแสดงชื่อไฟล์ที่เลือก", "shot": true, "crop": "panel", "highlight": {"css": "#prj-report-new input[name=evidence]", "include_hidden": true}},
+        {"do": "click", "target": {"role": "button", "name": "ส่งรายงาน", "exact": true}, "say": "กดปุ่ม \"ส่งรายงาน\" ระบบแสดงข้อความ \"ส่งรายงานแล้ว\" และรายงานขึ้นในส่วน \"รายงานผล\" พร้อมปุ่มดาวน์โหลดหลักฐาน", "shot": true, "crop": "viewport", "highlight": {"css": "#prj-reps li", "first": true}, "wait_after": {"css": "#prj-reps li", "has_text": "จัดอบรมครบตามแผน"}}
+      ],
+      "expected": "ส่วน \"รายงานผล\" แสดงวันที่ส่ง ชื่อผู้ส่ง ผลสำเร็จร้อยละ 80 ข้อความสรุป และปุ่ม \"ดาวน์โหลดหลักฐาน\"",
+      "verify": [
+        {
+          "title": "ผู้อำนวยการเปิดโครงการและดาวน์โหลดไฟล์หลักฐานได้",
+          "as": "principal",
+          "start": "/work#projects",
+          "steps": [
+            {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}"},
+            {"do": "click", "target": {"role": "link", "has_text": "{{title_a}}", "within": {"id": "prj-cards"}}, "wait_after": {"css": "#prj-reps li", "has_text": "จัดอบรมครบตามแผน"}},
+            {"do": "click", "target": {"role": "link", "name": "ดาวน์โหลดหลักฐาน"}, "expect_download": {"kind": "pdf", "ext": ".pdf", "min_bytes": 100}, "say": "ผู้อำนวยการเปิดโครงการ เห็นรายงานของครู และกดปุ่ม \"ดาวน์โหลดหลักฐาน\" เบราว์เซอร์บันทึกไฟล์ PDF ที่ครูแนบไว้", "shot": true, "crop": "viewport", "highlight": {"role": "link", "name": "ดาวน์โหลดหลักฐาน"}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "summary-csv-print",
+      "title": "ดูสรุปงบ ส่งออก CSV และพิมพ์แบบโครงการ",
+      "role": "principal",
+      "start": "/work#projects",
+      "depends_on": ["record-spending"],
+      "intro": "ผู้อำนวยการดูสรุปงบของแผนปีงบประมาณที่เลือก ส่งออกรายการโครงการเป็นไฟล์ CSV เปิดด้วยโปรแกรมตารางคำนวณได้ และพิมพ์แบบเสนอโครงการขนาด A4 ของแต่ละโครงการ",
+      "steps": [
+        {"do": "expect", "that": {"visible": {"css": "#prj-cards li a"}}},
+        {"do": "note", "target": {"css": ".prj-table"}, "say": "ที่หน้า \"โครงการ/แผนปฏิบัติการ\" ตารางสรุปแยกตามแหล่งงบแสดงยอดงบ งบที่อนุมัติแล้ว ยอดใช้จ่าย และงบคงเหลือของแผนที่เลือกไว้ในช่อง \"แผนปีงบประมาณ\"", "shot": true, "crop": "viewport", "highlight": {"css": ".prj-table"}},
+        {"do": "note", "target": {"role": "link", "name": "ส่งออก CSV"}, "say": "หาลิงก์ \"ส่งออก CSV\" ที่มุมขวาบนของหน้า", "shot": true, "crop": {"css": ".prj-head"}, "crop_pad": 24, "highlight": {"role": "link", "name": "ส่งออก CSV"}},
+        {"do": "click", "target": {"role": "link", "name": "ส่งออก CSV"}, "expect_download": {"kind": "csv", "ext": ".csv", "name_regex": "^projects-", "min_bytes": 200, "contains": "{{title_a}}"}, "say": "กดลิงก์ \"ส่งออก CSV\" เบราว์เซอร์บันทึกไฟล์ projects-ปีงบประมาณ.csv ซึ่งมีรหัส ชื่อ ผู้รับผิดชอบ แหล่งงบ สถานะ งบ ยอดแบ่งกิจกรรม ยอดใช้จ่าย และงบคงเหลือของทุกโครงการในแผน", "shot": true, "crop": {"css": ".prj-head"}, "crop_pad": 24, "highlight": {"role": "link", "name": "ส่งออก CSV"}},
+        {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}", "wait_after": {"css": "#prj-cards li", "has_text": "{{title_a}}"}},
+        {"do": "click", "target": {"role": "link", "has_text": "{{title_a}}", "within": {"id": "prj-cards"}}, "wait_after": {"role": "link", "name": "พิมพ์แบบโครงการ (A4)"}},
+        {"do": "note", "target": {"role": "link", "name": "พิมพ์แบบโครงการ (A4)"}, "say": "เปิดโครงการที่ต้องการพิมพ์ แล้วหาลิงก์ \"พิมพ์แบบโครงการ (A4)\" ใต้แถบสรุปงบ", "shot": true, "crop": "viewport", "highlight": {"role": "link", "name": "พิมพ์แบบโครงการ (A4)"}},
+        {"do": "click", "target": {"role": "link", "name": "พิมพ์แบบโครงการ (A4)"}, "expect_popup": {"url_regex": "/api/projects/projects/\\d+/form"}, "say": "กดลิงก์ \"พิมพ์แบบโครงการ (A4)\" ระบบเปิดแท็บใหม่แสดงแบบเสนอโครงการ มีชื่อโรงเรียน รายละเอียด งบ กิจกรรม และช่องลงนาม กดปุ่ม \"พิมพ์แบบเสนอโครงการ\" เพื่อสั่งพิมพ์", "shot": true, "crop": "viewport", "highlight": false, "wait_after": {"role": "button", "name": "พิมพ์แบบเสนอโครงการ"}},
+        {"do": "expect", "that": [{"text": "{{title_a}}"}, {"visible": {"role": "button", "name": "พิมพ์แบบเสนอโครงการ"}}]},
+        {"do": "close_tab"}
+      ],
+      "expected": "ได้ไฟล์ CSV ของแผนและเปิดแบบเสนอโครงการขนาด A4 ในแท็บใหม่ได้",
+      "verify": [
+        {
+          "title": "แท็บแบบเสนอโครงการเปิดซ้ำได้และมีชื่อโครงการ",
+          "steps": [
+            {"do": "click", "target": {"role": "link", "name": "พิมพ์แบบโครงการ (A4)"}, "expect_popup": {"url_regex": "/api/projects/projects/\\d+/form"}},
+            {"do": "expect", "that": [{"text": "{{title_a}}"}, {"text": "20,000.00"}]}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "finish-project",
+      "title": "จบโครงการเป็นเสร็จสิ้น",
+      "role": "subject",
+      "start": "/work#projects",
+      "depends_on": ["submit-report", "overspend-needs-reason"],
+      "intro": "เมื่อทำกิจกรรมและส่งรายงานผลครบแล้ว เจ้าของโครงการกด \"จบโครงการ (เสร็จสิ้น)\" โครงการที่เสร็จสิ้นแล้วยังส่งรายงานเพิ่มได้ ผู้บริหารเปิดให้ดำเนินการอีกครั้งได้หากต้องแก้ไข",
+      "steps": [
+        {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}", "wait_after": {"css": "#prj-cards li", "has_text": "{{title_a}}"}},
+        {"do": "click", "target": {"role": "link", "has_text": "{{title_a}}", "within": {"id": "prj-cards"}}, "wait_after": {"role": "button", "name": "จบโครงการ (เสร็จสิ้น)"}},
+        {"do": "click", "target": {"role": "button", "name": "จบโครงการ (เสร็จสิ้น)"}, "say": "เปิดโครงการที่ดำเนินการครบแล้ว กดปุ่ม \"จบโครงการ (เสร็จสิ้น)\" ป้ายสถานะเป็น \"เสร็จสิ้น\"", "shot": true, "crop": "viewport", "highlight": {"css": ".prj-head .prj-badge", "first": true}, "wait_after": {"css": ".prj-head .prj-badge", "has_text": "เสร็จสิ้น"}}
+      ],
+      "expected": "ป้ายสถานะของโครงการเป็น \"เสร็จสิ้น\"",
+      "verify": [
+        {
+          "title": "ผู้อำนวยการเห็นสถานะ \"เสร็จสิ้น\" และมีปุ่มเปิดดำเนินการอีกครั้ง",
+          "as": "principal",
+          "start": "/work#projects",
+          "steps": [
+            {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}"},
+            {"do": "click", "target": {"role": "link", "has_text": "{{title_a}}", "within": {"id": "prj-cards"}}, "wait_after": {"role": "link", "name": "รายการโครงการ"}},
+            {"do": "expect", "that": [{"text": "เสร็จสิ้น", "in": {"css": ".prj-head .prj-badge", "first": true}}, {"visible": {"role": "button", "name": "เปิดดำเนินการอีกครั้ง"}}], "say": "ผู้อำนวยการเปิดโครงการ เห็นสถานะ \"เสร็จสิ้น\" และปุ่ม \"เปิดดำเนินการอีกครั้ง\"", "shot": true, "crop": "viewport", "highlight": {"role": "button", "name": "เปิดดำเนินการอีกครั้ง"}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "propose-and-edit-second",
+      "title": "ครูเสนอโครงการที่สองและแก้ไขรายละเอียดก่อนอนุมัติ",
+      "role": "subject",
+      "start": "/work#projects",
+      "intro": "ครูแก้ไขโครงการของตนได้ขณะที่อยู่ในสถานะ \"เสนอโครงการ\" และ \"กำลังดำเนินการ\" และแก้งบประมาณได้เฉพาะขณะที่ยังเป็น \"เสนอโครงการ\" หลังจากนั้นเฉพาะผู้บริหารแก้งบประมาณได้",
+      "steps": [
+        {"do": "click", "target": {"css": "details#prj-new > summary"}, "wait_after": {"role": "button", "name": "เสนอโครงการ", "exact": true}},
+        {"do": "fill", "target": {"label": "รหัสโครงการ", "within": {"id": "prj-new"}}, "value": "{{code_b}}"},
+        {"do": "fill", "target": {"label": "ชื่อโครงการ", "within": {"id": "prj-new"}}, "value": "{{title_b}}"},
+        {"do": "fill", "target": {"label": "งบประมาณ (บาท)", "within": {"id": "prj-new"}}, "value": "30000"},
+        {"do": "fill", "target": {"label": "วันเริ่ม", "within": {"id": "prj-new"}}, "value": "{{last_weekday}}"},
+        {"do": "fill", "target": {"label": "วันสิ้นสุด", "within": {"id": "prj-new"}}, "value": "{{today}}"},
+        {"do": "fill", "target": {"label": "วัตถุประสงค์", "within": {"id": "prj-new"}}, "value": "ซ่อมแซมชั้นหนังสือของโรงเรียนสมมติ ({{marker}})"},
+        {"do": "click", "target": {"role": "button", "name": "เสนอโครงการ", "exact": true}, "wait_after": {"role": "link", "name": "รายการโครงการ"}},
+        {"do": "click", "target": {"css": "details.prj-panel > summary", "has_text": "แก้ไขรายละเอียดโครงการ"}, "say": "เปิดโครงการที่เสนอไว้ แล้วกดหัวข้อ \"แก้ไขรายละเอียดโครงการ\" แบบฟอร์มเปิดออกพร้อมข้อมูลเดิม", "shot": true, "crop": "viewport", "wait_after": {"role": "button", "name": "บันทึกการแก้ไข"}},
+        {"do": "fill", "target": {"label": "งบประมาณ (บาท)", "within": {"css": "form.prj-form"}}, "value": "35000.75", "say": "แก้งบประมาณในช่อง \"งบประมาณ (บาท)\" เป็น 35000.75 บาท", "shot": true, "crop": "panel", "highlight": {"label": "งบประมาณ (บาท)", "within": {"css": "form.prj-form"}}},
+        {"do": "fill", "target": {"label": "กลุ่มงาน/ฝ่าย", "within": {"css": "form.prj-form"}}, "value": "กลุ่มบริหารทั่วไป"},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกการแก้ไข"}, "say": "กดปุ่ม \"บันทึกการแก้ไข\" ระบบแสดงข้อความ \"บันทึกแล้ว\" และสรุปงบโครงการเป็น 35,000.75", "shot": true, "crop": "viewport", "highlight": {"css": ".prj-sums"}, "wait_after": {"css": ".prj-sums", "has_text": "35,000.75"}}
+      ],
+      "expected": "หน้ารายละเอียดแสดงงบโครงการ 35,000.75 บาท และกลุ่มงาน \"กลุ่มบริหารทั่วไป\"",
+      "verify": [
+        {
+          "title": "เปิดโครงการอีกครั้งแล้วเห็นงบและกลุ่มงานที่แก้",
+          "steps": [
+            {"do": "goto", "url": "/work#projects"},
+            {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_b}}"},
+            {"do": "click", "target": {"role": "link", "has_text": "{{title_b}}", "within": {"id": "prj-cards"}}, "wait_after": {"role": "link", "name": "รายการโครงการ"}},
+            {"do": "expect", "that": [{"text": "35,000.75", "in": {"css": ".prj-sums"}}, {"text": "กลุ่มบริหารทั่วไป", "in": {"css": ".prj-dl"}}]}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "send-back-project",
+      "title": "ผู้อำนวยการอนุมัติแล้วส่งกลับแก้ไข",
+      "role": "principal",
+      "start": "/work#projects",
+      "depends_on": ["propose-and-edit-second"],
+      "intro": "ผู้บริหารเปลี่ยนโครงการที่อนุมัติแล้วกลับเป็น \"เสนอโครงการ\" ได้ด้วยปุ่ม \"ส่งกลับแก้ไข\" เมื่อพบว่าข้อมูลต้องแก้ ระบบล้างชื่อผู้อนุมัติและวันเวลาที่อนุมัติ",
+      "steps": [
+        {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_b}}", "wait_after": {"css": "#prj-cards li", "has_text": "{{title_b}}"}},
+        {"do": "click", "target": {"role": "link", "has_text": "{{title_b}}", "within": {"id": "prj-cards"}}, "wait_after": {"role": "button", "name": "อนุมัติโครงการ", "exact": true}},
+        {"do": "click", "target": {"role": "button", "name": "อนุมัติโครงการ", "exact": true}, "wait_after": {"css": ".prj-head .prj-badge", "has_text": "อนุมัติแล้ว"}},
+        {"do": "note", "target": {"role": "button", "name": "ส่งกลับแก้ไข"}, "say": "โครงการที่อนุมัติแล้วมีปุ่ม \"ส่งกลับแก้ไข\" ใช้เมื่อข้อมูลของโครงการต้องแก้ก่อนดำเนินการ", "shot": true, "crop": "viewport", "highlight": {"role": "button", "name": "ส่งกลับแก้ไข"}},
+        {"do": "click", "target": {"role": "button", "name": "ส่งกลับแก้ไข"}, "say": "กดปุ่ม \"ส่งกลับแก้ไข\" ป้ายสถานะกลับเป็น \"เสนอโครงการ\"", "shot": true, "crop": "viewport", "highlight": {"css": ".prj-head .prj-badge", "first": true}, "wait_after": {"css": ".prj-head .prj-badge", "has_text": "เสนอโครงการ"}}
+      ],
+      "expected": "ป้ายสถานะของโครงการกลับเป็น \"เสนอโครงการ\" และมีปุ่ม \"อนุมัติโครงการ\" ให้กดใหม่ได้",
+      "verify": [
+        {
+          "title": "ครูเจ้าของโครงการเห็นสถานะ \"เสนอโครงการ\" ในรายการ",
+          "as": "subject",
+          "start": "/work#projects",
+          "steps": [
+            {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_b}}"},
+            {"do": "expect", "that": {"text": "เสนอโครงการ", "in": {"css": "#prj-cards li", "has_text": "{{title_b}}"}}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "delete-proposed-project",
+      "title": "ครูลบโครงการที่ยังอยู่ในสถานะเสนอโครงการ",
+      "role": "subject",
+      "start": "/work#projects",
+      "depends_on": ["send-back-project"],
+      "intro": "ลบได้เฉพาะโครงการที่ยังเป็น \"เสนอโครงการ\" และยังไม่มีรายงานผล การลบทำให้กิจกรรมทั้งหมดของโครงการถูกลบด้วยและย้อนกลับไม่ได้ โครงการที่ดำเนินการแล้วลบไม่ได้ ให้ใช้ \"ยกเลิกโครงการ\" แทน",
+      "steps": [
+        {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_b}}", "wait_after": {"css": "#prj-cards li", "has_text": "{{title_b}}"}},
+        {"do": "click", "target": {"role": "link", "has_text": "{{title_b}}", "within": {"id": "prj-cards"}}, "wait_after": {"role": "button", "name": "ลบโครงการ"}},
+        {"do": "note", "target": {"role": "button", "name": "ลบโครงการ"}, "say": "เปิดโครงการที่ต้องการลบ หาปุ่ม \"ลบโครงการ\" ใต้แถบสรุปงบ", "shot": true, "crop": "viewport", "highlight": {"role": "button", "name": "ลบโครงการ"}},
+        {"do": "click", "target": {"role": "button", "name": "ลบโครงการ"}, "dialog": "accept", "say": "กดปุ่ม \"ลบโครงการ\" แล้วกดตกลงในกล่องยืนยัน ระบบแสดงข้อความ \"ลบโครงการแล้ว\" และกลับไปหน้ารายการโครงการ", "shot": true, "crop": "viewport", "highlight": false, "wait_after": {"id": "prj-f-q"}}
+      ],
+      "expected": "ระบบกลับไปหน้ารายการโครงการ และไม่พบโครงการที่ลบ",
+      "verify": [
+        {
+          "title": "ค้นหาชื่อโครงการที่ลบแล้วไม่พบ",
+          "as": "principal",
+          "start": "/work#projects",
+          "steps": [
+            {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_b}}"},
+            {"do": "expect", "that": {"text": "ไม่พบโครงการ", "in": {"id": "prj-cards"}}, "say": "ผู้อำนวยการค้นหาชื่อโครงการที่ถูกลบ ระบบแสดง \"ไม่พบโครงการ\"", "shot": true, "crop": "viewport", "highlight": {"id": "prj-cards"}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "manage-annual-plan",
+      "title": "ผู้อำนวยการสร้าง เปลี่ยนชื่อ และลบแผนปฏิบัติการประจำปี",
+      "role": "principal",
+      "start": "/work",
+      "intro": "แผนปฏิบัติการมีปีละหนึ่งแผน ระบบไม่ให้สร้างแผนของปีงบประมาณซ้ำ แผนที่สร้างใหม่เป็น \"ร่าง\" ลบได้เฉพาะแผนที่ยังเป็นร่างและยังไม่มีโครงการ เมื่อกด \"อนุมัติแผน\" แผนเป็น \"ใช้งาน\" และเมื่อกด \"ปิดแผน\" ทุกโครงการของแผนเป็นแบบอ่านอย่างเดียว",
+      "steps": [
+        {"do": "click", "target": {"role": "link", "name": "โครงการ/แผนปฏิบัติการ", "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "say": "เลือกเมนู \"โครงการ/แผนปฏิบัติการ\" ที่แถบเมนูด้านซ้าย", "shot": true, "crop": "viewport", "wait_after": {"css": "#prj-cards li a"}},
+        {"do": "click", "target": {"css": "details.prj-panel > summary", "has_text": "จัดการแผนปฏิบัติการ"}, "say": "เลื่อนลงไปกดหัวข้อ \"จัดการแผนปฏิบัติการ\" ท้ายหน้า หัวข้อนี้มีเฉพาะผู้อำนวยการและผู้ดูแลระบบ", "shot": true, "crop": "tight", "crop_pad": 160, "wait_after": {"role": "button", "name": "สร้างแผน", "exact": true}},
+        {"do": "fill", "target": {"label": "ปีงบประมาณ (พ.ศ.)", "within": {"id": "prj-plan-new"}}, "value": "2599"},
+        {"do": "fill", "target": {"label": "ชื่อแผน", "within": {"id": "prj-plan-new"}}, "value": "{{plan_title}}", "say": "ในส่วน \"สร้างแผนใหม่\" พิมพ์ปีงบประมาณ พ.ศ. ในช่อง \"ปีงบประมาณ (พ.ศ.)\" และชื่อแผนในช่อง \"ชื่อแผน\"", "shot": true, "crop": "panel", "highlight": [{"label": "ปีงบประมาณ (พ.ศ.)", "within": {"id": "prj-plan-new"}}, {"label": "ชื่อแผน", "within": {"id": "prj-plan-new"}}]},
+        {"do": "click", "target": {"role": "button", "name": "สร้างแผน", "exact": true}, "say": "กดปุ่ม \"สร้างแผน\" ระบบแสดงข้อความ \"สร้างแผนแล้ว\" และเลือกแผนใหม่ในช่อง \"แผนปีงบประมาณ\" สถานะ \"ร่าง\"", "shot": true, "crop": "viewport", "highlight": {"id": "prj-plan"}, "wait_after": {"css": "#prj-plan", "has_text": "2599"}},
+        {"do": "click", "target": {"css": "details.prj-panel > summary", "has_text": "จัดการแผนปฏิบัติการ"}, "wait_after": {"role": "button", "name": "บันทึกชื่อแผน"}},
+        {"do": "fill", "target": {"label": "ชื่อแผน", "within": {"id": "prj-plan-rename"}}, "value": "{{plan_title2}}", "say": "เปิด \"จัดการแผนปฏิบัติการ\" อีกครั้ง พิมพ์ชื่อใหม่ในช่อง \"ชื่อแผน\" ของแผนที่เลือกอยู่", "shot": true, "crop": "panel", "highlight": {"label": "ชื่อแผน", "within": {"id": "prj-plan-rename"}}},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกชื่อแผน"}, "say": "กดปุ่ม \"บันทึกชื่อแผน\" ระบบแสดงข้อความ \"บันทึกแล้ว\"", "shot": true, "crop": "viewport", "highlight": false, "wait_after": {"text": "บันทึกแล้ว"}},
+        {"do": "click", "target": {"css": "details.prj-panel > summary", "has_text": "จัดการแผนปฏิบัติการ"}, "wait_after": {"role": "button", "name": "ลบแผน"}},
+        {"do": "expect", "that": {"value": "{{plan_title2}}", "of": {"label": "ชื่อแผน", "within": {"id": "prj-plan-rename"}}}},
+        {"do": "note", "target": {"role": "button", "name": "ลบแผน"}, "say": "แผนที่ยังเป็นร่างและไม่มีโครงการมีปุ่ม \"ลบแผน\" ข้างปุ่ม \"อนุมัติแผน\" ใช้ลบแผนที่สร้างผิด", "shot": true, "crop": "panel", "highlight": {"role": "button", "name": "ลบแผน"}},
+        {"do": "click", "target": {"role": "button", "name": "ลบแผน"}, "dialog": "accept", "say": "กดปุ่ม \"ลบแผน\" แล้วกดตกลงในกล่องยืนยัน ระบบแสดงข้อความ \"ลบแผนแล้ว\" และกลับไปแสดงแผนปีงบประมาณปัจจุบัน", "shot": true, "crop": "viewport", "highlight": {"id": "prj-plan"}, "wait_after": {"css": "#prj-cards li a"}}
+      ],
+      "expected": "แผนที่สร้างใหม่ถูกลบ และช่อง \"แผนปีงบประมาณ\" ไม่มีปีงบประมาณ 2599",
+      "verify": [
+        {
+          "title": "ช่อง \"แผนปีงบประมาณ\" ไม่มีแผนที่ลบแล้ว",
+          "steps": [
+            {"do": "goto", "url": "/work#projects"},
+            {"do": "wait_for", "target": {"id": "prj-plan"}},
+            {"do": "expect", "that": [{"not_text": "2599", "in": {"id": "prj-plan"}}, {"visible": {"id": "prj-plan"}}]}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "closed-plan-read-only",
+      "title": "ดูแผนปีก่อนที่ปิดแล้ว (อ่านอย่างเดียว)",
+      "role": "subject",
+      "start": "/work",
+      "intro": "แผนที่ปิดแล้วแก้ไขไม่ได้ทุกส่วน ทั้งโครงการ กิจกรรม รายงาน และการเปลี่ยนสถานะ ครูไม่เห็นเมนูจัดการแผน มีเฉพาะผู้อำนวยการและผู้ดูแลระบบ และเฉพาะผู้ดูแลระบบเปิดแผนที่ปิดแล้วอีกครั้งได้",
+      "steps": [
+        {"do": "click", "target": {"role": "link", "name": "โครงการ/แผนปฏิบัติการ", "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "wait_after": {"css": "#prj-cards li a"}},
+        {"do": "select", "target": {"id": "prj-plan"}, "label": "ปีงบประมาณ 2569 (ปิดแผน)", "say": "เลือกแผนที่ปิดแล้วในช่อง \"แผนปีงบประมาณ\" ตัวอย่างนี้เลือก \"ปีงบประมาณ 2569 (ปิดแผน)\"", "shot": true, "crop": "viewport", "highlight": {"id": "prj-plan"}, "wait_after": {"text": "แผนนี้ปิดแล้ว เป็นแบบอ่านอย่างเดียว"}},
+        {"do": "expect", "that": [{"hidden": {"css": "details#prj-new"}}, {"hidden": {"css": "details.prj-panel > summary", "has_text": "จัดการแผนปฏิบัติการ"}}]},
+        {"do": "note", "target": {"css": ".prj-hint", "has_text": "แผนนี้ปิดแล้ว"}, "say": "ท้ายรายการมีข้อความ \"แผนนี้ปิดแล้ว เป็นแบบอ่านอย่างเดียว\" และไม่มีหัวข้อ \"เสนอโครงการใหม่\" ให้กด", "shot": true, "crop": "tight", "crop_pad": 160, "highlight": {"css": ".prj-hint", "has_text": "แผนนี้ปิดแล้ว"}},
+        {"do": "click", "target": {"role": "link", "first": true, "within": {"id": "prj-cards"}}, "say": "กดที่โครงการใดก็ได้ในรายการ ระบบแสดงรายละเอียดพร้อมป้าย \"แผนปิดแล้ว\" และไม่มีปุ่มเปลี่ยนสถานะ ไม่มีแบบฟอร์มแก้ไขหรือเพิ่มกิจกรรม", "shot": true, "crop": "viewport", "highlight": {"css": ".prj-head .prj-badge", "has_text": "แผนปิดแล้ว"}, "wait_after": {"css": ".prj-head .prj-badge", "has_text": "แผนปิดแล้ว"}},
+        {"do": "expect", "that": [{"hidden": {"css": "details.prj-panel > summary", "has_text": "แก้ไขรายละเอียดโครงการ"}}, {"hidden": {"css": "details.prj-panel > summary", "has_text": "เพิ่มกิจกรรม"}}, {"hidden": {"css": "details.prj-panel > summary", "has_text": "ส่งรายงานผล"}}]}
+      ],
+      "expected": "โครงการของแผนที่ปิดแล้วแสดงป้าย \"แผนปิดแล้ว\" และไม่มีส่วนแก้ไขใด ๆ",
+      "verify": [
+        {
+          "title": "หน้ารายละเอียดของโครงการในแผนที่ปิดแล้วแสดงป้าย \"แผนปิดแล้ว\"",
+          "steps": [
+            {"do": "expect", "that": {"visible": {"css": ".prj-head .prj-badge", "has_text": "แผนปิดแล้ว"}}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "other-roles-no-access",
+      "title": "ผู้ใช้บทบาทอื่น (ผู้ดูแลเว็บไซต์) ไม่เห็นเมนูโครงการ",
+      "role": "editor",
+      "start": "/work",
+      "intro": "เมนู \"โครงการ/แผนปฏิบัติการ\" ใช้ได้เฉพาะครู ผู้อำนวยการ และผู้ดูแลระบบ บทบาทอื่น เช่น ผู้ดูแลเว็บไซต์ ไม่เห็นเมนูนี้ และระบบปฏิเสธการเรียกข้อมูลโครงการโดยตรง",
+      "steps": [
+        {"do": "expect", "that": {"visible": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "say": "ผู้ดูแลเว็บไซต์เปิดหน้า \"งานโรงเรียน\" แถบเมนูด้านซ้ายไม่มีเมนู \"โครงการ/แผนปฏิบัติการ\"", "shot": true, "crop": "viewport", "highlight": {"role": "navigation", "name": "ระบบงานโรงเรียน"}},
+        {"do": "expect", "that": {"hidden": {"role": "link", "name": "โครงการ/แผนปฏิบัติการ"}}}
+      ],
+      "expected": "แถบเมนูไม่มีรายการ \"โครงการ/แผนปฏิบัติการ\"",
+      "verify": [
+        {
+          "title": "ระบบปฏิเสธการเรียกข้อมูลโครงการโดยตรงด้วยรหัส 403",
+          "steps": [
+            {"do": "expect", "that": {"http_status": 403, "url": "/api/projects/plans"}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "link-activity-to-cash-entry",
+      "title": "ผู้บริหารเชื่อมกิจกรรมกับรายการรายจ่ายในสมุดเงินสด แล้วยกเลิกการเชื่อม",
+      "intro": "เจ้าหน้าที่การเงินบันทึกรายจ่ายทดสอบในสมุดเงินสด แล้วผู้บริหารกรอกเลขรายการนั้นในกิจกรรม ระบบแสดงเลขที่รายการในกิจกรรม การเชื่อมหรือยกเลิกการเชื่อมไม่แก้สมุดเงินสด ผู้บริหารยกเลิกการเชื่อมได้ เมื่อยกเลิกแล้วเจ้าหน้าที่การเงินลบรายการทดสอบออกจากสมุดเงินสดได้",
+      "role": "finance",
+      "start": "/work",
+      "depends_on": ["add-activity"],
+      "steps": [
+        {"do": "click", "target": {"role": "link", "name": "การเงิน", "exact": true, "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "crop": "viewport", "wait_after": {"css": "section.fin .fin-tabs"}, "say": "เจ้าหน้าที่การเงินเลือกเมนู \"การเงิน\" ที่แถบเมนูด้านซ้าย", "shot": true},
+        {"do": "click", "target": {"role": "link", "name": "สมุดเงินสด", "exact": true, "within": {"role": "navigation", "name": "เมนูการเงิน"}}, "wait_after": {"css": "div.fin-sums"}, "say": "เลือกแท็บ \"สมุดเงินสด\" ด้านบนของหน้า", "shot": true, "crop": "viewport"},
+        {"do": "click", "target": {"css": "details.fin-new > summary"}, "wait_after": {"css": "form.fin-entry"}, "crop": "panel", "say": "กดหัวข้อ \"บันทึกรายรับ/รายจ่ายอื่น\" เพื่อเปิดแบบฟอร์ม", "shot": true},
+        {"do": "fill", "target": {"label": "หมวด", "within": {"css": "form.fin-entry"}}, "value": "ค่าวิทยากร"},
+        {"do": "fill", "target": {"label": "จำนวนเงิน (บาท)", "within": {"css": "form.fin-entry"}}, "value": "150.00"},
+        {"do": "fill", "target": {"label": "รายการ", "exact": true, "within": {"css": "form.fin-entry"}}, "value": "{{marker}} ค่าวิทยากร", "say": "พิมพ์หมวด จำนวนเงิน และรายการของรายจ่ายทดสอบ ประเภทเป็น \"รายจ่าย\" ตามค่าเริ่มต้น", "shot": true, "crop": "panel"},
+        {"do": "click", "target": {"role": "button", "name": "บันทึก", "exact": true, "within": {"css": "form.fin-entry"}}, "expect_response": {"url_contains": "/api/finance/ledger", "method": "POST", "status": 201}, "wait_after": {"id": "toast"}, "say": "กดปุ่ม \"บันทึก\" ระบบแสดงข้อความ \"บันทึกแล้ว\" และรายการใหม่ปรากฏในตาราง", "shot": true, "crop": "viewport", "highlight": {"id": "toast"}},
+        {"do": "expect", "that": {"visible": {"css": "table.fin-table tbody tr", "has_text": "{{marker}}"}}},
+        {"do": "capture", "target": {"role": "button", "name": "ลบ", "exact": true, "within": {"css": "table.fin-table tbody tr", "has_text": "{{marker}}"}}, "var": "ledger_id", "from_attr": "data-del"}
+      ],
+      "expected": "รายการรายจ่ายทดสอบอยู่ในสมุดเงินสดและมีเลขรายการ",
+      "verify": [
+        {
+          "title": "ผู้อำนวยการกรอกเลขรายการในกิจกรรม ระบบแสดงเลขรายการที่เชื่อม",
+          "as": "principal",
+          "start": "/work#projects",
+          "steps": [
+            {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}", "wait_after": {"css": "#prj-cards li", "has_text": "{{title_a}}"}},
+            {"do": "click", "target": {"role": "link", "has_text": "{{title_a}}", "within": {"id": "prj-cards"}}, "wait_after": {"role": "link", "name": "รายการโครงการ"}},
+            {"do": "click", "target": {"css": "summary", "has_text": "แก้ไข", "within": {"css": "#prj-acts li", "has_text": "{{act1}}"}}, "wait_after": {"role": "button", "name": "บันทึกกิจกรรม"}},
+            {"do": "fill", "target": {"label": "เลขรายการรายจ่ายในสมุดเงินสด", "within": {"css": "form.prj-act-form[data-id]"}}, "value": "{{ledger_id}}", "say": "ในกิจกรรม ช่อง \"เลขรายการรายจ่ายในสมุดเงินสด\" พิมพ์เลขรายการที่เจ้าหน้าที่การเงินบันทึกไว้ แล้วกดปุ่ม \"บันทึกกิจกรรม\"", "shot": true, "crop": "panel", "highlight": {"label": "เลขรายการรายจ่ายในสมุดเงินสด", "within": {"css": "form.prj-act-form[data-id]"}}},
+            {"do": "click", "target": {"role": "button", "name": "บันทึกกิจกรรม", "within": {"css": "#prj-acts li", "has_text": "{{act1}}"}}, "wait_after": {"id": "toast"}},
+            {"do": "expect", "that": {"text": "สมุดเงินสด #{{ledger_id}}", "in": {"css": "#prj-acts li", "has_text": "{{act1}}"}}, "say": "กิจกรรมแสดงเลขรายการในสมุดเงินสดที่เชื่อมไว้", "shot": true, "crop": "panel", "highlight": {"css": "#prj-acts li", "has_text": "{{act1}}"}}
+          ]
+        },
+        {
+          "title": "ผู้อำนวยการยกเลิกการเชื่อม ช่องเลขรายการว่างและไม่แสดงเลขรายการในกิจกรรม",
+          "as": "principal",
+          "start": "/work#projects",
+          "steps": [
+            {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}", "wait_after": {"css": "#prj-cards li", "has_text": "{{title_a}}"}},
+            {"do": "click", "target": {"role": "link", "has_text": "{{title_a}}", "within": {"id": "prj-cards"}}, "wait_after": {"role": "link", "name": "รายการโครงการ"}},
+            {"do": "click", "target": {"css": "summary", "has_text": "แก้ไข", "within": {"css": "#prj-acts li", "has_text": "{{act1}}"}}, "wait_after": {"role": "button", "name": "บันทึกกิจกรรม"}},
+            {"do": "fill", "target": {"label": "เลขรายการรายจ่ายในสมุดเงินสด", "within": {"css": "form.prj-act-form[data-id]"}}, "value": ""},
+            {"do": "click", "target": {"role": "button", "name": "บันทึกกิจกรรม", "within": {"css": "#prj-acts li", "has_text": "{{act1}}"}}, "wait_after": {"id": "toast"}, "say": "เพื่อยกเลิกการเชื่อม ให้เว้นช่อง \"เลขรายการรายจ่ายในสมุดเงินสด\" ว่างแล้วกดปุ่ม \"บันทึกกิจกรรม\"", "shot": true, "crop": "panel", "highlight": {"id": "toast"}},
+            {"do": "expect", "that": {"not_text": "สมุดเงินสด #{{ledger_id}}", "in": {"css": "#prj-acts li", "has_text": "{{act1}}"}}}
+          ]
+        },
+        {
+          "title": "เจ้าหน้าที่การเงินลบรายการทดสอบออกจากสมุดเงินสดได้หลังยกเลิกการเชื่อม",
+          "as": "finance",
+          "start": "/work",
+          "steps": [
+            {"do": "click", "target": {"role": "link", "name": "การเงิน", "exact": true, "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "wait_after": {"css": "section.fin .fin-tabs"}},
+            {"do": "click", "target": {"role": "link", "name": "สมุดเงินสด", "exact": true, "within": {"role": "navigation", "name": "เมนูการเงิน"}}, "wait_after": {"css": "div.fin-sums"}},
+            {"do": "click", "target": {"role": "button", "name": "ลบ", "exact": true, "within": {"css": "table.fin-table tbody tr", "has_text": "{{marker}}"}}, "wait_after": {"id": "toast"}, "say": "เจ้าหน้าที่การเงินกดปุ่ม \"ลบ\" ที่แถวรายการทดสอบ แล้วกดตกลงในกล่องยืนยัน", "shot": true, "crop": "viewport", "highlight": {"id": "toast"}},
+            {"do": "expect", "that": {"hidden": {"css": "table.fin-table tbody tr", "has_text": "{{marker}}"}}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cleanup-test-project",
+      "title": "ล้างโครงการทดสอบ (ยกเลิกโครงการ ลบกิจกรรมและรายงาน)",
+      "role": "principal",
+      "start": "/work#projects",
+      "cleanup": true,
+      "intro": "ระบบไม่มีปุ่มลบโครงการที่ดำเนินการแล้ว จึงเปิดโครงการให้ดำเนินการอีกครั้ง ลบรายงานและกิจกรรม แล้วกดยกเลิกโครงการ โครงการที่ยกเลิกไม่นับในยอดรวมของแผน",
+      "steps": [
+        {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}", "wait_after": {"css": "#prj-cards li", "has_text": "{{title_a}}"}},
+        {"do": "click", "target": {"role": "link", "has_text": "{{title_a}}", "within": {"id": "prj-cards"}}, "wait_after": {"role": "link", "name": "รายการโครงการ"}},
+        {"do": "click", "target": {"role": "button", "name": "เปิดดำเนินการอีกครั้ง"}, "optional": true, "wait_after": {"css": ".prj-head .prj-badge", "has_text": "กำลังดำเนินการ"}},
+        {"do": "click", "target": {"css": "summary", "has_text": "แก้ไข", "within": {"css": "#prj-acts li", "has_text": "{{act1}}"}}, "wait_after": {"role": "button", "name": "บันทึกกิจกรรม"}},
+        {"do": "fill", "target": {"label": "ใช้จ่ายจริง (บาท)", "within": {"css": "form.prj-act-form[data-id]"}}, "value": "0.00"},
+        {"do": "click", "target": {"role": "button", "name": "บันทึกกิจกรรม"}, "wait_after": {"text": "ใช้ 0.00"}},
+        {"do": "click", "target": {"css": "summary", "has_text": "แก้ไข", "within": {"css": "#prj-acts li", "has_text": "{{act1}}"}}, "wait_after": {"role": "button", "name": "ลบกิจกรรม"}},
+        {"do": "click", "target": {"role": "button", "name": "ลบกิจกรรม"}, "dialog": "accept", "wait_after": {"text": "ยังไม่มีกิจกรรม"}},
+        {"do": "click", "target": {"css": "summary", "has_text": "แก้ไข/ลบ", "within": {"id": "prj-reps"}}, "wait_after": {"role": "button", "name": "ลบรายงาน"}},
+        {"do": "click", "target": {"role": "button", "name": "ลบรายงาน"}, "dialog": "accept", "wait_after": {"text": "ยังไม่มีรายงานผล"}},
+        {"do": "click", "target": {"role": "button", "name": "ยกเลิกโครงการ"}, "dialog": "accept", "wait_after": {"css": ".prj-head .prj-badge", "has_text": "ยกเลิก"}}
+      ],
+      "expected": "โครงการทดสอบอยู่ในสถานะ \"ยกเลิก\" ไม่มีกิจกรรมและรายงานเหลืออยู่",
+      "verify": [
+        {
+          "title": "โครงการทดสอบเป็น \"ยกเลิก\" และไม่นับในยอดรวม",
+          "steps": [
+            {"do": "goto", "url": "/work#projects"},
+            {"do": "fill", "target": {"id": "prj-f-q"}, "value": "{{title_a}}"},
+            {"do": "expect", "that": {"text": "ยกเลิก", "in": {"css": "#prj-cards li", "has_text": "{{title_a}}"}}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "approve-own-plan",
+      "title": "ผู้อำนวยการสร้างแผนทดสอบและกดอนุมัติแผน",
+      "intro": "แผนที่อนุมัติแล้วเป็น \"ใช้งาน\" ระบบเปลี่ยนกลับเป็นร่างไม่ได้ แผนทดสอบนี้จึงใช้ปีงบประมาณ 2530 ซึ่งไม่ใช้ในข้อมูลจริง และข้อมูลทดสอบจะถูกล้างเมื่อตั้งระบบทดลองใหม่",
+      "role": "principal",
+      "start": "/work#projects",
+      "depends_on": ["manage-annual-plan"],
+      "steps": [
+        {"do": "click", "target": {"role": "link", "name": "โครงการ/แผนปฏิบัติการ", "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "say": "เลือกเมนู \"โครงการ/แผนปฏิบัติการ\" ที่แถบเมนูด้านซ้าย", "shot": true, "crop": "viewport", "wait_after": {"css": "#prj-cards li a"}},
+        {"do": "click", "target": {"css": "details.prj-panel > summary", "has_text": "จัดการแผนปฏิบัติการ"}, "wait_after": {"role": "button", "name": "สร้างแผน", "exact": true}},
+        {"do": "fill", "target": {"label": "ปีงบประมาณ (พ.ศ.)", "within": {"id": "prj-plan-new"}}, "value": "2530"},
+        {"do": "fill", "target": {"label": "ชื่อแผน", "within": {"id": "prj-plan-new"}}, "value": "{{marker}} แผนทดสอบการอนุมัติ", "say": "ในส่วน \"สร้างแผนใหม่\" พิมพ์ปีงบประมาณ 2530 ในช่อง \"ปีงบประมาณ (พ.ศ.)\" และชื่อแผนในช่อง \"ชื่อแผน\"", "shot": true, "crop": "panel", "highlight": [{"label": "ปีงบประมาณ (พ.ศ.)", "within": {"id": "prj-plan-new"}}, {"label": "ชื่อแผน", "within": {"id": "prj-plan-new"}}]},
+        {"do": "click", "target": {"role": "button", "name": "สร้างแผน", "exact": true}, "say": "กดปุ่ม \"สร้างแผน\" ระบบแสดงข้อความ \"สร้างแผนแล้ว\" แผนใหม่เป็นแผนฉบับร่าง", "shot": true, "crop": "viewport", "highlight": {"id": "toast"}, "wait_after": {"id": "toast"}},
+        {"do": "click", "target": {"css": "details.prj-panel > summary", "has_text": "จัดการแผนปฏิบัติการ"}, "wait_after": {"role": "button", "name": "อนุมัติแผน"}},
+        {"do": "click", "target": {"role": "button", "name": "อนุมัติแผน"}, "say": "กดปุ่ม \"อนุมัติแผน\" ระบบเปลี่ยนสถานะแผนเป็น \"ใช้งาน\" ปุ่มนี้ไม่มีกล่องยืนยัน และย้อนกลับไม่ได้", "shot": true, "crop": "viewport", "highlight": {"id": "toast"}, "wait_after": {"id": "toast"}}
+      ],
+      "expected": "ระบบแสดงข้อความ \"เปลี่ยนสถานะแผนแล้ว\" และแผนปีงบประมาณ 2530 มีสถานะ \"ใช้งาน\"",
+      "verify": [
+        {
+          "title": "หลังกดอนุมัติ แผนปีงบประมาณ 2530 แสดงสถานะ \"ใช้งาน\" และไม่แสดง \"ร่าง\"",
+          "steps": [
+            {"do": "goto", "url": "/work#projects"},
+            {"do": "expect", "that": [{"text": "ปีงบประมาณ 2530 (ใช้งาน)", "in": {"id": "prj-plan"}}, {"not_text": "ปีงบประมาณ 2530 (ร่าง)", "in": {"id": "prj-plan"}}]}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "close-own-plan",
+      "title": "ผู้อำนวยการปิดแผนทดสอบ (ไม่แก้ไขโครงการได้อีก)",
+      "intro": "การปิดแผนย้อนกลับไม่ได้สำหรับผู้อำนวยการ ทุกโครงการของแผนจะเป็นแบบอ่านอย่างเดียว มีเพียงผู้ดูแลระบบที่เปิดแผนอีกครั้งได้ แผนทดสอบนี้ใช้ปีงบประมาณ 2530 และจะถูกล้างเมื่อตั้งระบบทดลองใหม่",
+      "role": "principal",
+      "start": "/work#projects",
+      "depends_on": ["approve-own-plan"],
+      "steps": [
+        {"do": "click", "target": {"role": "link", "name": "โครงการ/แผนปฏิบัติการ", "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "wait_after": {"css": "#prj-cards li a"}},
+        {"do": "select", "target": {"id": "prj-plan"}, "label": "ปีงบประมาณ 2530 (ใช้งาน)", "say": "เลือกแผนปีงบประมาณ 2530 ในช่อง \"แผนปีงบประมาณ\"", "shot": true, "crop": "viewport", "highlight": {"id": "prj-plan"}, "wait_after": {"css": "details.prj-panel > summary", "has_text": "จัดการแผนปฏิบัติการ"}},
+        {"do": "click", "target": {"css": "details.prj-panel > summary", "has_text": "จัดการแผนปฏิบัติการ"}, "wait_after": {"role": "button", "name": "ปิดแผน (เป็นแบบอ่านอย่างเดียว)"}},
+        {"do": "click", "target": {"role": "button", "name": "ปิดแผน (เป็นแบบอ่านอย่างเดียว)"}, "dialog": "accept", "say": "กดปุ่ม \"ปิดแผน (เป็นแบบอ่านอย่างเดียว)\" แล้วกดตกลงในกล่องยืนยัน ระบบแสดงข้อความ \"เปลี่ยนสถานะแผนแล้ว\" ทุกโครงการของแผนนี้แก้ไขไม่ได้", "shot": true, "crop": "viewport", "highlight": {"id": "toast"}, "wait_after": {"id": "toast"}}
+      ],
+      "expected": "ระบบแสดงข้อความ \"เปลี่ยนสถานะแผนแล้ว\" และแผนปีงบประมาณ 2530 มีสถานะ \"ปิดแผน\"",
+      "verify": [
+        {
+          "title": "หลังปิดแผน แผนปีงบประมาณ 2530 แสดงสถานะ \"ปิดแผน\" และไม่มีส่วนเสนอโครงการใหม่",
+          "steps": [
+            {"do": "goto", "url": "/work#projects"},
+            {"do": "select", "target": {"id": "prj-plan"}, "label": "ปีงบประมาณ 2530 (ปิดแผน)", "wait_after": {"css": ".prj-hint", "has_text": "แผนนี้ปิดแล้ว"}},
+            {"do": "expect", "that": [{"visible": {"css": ".prj-hint", "has_text": "แผนนี้ปิดแล้ว เป็นแบบอ่านอย่างเดียว"}}, {"hidden": {"css": "details#prj-new"}}]}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reopen-own-plan",
+      "title": "ผู้ดูแลระบบเปิดแผนทดสอบที่ปิดแล้วอีกครั้ง",
+      "intro": "เฉพาะผู้ดูแลระบบเท่านั้นที่เปิดแผนที่ปิดแล้วอีกครั้งได้ ผู้อำนวยการเปิดเองไม่ได้",
+      "role": "admin",
+      "start": "/work#projects",
+      "depends_on": ["close-own-plan"],
+      "steps": [
+        {"do": "click", "target": {"role": "link", "name": "โครงการ/แผนปฏิบัติการ", "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "wait_after": {"css": "#prj-cards li a"}},
+        {"do": "select", "target": {"id": "prj-plan"}, "label": "ปีงบประมาณ 2530 (ปิดแผน)", "say": "เลือกแผนปีงบประมาณ 2530 ที่ปิดแล้วในช่อง \"แผนปีงบประมาณ\"", "shot": true, "crop": "viewport", "highlight": {"id": "prj-plan"}, "wait_after": {"text": "แผนนี้ปิดแล้ว เป็นแบบอ่านอย่างเดียว"}},
+        {"do": "click", "target": {"css": "details.prj-panel > summary", "has_text": "จัดการแผนปฏิบัติการ"}, "wait_after": {"role": "button", "name": "เปิดแผนอีกครั้ง", "exact": true}},
+        {"do": "click", "target": {"role": "button", "name": "เปิดแผนอีกครั้ง", "exact": true}, "say": "กดปุ่ม \"เปิดแผนอีกครั้ง\" ระบบเปลี่ยนสถานะแผนกลับเป็น \"ใช้งาน\" และโครงการในแผนแก้ไขได้อีก", "shot": true, "crop": "viewport", "highlight": {"id": "toast"}, "wait_after": {"id": "toast"}}
+      ],
+      "expected": "ระบบแสดงข้อความ \"เปลี่ยนสถานะแผนแล้ว\" และแผนปีงบประมาณ 2530 กลับเป็น \"ใช้งาน\"",
+      "verify": [
+        {
+          "title": "แผนปีงบประมาณ 2530 แสดงสถานะ \"ใช้งาน\" หลังเปิดอีกครั้ง",
+          "steps": [
+            {"do": "goto", "url": "/work#projects"},
+            {"do": "expect", "that": {"text": "ปีงบประมาณ 2530 (ใช้งาน)", "in": {"id": "prj-plan"}}}
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": [
+    "โครงการที่ยกเลิกแล้วลบไม่ได้ จึงเหลือโครงการทดสอบสถานะ \"ยกเลิก\" ค้างอยู่ในแผนปัจจุบันรอบละ 1 โครงการ (ไม่นับในยอดรวม) ส่วนโครงการที่สองและแผนที่สร้างทดสอบถูกลบหมดแล้ว",
+    "การแก้ไขพร้อมกันของสองคน (ข้อความ \"ข้อมูลถูกแก้ไขแล้ว\" และการโหลดใหม่) ไม่ได้ทดสอบ เพราะต้องใช้เบราว์เซอร์สองเครื่องแก้รายการเดียวกันพร้อมกัน",
+    "กรณีผู้บริหารเป็นเจ้าของโครงการและเป็นผู้อนุมัติเพียงคนเดียวของโรงเรียน (อนุมัติโครงการของตนเองได้ และบันทึกเป็นกรณีพิเศษ) ไม่ได้ทดสอบ เพราะระบบทดลองมีผู้บริหารหลายบัญชี",
+    "การกดพิมพ์จริงจากหน้า \"พิมพ์แบบเสนอโครงการ\" (กล่องพิมพ์ของเบราว์เซอร์) ไม่ได้ทดสอบ ตรวจเฉพาะว่าแท็บแบบฟอร์มเปิดและมีเนื้อหาครบ"
+  ]
+}

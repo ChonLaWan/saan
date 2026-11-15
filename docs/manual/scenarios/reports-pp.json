@@ -1,0 +1,1447 @@
+{
+  "module": "reports-pp",
+  "title": "ปพ. และรายงานผลการเรียน",
+  "area": "งานวิชาการและงานนักเรียน",
+  "purpose": "ครูผู้สอนพิมพ์แบบบันทึกผลการเรียนรายวิชา (เทียบเท่า ปพ.5) ครูประจำชั้นพิมพ์รายงานผลการเรียนรายบุคคล (เทียบเท่า ปพ.6) และสรุปผลรายห้องของห้องตนเอง บันทึกผลพิเศษ ร (ไม่สมบูรณ์) มผ (ไม่ผ่านเกณฑ์) และ มส (ไม่มีสิทธิ์เข้ารับการประเมิน) ซึ่งไม่นำไปคำนวณเกรดเฉลี่ย เขียนหมายเหตุของครูประจำชั้นในรายงานรายบุคคล และส่งออกข้อมูลเป็นไฟล์ CSV ผู้ดูแลระบบและผู้อำนวยการเห็นทุกรายวิชาและทุกห้อง และตั้งค่ารายงาน (แสดงอันดับ ช่องลงนาม เทมเพลตตามปีการศึกษา) ได้ แบบพิมพ์เป็นแบบเทียบเท่าของระบบ ไม่ใช่แบบทางการของเขตพื้นที่การศึกษา",
+  "roles": [
+    "ผู้ดูแลระบบและผู้อำนวยการ (ทุกรายวิชา ทุกห้อง และตั้งค่ารายงาน)",
+    "ครูผู้สอน (ปพ.5 และผลพิเศษของรายวิชาที่สอน)",
+    "ครูประจำชั้น (ปพ.6 สรุปผล และหมายเหตุของห้องประจำชั้น)"
+  ],
+  "menu": [
+    "เมนูด้านซ้าย \"งานโรงเรียน\" > \"ปพ. และรายงานผลการเรียน\" (/work#reports)"
+  ],
+  "prerequisites": [
+    {
+      "module": "assessment",
+      "text": "ต้องมีรายวิชาที่เปิดสอนและคะแนนของนักเรียน รายงานจึงมีข้อมูล"
+    },
+    {
+      "module": "academic",
+      "text": "ครูประจำชั้นต้องได้รับการกำหนดไว้ในห้อง"
+    }
+  ],
+  "vars": {
+    "room": "ม.4/1",
+    "remark": "{{marker}} หมายเหตุตัวอย่าง",
+    "template_title": "{{marker}} หัวรายงานตัวอย่าง"
+  },
+  "workflows": [
+    {
+      "id": "print-pp5",
+      "title": "พิมพ์แบบบันทึกผลการเรียนรายวิชา (ปพ.5) และส่งออก CSV",
+      "intro": "หน้า \"ปพ. และรายงานผลการเรียน\" แสดงรายวิชาในหัวข้อ \"รายวิชา (ปพ.5)\" ปุ่ม \"พิมพ์ ปพ.5\" เปิดแบบพิมพ์ในแท็บใหม่ ใช้ปุ่มพิมพ์ของเบราว์เซอร์เพื่อพิมพ์หรือบันทึกเป็น PDF ลิงก์ \"CSV\" ส่งออกคะแนนของรายวิชาเป็นไฟล์ที่เปิดด้วย Excel ได้ ครูเห็นเฉพาะรายวิชาที่ตนสอน ผู้ดูแลระบบและผู้อำนวยการเห็นทุกรายวิชา",
+      "role": "admin",
+      "start": "/work",
+      "core": true,
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ปพ. และรายงานผลการเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ปพ. และรายงานผลการเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "li.rp-card",
+            "first": true
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "li.rp-card",
+              "has_text": "ค31102",
+              "first": true
+            }
+          },
+          "say": "หัวข้อ \"รายวิชา (ปพ.5)\" แสดงการ์ดของแต่ละรายวิชา พร้อมลิงก์ \"พิมพ์ ปพ.5\" \"CSV\" และปุ่ม \"ผล ร / มผ / มส\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "li.rp-card",
+            "has_text": "ค31102",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "พิมพ์ ปพ.5",
+            "exact": true,
+            "within": {
+              "css": "li.rp-card",
+              "has_text": "ค31102",
+              "first": true
+            }
+          },
+          "say": "กดลิงก์ \"พิมพ์ ปพ.5\" ท้ายการ์ดของรายวิชา ระบบเปิดแบบพิมพ์ในแท็บใหม่",
+          "shot": true,
+          "crop": "viewport",
+          "expect_popup": {
+            "url_regex": "print/pp/course/\\d+"
+          },
+          "settle_ms": 800
+        },
+        {
+          "do": "close_tab"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "CSV",
+            "exact": true,
+            "within": {
+              "css": "li.rp-card",
+              "has_text": "ค31102",
+              "first": true
+            }
+          },
+          "say": "กดลิงก์ \"CSV\" ในการ์ดเดียวกัน เบราว์เซอร์บันทึกไฟล์คะแนนของรายวิชา",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "role": "link",
+            "name": "CSV",
+            "exact": true,
+            "within": {
+              "css": "li.rp-card",
+              "has_text": "ค31102",
+              "first": true
+            }
+          },
+          "expect_download": {
+            "ext": ".csv",
+            "name_regex": "^pp5-course-",
+            "min_bytes": 50
+          }
+        }
+      ],
+      "expected": "แท็บใหม่แสดงแบบบันทึกผลการเรียนรายวิชาพร้อมรายชื่อและคะแนน และได้ไฟล์ pp5-course-รหัสวิชา.csv",
+      "verify": [
+        {
+          "title": "ไฟล์ที่ดาวน์โหลดเป็น CSV จริง มีหัวตารางภาษาไทย",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "CSV",
+                "exact": true,
+                "within": {
+                  "css": "li.rp-card",
+                  "has_text": "ค31102",
+                  "first": true
+                }
+              },
+              "expect_download": {
+                "kind": "csv",
+                "ext": ".csv",
+                "min_bytes": 100,
+                "contains": "รหัสนักเรียน"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "special-results",
+      "title": "บันทึกผลพิเศษ ร / มผ / มส ของนักเรียนในรายวิชา",
+      "intro": "ผลพิเศษใช้แทนเกรดของนักเรียนที่เรียนไม่สมบูรณ์ ร คือไม่สมบูรณ์ มผ คือไม่ผ่านเกณฑ์ และ มส คือไม่มีสิทธิ์เข้ารับการประเมิน ผลพิเศษไม่นำไปคำนวณเกรดเฉลี่ย ภาคเรียนที่ผ่านมาต้องระบุเหตุผลเมื่อแก้ ขั้นตอนนี้ตั้งผลพิเศษของนักเรียนคนแรกในรายการ แล้วคืนเป็น \"(ไม่มี)\" เพื่อไม่เปลี่ยนข้อมูลจริง",
+      "role": "admin",
+      "start": "/work#reports",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "li.rp-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ผล ร / มผ / มส",
+            "exact": true,
+            "within": {
+              "css": "li.rp-card",
+              "has_text": "ค31102",
+              "first": true
+            }
+          },
+          "say": "กดปุ่ม \"ผล ร / มผ / มส\" ในการ์ดของรายวิชา รายชื่อนักเรียนของรายวิชาแสดงใต้รายการ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": ".rp-detail li.rp-card[data-student]",
+            "first": true
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "role": "combobox",
+            "name": "ผลพิเศษ",
+            "within": {
+              "css": ".rp-detail li.rp-card[data-student]",
+              "nth": 0
+            }
+          },
+          "label": "ร",
+          "say": "เลือก \"ร\" ในช่อง \"ผลพิเศษ\" ของนักเรียนที่ต้องการ",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".rp-detail li.rp-card[data-student]",
+            "nth": 0
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "หมายเหตุ",
+            "within": {
+              "css": ".rp-detail li.rp-card[data-student]",
+              "nth": 0
+            }
+          },
+          "value": "{{marker}} ข้อมูลสมมติ",
+          "say": "พิมพ์หมายเหตุในช่อง \"หมายเหตุ\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".rp-detail li.rp-card[data-student]",
+            "nth": 0
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": ".rp-detail li.rp-card[data-student]",
+              "nth": 0
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ท้ายแถวของนักเรียน ระบบแสดงข้อความ \"บันทึกผลพิเศษแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".rp-notice.rp-ok"
+          },
+          "wait_after": {
+            "css": ".rp-notice.rp-ok"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "บันทึกผลพิเศษแล้ว",
+            "in": {
+              "css": ".rp-notice.rp-ok"
+            }
+          }
+        }
+      ],
+      "expected": "ระบบแสดงข้อความ \"บันทึกผลพิเศษแล้ว\" และแถวของนักเรียนแสดงผล ร กับหมายเหตุ",
+      "verify": [
+        {
+          "title": "เปิดผลพิเศษของรายวิชาใหม่ ผล ร และหมายเหตุต้องยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#reports",
+              "wait_after": {
+                "css": "li.rp-card",
+                "first": true
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "ผล ร / มผ / มส",
+                "exact": true,
+                "within": {
+                  "css": "li.rp-card",
+                  "has_text": "ค31102",
+                  "first": true
+                }
+              },
+              "wait_after": {
+                "css": ".rp-detail li.rp-card[data-student]",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "value": "ร",
+                  "of": {
+                    "css": ".rp-detail li.rp-card[data-student] select[data-f=code]",
+                    "nth": 0
+                  }
+                },
+                {
+                  "value": "{{marker}} ข้อมูลสมมติ",
+                  "of": {
+                    "css": ".rp-detail li.rp-card[data-student] input[data-f=note]",
+                    "nth": 0
+                  }
+                }
+              ],
+              "say": "เปิดผลพิเศษของรายวิชาเดิมใหม่ นักเรียนคนแรกยังมีผล ร พร้อมหมายเหตุ",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": ".rp-detail li.rp-card[data-student]",
+                "nth": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "restore-special",
+      "title": "คืนผลพิเศษเป็น \"(ไม่มี)\" (ล้างข้อมูลทดสอบ)",
+      "intro": "ขั้นตอนนี้ใช้ตอนทดสอบ ในการใช้งานจริงลบผลพิเศษโดยเลือก \"(ไม่มี)\" แล้วกด \"บันทึก\"",
+      "role": "admin",
+      "start": "/work#reports",
+      "depends_on": [
+        "special-results"
+      ],
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "li.rp-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "ผล ร / มผ / มส",
+            "exact": true,
+            "within": {
+              "css": "li.rp-card",
+              "has_text": "ค31102",
+              "first": true
+            }
+          },
+          "wait_after": {
+            "css": ".rp-detail li.rp-card[data-student]",
+            "first": true
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "role": "combobox",
+            "name": "ผลพิเศษ",
+            "within": {
+              "css": ".rp-detail li.rp-card[data-student]",
+              "nth": 0
+            }
+          },
+          "label": "(ไม่มี)",
+          "say": "เลือก \"(ไม่มี)\" ในช่อง \"ผลพิเศษ\" ของนักเรียน",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".rp-detail li.rp-card[data-student]",
+            "nth": 0
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "role": "textbox",
+            "name": "หมายเหตุ",
+            "within": {
+              "css": ".rp-detail li.rp-card[data-student]",
+              "nth": 0
+            }
+          },
+          "value": ""
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": ".rp-detail li.rp-card[data-student]",
+              "nth": 0
+            }
+          },
+          "wait_after": {
+            "css": ".rp-notice.rp-ok"
+          }
+        }
+      ],
+      "expected": "นักเรียนไม่มีผลพิเศษและไม่มีหมายเหตุ",
+      "verify": [
+        {
+          "title": "เปิดผลพิเศษของรายวิชาใหม่ นักเรียนคนแรกไม่มีผลพิเศษ",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#reports",
+              "wait_after": {
+                "css": "li.rp-card",
+                "first": true
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "ผล ร / มผ / มส",
+                "exact": true,
+                "within": {
+                  "css": "li.rp-card",
+                  "has_text": "ค31102",
+                  "first": true
+                }
+              },
+              "wait_after": {
+                "css": ".rp-detail li.rp-card[data-student]",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "value": "",
+                  "of": {
+                    "css": ".rp-detail li.rp-card[data-student] select[data-f=code]",
+                    "nth": 0
+                  }
+                },
+                {
+                  "value": "",
+                  "of": {
+                    "css": ".rp-detail li.rp-card[data-student] input[data-f=note]",
+                    "nth": 0
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "homeroom-remark",
+      "title": "เขียนหมายเหตุครูประจำชั้นในรายงานรายบุคคล (ปพ.6)",
+      "intro": "หมายเหตุของครูประจำชั้นพิมพ์ท้ายรายงานผลการเรียนรายบุคคลของนักเรียนแต่ละคนในภาคเรียนนั้น ปุ่ม \"หมายเหตุครูประจำชั้น\" อยู่ในการ์ดของห้องในหัวข้อ \"ห้องเรียน (ปพ.6 และสรุปผล)\" และมีลิงก์ \"พิมพ์ ปพ.6\" ของนักเรียนแต่ละคนในรายการเดียวกัน ขั้นตอนนี้ใช้ห้อง ม.4/1 ผ่านบัญชีผู้ดูแลระบบ",
+      "role": "admin",
+      "start": "/work#reports",
+      "core": true,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "li.rp-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "หมายเหตุครูประจำชั้น",
+            "exact": true,
+            "within": {
+              "css": "li.rp-card",
+              "has_text": "ห้อง {{room}}"
+            }
+          },
+          "say": "กดปุ่ม \"หมายเหตุครูประจำชั้น\" ในการ์ดของห้อง รายชื่อนักเรียนของห้องแสดงใต้รายการพร้อมช่องหมายเหตุ",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": ".rp-detail textarea[data-f=remark]",
+            "first": true
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": ".rp-detail textarea[data-f=remark]",
+            "nth": 0
+          },
+          "value": "{{remark}}",
+          "say": "พิมพ์หมายเหตุในช่องของนักเรียนที่ต้องการ",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": ".rp-detail li.rp-card[data-student]",
+            "nth": 0
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "css": ".rp-detail li.rp-card[data-student]",
+              "nth": 0
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ท้ายแถวของนักเรียน ระบบแสดงข้อความ \"บันทึกหมายเหตุแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".rp-notice.rp-ok"
+          },
+          "wait_after": {
+            "css": ".rp-notice.rp-ok"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "พิมพ์ ปพ.6",
+            "exact": true,
+            "within": {
+              "css": ".rp-detail li.rp-card[data-student]",
+              "nth": 0
+            }
+          },
+          "say": "กดลิงก์ \"พิมพ์ ปพ.6\" ในแถวของนักเรียน ระบบเปิดรายงานผลการเรียนรายบุคคลในแท็บใหม่ ท้ายรายงานมีหมายเหตุที่บันทึก",
+          "shot": true,
+          "crop": "viewport",
+          "expect_popup": {
+            "url_regex": "print/pp/student/\\d+"
+          },
+          "settle_ms": 800
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "{{remark}}"
+          }
+        },
+        {
+          "do": "close_tab"
+        }
+      ],
+      "expected": "รายงานรายบุคคลที่เปิดในแท็บใหม่แสดงหมายเหตุที่ครูประจำชั้นเขียน",
+      "verify": [
+        {
+          "title": "เปิดหมายเหตุของห้องใหม่ หมายเหตุที่บันทึกต้องยังอยู่ในช่อง",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#reports",
+              "wait_after": {
+                "css": "li.rp-card",
+                "first": true
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "role": "button",
+                "name": "หมายเหตุครูประจำชั้น",
+                "exact": true,
+                "within": {
+                  "css": "li.rp-card",
+                  "has_text": "ห้อง {{room}}"
+                }
+              },
+              "wait_after": {
+                "css": ".rp-detail textarea[data-f=remark]",
+                "first": true
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "value": "{{remark}}",
+                "of": {
+                  "css": ".rp-detail textarea[data-f=remark]",
+                  "nth": 0
+                }
+              },
+              "say": "เปิดหมายเหตุของห้องใหม่ ช่องของนักเรียนคนแรกยังมีหมายเหตุที่บันทึกไว้",
+              "shot": true,
+              "crop": "panel",
+              "highlight": {
+                "css": ".rp-detail li.rp-card[data-student]",
+                "nth": 0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "print-classroom",
+      "title": "พิมพ์ ปพ.6 ทั้งห้อง สรุปผลรายห้อง และส่งออก CSV ของห้อง",
+      "intro": "การ์ดของห้องมีลิงก์ \"พิมพ์ ปพ.6 ทั้งห้อง\" (รายงานของนักเรียนทุกคนในห้อง หนึ่งคนต่อหนึ่งหน้า) \"สรุปผลรายห้อง\" (จำนวนนักเรียนในแต่ละเกรด ผลพิเศษ และเกรดเฉลี่ย) และลิงก์ CSV ของทั้งสองรายงาน",
+      "role": "admin",
+      "start": "/work#reports",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "li.rp-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "พิมพ์ ปพ.6 ทั้งห้อง",
+            "exact": true,
+            "within": {
+              "css": "li.rp-card",
+              "has_text": "ห้อง {{room}}"
+            }
+          },
+          "say": "กดลิงก์ \"พิมพ์ ปพ.6 ทั้งห้อง\" ในการ์ดของห้อง ระบบเปิดรายงานรายบุคคลของทุกคนในห้องในแท็บใหม่",
+          "shot": true,
+          "crop": "viewport",
+          "expect_popup": {
+            "url_regex": "print/pp/classroom/\\d+"
+          },
+          "settle_ms": 800
+        },
+        {
+          "do": "close_tab"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "สรุปผลรายห้อง",
+            "exact": true,
+            "within": {
+              "css": "li.rp-card",
+              "has_text": "ห้อง {{room}}"
+            }
+          },
+          "say": "กดลิงก์ \"สรุปผลรายห้อง\" ระบบเปิดหน้าสรุปจำนวนนักเรียนในแต่ละเกรด ผลพิเศษ และเกรดเฉลี่ยในแท็บใหม่",
+          "shot": true,
+          "crop": "viewport",
+          "expect_popup": {
+            "url_regex": "print/pp/classroom/\\d+/summary"
+          },
+          "settle_ms": 800
+        },
+        {
+          "do": "close_tab"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "CSV ปพ.6",
+            "exact": true,
+            "within": {
+              "css": "li.rp-card",
+              "has_text": "ห้อง {{room}}"
+            }
+          },
+          "say": "กดลิงก์ \"CSV ปพ.6\" เบราว์เซอร์บันทึกไฟล์ผลการเรียนรายบุคคลของห้อง ลิงก์ \"CSV สรุป\" ข้างกันบันทึกไฟล์สรุปผลรายห้อง",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "role": "link",
+            "name": "CSV ปพ.6",
+            "exact": true,
+            "within": {
+              "css": "li.rp-card",
+              "has_text": "ห้อง {{room}}"
+            }
+          },
+          "expect_download": {
+            "ext": ".csv",
+            "name_regex": "^pp6-class-",
+            "min_bytes": 50
+          }
+        }
+      ],
+      "expected": "ได้รายงานทั้งห้องในแท็บใหม่ และไฟล์ pp6-class-รหัสห้อง.csv",
+      "verify": [
+        {
+          "title": "ไฟล์ CSV สรุปผลรายห้องเป็น CSV จริง มีหัวตารางภาษาไทย",
+          "steps": [
+            {
+              "do": "click",
+              "target": {
+                "role": "link",
+                "name": "CSV สรุป",
+                "exact": true,
+                "within": {
+                  "css": "li.rp-card",
+                  "has_text": "ห้อง {{room}}"
+                }
+              },
+              "expect_download": {
+                "kind": "csv",
+                "ext": ".csv",
+                "name_regex": "^summary-class-",
+                "min_bytes": 100,
+                "contains": "รหัสวิชา"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "teacher-reports",
+      "title": "ครูผู้สอนเห็นเฉพาะรายวิชาของตนเอง และไม่เห็นการตั้งค่ารายงาน",
+      "intro": "ครูที่ไม่ได้เป็นครูประจำชั้นเห็นเฉพาะหัวข้อ \"รายวิชา (ปพ.5)\" ของวิชาที่สอน หัวข้อห้องเรียนมีข้อความว่าไม่ได้เป็นครูประจำชั้นของห้องใด และกล่อง \"ตั้งค่ารายงาน\" แสดงเฉพาะผู้ดูแลระบบและผู้อำนวยการ",
+      "role": "subject",
+      "start": "/work",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ปพ. และรายงานผลการเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ปพ. และรายงานผลการเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": ".rp-body h1"
+          }
+        },
+        {
+          "do": "expect",
+          "that": [
+            {
+              "visible": {
+                "css": "li.rp-card",
+                "first": true
+              }
+            },
+            {
+              "text": "คุณไม่ได้เป็นครูประจำชั้นของห้องใด"
+            },
+            {
+              "hidden": {
+                "css": "details.rp-settings"
+              }
+            }
+          ],
+          "say": "หน้าแสดงรายวิชาที่ครูสอน ข้อความ \"คุณไม่ได้เป็นครูประจำชั้นของห้องใด\" และไม่มีกล่อง \"ตั้งค่ารายงาน\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "li.rp-card",
+            "first": true
+          }
+        }
+      ],
+      "expected": "ครูผู้สอนเห็นเฉพาะรายวิชาของตนและไม่เห็นการตั้งค่า",
+      "verify": [
+        {
+          "title": "ครูไม่เห็นกล่อง \"ตั้งค่ารายงาน\"",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "hidden": {
+                  "text": "ตั้งค่ารายงาน (ผู้อำนวยการ / ผู้ดูแลระบบ)"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "homeroom-teacher-reports",
+      "title": "ครูประจำชั้นเปิดรายงานของห้องประจำชั้นตนเอง",
+      "intro": "ครูประจำชั้นเห็นการ์ดของห้องประจำชั้นในหัวข้อ \"ห้องเรียน (ปพ.6 และสรุปผล)\" และพิมพ์รายงานของห้องตนเองได้ ขั้นตอนนี้เปิดดูเท่านั้น ไม่แก้ข้อมูล",
+      "role": "homeroom",
+      "start": "/work",
+      "steps": [
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "ปพ. และรายงานผลการเรียน",
+            "exact": true,
+            "within": {
+              "role": "navigation",
+              "name": "ระบบงานโรงเรียน"
+            }
+          },
+          "say": "เลือกเมนู \"ปพ. และรายงานผลการเรียน\" ที่แถบเมนูด้านซ้าย",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": ".rp-body h1"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "visible": {
+              "css": "li.rp-card",
+              "has_text": "ห้อง ม.1/1"
+            }
+          },
+          "say": "หัวข้อ \"ห้องเรียน (ปพ.6 และสรุปผล)\" แสดงการ์ดของห้องประจำชั้น พร้อมลิงก์พิมพ์ ลิงก์ CSV และปุ่ม \"หมายเหตุครูประจำชั้น\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "css": "li.rp-card",
+            "has_text": "ห้อง ม.1/1"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "สรุปผลรายห้อง",
+            "exact": true,
+            "within": {
+              "css": "li.rp-card",
+              "has_text": "ห้อง ม.1/1"
+            }
+          },
+          "say": "กดลิงก์ \"สรุปผลรายห้อง\" ระบบเปิดหน้าสรุปผลของห้องในแท็บใหม่",
+          "shot": true,
+          "crop": "viewport",
+          "expect_popup": {
+            "url_regex": "print/pp/classroom/\\d+/summary"
+          },
+          "settle_ms": 800
+        }
+      ],
+      "expected": "แท็บใหม่แสดงสรุปผลของห้องประจำชั้น",
+      "verify": [
+        {
+          "title": "หน้าที่เปิดเป็นสรุปผลรายห้อง",
+          "steps": [
+            {
+              "do": "expect",
+              "that": {
+                "url": "print/pp/classroom/\\d+/summary"
+              }
+            },
+            {
+              "do": "close_tab"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "report-settings",
+      "title": "ตั้งค่ารายงาน: แสดงอันดับ GPA และเทมเพลตตามปีการศึกษา",
+      "intro": "กล่อง \"ตั้งค่ารายงาน\" มีให้เฉพาะผู้ดูแลระบบและผู้อำนวยการ ติ๊ก \"แสดงอันดับ GPA ในรายงาน\" เพื่อพิมพ์อันดับในรายงาน และกำหนดช่องลงนามท้ายรายงาน เทมเพลตตามปีการศึกษากำหนดหัวรายงาน หมายเหตุท้ายรายงาน ขนาดตัวอักษร และส่วนที่แสดง รายงานของแต่ละปีใช้เทมเพลตของปีนั้นหรือปีก่อนหน้าที่ใกล้ที่สุด ขั้นตอนนี้ตั้งเทมเพลตของปีการศึกษาล่วงหน้า (ไม่กระทบรายงานปัจจุบัน) และเปิดแล้วปิดการแสดงอันดับ",
+      "role": "admin",
+      "start": "/work#reports",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "details.rp-settings"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "details.rp-settings summary"
+          },
+          "say": "เลื่อนลงท้ายหน้า กดหัวข้อ \"ตั้งค่ารายงาน (ผู้อำนวยการ / ผู้ดูแลระบบ)\" กล่องตั้งค่าเปิดออก",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "css": "form[data-form=settings]"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "unchecked": {
+              "label": "แสดงอันดับ GPA ในรายงาน"
+            }
+          },
+          "comment": "precondition: the install starts with ranking off"
+        },
+        {
+          "do": "check",
+          "target": {
+            "label": "แสดงอันดับ GPA ในรายงาน"
+          },
+          "say": "ติ๊ก \"แสดงอันดับ GPA ในรายงาน\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=settings]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่า",
+            "exact": true
+          },
+          "say": "กดปุ่ม \"บันทึกการตั้งค่า\" ระบบแสดงข้อความ \"บันทึกการตั้งค่าแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".rp-notice.rp-ok"
+          },
+          "wait_after": {
+            "css": ".rp-notice.rp-ok"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "หัวรายงาน",
+            "within": {
+              "css": "form[data-form=template]"
+            }
+          },
+          "value": "{{template_title}}",
+          "say": "ในกล่อง \"เทมเพลตแยกตามปีการศึกษา\" พิมพ์หัวรายงานในช่อง \"หัวรายงาน\" ช่อง \"ใช้ตั้งแต่ปีการศึกษา (พ.ศ.)\" เป็นปีของภาคเรียนที่เลือกอยู่",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=template]"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "label": "ใช้ตั้งแต่ปีการศึกษา (พ.ศ.)",
+            "within": {
+              "css": "form[data-form=template]"
+            }
+          },
+          "value": "2599",
+          "say": "เปลี่ยนปีเป็นปีล่วงหน้าเพื่อไม่กระทบรายงานปัจจุบัน แล้วกดปุ่ม \"บันทึกเทมเพลต\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=template]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกเทมเพลต",
+            "exact": true
+          },
+          "say": "ระบบแสดงข้อความ \"บันทึกเทมเพลตแล้ว\" และเพิ่มรายการในรายการเทมเพลตใต้ปุ่ม",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "css": ".rp-notice.rp-ok"
+          },
+          "wait_after": {
+            "css": ".rp-notice.rp-ok"
+          }
+        }
+      ],
+      "expected": "รายการเทมเพลตมีบรรทัด \"ปพ.5 รายวิชา ตั้งแต่ปีการศึกษา 2599\" พร้อมหัวรายงาน",
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ การตั้งค่าและเทมเพลตต้องยังอยู่",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#reports",
+              "wait_after": {
+                "css": "details.rp-settings"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "css": "details.rp-settings summary"
+              },
+              "wait_after": {
+                "css": "form[data-form=settings]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": [
+                {
+                  "checked": {
+                    "label": "แสดงอันดับ GPA ในรายงาน"
+                  }
+                },
+                {
+                  "text": "ตั้งแต่ปีการศึกษา 2599",
+                  "in": {
+                    "css": "form[data-form=template]"
+                  }
+                }
+              ],
+              "say": "เปิดกล่องตั้งค่าใหม่ ช่อง \"แสดงอันดับ GPA ในรายงาน\" ยังติ๊กอยู่ และรายการเทมเพลตมีปีการศึกษา 2599",
+              "shot": true,
+              "crop": {
+                "css": "details.rp-settings"
+              },
+              "highlight": {
+                "label": "แสดงอันดับ GPA ในรายงาน"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "change-gpa-rounding-setting",
+      "title": "เปลี่ยนการปัดเศษเกรดเฉลี่ยในรายงาน แล้วคืนค่าเดิม",
+      "intro": "ผู้อำนวยการหรือผู้ดูแลระบบกำหนดว่าเกรดเฉลี่ยในรายงานผลการเรียนตัดทิ้งหรือปัดเศษ ขั้นตอนนี้เลือก \"ปัดเศษ\" แล้วอ่านกลับจากหน้าใหม่ และเลือก \"ตัดทิ้ง\" (ค่าเริ่มต้น) เป็นขั้นตอนสุดท้าย",
+      "role": "admin",
+      "start": "/work#module-settings",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": ".ms-item"
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "select",
+            "within": {
+              "attr": {
+                "data-key": "reports.gpa_rounding"
+              }
+            }
+          },
+          "label": "ปัดเศษ",
+          "say": "ในหัวข้อ \"การปัดเศษเกรดเฉลี่ย\" เลือก \"ปัดเศษ\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "attr": {
+              "data-key": "reports.gpa_rounding"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "attr": {
+                "data-key": "reports.gpa_rounding"
+              }
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ใต้หัวข้อนั้น ระบบแสดงข้อความ \"บันทึกการตั้งค่าแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "id": "toast"
+          }
+        },
+        {
+          "do": "reload",
+          "wait_after": {
+            "css": ".ms-item"
+          }
+        },
+        {
+          "do": "expect",
+          "that": {
+            "value": "round",
+            "of": {
+              "css": "select",
+              "within": {
+                "attr": {
+                  "data-key": "reports.gpa_rounding"
+                }
+              }
+            }
+          },
+          "say": "เปิดหน้าตั้งค่าโมดูลใหม่ ช่องนั้นยังเป็น \"ปัดเศษ\"",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "attr": {
+              "data-key": "reports.gpa_rounding"
+            }
+          }
+        },
+        {
+          "do": "select",
+          "target": {
+            "css": "select",
+            "within": {
+              "attr": {
+                "data-key": "reports.gpa_rounding"
+              }
+            }
+          },
+          "label": "ตัดทิ้ง"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "attr": {
+                "data-key": "reports.gpa_rounding"
+              }
+            }
+          },
+          "wait_after": {
+            "id": "toast"
+          }
+        }
+      ],
+      "expected": "ค่าการปัดเศษที่บันทึกยังอยู่หลังเปิดหน้าใหม่ และคืนเป็น \"ตัดทิ้ง\" เมื่อจบขั้นตอน",
+      "verify": [
+        {
+          "title": "หลังคืนค่า การปัดเศษเป็น \"ตัดทิ้ง\"",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#module-settings",
+              "wait_after": {
+                "css": ".ms-item"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "value": "truncate",
+                "of": {
+                  "css": "select",
+                  "within": {
+                    "attr": {
+                      "data-key": "reports.gpa_rounding"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "change-report-signers",
+      "title": "ตั้งผู้ลงนามท้ายรายงาน ดูแบบพิมพ์ แล้วคืนค่าเดิม",
+      "intro": "ผู้ดูแลระบบกำหนดผู้ลงนามท้ายรายงานในหัวข้อ \"ผู้ลงนามท้ายรายงาน\" ของหน้า \"ตั้งค่าโมดูล\" ขั้นตอนนี้ตั้งผู้ลงนามทดสอบ เปิดแบบพิมพ์ ปพ.5 เพื่อดูว่าชื่อปรากฏ แล้วคืนค่าเป็นรายการว่างเป็นขั้นตอนสุดท้าย",
+      "role": "admin",
+      "start": "/work#module-settings",
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": ".ms-item"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "textarea",
+            "within": {
+              "attr": {
+                "data-key": "reports.signers"
+              }
+            }
+          },
+          "value": "[{\"label\":\"ผู้อำนวยการ (ทดสอบ)\",\"name\":\"{{marker}}\"}]",
+          "say": "ในหัวข้อ \"ผู้ลงนามท้ายรายงาน\" พิมพ์รายการผู้ลงนามทดสอบ",
+          "shot": true,
+          "crop": "panel",
+          "highlight": {
+            "attr": {
+              "data-key": "reports.signers"
+            }
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "attr": {
+                "data-key": "reports.signers"
+              }
+            }
+          },
+          "say": "กดปุ่ม \"บันทึก\" ใต้หัวข้อนั้น ระบบแสดงข้อความ \"บันทึกการตั้งค่าแล้ว\"",
+          "shot": true,
+          "crop": "viewport",
+          "wait_after": {
+            "id": "toast"
+          }
+        },
+        {
+          "do": "goto",
+          "url": "/work#reports",
+          "wait_after": {
+            "css": "li.rp-card",
+            "first": true
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "link",
+            "name": "พิมพ์ ปพ.5",
+            "exact": true,
+            "within": {
+              "css": "li.rp-card",
+              "has_text": "ค31102",
+              "first": true
+            }
+          },
+          "expect_popup": {
+            "url_regex": "print/pp/course/\\d+"
+          },
+          "settle_ms": 800
+        },
+        {
+          "do": "expect",
+          "that": {
+            "text": "{{marker}}"
+          },
+          "say": "แบบพิมพ์ ปพ.5 แสดงชื่อผู้ลงนามที่ตั้งไว้ท้ายรายงาน",
+          "shot": true,
+          "crop": "viewport",
+          "highlight": {
+            "text": "{{marker}}"
+          }
+        },
+        {
+          "do": "close_tab"
+        },
+        {
+          "do": "goto",
+          "url": "/work#module-settings",
+          "wait_after": {
+            "css": ".ms-item"
+          }
+        },
+        {
+          "do": "fill",
+          "target": {
+            "css": "textarea",
+            "within": {
+              "attr": {
+                "data-key": "reports.signers"
+              }
+            }
+          },
+          "value": "[]",
+          "say": "คืนรายการผู้ลงนามเป็นค่าเดิม (ว่าง)"
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึก",
+            "exact": true,
+            "within": {
+              "attr": {
+                "data-key": "reports.signers"
+              }
+            }
+          },
+          "wait_after": {
+            "id": "toast"
+          }
+        }
+      ],
+      "expected": "ชื่อผู้ลงนามที่ตั้งไว้ปรากฏในแบบพิมพ์ และรายการผู้ลงนามกลับเป็นค่าเดิมเมื่อจบขั้นตอน",
+      "verify": [
+        {
+          "title": "รายการผู้ลงนามกลับเป็นค่าเดิม",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#module-settings",
+              "wait_after": {
+                "css": ".ms-item"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "value": "[]",
+                "of": {
+                  "css": "textarea",
+                  "within": {
+                    "attr": {
+                      "data-key": "reports.signers"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "restore-settings",
+      "title": "ปิดการแสดงอันดับ GPA (ล้างข้อมูลทดสอบ)",
+      "intro": "ขั้นตอนนี้ใช้ตอนทดสอบ เพื่อคืนค่าการตั้งค่า ในการใช้งานจริงเอาเครื่องหมายถูกออกแล้วกด \"บันทึกการตั้งค่า\" เทมเพลตของปีที่บันทึกไว้ลบไม่ได้จากหน้าจอ",
+      "role": "admin",
+      "start": "/work#reports",
+      "cleanup": true,
+      "steps": [
+        {
+          "do": "wait_for",
+          "target": {
+            "css": "details.rp-settings"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "css": "details.rp-settings summary"
+          },
+          "wait_after": {
+            "css": "form[data-form=settings]"
+          }
+        },
+        {
+          "do": "uncheck",
+          "target": {
+            "label": "แสดงอันดับ GPA ในรายงาน"
+          },
+          "say": "เอาเครื่องหมายถูกออกจาก \"แสดงอันดับ GPA ในรายงาน\"",
+          "shot": true,
+          "crop": {
+            "css": "form[data-form=settings]"
+          }
+        },
+        {
+          "do": "click",
+          "target": {
+            "role": "button",
+            "name": "บันทึกการตั้งค่า",
+            "exact": true
+          },
+          "wait_after": {
+            "css": ".rp-notice.rp-ok"
+          }
+        }
+      ],
+      "verify": [
+        {
+          "title": "เปิดหน้าใหม่ ช่อง \"แสดงอันดับ GPA ในรายงาน\" ไม่ติ๊กแล้ว",
+          "steps": [
+            {
+              "do": "goto",
+              "url": "/work#attendance",
+              "wait_after": {
+                "css": "section.att"
+              }
+            },
+            {
+              "do": "goto",
+              "url": "/work#reports",
+              "wait_after": {
+                "css": "details.rp-settings"
+              }
+            },
+            {
+              "do": "click",
+              "target": {
+                "css": "details.rp-settings summary"
+              },
+              "wait_after": {
+                "css": "form[data-form=settings]"
+              }
+            },
+            {
+              "do": "expect",
+              "that": {
+                "unchecked": {
+                  "label": "แสดงอันดับ GPA ในรายงาน"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": [
+    "เทมเพลตของปีการศึกษา 2599 ที่บันทึกระหว่างทดสอบลบไม่ได้จากหน้าจอ จึงเหลืออยู่ในรายการเทมเพลต (ไม่กระทบรายงานของปีปัจจุบัน) หัวรายงานขึ้นต้นด้วย \"ทดสอบคู่มือ\"",
+    "การแก้ผลพิเศษของภาคเรียนที่ผ่านมา (ต้องระบุเหตุผลในกล่องข้อความของเบราว์เซอร์) ไม่ได้ทดสอบ เพราะต้องแก้ข้อมูลมาตรฐานของภาคเรียนก่อนหน้า",
+    "การสั่งพิมพ์จริงและการบันทึกเป็น PDF จากหน้าต่างพิมพ์ของเบราว์เซอร์ ทดสอบเฉพาะการเปิดหน้าแบบพิมพ์ในแท็บใหม่",
+    "ความถูกต้องของค่าเกรดเฉลี่ยและอันดับที่พิมพ์ในรายงาน ไม่ได้ตรวจทานเทียบกับการคำนวณด้วยมือ",
+    "การแก้ไขซ้อนกันของผู้ใช้สองคน (ข้อความ \"ข้อมูลถูกแก้ไขโดยผู้อื่น\") ตัวรันใช้เบราว์เซอร์ผู้ใช้ครั้งละหนึ่งคน"
+  ]
+}

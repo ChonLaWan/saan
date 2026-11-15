@@ -6,6 +6,8 @@
     const BASE = '/api/student-portal';
     const GP = '/api/guardian-portal';
     const esc = v => window.SaanCore.esc(v);
+    // school-base is the full app URL (origin + sub-folder), so the slip address stays right on a sub-folder install.
+    const appBase = () => (document.querySelector('meta[name="school-base"]')?.content || location.origin).replace(/\/+$/, '');
     const when = s => String(s || '').replace('T', ' ').slice(0, 16);
     const badge = (text, kind) => `<span class="sps-badge ${kind || ''}">${esc(text)}</span>`;
 
@@ -36,9 +38,9 @@
 
             function slipSheet() {
                 if (!st.slips) return '';
-                const url = location.origin + '/student';
+                const url = appBase() + '/student';
                 const cards = st.slips.data.map(x => x.kind === 'guardian'
-                    ? `<div class="sps-slip"><b>ผู้ปกครองของ ${esc(x.student_name)}</b><div>${esc(x.name)}</div><div>เข้าที่ ${esc(location.origin + '/guardian')}</div><div>ชื่อผู้ใช้ <code>${esc(x.code)}</code></div><div>รหัสผ่านชั่วคราว <code>${esc(x.secret)}</code></div><div class="sps-muted">ต้องตั้งรหัสผ่านใหม่เมื่อเข้าครั้งแรก</div></div>`
+                    ? `<div class="sps-slip"><b>ผู้ปกครองของ ${esc(x.student_name)}</b><div>${esc(x.name)}</div><div>เข้าที่ ${esc(appBase() + '/guardian')}</div><div>ชื่อผู้ใช้ <code>${esc(x.code)}</code></div><div>รหัสผ่านชั่วคราว <code>${esc(x.secret)}</code></div><div class="sps-muted">ต้องตั้งรหัสผ่านใหม่เมื่อเข้าครั้งแรก</div></div>`
                     : `<div class="sps-slip"><b>${esc(x.name)}</b><div>เข้าที่ ${esc(url)}</div><div>รหัสนักเรียน <code>${esc(x.code)}</code></div><div>รหัสผ่านชั่วคราว <code>${esc(x.secret)}</code></div><div class="sps-muted">ต้องตั้งรหัสผ่านใหม่เมื่อเข้าครั้งแรก</div></div>`).join('');
                 return `<div class="sps-sheet" role="region" aria-label="ใบรหัสเข้าระบบ"><h2>ใบรหัสเข้าระบบ ห้อง ${esc(st.slips.classroom.name)}</h2><div class="sps-slips">${cards}</div></div>`
                     + '<p class="sps-noprint"><button type="button" class="sps-btn sps-primary" data-act="print">พิมพ์ใบรหัส (1 ชุดต่อห้อง)</button> <button type="button" class="sps-btn" data-act="close-slips">ปิดใบรหัส</button></p>'

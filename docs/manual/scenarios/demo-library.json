@@ -1,0 +1,116 @@
+{
+  "module": "demo-library",
+  "title": "คลังภาพและข้อมูลสมมติ",
+  "area": "เว็บไซต์โรงเรียน",
+  "purpose": "ชุดข้อมูลสาธิตแบบเสริมสำหรับการติดตั้งแบบสาธิตหรือเครื่องทดลองเท่านั้น หน้าเดียว (/demo-library) แสดงภาพบุคลากรสมมติ 6 ภาพ ภาพและชุดข้อมูลสมมติของ 24 โมดูล พร้อมช่องค้นหาโมดูลและปุ่มเลื่อนหน้า แต่ละโมดูลมีไฟล์ JSON CSV และ PDF ให้ดาวน์โหลด และมีเอกสารตัวอย่างพร้อมภาพหน้าแรกให้เปิดดู เจ้าหน้าที่ใช้หน้านี้ดูตัวอย่างข้อมูลที่ระบบสาธิตสร้างไว้ หน้านี้ไม่มีการแก้ไขหรือลบข้อมูล",
+  "roles": [
+    "ผู้ดูแลเว็บไซต์ ผู้อำนวยการ และบรรณาธิการ (เห็นเมนูเฉพาะการติดตั้งแบบสาธิตหรือเครื่องทดลอง)"
+  ],
+  "menu": [
+    "เมนูด้านซ้ายกลุ่ม \"เว็บไซต์โรงเรียน\" > \"คลังภาพและข้อมูลสมมติ\" (/demo-library) แสดงเฉพาะการติดตั้งแบบสาธิตหรือเครื่องทดลอง การติดตั้งจากแพ็กเกจสำหรับใช้งานจริงไม่มีคลังข้อมูลนี้ จึงไม่มีเมนูและที่อยู่ /demo-library ตอบ 404"
+  ],
+  "prerequisites": [],
+  "vars": {},
+  "workflows": [
+    {
+      "id": "browse-library",
+      "title": "เปิดคลังภาพและดูภาพรวมของชุดข้อมูลสมมติ",
+      "core": true,
+      "role": "editor",
+      "start": "/cms",
+      "intro": "ใช้หน้านี้เมื่อต้องการดูว่ามีภาพบุคลากรและชุดข้อมูลสมมติอะไรบ้างสำหรับการสาธิตระบบ หน้านี้มีเฉพาะการติดตั้งแบบสาธิตหรือเครื่องทดลอง ผู้ใช้ทั่วไปเปิดไม่ได้",
+      "steps": [
+        {"do": "wait_for", "target": {"role": "navigation", "name": "ระบบงานโรงเรียน"}},
+        {"do": "click", "target": {"role": "link", "name": "คลังภาพและข้อมูลสมมติ", "exact": true, "within": {"role": "navigation", "name": "ระบบงานโรงเรียน"}}, "say": "เลือกเมนู \"คลังภาพและข้อมูลสมมติ\" ในแถบเมนูด้านซ้ายกลุ่ม \"เว็บไซต์โรงเรียน\"", "shot": true, "crop": "viewport", "wait_after": {"role": "heading", "name": "ภาพและชุดข้อมูลทุกโมดูล", "first": true}},
+        {"do": "expect", "that": [{"text": "24", "in": {"css": ".coverage-summary"}}, {"text": "เอกสาร PDF พร้อมภาพหน้าแรก", "in": {"css": ".coverage-summary"}}], "say": "แถบสรุปบอกจำนวนชุดข้อมูล JSON และ CSV ที่มี 24 ชุด จำนวนเอกสาร PDF พร้อมภาพหน้าแรก และจำนวนภาพบุคลากรสมมติ", "shot": true, "crop": {"css": ".coverage-summary"}, "highlight": {"css": ".coverage-summary"}},
+        {"do": "expect", "that": {"count": 6, "of": {"css": "section.mock-portraits figure"}}, "say": "ส่วน \"บุคลากรสมมติ\" แสดงภาพบุคลากรสมมติและชื่อตำแหน่ง ภาพทั้งหมดเป็นภาพ AI และชื่อเป็นชื่อสมมติ", "shot": true, "crop": {"css": "section.mock-portraits"}, "highlight": {"css": "section.mock-portraits figure", "first": true}},
+        {"do": "note", "say": "ลิงก์ด้านบนของหน้า \"จัดการบุคลากร\" \"จัดการเอกสาร\" \"เปิดทุกหมวดหน้าบ้าน\" และ \"ตรวจสถานะระบบ\" พาไปยังหน้าทำงานที่เกี่ยวข้องโดยตรง"}
+      ],
+      "expected": "หน้าแสดงสรุปชุดข้อมูลสมมติ 24 โมดูล ภาพบุคลากรสมมติ 6 ภาพ และรายการโมดูลที่ค้นหาและเลื่อนดูได้",
+      "verify": [
+        {
+          "title": "หน้าคลังเปิดได้จากที่อยู่ของหน้าเอง และแสดงรายการโมดูลครบ",
+          "steps": [
+            {"do": "goto", "url": "/demo-library", "wait_after": {"role": "heading", "name": "ภาพและชุดข้อมูลทุกโมดูล", "first": true}},
+            {"do": "expect", "that": [{"text": "พบ 24 โมดูล", "in": {"id": "mock-library-count"}}, {"text": "หน้า 1 / 4", "in": {"id": "mock-library-page"}}]}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "search-module",
+      "title": "ค้นหาโมดูลในคลังด้วยรหัสโมดูล",
+      "role": "editor",
+      "start": "/demo-library",
+      "intro": "ใช้ช่องค้นหาเพื่อหาชุดข้อมูลของโมดูลที่ต้องการ ค้นได้ทั้งรหัสโมดูล เช่น M05 และชื่อโมดูล",
+      "steps": [
+        {"do": "wait_for", "target": {"role": "heading", "name": "ภาพและชุดข้อมูลทุกโมดูล", "first": true}, "say": "เปิดหน้า \"คลังภาพและข้อมูลสมมติ\" แล้วเลื่อนลงไปที่ส่วน \"ภาพและชุดข้อมูลทุกโมดูล\"", "shot": true, "crop": "viewport", "highlight": false},
+        {"do": "fill", "target": {"label": "ค้นหาโมดูล"}, "value": "M05", "say": "พิมพ์รหัสโมดูล M05 ในช่อง \"ค้นหาโมดูล\"", "shot": true, "crop": "panel", "highlight": {"label": "ค้นหาโมดูล"}, "settle_ms": 600},
+        {"do": "expect", "that": [{"text": "พบ 1 โมดูล", "in": {"id": "mock-library-count"}}, {"count": 1, "of": {"css": "[data-mock-card]:not([hidden])"}}], "say": "ระบบแสดงจำนวนที่พบ และเหลือเพียงโมดูลที่ตรงกับคำค้น", "shot": true, "crop": "panel", "highlight": {"id": "mock-library-count"}},
+        {"do": "fill", "target": {"label": "ค้นหาโมดูล"}, "value": "", "settle_ms": 600},
+        {"do": "expect", "that": {"text": "หน้า 1 / 4", "in": {"id": "mock-library-page"}}}
+      ],
+      "expected": "เมื่อพิมพ์รหัสโมดูล รายการเหลือเฉพาะโมดูลนั้น เมื่อลบคำค้น รายการกลับมาทั้งหมด",
+      "verify": [
+        {
+          "title": "เมื่อลบคำค้น รายการกลับมาทั้ง 24 โมดูล",
+          "steps": [
+            {"do": "expect", "that": {"text": "พบ 24 โมดูล", "in": {"id": "mock-library-count"}}}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "turn-library-pages",
+      "title": "เลื่อนดูรายการโมดูลทีละหน้า",
+      "role": "editor",
+      "start": "/demo-library",
+      "intro": "รายการโมดูลแสดงครั้งละ 6 โมดูล ใช้ปุ่ม \"ถัดไป\" และ \"ก่อนหน้า\" เพื่อดูโมดูลที่เหลือ",
+      "steps": [
+        {"do": "wait_for", "target": {"id": "mock-library-page", "has_text": "หน้า 1 / 4"}, "say": "เปิดหน้า \"คลังภาพและข้อมูลสมมติ\" ระบบแสดงหน้าแรกของรายการโมดูล", "shot": true, "crop": "viewport", "highlight": {"id": "mock-library-page"}},
+        {"do": "expect", "that": {"disabled": {"role": "button", "name": "ก่อนหน้า"}}, "say": "ปุ่ม \"ก่อนหน้า\" ใช้ไม่ได้ในหน้าแรก"},
+        {"do": "click", "target": {"role": "button", "name": "ถัดไป", "exact": true}, "say": "กดปุ่ม \"ถัดไป\" ระบบแสดงโมดูลชุดถัดไป", "shot": true, "crop": "panel", "highlight": {"role": "button", "name": "ถัดไป", "exact": true}, "wait_after": {"id": "mock-library-page", "has_text": "หน้า 2 / 4"}},
+        {"do": "click", "target": {"role": "button", "name": "ก่อนหน้า", "exact": true}, "say": "กดปุ่ม \"ก่อนหน้า\" เพื่อกลับไปหน้าเดิม", "wait_after": {"id": "mock-library-page", "has_text": "หน้า 1 / 4"}}
+      ],
+      "expected": "ปุ่มเลื่อนหน้าเปลี่ยนรายการตามลำดับ และตัวเลขหน้าบอกตำแหน่งปัจจุบัน",
+      "verify": [
+        {
+          "title": "หน้าที่สองแสดงโมดูลครบ 6 รายการ และเริ่มที่ M07",
+          "steps": [
+            {"do": "click", "target": {"role": "button", "name": "ถัดไป", "exact": true}, "wait_after": {"id": "mock-library-page", "has_text": "หน้า 2 / 4"}},
+            {"do": "expect", "that": [{"count": 6, "of": {"css": "[data-mock-card]:not([hidden])"}}, {"visible": {"css": "[data-mock-card]:not([hidden]) .mock-module-photo span", "has_text": "M07"}}]}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "open-module-files",
+      "title": "เปิดรายละเอียดและดาวน์โหลดไฟล์ของโมดูล",
+      "role": "editor",
+      "start": "/demo-library",
+      "intro": "แต่ละโมดูลมีชุดข้อมูลตัวอย่างเป็นไฟล์ JSON และ CSV สำหรับนำเข้าเครื่องมือ และมีไฟล์ PDF สำหรับอ่านเป็นเอกสาร ดาวน์โหลดได้จากการ์ดของโมดูลนั้น",
+      "steps": [
+        {"do": "fill", "target": {"label": "ค้นหาโมดูล"}, "value": "M05", "settle_ms": 600},
+        {"do": "click", "target": {"text": "ดูภาพเอกสารและข้อจำกัด", "within": {"css": "[data-mock-card]:not([hidden])"}}, "say": "ในการ์ดของโมดูล กดหัวข้อ \"ดูภาพเอกสารและข้อจำกัด\" ระบบแสดงภาพหน้าแรกของเอกสารตัวอย่างและข้อจำกัดของชุดข้อมูล", "shot": true, "crop": "panel", "highlight": {"text": "ดูภาพเอกสารและข้อจำกัด", "within": {"css": "[data-mock-card]:not([hidden])"}}, "wait_after": {"css": "[data-mock-card]:not([hidden]) img.mock-document-preview"}},
+        {"do": "click", "target": {"role": "link", "name": "JSON", "exact": true, "within": {"role": "navigation", "name": "ไฟล์ M05"}}, "expect_download": {"ext": "json", "kind": "text", "min_bytes": 200}, "say": "กดลิงก์ \"JSON\" ในแถบไฟล์ของโมดูล ระบบดาวน์โหลดชุดข้อมูลของโมดูลเป็นไฟล์ JSON", "shot": true, "crop": "panel", "highlight": {"role": "link", "name": "JSON", "exact": true, "within": {"role": "navigation", "name": "ไฟล์ M05"}}},
+        {"do": "click", "target": {"role": "link", "name": "PDF", "exact": true, "within": {"role": "navigation", "name": "ไฟล์ M05"}}, "expect_download": {"ext": "pdf", "kind": "pdf", "min_bytes": 1000}, "say": "กดลิงก์ \"PDF\" ในแถบไฟล์เดียวกัน ระบบดาวน์โหลดเอกสาร PDF ของโมดูล"},
+        {"do": "note", "say": "ไฟล์ทั้งสามชนิดเป็นไฟล์ตัวอย่างของโมดูลเดียวกัน ไฟล์ JSON และ CSV ใช้ตรวจรูปแบบข้อมูล ไฟล์ PDF ใช้อ่านเป็นเอกสาร"}
+      ],
+      "expected": "การ์ดโมดูลแสดงภาพเอกสารตัวอย่าง ข้อจำกัด และลิงก์ไฟล์ JSON CSV PDF ที่ดาวน์โหลดได้",
+      "verify": [
+        {
+          "title": "ไฟล์ JSON ของโมดูล M05 ดาวน์โหลดได้",
+          "steps": [
+            {"do": "expect", "that": {"visible": {"role": "navigation", "name": "ไฟล์ M05"}}}
+          ]
+        }
+      ]
+    }
+  ],
+  "skeleton": [],
+  "untested": [
+    "ไฟล์ PDF ที่เปิดในแท็บของเบราว์เซอร์ (ตัวแสดง PDF ของ Chrome) ไม่ได้ตรวจด้วยภาพ ตรวจเฉพาะการดาวน์โหลดและลายเซ็นของไฟล์",
+    "ไฟล์ของโมดูลที่ไม่ได้เปิดในตัวอย่างนี้ ตรวจด้วยรูปแบบเดียวกันแต่ไม่ได้ดาวน์โหลดทุกไฟล์ทีละโมดูล",
+    "ไม่ได้ตรวจการเปิดหน้านี้ในการติดตั้งจากแพ็กเกจสำหรับใช้งานจริง เพราะเมนูและหน้าไม่มีในการติดตั้งแบบนั้นโดยตั้งใจ"
+  ]
+}
