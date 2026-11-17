@@ -1,0 +1,134 @@
+#!/bin/bash
+# Saan container start. "serve" (default): certificate, Apache config, app files, first install (once), cron, Apache in the foreground.
+# "init-secrets": generate the database root password (compose runs this once before MariaDB starts). Anything else is executed as given.
+set -euo pipefail
+S=/srv/saan; SEC=/srv/saan-secrets; DIST=/opt/saan-dist
+APP_PORT=${SAAN_APP_PORT:-8443}; WWW_PORT=${SAAN_WWW_PORT:-9443}
+HOSTS=${SAAN_HOSTS:-localhost}; HOSTS=${HOSTS// /}; FIRST=${HOSTS%%,*}
+DB_HOST=${SAAN_DB_HOST:-db}; DATA=${SAAN_DATA:-blank}
+APP_URL="https://$FIRST:$APP_PORT"; WWW_URL="https://$FIRST:$WWW_PORT"
+log() { echo "[saan] $(date '+%F %T') $*"; }
+die() { echo "[saan] [ERR] $*" >&2; exit 1; }
+as_www() { runuser -u www-data -- "$@"; }
+
+case "${1:-serve}" in
+    serve) ;;
+    init-secrets) exec /usr/local/bin/saan-init-secrets ;;
+    *) exec "$@" ;;
+esac
+
+[ -s "$SEC/db-root-password" ] || die "no database root password in $SEC: start with 'docker compose up -d' (the secrets service makes it)"
+case "$DATA" in blank|demo|full) ;; *) die "SAAN_DATA must be blank, demo or full (now: $DATA)";; esac
+[[ "$APP_PORT" =~ ^[0-9]+$ && "$WWW_PORT" =~ ^[0-9]+$ && "$APP_PORT" != "$WWW_PORT" ]] || die "SAAN_APP_PORT and SAAN_WWW_PORT must be two different numbers"
+mkdir -p "$S/tls" "$S/backups" "$S/logs" "$S/state"
+chmod 0700 "$S/tls" "$S/state"; chown www-data:www-data "$S/backups" "$S/logs"; chmod 0750 "$S/backups"
+
+# ---------------------------------------------------------------- certificate
+/usr/local/bin/saan-tls "$HOSTS"
+CERT=${SAAN_TLS_CERT:-$S/tls/server.crt}; KEY=${SAAN_TLS_KEY:-$S/tls/server.key}
+[ -r "$CERT" ] && [ -r "$KEY" ] || die "certificate $CERT / key $KEY not readable"
+# the internal side calls the public side over HTTPS: trust the local CA inside this container
+if [ -f "$S/tls/ca.crt" ]; then cp "$S/tls/ca.crt" /usr/local/share/ca-certificates/saan-local-ca.crt; update-ca-certificates >/dev/null 2>&1 || true; fi
+# host NAMES in SAAN_HOSTS point to this container, so the internal side reaches the public side without leaving it (IP addresses go
+# through the published port of the host instead)
+for h in ${HOSTS//,/ }; do
+    if [[ ! "$h" =~ ^[0-9.]+$ && "$h" != *:* && "$h" != localhost ]]; then grep -qE "[[:space:]]$h\$" /etc/hosts || echo "127.0.0.1 $h" >> /etc/hosts; fi
+done
+
+# ---------------------------------------------------------------- Apache
+sed -e "s|@APP_PORT@|$APP_PORT|g" -e "s|@WWW_PORT@|$WWW_PORT|g" -e "s|@CERT@|$CERT|g" -e "s|@KEY@|$KEY|g" \
+    /etc/apache2/saan/vhosts.conf.tpl > /etc/apache2/sites-enabled/saan.conf
+apache2ctl -t >/dev/null 2>&1 || { apache2ctl -t; die "Apache configuration error"; }
+
+# ---------------------------------------------------------------- app files (copied once; the volume keeps them, the built-in updater changes them)
+if [ ! -f "$S/app/artisan" ]; then
+    log "copying Saan $(cat $DIST/app/VERSION) into the data volume (internal app and public site)"
+    rm -rf "$S/app.tmp" "$S/www.tmp"
+    cp -a "$DIST/app" "$S/app.tmp"; cp -a "$DIST/app" "$S/www.tmp"
+    chown -R www-data:www-data "$S/app.tmp" "$S/www.tmp"
+    mv "$S/www.tmp" "$S/www"; mv "$S/app.tmp" "$S/app"
+fi
+
+# ---------------------------------------------------------------- first install (each step once; a failed step is retried at the next start)
+export MYSQL_PWD; MYSQL_PWD=$(cat "$SEC/db-root-password")
+dbwait() { for i in $(seq 1 90); do mariadb-admin -h "$DB_HOST" -uroot ping --silent >/dev/null 2>&1 && return 0; sleep 2; done; die "database $DB_HOST not reachable"; }
+genpw() { # letters and digits, at least one of each
+    local p; while :; do p=$(openssl rand -base64 96 | LC_ALL=C tr -dc 'A-Za-z0-9' | cut -c1-"$1" | tr -d '\n'); [[ "$p" =~ [A-Za-z] && "$p" =~ [0-9] ]] && { echo "$p"; return; }; done; }
+
+if [ ! -f "$S/state/installed" ]; then
+    dbwait
+    ADMIN_EMAIL=${SAAN_ADMIN_EMAIL:-admin@school.example}
+    if [ ! -f "$S/app/storage/installed.json" ]; then
+        log "installing Saan (standard layout: internal $APP_URL, public $WWW_URL, data: $DATA) - this takes several minutes"
+        ADMIN_PW=$(genpw 20)
+        MODE=$DATA; [ "$DATA" = full ] && MODE=blank   # full = blank install + every module + the fictional trial school (saan:demo)
+        CFG=$(mktemp /tmp/saan-install.XXXXXX.json); chmod 0600 "$CFG"; trap 'rm -f "$CFG"' EXIT   # holds the admin and database passwords
+        jq -n --arg host "$DB_HOST" --arg dbpw "$MYSQL_PWD" --arg pub "$S/www" --arg wurl "$WWW_URL" --arg aurl "$APP_URL" \
+              --arg school "${SAAN_SCHOOL_NAME:-โรงเรียนตัวอย่าง}" --arg aname "${SAAN_ADMIN_NAME:-ผู้ดูแลระบบ}" --arg mail "$ADMIN_EMAIL" \
+              --arg pw "$ADMIN_PW" --arg mode "$MODE" \
+          '{layout:"standard", db_admin:{db_host:$host, db_port:"3306", db_user:"root", db_password:$dbpw}, public_root:$pub, public_url:$wurl,
+            site:{school_name:$school, admin_name:$aname, admin_email:$mail, password:$pw, password_confirmation:$pw, app_url:$aurl, mode:$mode,
+                  public_email:"", phone:"", address:""}}' > "$CFG"
+        chown www-data "$CFG"   # written by root first: the kernel refuses root writing into another user's file in sticky /tmp
+        umask 077
+        if ! (cd "$S/app" && as_www php install.php --config="$CFG") > "$SEC/install-result.json" 2> "$S/logs/install.err"; then
+            rm -f "$CFG"; cat "$S/logs/install.err" >&2; die "install failed (details above and in $S/logs/install.err)"
+        fi
+        rm -f "$CFG"; trap - EXIT
+        printf '%s\n%s\n' "$ADMIN_EMAIL" "$ADMIN_PW" > "$SEC/admin-initial"
+        chmod 0600 "$SEC/install-result.json" "$SEC/admin-initial"
+        log "[OK] core installed"
+    fi
+    if [ ! -f "$S/state/modules" ] && ls $DIST/modules/saan-mod-*.zip >/dev/null 2>&1; then
+        log "installing $(ls $DIST/modules/saan-mod-*.zip | wc -l) module packages on both sides"
+        (cd "$S/app" && as_www env SAAN_PHP_CLI=/usr/bin/php8.4 php artisan saan:update --all="$DIST/modules" --both --skip-db-backup) > "$S/logs/modules.log" 2>&1 \
+            || { tail -20 "$S/logs/modules.log" >&2; die "module install failed (log: $S/logs/modules.log)"; }
+        touch "$S/state/modules"; log "[OK] $(grep -c '^\[OK\] [0-9]' "$S/logs/modules.log" || true) modules installed"
+    fi
+    if [ "$DATA" = full ] && [ ! -f "$S/state/trial" ]; then
+        log "creating the fictional trial school (all roles)"
+        umask 077
+        (cd "$S/app" && as_www php artisan saan:demo install --url="$APP_URL") > "$SEC/trial-accounts.txt" 2> "$S/logs/trial.err" \
+            || { grep -h "\[ERR\]" "$SEC/trial-accounts.txt" "$S/logs/trial.err" >&2 || true; die "trial data failed"; }
+        chmod 0600 "$SEC/trial-accounts.txt"
+        rm -f "$S"/app/storage/app/private/demo-accounts*.txt
+        touch "$S/state/trial"; log "[OK] trial school created"
+    fi
+    # only the administrator account this container created must pick its own password; trial accounts (SAAN_DATA=full) are never forced
+    if [ ! -f "$S/state/admin-flagged" ]; then (cd "$S/app" && as_www php artisan school:require-password-change "$ADMIN_EMAIL") >/dev/null && touch "$S/state/admin-flagged"; fi
+    /usr/local/bin/saan-credentials --write
+    touch "$S/state/installed"
+    log "[OK] Saan is installed. Passwords: docker compose exec saan saan-credentials"
+fi
+unset MYSQL_PWD; umask 022
+
+# ---------------------------------------------------------------- the internal side delivers to the public side inside this container
+# (localhost, the same port): a host firewall such as ufw usually drops a container calling the host's own address back. Pairing,
+# links and the certificate keep the public address; only the delivery path changes. Set at every start, so a new port is followed.
+if [ -f "$S/app/.env" ] && grep -qE '^SAAN_EDITION="?internal' "$S/app/.env"; then
+    push="https://localhost:$WWW_PORT/_saan/push"
+    if ! grep -qx "SAAN_PUBLIC_PUSH_URL=$push" "$S/app/.env"; then
+        if grep -q '^SAAN_PUBLIC_PUSH_URL=' "$S/app/.env"; then sed -i "s|^SAAN_PUBLIC_PUSH_URL=.*|SAAN_PUBLIC_PUSH_URL=$push|" "$S/app/.env"
+        else printf '\nSAAN_PUBLIC_PUSH_URL=%s\n' "$push" >> "$S/app/.env"; fi
+        chown www-data:www-data "$S/app/.env"; chmod 0600 "$S/app/.env"
+        [ -f "$S/app/bootstrap/cache/config.php" ] && (cd "$S/app" && as_www php artisan config:cache >/dev/null)
+    fi
+fi
+
+# ---------------------------------------------------------------- scheduler (both apps, every minute, as the web server user)
+cat > /etc/cron.d/saan <<'EOF'
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+* * * * * www-data [ -f /srv/saan/app/storage/installed.json ] && [ ! -f /srv/saan/restoring ] && cd /srv/saan/app && php artisan schedule:run > /srv/saan/logs/schedule-app.log 2>&1
+* * * * * www-data [ -f /srv/saan/www/storage/installed.json ] && cd /srv/saan/www && php artisan schedule:run > /srv/saan/logs/schedule-www.log 2>&1
+EOF
+chmod 0644 /etc/cron.d/saan; rm -f "$S/restoring"   # a restore cut short by a restart must not keep the scheduler paused
+cron
+
+# first delivery of everything the install made (modules, trial school) once Apache answers; the scheduler keeps it up to date afterwards
+if [ ! -f "$S/state/first-publish" ]; then
+    ( sleep 15; cd "$S/app" && as_www php artisan saan:publish > "$S/logs/first-publish.log" 2>&1 && touch "$S/state/first-publish" ) &
+fi
+
+log "ready: internal system $APP_URL/login   public website $WWW_URL/"
+exec apache2ctl -D FOREGROUND

@@ -1,0 +1,11 @@
+#!/bin/bash
+# Back up the internal system (database + private files) into /srv/saan/backups.   docker compose exec saan saan-backup
+# Copy it off the machine afterwards:   docker compose cp saan:/srv/saan/backups/<file> .
+# The public website needs no backup: it is rebuilt from the internal system (saan-artisan saan:publish --full).
+set -euo pipefail
+f=/srv/saan/backups/saan-$(date +%Y%m%d-%H%M%S).zip
+n=2; while [ -e "$f" ]; do f=/srv/saan/backups/saan-$(date +%Y%m%d-%H%M%S)-$n.zip; n=$((n+1)); done   # two backups in the same second
+cd /srv/saan/app
+runuser -u www-data -- php artisan school:archive backup "$f"
+ls -l "$f"
+echo "[saan] [OK] คัดลอกออกจาก container: docker compose cp saan:$f ."

@@ -1,0 +1,17 @@
+#!/bin/bash
+# Short status of this Saan container.   docker compose exec saan saan-status
+APP_PORT=${SAAN_APP_PORT:-8443}; WWW_PORT=${SAAN_WWW_PORT:-9443}; HOSTS=${SAAN_HOSTS:-localhost}; HOSTS=${HOSTS// /}; FIRST=${HOSTS%%,*}
+echo "Saan แกนระบบ:       $(cat /srv/saan/app/VERSION 2>/dev/null || echo '-') (ภายใน)  $(cat /srv/saan/www/VERSION 2>/dev/null || echo '-') (หน้าบ้าน)"
+echo "image มีแพ็กเกจรุ่น: $(cat /opt/saan-dist/app/VERSION)  ·  Debian $(cat /etc/debian_version)  ·  PHP $(php -r 'echo PHP_VERSION;')"
+echo "ติดตั้งแล้ว:          $([ -f /srv/saan/state/installed ] && echo ใช่ || echo 'ยังไม่เสร็จ')  ·  ข้อมูลตั้งต้น ${SAAN_DATA:-blank}"
+echo "โมดูลที่ติดตั้ง:      $(ls -d /srv/saan/app/modules/*/ 2>/dev/null | wc -l)"
+echo "ระบบภายใน:          https://$FIRST:$APP_PORT/login"
+echo "เว็บไซต์โรงเรียน:     https://$FIRST:$WWW_PORT/"
+echo "ใบรับรองใช้ได้ถึง:    $(openssl x509 -enddate -noout -in "${SAAN_TLS_CERT:-/srv/saan/tls/server.crt}" 2>/dev/null | cut -d= -f2)  สำหรับ $(cat /srv/saan/tls/hosts 2>/dev/null)"
+echo "ตัวตั้งเวลา (cron):   $(pgrep -x cron >/dev/null && echo ทำงาน || echo 'ไม่ทำงาน')  ·  ล่าสุด $(date -r /srv/saan/logs/schedule-app.log '+%F %T' 2>/dev/null || echo -)"
+echo "ไฟล์สำรอง:           $(ls /srv/saan/backups/*.zip 2>/dev/null | wc -l) ไฟล์ใน /srv/saan/backups"
+if [ -f /srv/saan/state/installed ]; then
+    echo; echo "--- school:doctor (ระบบภายใน)"
+    cd /srv/saan/app && runuser -u www-data -- php artisan school:doctor 2>&1 | grep -E '^\[(WARN|ERR)\]' | head -20 || true
+    echo "(แสดงเฉพาะ [WARN]/[ERR]; ไม่มีบรรทัดใด = ผ่านทั้งหมด)"
+fi

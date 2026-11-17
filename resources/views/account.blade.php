@@ -3,6 +3,7 @@
 <section class="account-card glass"><h2>เปลี่ยนรหัสผ่าน</h2>
 @if(auth()->user()->is_demo)<p>บัญชีนี้เป็นบัญชีสาธิต ใช้สำหรับทดลองขั้นตอนทำงาน</p>
 @else
+@if(auth()->user()->getAttributes()['must_change_password'] ?? false)<p class="account-alert" role="status"><strong>ต้องเปลี่ยนรหัสผ่านก่อนใช้งาน</strong> รหัสผ่านที่ใช้อยู่ถูกสร้างให้ตอนติดตั้งหรือโดยผู้ดูแลระบบ กรอกรหัสผ่านนั้นในช่องรหัสผ่านปัจจุบัน แล้วตั้งรหัสผ่านใหม่ของท่านเอง</p>@endif
 <p class="account-help">ใช้ตัวอักษรและตัวเลขรวมกันอย่างน้อย 12 ตัว เปลี่ยนแล้วอุปกรณ์อื่นต้องเข้าสู่ระบบใหม่</p>
 <form class="account-form" method="post" action="{{ url('/account/password') }}">@csrf @method('put')
 <label>รหัสผ่านปัจจุบัน<input name="current_password" type="password" autocomplete="current-password" required></label>

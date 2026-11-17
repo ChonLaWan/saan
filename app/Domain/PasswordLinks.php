@@ -53,7 +53,7 @@ class PasswordLinks
         if (!$valid) throw ValidationException::withMessages(['email' => 'ลิงก์หมดอายุหรือไม่ถูกต้อง กรุณาขอลิงก์ใหม่']);
         DB::transaction(function () use ($user, $password) {
             $fresh = User::whereKey($user->id)->lockForUpdate()->firstOrFail();
-            $fresh->password = $password; $fresh->auth_version++; $fresh->version++; $fresh->remember_token = null; $fresh->save();
+            $fresh->password = $password; if (array_key_exists('must_change_password', $fresh->getAttributes())) $fresh->must_change_password = false; $fresh->auth_version++; $fresh->version++; $fresh->remember_token = null; $fresh->save();
             app(SchoolOperations::class)->auditAs($fresh->id, 'account.password_reset', 'users', $fresh->id);
         });
         foreach (['users', 'invites'] as $b) Password::broker($b)->deleteToken($user);

@@ -1,0 +1,10 @@
+#!/bin/bash
+# Run an artisan command as the web server user.   saan-artisan [app|www] <command> [args]
+#   docker compose exec saan saan-artisan school:doctor          (internal system, the default)
+#   docker compose exec saan saan-artisan www school:doctor      (public website)
+set -euo pipefail
+side=app; case "${1:-}" in app|www) side=$1; shift;; esac
+[ $# -gt 0 ] || { echo "usage: saan-artisan [app|www] <command> [args]" >&2; exit 2; }
+cd /srv/saan/$side
+tty=(); [ -t 0 ] && tty=(--pty)
+exec runuser "${tty[@]}" -u www-data -- php artisan "$@"

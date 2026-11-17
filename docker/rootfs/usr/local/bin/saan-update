@@ -1,0 +1,28 @@
+#!/bin/bash
+# Install the Saan packages that are NEWER than what is installed, on both sides (internal app and public site), with the app's own
+# signed updater (signature check, database backup, automatic rollback on failure).
+#   saan-update            packages baked into this image (after "docker compose build --pull" / a new image)
+#   saan-update <folder>   packages you copied into the container (docker compose cp ./pkgs saan:/srv/saan/incoming)
+# The in-app page /admin/updates does the same from the project's release feed.
+set -euo pipefail
+src=${1:-}
+tmp=$(mktemp -d /tmp/saan-update.XXXXXX); trap 'rm -rf "$tmp"' EXIT
+installed_core=$(cat /srv/saan/app/VERSION)
+newer() { php -r 'exit(version_compare($argv[1],$argv[2],">")?0:1);' "$1" "$2"; }
+pick() { # zip
+    local b; b=$(basename "$1")
+    if [[ "$b" =~ ^saan-core-(.+)\.zip$ ]]; then newer "${BASH_REMATCH[1]}" "$installed_core" && ln -s "$1" "$tmp/$b"; return 0; fi
+    if [[ "$b" =~ ^saan-mod-(.+)-([0-9][0-9A-Za-z.+-]*)\.zip$ ]]; then
+        local id=${BASH_REMATCH[1]} v=${BASH_REMATCH[2]} cur=""
+        [ -f "/srv/saan/app/modules/$id/module.json" ] && cur=$(jq -r '.version // ""' "/srv/saan/app/modules/$id/module.json")
+        if [ -z "$cur" ] || newer "$v" "$cur"; then ln -s "$1" "$tmp/$b"; fi
+    fi
+}
+if [ -n "$src" ]; then for z in "$src"/saan-core-*.zip "$src"/saan-mod-*.zip; do [ -f "$z" ] && pick "$z"; done
+else for z in /opt/saan-dist/packages/saan-core-*.zip /opt/saan-dist/modules/saan-mod-*.zip; do [ -f "$z" ] && pick "$z"; done; fi
+n=$(ls "$tmp" | wc -l)
+if [ "$n" -eq 0 ]; then echo "[saan] [OK] ไม่มีแพ็กเกจที่ใหม่กว่ารุ่นที่ติดตั้ง (แกนระบบ $installed_core)"; exit 0; fi
+echo "[saan] จะติดตั้ง $n แพ็กเกจ: $(ls "$tmp" | paste -sd' ' -)"
+chmod 0755 "$tmp"
+cd /srv/saan/app
+runuser -u www-data -- env SAAN_PHP_CLI=/usr/bin/php8.4 php artisan saan:update --all="$tmp" --both

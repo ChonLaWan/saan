@@ -569,6 +569,34 @@ class SaanPublishTest extends TestCase
 
     // ---------------------------------------------------------------- hooks, command, admin page
 
+    public function test_insert_get_id_on_a_watched_table_returns_the_new_row_not_the_marker(): void
+    {
+        // a paired internal install: the marker used to be written between the INSERT and insertGetId() reading the id, so callers got the
+        // id of the pub_outbox row (Mutation::insert returned null, creating a hub/category failed with a TypeError)
+        config(['saan.edition' => 'internal', 'saan.public_push_url' => 'https://public.test/_saan/push']);
+        $this->world();
+        Outbox::watch();
+        DB::table('pub_outbox')->delete();
+        Outbox::forget();
+        DB::table('pub_outbox')->insert(['stream' => 'filler', 'op' => 'upsert', 'created_at' => now()]); // outbox ids run ahead of category ids
+        foreach (range(1, 5) as $i) DB::table('pub_outbox')->insert(['stream' => 'filler'.$i, 'op' => 'upsert', 'created_at' => now()]);
+        $row = \App\Support\Saan\Mutation::insert('cms_categories', ['slug' => 'id-check', 'label' => 'ตรวจเลข'], 'category.saved');
+        $this->assertSame('id-check', $row->slug);
+        $id = DB::table('cms_categories')->insertGetId(['school_id' => 1, 'slug' => 'id-check-2', 'label' => 'x', 'created_at' => now(), 'updated_at' => now()]);
+        $this->assertSame('id-check-2', DB::table('cms_categories')->where('id', $id)->value('slug'));
+        // the marker is still written (at the next statement), inside a transaction too
+        $this->assertContains('cms_categories', DB::table('pub_outbox')->whereNull('payload')->whereNull('sent_at')->pluck('stream')->all());
+        DB::table('pub_outbox')->where('stream', 'cms_categories')->delete();
+        Outbox::forget();
+        DB::transaction(fn () => DB::table('cms_categories')->insertGetId(['school_id' => 1, 'slug' => 'id-check-3', 'label' => 'x', 'created_at' => now(), 'updated_at' => now()]));
+        $this->assertContains('cms_categories', DB::table('pub_outbox')->whereNull('sent_at')->pluck('stream')->all());
+        // a rolled back insert leaves no marker
+        DB::table('pub_outbox')->where('stream', 'cms_categories')->delete();
+        Outbox::forget();
+        try { DB::transaction(function () { DB::table('cms_categories')->insert(['school_id' => 1, 'slug' => 'id-check-4', 'label' => 'x', 'created_at' => now(), 'updated_at' => now()]); throw new \RuntimeException('stop'); }); } catch (\RuntimeException) {}
+        $this->assertNotContains('cms_categories', DB::table('pub_outbox')->whereNull('sent_at')->pluck('stream')->all());
+    }
+
     public function test_writes_to_published_tables_queue_a_change_marker_and_the_publisher_consumes_it(): void
     {
         config(['saan.edition' => 'internal', 'saan.public_push_url' => 'https://public.test/_saan/push']);

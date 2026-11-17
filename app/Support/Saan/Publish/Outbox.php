@@ -59,17 +59,52 @@ final class Outbox
     {
         if (self::$watching === app()) return;
         self::$watching = app();
+        self::$pending = [];
         DB::listen(function (QueryExecuted $q) {
             if ($q->connectionName !== DB::getDefaultConnection()) return; // only the internal database feeds the queue
-            if (!preg_match('/^\s*(?:insert(?:\s+(?:or\s+\w+|ignore))?\s+into|replace\s+into|update(?:\s+(?:or\s+\w+|ignore))?|delete\s+from)\s+[`"\[]?([A-Za-z0-9_]+)/i', $q->sql, $m)) return;
-            $table = strtolower($m[1]);
+            if (!preg_match('/^\s*(?:(insert(?:\s+(?:or\s+\w+|ignore))?\s+into|replace\s+into)|update(?:\s+(?:or\s+\w+|ignore))?|delete\s+from)\s+[`"\[]?([A-Za-z0-9_]+)/i', $q->sql, $m)) return;
+            $table = strtolower($m[2]);
             $streams = self::SOURCES[$table] ?? null;
             if ($streams === null) return;
             // a module switch (saan_settings) changes what every module stream may hold: they are all re-evaluated, not only the list of active modules
             if ($table === 'saan_settings') { self::$cfg = null; $streams = array_merge($streams, self::moduleStreams()); }
+            $dedupe = $q->connection->transactionLevel() === 0;
+            // INSERT: this event fires between the statement and insertGetId() reading the new id from the connection; writing the marker now
+            // would hand the caller the id of the pub_outbox row instead. The marker waits for the next statement on this connection (or the
+            // commit, or the end of the process), so it is still written inside the same transaction as the change.
+            if ($m[1] !== '') { foreach ($streams as $s) self::$pending[$s] = (self::$pending[$s] ?? true) && $dedupe; return; }
             // inside a transaction the marker is written in that same transaction: it commits together with the change, and vanishes with a rollback
-            try { self::touch($streams, $q->connection->transactionLevel() === 0); } catch (\Throwable) { /* a hint must never break the write that caused it; the hourly reconcile repairs it */ }
+            try { self::touch($streams, $dedupe); } catch (\Throwable) { /* a hint must never break the write that caused it; the hourly reconcile repairs it */ }
         });
+        DB::connection()->beforeExecuting(fn () => self::flush());
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Database\Events\TransactionCommitting::class, function ($e) {
+            if ($e->connectionName === DB::getDefaultConnection()) self::flush();
+        });
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Database\Events\TransactionRolledBack::class, function ($e) {
+            if ($e->connectionName === DB::getDefaultConnection()) self::$pending = []; // the rows they were for are gone (the reconcile covers a nested rollback)
+        });
+        app()->terminating(fn () => self::flush());
+    }
+
+    /** @var array<string,bool> markers of inserts not written yet: stream => dedupe allowed (false when the insert ran inside a transaction) */
+    private static array $pending = [];
+    private static bool $flushing = false;
+
+    /** Writes the markers held back after inserts (see watch()). Safe to call any time; never throws. */
+    public static function flush(): void
+    {
+        if (self::$flushing || !self::$pending) return;
+        self::$flushing = true;
+        try {
+            $p = self::$pending; self::$pending = [];
+            $in = array_keys(array_filter($p, fn ($d) => !$d)); $out = array_keys(array_filter($p));
+            if ($in) self::touch($in, false);
+            if ($out) self::touch($out, true);
+        } catch (\Throwable) {
+            // a hint must never break the statement that triggered the flush; the hourly reconcile repairs a missed marker
+        } finally {
+            self::$flushing = false;
+        }
     }
 
     /** Marks streams as changed (one marker row per stream until the publisher consumes it). */
@@ -110,6 +145,7 @@ final class Outbox
     public static function forget(): void
     {
         self::$seen = [];
+        self::$pending = [];
         self::$cfg = null;
     }
 

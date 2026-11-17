@@ -1,0 +1,10 @@
+#!/bin/bash
+# Container health: both sites answer over HTTPS (any status below 500), the scheduler daemon runs.
+p1=${SAAN_APP_PORT:-8443}; p2=${SAAN_WWW_PORT:-9443}
+[ -f /srv/saan/state/installed ] || exit 1
+pgrep -x cron >/dev/null || exit 1
+for u in "https://127.0.0.1:$p1/login" "https://127.0.0.1:$p2/"; do
+    c=$(curl -sk -o /dev/null -m 8 -w '%{http_code}' "$u") || exit 1
+    [ "$c" -ge 200 ] && [ "$c" -lt 500 ] || exit 1
+done
+exit 0

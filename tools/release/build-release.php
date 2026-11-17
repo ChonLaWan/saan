@@ -28,7 +28,7 @@ $testSigned = (bool) $key['test_only'];
 if (!is_dir($out)) mkdir($out, 0700, true);
 $version = trim((string) file_get_contents($root.'/VERSION'));
 
-$excludeRe = '~^(\.env(\..*)?$|\.git/|\.github/|node_modules/|storage/|tests/|tools/release/|bootstrap/cache/(?!\.gitignore$)|public/storage|public/(cms-demo|cms-easy|cms-release|compact-review|design|implementation|mockup-review|navigation-review|presentation-review|student-registry-design)/|resources/install/library/|docs/manual/|\.phpunit|phpunit\.xml|\.editorconfig|\.gitattributes|\.gitignore)~';
+$excludeRe = '~^(\.env(\..*)?$|\.git/|\.github/|docker/|node_modules/|storage/|tests/|tools/release/|bootstrap/cache/(?!\.gitignore$)|public/storage|public/(cms-demo|cms-easy|cms-release|compact-review|design|implementation|mockup-review|navigation-review|presentation-review|student-registry-design)/|resources/install/library/|docs/manual/|\.phpunit|phpunit\.xml|\.editorconfig|\.gitattributes|\.gitignore)~';
 $separate = [];
 foreach (glob($root.'/modules/*/module.json') as $mf) { $m = json_decode((string) file_get_contents($mf), true); if (($m['package'] ?? '') === 'separate') $separate[$m['id']] = $m; }
 

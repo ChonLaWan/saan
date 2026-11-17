@@ -2,7 +2,7 @@
 
 ระบบบริหารจัดการสถานศึกษาแบบซอฟต์แวร์เสรี สำหรับโรงเรียนไทย: เว็บไซต์โรงเรียนและงานภายในอยู่ในระบบเดียว ติดตั้งบนโฮสติ้งของโรงเรียนเอง โรงเรียนเป็นเจ้าของข้อมูล
 
-รุ่น **0.8.0** (เลขรุ่นจริงอยู่ในไฟล์ `VERSION`) · Laravel 13 · PHP 8.4.1 ขึ้นไป · MariaDB / MySQL · licence [AGPL-3.0-only](LICENSE) · สถานะ: รุ่นทดสอบ (beta)
+รุ่น **0.9.0** (เลขรุ่นจริงอยู่ในไฟล์ `VERSION`) · Laravel 13 · PHP 8.4.1 ขึ้นไป · MariaDB / MySQL · licence [AGPL-3.0-only](LICENSE) · สถานะ: รุ่นทดสอบ (beta)
 
 | | |
 |---|---|
@@ -27,7 +27,7 @@
 |---|---|---|
 | ผู้บริหารหรือครูที่อยากรู้ว่าระบบทำอะไรได้ | ดูความสามารถตามกลุ่มงานและระดับความพร้อมของแต่ละโมดูล | https://saan.linuxthai.org/features/ |
 | ผู้ที่อยากลองก่อนตัดสินใจ | ติดตั้งแบบ "ทดลองเต็มระบบ (โรงเรียนสมมติ)" บนเครื่องทดสอบ ได้โรงเรียนสมมติพร้อมบัญชีทุกบทบาท | หัวข้อ [ติดตั้งผ่านเว็บ](#ติดตั้งผ่านเว็บ) ด้านล่าง |
-| ผู้ดูแลระบบของโรงเรียนหรือโฮสติ้ง | ติดตั้ง อัปเดต สำรองและกู้คืน ตรวจความพร้อมของระบบ | [คู่มือติดตั้ง](docs/installation.th.html) และ [RUNBOOK.txt](RUNBOOK.txt) |
+| ผู้ดูแลระบบของโรงเรียนหรือโฮสติ้ง | ติดตั้งบนโฮสติ้งหรือด้วย Docker อัปเดต สำรองและกู้คืน ตรวจความพร้อมของระบบ | [คู่มือติดตั้ง](docs/installation.th.html) และ [RUNBOOK.txt](RUNBOOK.txt) |
 | นักพัฒนา | อ่านโค้ด รันชุดทดสอบ ส่งการแก้ไขเป็น Pull Request | [CONTRIBUTING.md](CONTRIBUTING.md) และหัวข้อ [พัฒนาและทดสอบ](#พัฒนาและทดสอบ) |
 | ผู้พบข้อผิดพลาด | แจ้งผ่าน Issue ของ repository นี้ (ใช้ข้อมูลสมมติเท่านั้น) | แท็บ Issues |
 | ผู้พบช่องโหว่ | แจ้งแบบส่วนตัว ห้ามเปิด Issue สาธารณะ | [SECURITY.md](SECURITY.md) |
@@ -48,6 +48,20 @@
 - **MariaDB 10.6 ขึ้นไป หรือ MySQL 8.0 ขึ้นไป** เท่านั้น (ไม่รองรับ SQLite หรือฐานข้อมูลอื่น)
 - HTTPS สำหรับเว็บจริง (HTTP ใช้ได้เฉพาะ localhost/127.0.0.1)
 - ไม่ต้องมี SSH ในการติดตั้งและอัปเดตตามปกติ (File Manager และหลังบ้านเพียงพอ) แต่การกู้ข้อมูลจากไฟล์สำรองต้องใช้บรรทัดคำสั่ง (ดูด้านล่าง)
+
+## ติดตั้งด้วย Docker (Windows และ Linux)
+
+เครื่องที่ติดตั้ง Docker ได้ (Docker Desktop บน Windows หรือ Docker Engine บน Linux) ติดตั้งสานทั้งระบบได้ด้วยคำสั่งเดียว container ติดตั้งแบบมาตรฐาน โมดูลครบ HTTPS และงานตามเวลาให้เอง รหัสผ่านทุกตัวสร้างใหม่ในเครื่องนั้น ผู้ดูแลระบบตั้งรหัสผ่านของตัวเองเมื่อเข้าระบบครั้งแรก (image ใช้ Debian 13, Apache 2.4, PHP 8.4 และ MariaDB 11.8)
+
+```bash
+git clone https://github.com/ChonLaWan/saan.git
+cd saan/docker
+cp .env.example .env        # Windows PowerShell: Copy-Item .env.example .env
+docker compose up -d --build
+docker compose exec saan saan-credentials
+```
+
+คู่มือพร้อมรูปทุกขั้นตอน: [docs/container.th.md](docs/container.th.md) หรือ https://saan.linuxthai.org/wiki/install/docker/
 
 ## ติดตั้งผ่านเว็บ
 
@@ -108,7 +122,7 @@ PHPUnit รันบน MariaDB/MySQL เท่านั้น (ฐานข้�
 
 ## English summary
 
-Saan is a free (AGPL-3.0-only) school platform for Thai schools: the public school website (CMS) and internal school work (student registry, timetable, attendance, grades, finance, documents, portals for students and guardians) in one self-hosted Laravel 13 application (PHP 8.4.1+, MariaDB 10.6+ or MySQL 8.0+). It installs through a web wizard on ordinary shared hosting, updates from signed packages with automatic rollback, and is currently beta software. The user interface and the documentation are in Thai.
+Saan is a free (AGPL-3.0-only) school platform for Thai schools: the public school website (CMS) and internal school work (student registry, timetable, attendance, grades, finance, documents, portals for students and guardians) in one self-hosted Laravel 13 application (PHP 8.4.1+, MariaDB 10.6+ or MySQL 8.0+). It installs through a web wizard on ordinary shared hosting or with Docker on Windows and Linux (docker/, docs/container.th.md), updates from signed packages with automatic rollback, and is currently beta software. The user interface and the documentation are in Thai.
 
 - Project site, downloads with SHA-256 checksums, manual, wiki and news: https://saan.linuxthai.org (hosted by the LinuxThai community, https://linuxthai.org)
 - Report a bug: Issues of this repository, with fictional data only. Report a vulnerability privately: see [SECURITY.md](SECURITY.md).

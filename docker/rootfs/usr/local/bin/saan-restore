@@ -1,0 +1,55 @@
+#!/bin/bash
+# Restore the internal system of THIS installation from one of its backups (school:archive ZIP made by saan-backup or by the
+# automatic backup). Moving to another machine is done by copying the volumes instead (manual, section "ย้ายไปเครื่องใหม่").
+#   docker compose cp ./saan-2026xxxx.zip saan:/srv/saan/backups/
+#   docker compose exec saan saan-restore /srv/saan/backups/saan-2026xxxx.zip
+# Steps: safety backup of the current data, maintenance mode and scheduler paused, the internal database emptied and the private
+# files the backup holds moved aside (Saan restores only into an empty database and never overwrites a file), restore, maintenance
+# off, full delivery to the public website. On failure the moved files are put back and the safety backup path is printed.
+set -euo pipefail
+f=${1:-}
+[ -n "$f" ] && [ -f "$f" ] || { echo "usage: saan-restore <backup.zip inside the container>" >&2; exit 2; }
+S=/srv/saan; A="runuser -u www-data -- php artisan"
+cd $S/app
+chown www-data:www-data "$f"
+db=$(grep -E '^DB_DATABASE=' .env | cut -d= -f2- | tr -d '"'"'"); host=$(grep -E '^DB_HOST=' .env | cut -d= -f2- | tr -d '"'"'")
+[[ "$db" =~ ^[A-Za-z0-9_]+$ ]] || { echo "[saan] [ERR] unexpected database name in .env" >&2; exit 1; }
+unzip -tq "$f" >/dev/null || { echo "[saan] [ERR] $f is not a readable ZIP" >&2; exit 1; }
+tables=$(MYSQL_PWD=$(cat /srv/saan-secrets/db-root-password) mariadb -h "$host" -uroot -N -e "select count(*) from information_schema.tables where table_schema='$db'")
+safety=""
+if [ "$tables" -gt 0 ]; then
+    echo "[saan] 1/6 safety backup of the current data"
+    /usr/local/bin/saan-backup | tail -1
+    safety=$(ls -t $S/backups/saan-*.zip | head -1)   # the file saan-backup just wrote
+else
+    echo "[saan] 1/6 the database is empty (an earlier restore stopped half way): no safety backup"
+fi
+echo "[saan] 2/6 maintenance mode on, scheduler paused"
+touch $S/restoring
+$A down >/dev/null 2>&1 || true
+hold=$S/restore-hold-$(date +%Y%m%d-%H%M%S)
+fail() {
+    echo "[saan] [ERR] the restore did not finish; putting the moved files back" >&2
+    if [ -d "$hold" ]; then (cd "$hold" && find . -type f | while read -r p; do mkdir -p "$S/app/storage/app/$(dirname "$p")"; mv -f "$p" "$S/app/storage/app/$p"; done); rm -rf "$hold"; fi
+    [ -n "$safety" ] && echo "[saan] [ERR] the data from before is in $safety  (bring it back: saan-restore $safety)" >&2
+    cd $S/app; $A up >/dev/null 2>&1 || true; rm -f $S/restoring
+}
+trap fail ERR
+echo "[saan] 3/6 moving aside the private files that the backup holds"
+n=0
+while read -r rel; do                      # storage/private/<path> in the archive = storage/app/private/<path> here
+    p=${rel#storage/}
+    if [ -f "storage/app/$p" ]; then mkdir -p "$hold/$(dirname "$p")"; mv "storage/app/$p" "$hold/$p"; n=$((n+1)); fi
+done < <(unzip -Z1 "$f" | grep '^storage/private/' | grep -v '/$' || true)
+echo "        $n files moved aside"
+echo "[saan] 4/6 emptying database $db"
+MYSQL_PWD=$(cat /srv/saan-secrets/db-root-password) mariadb -h "$host" -uroot -e "DROP DATABASE \`$db\`; CREATE DATABASE \`$db\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+echo "[saan] 5/6 restoring $(basename "$f")"
+$A school:archive restore "$f" --yes-empty-database
+trap - ERR
+rm -rf "$hold"
+$A optimize:clear >/dev/null 2>&1 || true
+$A up >/dev/null; rm -f $S/restoring
+echo "[saan] 6/6 sending everything to the public website"
+$A saan:publish --full | tail -1
+echo "[saan] [OK] restore finished; users sign in with the passwords stored in the backup"

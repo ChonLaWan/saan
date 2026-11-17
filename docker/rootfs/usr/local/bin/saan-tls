@@ -1,0 +1,28 @@
+#!/bin/bash
+# Local certificate authority + server certificate for the names/addresses in SAAN_HOSTS (comma separated).
+#   saan-tls <hosts>      create when missing, or renew the server certificate when the host list changed or it expires within 30 days
+# Files in /srv/saan/tls: ca.crt (give this to the browsers/computers that should trust the site), ca.key, server.crt, server.key.
+# A real certificate can be used instead: mount it and set SAAN_TLS_CERT / SAAN_TLS_KEY (this script then only keeps the local CA).
+set -euo pipefail
+T=/srv/saan/tls; hosts="${1:-localhost},localhost,127.0.0.1"
+mkdir -p "$T"; chmod 0700 "$T"; umask 077
+if [ ! -s "$T/ca.key" ] || [ ! -s "$T/ca.crt" ]; then
+    openssl req -x509 -newkey rsa:3072 -sha256 -days 3650 -nodes -keyout "$T/ca.key" -out "$T/ca.crt" \
+        -subj "/O=Saan local/CN=Saan local CA $(head -c4 /dev/urandom | od -An -tx1 | tr -d ' \n')" \
+        -addext "basicConstraints=critical,CA:TRUE,pathlen:0" -addext "keyUsage=critical,keyCertSign,cRLSign" >/dev/null 2>&1
+    rm -f "$T/server.crt"
+    echo "[saan] [OK] local certificate authority created: $T/ca.crt"
+fi
+want=$(echo "$hosts" | tr ',' '\n' | sed '/^$/d' | sort -u | paste -sd, -)
+have=$(cat "$T/hosts" 2>/dev/null || true)
+if [ ! -s "$T/server.crt" ] || [ "$want" != "$have" ] || ! openssl x509 -checkend 2592000 -noout -in "$T/server.crt" >/dev/null 2>&1; then
+    san=""; for h in ${want//,/ }; do if [[ "$h" =~ ^[0-9.]+$ || "$h" == *:* ]]; then san="$san,IP:$h"; else san="$san,DNS:$h"; fi; done; san=${san#,}
+    first=${1%%,*}
+    openssl req -newkey rsa:2048 -sha256 -nodes -keyout "$T/server.key" -out "$T/server.csr" -subj "/O=Saan/CN=${first:-localhost}" >/dev/null 2>&1
+    printf 'subjectAltName=%s\nbasicConstraints=CA:FALSE\nkeyUsage=critical,digitalSignature,keyEncipherment\nextendedKeyUsage=serverAuth\n' "$san" > "$T/server.ext"
+    openssl x509 -req -in "$T/server.csr" -CA "$T/ca.crt" -CAkey "$T/ca.key" -CAcreateserial -days 825 -sha256 -extfile "$T/server.ext" -out "$T/server.crt" >/dev/null 2>&1
+    rm -f "$T/server.csr" "$T/server.ext"
+    echo "$want" > "$T/hosts"
+    echo "[saan] [OK] server certificate for: $want"
+fi
+chmod 0600 "$T/ca.key" "$T/server.key"; chmod 0644 "$T/ca.crt" "$T/server.crt"

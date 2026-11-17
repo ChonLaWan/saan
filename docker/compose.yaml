@@ -1,0 +1,86 @@
+# Saan (สาน) on Docker: Windows (Docker Desktop) and Linux (Docker Engine + compose plugin).
+#   copy .env.example to .env, set SAAN_HOSTS, then:  docker compose up -d --build
+# Manual: docs/container.th.md
+name: saan
+
+x-saan-image: &saan-image
+  image: saan:${SAAN_VERSION:-0.9.0}
+  build:
+    context: .
+    args:
+      SAAN_VERSION: ${SAAN_VERSION:-0.9.0}
+
+services:
+  # one-shot: database root password into the secrets volume (kept on later starts)
+  secrets:
+    <<: *saan-image
+    command: ["init-secrets"]
+    volumes:
+      - secrets:/srv/saan-secrets
+    network_mode: none
+    healthcheck:
+      disable: true
+    restart: "no"
+
+  db:
+    image: mariadb:11.8
+    command: ["--skip-name-resolve", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--max-allowed-packet=64M"]
+    environment:
+      MARIADB_ROOT_PASSWORD_FILE: /run/saan-secrets/db-root-password
+      MARIADB_AUTO_UPGRADE: "1"
+      TZ: Asia/Bangkok
+    volumes:
+      - db:/var/lib/mysql
+      - secrets:/run/saan-secrets:ro
+    depends_on:
+      secrets:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+    networks:
+      saan:
+        ipv4_address: ${SAAN_DB_IP:-10.89.47.11}
+    restart: unless-stopped
+
+  saan:
+    <<: *saan-image
+    environment:
+      SAAN_HOSTS: ${SAAN_HOSTS:-localhost}
+      SAAN_APP_PORT: ${SAAN_APP_PORT:-8443}
+      SAAN_WWW_PORT: ${SAAN_WWW_PORT:-9443}
+      SAAN_DATA: ${SAAN_DATA:-blank}
+      SAAN_SCHOOL_NAME: ${SAAN_SCHOOL_NAME:-โรงเรียนตัวอย่าง}
+      SAAN_ADMIN_NAME: ${SAAN_ADMIN_NAME:-ผู้ดูแลระบบ}
+      SAAN_ADMIN_EMAIL: ${SAAN_ADMIN_EMAIL:-admin@school.example}
+      SAAN_DB_HOST: db
+    # the same port numbers inside and outside: the internal side calls the public side by its public address
+    ports:
+      - "${SAAN_BIND:-0.0.0.0}:${SAAN_APP_PORT:-8443}:${SAAN_APP_PORT:-8443}"
+      - "${SAAN_BIND:-0.0.0.0}:${SAAN_WWW_PORT:-9443}:${SAAN_WWW_PORT:-9443}"
+    volumes:
+      - data:/srv/saan
+      - secrets:/srv/saan-secrets
+    depends_on:
+      db:
+        condition: service_healthy
+    # fixed address: the installer limits each database user to the address the database sees for this container
+    networks:
+      saan:
+        ipv4_address: ${SAAN_APP_IP:-10.89.47.10}
+    restart: unless-stopped
+    stop_grace_period: 30s
+
+networks:
+  saan:
+    ipam:
+      config:
+        - subnet: ${SAAN_SUBNET:-10.89.47.0/24}
+
+volumes:
+  data:
+  db:
+  secrets:

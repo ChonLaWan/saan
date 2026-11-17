@@ -229,7 +229,7 @@
   }
  ],
  "generated_from": {
-  "install": "D:\\AI-Project\\School\\install-trials\\manual-m5",
+  "install": "install-trials/manual-m5",
   "route_count": 706,
   "note": "routes attributed by PHP namespace, else by module.json routes patterns; \"core\" = everything else (login, portals, admin pages)"
  },

@@ -93,7 +93,13 @@ class AccountController extends Controller
             if (!Hash::check($data['current_password'], $user->password)) {
                 throw ValidationException::withMessages(['current_password' => 'รหัสผ่านปัจจุบันไม่ถูกต้อง']);
             }
+            // a password handed out by the installer or an administrator must be replaced, not confirmed again
+            $forced = (bool) ($user->getAttributes()['must_change_password'] ?? false);
+            if ($forced && hash_equals($data['current_password'], $data['password'])) {
+                throw ValidationException::withMessages(['password' => 'ตั้งรหัสผ่านใหม่ที่ไม่ซ้ำกับรหัสผ่านที่ได้รับ']);
+            }
             $user->password = $data['password'];
+            if (array_key_exists('must_change_password', $user->getAttributes())) $user->must_change_password = false;
             $user->auth_version++;
             $user->version++;
             $user->save();
