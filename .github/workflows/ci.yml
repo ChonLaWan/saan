@@ -20,13 +20,13 @@ jobs:
     name: Lint (php -l, node --check)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
           extensions: mbstring, xml, sodium
           coverage: none
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: '22'
       - name: php -l on every PHP file
@@ -44,7 +44,7 @@ jobs:
           echo "node --check ok: $n files"
       - name: Secret and PII scan of the tree that would be committed
         run: php tools/release/scan-secrets.php --fail --json=scan-secrets.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: scan-secrets-report
@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: ${{ github.event_name == 'pull_request' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
@@ -99,7 +99,7 @@ jobs:
       DB_USERNAME: root
       DB_PASSWORD: ci-root-only
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
@@ -111,7 +111,7 @@ jobs:
         run: mysql -h 127.0.0.1 -uroot -pci-root-only -e 'select version()' || mariadb -h 127.0.0.1 -uroot -pci-root-only -e 'select version()' || true
       - run: composer validate --no-check-publish
       - run: vendor/bin/phpunit --log-junit junit-${{ matrix.db.driver }}-${{ matrix.php }}.xml
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: junit-${{ matrix.db.driver }}-${{ matrix.php }}
@@ -123,7 +123,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint, test-server-db]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
@@ -138,7 +138,7 @@ jobs:
         run: php tools/release/verify-release.php "$RUNNER_TEMP/release-out" --key-file="$RUNNER_TEMP/test-signing-key.json" --allow-test-key
       - name: Keep only an index, never the key
         run: cp "$RUNNER_TEMP/release-out/release-index.json" release-index-TEST-SIGNED.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: release-index-test-signed
           path: release-index-TEST-SIGNED.json
