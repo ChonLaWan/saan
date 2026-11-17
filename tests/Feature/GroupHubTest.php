@@ -314,7 +314,8 @@ class GroupHubTest extends TestCase
         $this->assertStringContainsString('ครูมานะ ขยันสอน', $html);
         foreach (['ครูซ่อนตัว', 'ครูเกษียณ', 'ครูกลุ่มอื่น', 'ครูไม่มีแฟ้ม'] as $n) $this->assertStringNotContainsString($n, $html, $n);
         // only name, position, photo: no standing, education or start date
-        foreach (['ชำนาญการพิเศษลับ', 'ปริญญาโทลับ', '2001', 'ภาษาไทย'] as $n) $this->assertStringNotContainsString($n, $html, $n);
+        // the start date in any form it could be printed (a bare "2001" also turns up inside random tokens and failed CI once)
+        foreach (['ชำนาญการพิเศษลับ', 'ปริญญาโทลับ', '2001-05-16', '16/05/2001', '16 พ.ค. 2544', '16 พฤษภาคม 2544', '2544-05-16', 'ภาษาไทย'] as $n) $this->assertStringNotContainsString($n, $html, $n);
         // head first, then the others, and the list is exactly what the directory allowlist yields for this group
         $this->assertLessThan(strpos($html, 'ครูมานะ'), strpos($html, 'ครูสมศรี'));
         $staff = Hubs::staff(DB::table('cms_hubs')->where('slug', 'academic')->first());
