@@ -77,7 +77,7 @@ function pack_zip(string $zipPath, array $entries, array $meta, string $secret):
 $results = [];
 // core
 $entries = [];
-foreach (['app', 'bootstrap', 'config', 'database', 'docs', 'installer', 'lang', 'public', 'resources', 'routes', 'modules', 'artisan', 'composer.json', 'composer.lock', 'VERSION', 'install.php', 'README.md', 'LICENSE', 'SECURITY.md', 'CONTRIBUTING.md', 'CHANGELOG.md', 'RUNBOOK.txt', 'THIRD-PARTY-NOTICES.txt', '.env.example'] as $prefix) {
+foreach (['app', 'bootstrap', 'config', 'database', 'docs', 'installer', 'lang', 'public', 'resources', 'routes', 'modules', 'artisan', 'composer.json', 'composer.lock', 'VERSION', 'install.php', 'README.md', 'LICENSE', 'SECURITY.md', 'CONTRIBUTING.md', 'CHANGELOG.md', 'THIRD-PARTY-NOTICES.txt', '.env.example'] as $prefix) {
     foreach (files($root, $prefix) as $rel) {
         if (preg_match($excludeRe, $rel) && !in_array($rel, ['.env.example'], true)) continue;
         if (preg_match('~\.(sqlite(-[a-z]+)?|ppk|pem|key|p12|pfx|zip|bak|log|tmp)$~i', $rel)) continue; // never ship databases, keys, archives, logs or temp files (config:cache / Filesystem::replace leftovers hold secrets)

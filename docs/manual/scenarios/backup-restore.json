@@ -8,7 +8,7 @@
  ],
  "menu": [
   "ไม่มีเมนูสำหรับสร้างหรือกู้คืนไฟล์สำรอง ดูสถานะได้ที่ /cms#deployment รายการ \"ไฟล์สำรองล่าสุด\"",
-  "คำสั่ง php artisan school:archive backup และ restore (บรรทัดคำสั่ง) คู่มือติดตั้ง docs/installation.th.html หัวข้อ 9"
+  "คำสั่ง php artisan school:archive backup และ restore (บรรทัดคำสั่ง) คู่มือติดตั้ง docs/installation.th.md หัวข้อ 9"
  ],
  "prerequisites": [],
  "vars": {},

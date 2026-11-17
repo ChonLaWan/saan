@@ -184,8 +184,11 @@ class ReleaseReadinessTest extends TestCase
 
     public function test_the_manual_copy_is_identical_and_its_screenshots_are_the_current_installer(): void
     {
-        $this->assertSame(hash_file('sha256', base_path('docs/installation.th.html')), hash_file('sha256', base_path('public/manual/index.html')));
-        $manual = $this->read('docs/installation.th.html');
+        // docs/installation.th.md is the copy people read on GitHub, public/manual/index.html the page the app serves at /manual/
+        $manual = $this->read('public/manual/index.html');
+        $this->assertFileDoesNotExist(base_path('docs/installation.th.html'), 'the manual in the repository is Markdown');
+        preg_match_all('~!\[[^\]]+\]\((images/[^)\s]+)\)~u', $this->read('docs/installation.th.md'), $md);
+        $mdShown = array_values(array_unique($md[1])); sort($mdShown);
         $this->assertStringNotContainsString('images/demo-', $manual, 'screenshots of the old 4-page wizard');
         $this->assertFileDoesNotExist(base_path('docs/installation.th.before-0.6.html'));
         // every picture the manual shows is a screenshot of the current 5-step installer, exists next to both copies of the manual
@@ -193,6 +196,7 @@ class ReleaseReadinessTest extends TestCase
         preg_match_all('~<img\b[^>]*\bsrc="([^"]+)"[^>]*>~', $manual, $m);
         $this->assertNotEmpty($m[1], 'section 6 shows the installer screens');
         $shown = array_values(array_unique($m[1])); sort($shown);
+        $this->assertSame($shown, $mdShown, 'the Markdown manual shows the same pictures as the served page');
         foreach ($m[0] as $tag) $this->assertMatchesRegularExpression('~\balt="[^"]+"~', $tag, 'every screenshot has alt text');
         foreach ($shown as $src) {
             $this->assertMatchesRegularExpression('~^images/install-\d{2}-[a-z0-9-]+\.png$~', $src);
@@ -210,11 +214,11 @@ class ReleaseReadinessTest extends TestCase
     {
         $this->assertStringContainsString('GNU AFFERO GENERAL PUBLIC LICENSE', strtoupper($this->read('LICENSE')));
         $this->assertSame('AGPL-3.0-only', json_decode($this->read('composer.json'), true)['license']);
-        foreach (['THIRD-PARTY-NOTICES.txt', 'docs/installation.th.html', 'README.md'] as $f) {
+        foreach (['THIRD-PARTY-NOTICES.txt', 'docs/installation.th.md', 'README.md'] as $f) {
             $text = $this->read($f);
             $this->assertStringContainsString('AGPL-3.0-only', $text, $f);
         }
-        $this->assertStringNotContainsString('opensource.org/license/mit', $this->read('docs/installation.th.html'));
+        $this->assertStringNotContainsString('opensource.org/license/mit', $this->read('docs/installation.th.md'));
         $notices = $this->read('THIRD-PARTY-NOTICES.txt');
         $this->assertStringNotContainsString('Application code: MIT', $notices);
         $this->assertStringNotContainsString("project's MIT licence", $notices);
@@ -225,7 +229,7 @@ class ReleaseReadinessTest extends TestCase
         $health = new \ReflectionClass(\App\Domain\Cms\DeploymentHealth::class);
         $this->assertSame('10.6', $health->getConstant('MIN_MARIADB'));
         $this->assertSame('8.0', $health->getConstant('MIN_MYSQL'));
-        foreach (['README.md', 'docs/installation.th.html', 'RUNBOOK.txt'] as $f) {
+        foreach (['README.md', 'docs/installation.th.md', 'docs/runbook.th.md'] as $f) {
             $text = $this->read($f);
             $this->assertStringContainsString('8.4.1', $text, $f);
             $this->assertStringContainsString('10.6', $text, $f);
@@ -243,7 +247,7 @@ class ReleaseReadinessTest extends TestCase
     public function test_every_artisan_command_named_in_the_documents_exists(): void
     {
         $known = array_keys(Artisan::all());
-        foreach (['README.md', 'RUNBOOK.txt', 'CONTRIBUTING.md', 'docs/installation.th.html', 'docs/split-advanced.th.md', 'config/examples/cron.txt', 'tools/release/README.md'] as $f) {
+        foreach (['README.md', 'docs/runbook.th.md', 'CONTRIBUTING.md', 'docs/installation.th.md', 'docs/split-advanced.th.md', 'config/examples/cron.txt', 'tools/release/README.md'] as $f) {
             preg_match_all('/artisan\s+([a-z][a-z0-9]*(?::[a-z0-9-]+)?)/', $this->read($f), $m);
             foreach (array_unique($m[1]) as $cmd) $this->assertContains($cmd, $known, $f.' names php artisan '.$cmd.' which does not exist');
         }
@@ -270,12 +274,12 @@ class ReleaseReadinessTest extends TestCase
         $cron = $this->read('config/examples/cron.txt');
         $this->assertMatchesRegularExpression('~^\* \* \* \* \* /usr/local/php84/bin/php /home/USER/domains/DOMAIN/saan/artisan schedule:run >/dev/null 2>&1$~m', $cron);
         $this->assertStringContainsString('TWO', $cron);
-        $manual = $this->read('docs/installation.th.html');
-        $this->assertStringContainsString('schedule:run &gt;/dev/null 2&gt;&amp;1', $manual);
+        $manual = $this->read('docs/installation.th.md');
+        $this->assertStringContainsString('schedule:run >/dev/null 2>&1', $manual);
         $this->assertStringContainsString('สองบรรทัด', $manual);
         $this->assertStringContainsString('QUEUE_CONNECTION=sync', $manual);
         $this->assertStringContainsString('saan:update --recover --auto', $manual);
-        foreach (['.env.example', 'config/examples/cron.txt', 'config/examples/apache-vhost.conf', 'config/examples/nginx-server.conf', 'config/examples/database.txt', 'docs/installation.th.html', 'RUNBOOK.txt', 'README.md'] as $f) {
+        foreach (['.env.example', 'config/examples/cron.txt', 'config/examples/apache-vhost.conf', 'config/examples/nginx-server.conf', 'config/examples/database.txt', 'docs/installation.th.md', 'docs/runbook.th.md', 'README.md'] as $f) {
             $this->assertStringNotContainsString('school-atelier', $this->read($f), $f);
             $this->assertStringNotContainsString('school_atelier', $this->read($f), $f);
         }
@@ -283,7 +287,7 @@ class ReleaseReadinessTest extends TestCase
 
     public function test_no_placeholder_contacts_or_repository_urls_remain(): void
     {
-        foreach (['SECURITY.md', 'docs/installation.th.html', 'README.md', 'CONTRIBUTING.md', 'RUNBOOK.txt'] as $f) {
+        foreach (['SECURITY.md', 'docs/installation.th.md', 'README.md', 'CONTRIBUTING.md', 'docs/runbook.th.md'] as $f) {
             $text = $this->read($f);
             $this->assertStringNotContainsString('security@example.org', $text, $f);
             $this->assertStringNotContainsString('YOUR-ORG', $text, $f);
@@ -299,7 +303,7 @@ class ReleaseReadinessTest extends TestCase
 
     public function test_runbook_is_current(): void
     {
-        $runbook = $this->read('RUNBOOK.txt');
+        $runbook = $this->read('docs/runbook.th.md');
         $this->assertStringNotContainsString('0.5.0-preview.1', $runbook);
         foreach (['saan:update', '--both', '--recover', 'school:doctor', 'school:archive', 'schedule:run', 'storage/logs', '/_saan/setup'] as $needle) {
             if ($needle === '/_saan/setup') continue; // pairing is in the manual, not the short runbook

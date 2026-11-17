@@ -27,7 +27,7 @@
 |---|---|---|
 | ผู้บริหารหรือครูที่อยากรู้ว่าระบบทำอะไรได้ | ดูความสามารถตามกลุ่มงานและระดับความพร้อมของแต่ละโมดูล | https://saan.linuxthai.org/features/ |
 | ผู้ที่อยากลองก่อนตัดสินใจ | ติดตั้งแบบ "ทดลองเต็มระบบ (โรงเรียนสมมติ)" บนเครื่องทดสอบ ได้โรงเรียนสมมติพร้อมบัญชีทุกบทบาท | หัวข้อ [ติดตั้งผ่านเว็บ](#ติดตั้งผ่านเว็บ) ด้านล่าง |
-| ผู้ดูแลระบบของโรงเรียนหรือโฮสติ้ง | ติดตั้งบนโฮสติ้งหรือด้วย Docker อัปเดต สำรองและกู้คืน ตรวจความพร้อมของระบบ | [คู่มือติดตั้ง](docs/installation.th.html) และ [RUNBOOK.txt](RUNBOOK.txt) |
+| ผู้ดูแลระบบของโรงเรียนหรือโฮสติ้ง | ติดตั้งบนโฮสติ้งหรือด้วย Docker อัปเดต สำรองและกู้คืน ตรวจความพร้อมของระบบ | [คู่มือติดตั้ง](docs/installation.th.md) และ [คู่มือปฏิบัติการย่อ](docs/runbook.th.md) |
 | นักพัฒนา | อ่านโค้ด รันชุดทดสอบ ส่งการแก้ไขเป็น Pull Request | [CONTRIBUTING.md](CONTRIBUTING.md) และหัวข้อ [พัฒนาและทดสอบ](#พัฒนาและทดสอบ) |
 | ผู้พบข้อผิดพลาด | แจ้งผ่าน Issue ของ repository นี้ (ใช้ข้อมูลสมมติเท่านั้น) | แท็บ Issues |
 | ผู้พบช่องโหว่ | แจ้งแบบส่วนตัว ห้ามเปิด Issue สาธารณะ | [SECURITY.md](SECURITY.md) |
@@ -82,7 +82,7 @@ docker compose exec saan saan-credentials
 - **เว็บเปล่า:** ไม่มีข่าว/บุคลากร/นักเรียนสมมติที่เผยแพร่ คงเมนู ธีม หมวด ส่วนหน้าแรก และ 11 ร่างหน้าเนื้อหา/สไลด์/บริการ
 - **ทดลองเต็มระบบ (โรงเรียนสมมติ):** โรงเรียนสมมติพร้อมข้อมูลของทุกโมดูลและบัญชีทดลองหนึ่งบัญชีต่อบทบาท (รหัสผ่านสุ่ม แสดงครั้งเดียว) ใช้ทดลองเท่านั้น ห้ามใช้กับโรงเรียนจริง
 
-คู่มือภาษาไทยละเอียด: [docs/installation.th.html](docs/installation.th.html) หรือเปิด `/manual/` หลังติดตั้ง สรุปคำสั่งปฏิบัติการอยู่ใน [RUNBOOK.txt](RUNBOOK.txt)
+คู่มือภาษาไทยละเอียด: [docs/installation.th.md](docs/installation.th.md) หรือเปิด `/manual/` หลังติดตั้ง สรุปคำสั่งปฏิบัติการอยู่ใน [docs/runbook.th.md](docs/runbook.th.md)
 ตัวอย่าง Apache/nginx/PHP/cron/database อยู่ `config/examples/` ใช้กับโดเมนหลัก; subfolder ดูคู่มือ
 
 ## สำรอง กู้คืน และอัปเกรด
@@ -93,7 +93,7 @@ docker compose exec saan saan-credentials
 - กู้คืน (ต้องใช้บรรทัดคำสั่ง) ลงฐานข้อมูลใหม่ที่ว่างเท่านั้น: `php artisan school:archive restore /private/backups/site.zip --yes-empty-database`
   คืน database/private media/APP_KEY โดยรักษาฐานข้อมูลและ URL เป้าหมายที่ตั้งไว้ ตัวอย่างและข้อจำกัดอยู่คู่มือ
 - อัปเดต: วางแพ็กเกจที่ลงลายเซ็น (`saan-core-*.zip`, `saan-mod-*.zip`) ที่ `storage/app/private/updates/incoming/` แล้วกดติดตั้งที่ `/cms#deployment` หรือ `php artisan saan:update <zip>`
-  ทั้งรุ่นในคำสั่งเดียว: `php artisan saan:update --all=<โฟลเดอร์ของรุ่น>` การติดตั้งแบบมาตรฐานสองโฟลเดอร์ใช้ `php artisan saan:update --both <zip>` ระบบสำรองฐานข้อมูล ปิดเว็บชั่วคราว และคืนรุ่นเดิมเองถ้าไม่สำเร็จ (ดู RUNBOOK.txt)
+  ทั้งรุ่นในคำสั่งเดียว: `php artisan saan:update --all=<โฟลเดอร์ของรุ่น>` การติดตั้งแบบมาตรฐานสองโฟลเดอร์ใช้ `php artisan saan:update --both <zip>` ระบบสำรองฐานข้อมูล ปิดเว็บชั่วคราว และคืนรุ่นเดิมเองถ้าไม่สำเร็จ (ดู [docs/runbook.th.md](docs/runbook.th.md))
 - ตรวจ `php artisan school:doctor` (หรือหน้า `/cms#deployment`) หลัง deploy/upgrade
 - ห้าม `migrate:fresh` / DatabaseSeeder ทับฐานเดิม ตัวติดตั้งไม่ใช่ระบบอัปเกรด
 

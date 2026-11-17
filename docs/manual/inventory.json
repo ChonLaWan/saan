@@ -112,7 +112,7 @@
     "ผู้ดูแลระบบ (บรรทัดคำสั่ง)"
    ],
    "pages": [
-    "ไม่มีหน้าเว็บ: การสำรองอยู่ในขั้นตอนของ artisan saan:update และคู่มือ docs/installation.th.html",
+    "ไม่มีหน้าเว็บ: การสำรองอยู่ในขั้นตอนของ artisan saan:update และคู่มือ docs/installation.th.md",
     "wiki install/backup (saan-site/content/wiki/install/backup.md)"
    ],
    "tasks": [
@@ -130,7 +130,7 @@
    ],
    "pages": [
     "install.php และโฟลเดอร์ installer/",
-    "docs/installation.th.html (คู่มือติดตั้ง)",
+    "docs/installation.th.md (คู่มือติดตั้ง)",
     "wiki install/install, install/update, install/health-check"
    ],
    "tasks": [
