@@ -54,7 +54,7 @@
 เครื่องที่ติดตั้ง Docker ได้ (Docker Desktop บน Windows หรือ Docker Engine บน Linux) ติดตั้งสานทั้งระบบได้ด้วยคำสั่งเดียว container ติดตั้งแบบมาตรฐาน โมดูลครบ HTTPS และงานตามเวลาให้เอง รหัสผ่านทุกตัวสร้างใหม่ในเครื่องนั้น ผู้ดูแลระบบตั้งรหัสผ่านของตัวเองเมื่อเข้าระบบครั้งแรก (image ใช้ Debian 13, Apache 2.4, PHP 8.4 และ MariaDB 11.8)
 
 ```bash
-git clone https://github.com/ChonLaWan/saan.git
+git clone https://github.com/ChonLaWan/saan
 cd saan/docker
 cp .env.example .env        # Windows PowerShell: Copy-Item .env.example .env
 docker compose up -d --build

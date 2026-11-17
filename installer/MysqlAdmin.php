@@ -26,13 +26,15 @@ final class MysqlAdmin implements DbAdmin
     /**
      * Account hosts for the new user: the loopback names when the server is local; otherwise the client host the server itself sees for the admin
      * connection (SUBSTRING_INDEX(USER(),'@',-1)), so the new user is not usable from anywhere else. Falls back to '%' only when the server cannot tell
-     * (then the firewall decides, see docs/split-advanced.th.md).
+     * (then the firewall decides, see docs/split-advanced.th.md). A "local" address that is really a forwarded port (database in a container
+     * published on 127.0.0.1, an SSH tunnel) reaches the server from another address: that address is added, or the new user could never log in.
      */
     private function hosts(array $c,\PDO $pdo):array
     {
-        if(in_array(strtolower($c['db_host']),['localhost','127.0.0.1','::1'],true))return['localhost','127.0.0.1'];
         try{$h=(string)$pdo->query("SELECT SUBSTRING_INDEX(USER(),'@',-1)")->fetchColumn();}catch(\PDOException){$h='';}
-        return[$h!==''&&preg_match('/^[A-Za-z0-9._:-]{1,255}$/D',$h)?$h:'%'];
+        $seen=$h!==''&&preg_match('/^[A-Za-z0-9._:-]{1,255}$/D',$h)?$h:'';
+        if(in_array(strtolower($c['db_host']),['localhost','127.0.0.1','::1'],true))return array_values(array_unique(array_filter(['localhost','127.0.0.1',in_array(strtolower($seen),['localhost','127.0.0.1','::1'],true)?'':$seen])));
+        return[$seen!==''?$seen:'%'];
     }
     public function exists(array $admin,string $db):bool
     {

@@ -46,7 +46,7 @@ container ของสานเป็น Linux บน Windows จึงต้อ
 
 **ขั้นที่ 4** เปิด Docker Desktop จากเมนู Start ครั้งแรกจะถามเรื่องบัญชี กด Skip ที่มุมขวาบนของกรอบได้ ไม่ต้องสมัคร แล้วรอจนมุมล่างซ้ายขึ้นว่า Engine running
 
-![หน้าต้อนรับของ Docker Desktop ครั้งแรก กด Skip ที่มุมขวาบนของกรอบ](images/container/docker-win-welcome.webp)
+![หน้าต้อนรับของ Docker Desktop ครั้งแรก กด Skip ที่มุมขวาบนของกรอบ](container/docker-win-welcome.webp)
 
 **ขั้นที่ 5** ตั้งให้ Docker เริ่มเองเมื่อเปิดเครื่อง: Settings > General > เลือก "Start Docker Desktop when you sign in to your computer"
 
@@ -59,7 +59,7 @@ docker compose version
 
 ทั้งสองคำสั่งต้องแสดงเลขรุ่นโดยไม่มีข้อผิดพลาด
 
-![ผลคำสั่ง docker version และ docker compose version บน Windows](images/container/docker-term-win-docker-version.webp)
+![ผลคำสั่ง docker version และ docker compose version บน Windows](container/docker-term-win-docker-version.webp)
 
 > Docker Desktop ใช้ได้โดยไม่เสียค่าใช้จ่ายสำหรับการศึกษา การใช้ส่วนตัว และองค์กรขนาดเล็ก ตามเงื่อนไขของ Docker Inc. ตรวจเงื่อนไขล่าสุดที่เว็บของ Docker ก่อนใช้ในหน่วยงาน
 
@@ -76,7 +76,7 @@ dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /nores
 
 **เปิด firewall ให้เครื่องอื่นในโรงเรียนเข้าได้** ครั้งแรกที่ระบบเริ่ม Windows อาจถามว่าจะให้ "Docker Desktop Backend" รับการเชื่อมต่อหรือไม่ ให้กด Allow
 
-![Windows Security ถามว่าจะให้ Docker Desktop Backend รับการเชื่อมต่อหรือไม่ กด Allow](images/container/docker-win-firewall-prompt.webp)
+![Windows Security ถามว่าจะให้ Docker Desktop Backend รับการเชื่อมต่อหรือไม่ กด Allow](container/docker-win-firewall-prompt.webp)
 
 ถ้าไม่ได้ถาม หรือเครือข่ายของเครื่องเป็นแบบ Public (ดูได้ที่ Settings > Network & internet) เครื่องอื่นจะเปิดระบบไม่ได้ ให้เปิด PowerShell แบบ Run as administrator แล้วสั่ง
 
@@ -85,7 +85,7 @@ Get-NetFirewallRule -DisplayName 'Docker Desktop Backend' | Where-Object { $_.Ac
 New-NetFirewallRule -DisplayName 'Saan (Docker) HTTPS 8443, 9443' -Direction Inbound -Protocol TCP -LocalPort 8443,9443 -RemoteAddress LocalSubnet -Action Allow -Profile Any
 ```
 
-![คำสั่งเปิด firewall ใน PowerShell แบบผู้ดูแลเครื่อง](images/container/docker-term-win-firewall.webp)
+![คำสั่งเปิด firewall ใน PowerShell แบบผู้ดูแลเครื่อง](container/docker-term-win-firewall.webp)
 
 กฎนี้เปิดเฉพาะพอร์ตของสาน และเฉพาะเครื่องในวงเครือข่ายเดียวกัน (LocalSubnet) ถ้าใช้พอร์ตอื่นให้แก้ตัวเลขให้ตรงกับ `.env`
 
@@ -122,7 +122,7 @@ docker compose version
 sudo systemctl enable --now docker
 ```
 
-![ผลคำสั่งตรวจรุ่น Docker บน Linux](images/container/docker-term-linux-docker-version.webp)
+![ผลคำสั่งตรวจรุ่น Docker บน Linux](container/docker-term-linux-docker-version.webp)
 
 ถ้าเครื่องเปิด firewall (ufw) ให้เปิดสองพอร์ตนี้ให้เครือข่ายของโรงเรียน
 
@@ -136,7 +136,7 @@ sudo ufw allow 9443/tcp
 ไฟล์ของ container อยู่ในโฟลเดอร์ `docker/` ของ repository สาน
 
 ```bash
-git clone https://github.com/ChonLaWan/saan.git
+git clone https://github.com/ChonLaWan/saan
 cd saan/docker
 ```
 
@@ -160,9 +160,9 @@ cp .env.example .env
 nano .env
 ```
 
-![คำสั่งคัดลอกไฟล์ตั้งค่าและเปิดด้วย Notepad บน Windows](images/container/docker-term-win-copy-env.webp)
+![คำสั่งคัดลอกไฟล์ตั้งค่าและเปิดด้วย Notepad บน Windows](container/docker-term-win-copy-env.webp)
 
-![ไฟล์ .env ใน Notepad แก้บรรทัด SAAN_HOSTS เป็น IP ของเครื่อง แล้วบันทึก](images/container/docker-win-env-notepad.webp)
+![ไฟล์ .env ใน Notepad แก้บรรทัด SAAN_HOSTS เป็น IP ของเครื่อง แล้วบันทึก](container/docker-win-env-notepad.webp)
 
 ค่าที่ต้องดู
 
@@ -188,7 +188,7 @@ docker compose up -d --build
 
 คำสั่งนี้สร้าง image (ดาวน์โหลด Debian แพ็กเกจของ PHP และแพ็กเกจสานที่ลงลายเซ็นจากเว็บของโครงการ ตรวจ SHA-256 ทุกไฟล์) แล้วเปิด container สามตัว
 
-![ผลคำสั่ง docker compose up -d --build: ฐานข้อมูลพร้อม (Healthy) แล้วจึงเริ่ม container ของสาน](images/container/docker-term-win-up.webp)
+![ผลคำสั่ง docker compose up -d --build: ฐานข้อมูลพร้อม (Healthy) แล้วจึงเริ่ม container ของสาน](container/docker-term-win-up.webp)
 
 | container | หน้าที่ |
 |---|---|
@@ -209,13 +209,13 @@ docker compose logs -f saan
 [saan] ... ready: internal system https://.../login   public website https://.../
 ```
 
-![log ของการติดตั้งครั้งแรก ตั้งแต่สร้างใบรับรองจนถึงบรรทัด ready](images/container/docker-term-linux-logs.webp)
+![log ของการติดตั้งครั้งแรก ตั้งแต่สร้างใบรับรองจนถึงบรรทัด ready](container/docker-term-linux-logs.webp)
 
 กด Ctrl+C เพื่อออกจากการดู log (container ยังทำงานต่อ)
 
 บน Windows เปิด Docker Desktop ที่หน้า Containers จะเห็นกลุ่ม `saan` มี container สามตัว `secrets-1` ที่หยุดอยู่เป็นปกติ
 
-![Docker Desktop หน้า Containers แสดง db-1 และ saan-1 ทำงาน secrets-1 หยุดหลังสร้างรหัสผ่านเสร็จ](images/container/docker-win-dashboard.webp)
+![Docker Desktop หน้า Containers แสดง db-1 และ saan-1 ทำงาน secrets-1 หยุดหลังสร้างรหัสผ่านเสร็จ](container/docker-win-dashboard.webp)
 
 ถ้าการติดตั้งขั้นใดล้มเหลว container จะเริ่มใหม่และทำขั้นนั้นซ้ำเอง ขั้นที่ทำเสร็จแล้วไม่ทำซ้ำ ดูสาเหตุได้ใน log
 
@@ -227,7 +227,7 @@ docker compose exec saan saan-credentials
 
 แสดงที่อยู่ของระบบ อีเมลและรหัสผ่านของผู้ดูแลระบบ รหัสผ่านฐานข้อมูล และบัญชีทดลอง (ถ้าเลือก `full`) ไฟล์นี้อยู่ใน volume `saan_secrets` เท่านั้น ไม่อยู่ใน image และไม่อยู่ใน git จดเก็บในที่ปลอดภัย
 
-![ผลคำสั่ง saan-credentials (ภาพนี้ปิดรหัสผ่านไว้ ของจริงแสดงรหัสผ่านทุกตัว)](images/container/docker-term-win-credentials.webp)
+![ผลคำสั่ง saan-credentials (ภาพนี้ปิดรหัสผ่านไว้ ของจริงแสดงรหัสผ่านทุกตัว)](container/docker-term-win-credentials.webp)
 
 เข้าระบบครั้งแรก
 
@@ -235,25 +235,25 @@ docker compose exec saan saan-credentials
 
 **ขั้นที่ 2** เบราว์เซอร์จะเตือนเรื่องใบรับรอง เพราะใบรับรองออกโดย CA ของเครื่องนี้เอง ทำตามข้อ 8 ให้เครื่องที่ใช้ประจำเชื่อถือ หรือกด "ขั้นสูง" แล้ว "ไปต่อ" เพื่อทดลอง
 
-![Chrome เตือน "การเชื่อมต่อของคุณไม่เป็นส่วนตัว" เมื่อเครื่องยังไม่เชื่อถือ CA ของระบบ](images/container/docker-cert-warning.webp)
+![Chrome เตือน "การเชื่อมต่อของคุณไม่เป็นส่วนตัว" เมื่อเครื่องยังไม่เชื่อถือ CA ของระบบ](container/docker-cert-warning.webp)
 
 **ขั้นที่ 3** เข้าระบบด้วยอีเมลและรหัสผ่านจาก `saan-credentials`
 
-![หน้าเข้าสู่ระบบ กรอกอีเมลและรหัสผ่านของผู้ดูแลระบบ](images/container/docker-login.webp)
+![หน้าเข้าสู่ระบบ กรอกอีเมลและรหัสผ่านของผู้ดูแลระบบ](container/docker-login.webp)
 
 **ขั้นที่ 4** ระบบพาไปหน้า "บัญชีของฉัน" และไม่ให้เข้าเมนูอื่น ให้กรอกรหัสผ่านที่ได้รับในช่องรหัสผ่านปัจจุบัน แล้วตั้งรหัสผ่านใหม่ อย่างน้อย 12 ตัว มีทั้งตัวอักษรอังกฤษและตัวเลข และต้องไม่ซ้ำรหัสเดิม กด "บันทึกรหัสผ่านใหม่"
 
-![หน้าบัญชีของฉันแจ้งว่าต้องเปลี่ยนรหัสผ่านก่อนใช้งาน พร้อมช่องรหัสผ่านปัจจุบันและรหัสผ่านใหม่](images/container/docker-first-login-change.webp)
+![หน้าบัญชีของฉันแจ้งว่าต้องเปลี่ยนรหัสผ่านก่อนใช้งาน พร้อมช่องรหัสผ่านปัจจุบันและรหัสผ่านใหม่](container/docker-first-login-change.webp)
 
 **ขั้นที่ 5** หลังเปลี่ยนแล้วจึงใช้เมนูอื่นได้ แนะนำให้เปิดการยืนยันสองขั้นตอน (MFA) ในหน้าเดียวกัน
 
-![หน้างานโรงเรียนหลังเปลี่ยนรหัสผ่านแล้ว เมนูทุกหมวดใช้งานได้](images/container/docker-work.webp)
+![หน้างานโรงเรียนหลังเปลี่ยนรหัสผ่านแล้ว เมนูทุกหมวดใช้งานได้](container/docker-work.webp)
 
 เว็บไซต์โรงเรียนอยู่ที่ `https://<ที่อยู่>:9443/` เนื้อหาแก้ที่หลังบ้าน `https://<ที่อยู่>:8443/cms` แล้วระบบส่งไปหน้าเว็บให้เองภายในหนึ่งนาที
 
-![หลังบ้านเว็บไซต์ (/cms)](images/container/docker-cms.webp)
+![หลังบ้านเว็บไซต์ (/cms)](container/docker-cms.webp)
 
-![เว็บไซต์โรงเรียนที่พอร์ต 9443 (ภาพจากการติดตั้งแบบ SAAN_DATA=demo ที่มีเว็บไซต์ตัวอย่าง)](images/container/docker-public-site.webp)
+![เว็บไซต์โรงเรียนที่พอร์ต 9443 (ภาพจากการติดตั้งแบบ SAAN_DATA=demo ที่มีเว็บไซต์ตัวอย่าง)](container/docker-public-site.webp)
 
 ## 8. ให้เครื่องอื่นเชื่อถือใบรับรอง (HTTPS)
 
@@ -275,7 +275,7 @@ docker compose cp saan:/srv/saan/tls/ca.crt ./saan-ca.crt
 
 หลังติดตั้ง CA แล้ว เปิดเบราว์เซอร์ใหม่ หน้าเข้าสู่ระบบจะเปิดได้โดยไม่มีคำเตือน
 
-![Chrome บน Windows เปิดหน้าเข้าสู่ระบบได้โดยไม่มีคำเตือน หลังติดตั้ง CA ด้วย certutil](images/container/docker-login-trusted.webp)
+![Chrome บน Windows เปิดหน้าเข้าสู่ระบบได้โดยไม่มีคำเตือน หลังติดตั้ง CA ด้วย certutil](container/docker-login-trusted.webp)
 
 ใบรับรอง CA นี้ใช้ได้เฉพาะกับเครื่องสานเครื่องนี้ เก็บไฟล์ `ca.key` ไว้ใน container ห้ามนำออกไปแจก
 
@@ -316,7 +316,7 @@ docker compose cp saan:/srv/saan/tls/ca.crt ./saan-ca.crt
 | ตั้งรหัสผ่านใหม่ให้บัญชีที่ลืมรหัส (พิมพ์รหัสแบบซ่อน) | `docker compose exec saan saan-artisan school:recover-account <อีเมล>` |
 | เปิด shell ใน container | `docker compose exec saan bash` |
 
-![ผลคำสั่ง docker compose ps และ saan-status บน Windows](images/container/docker-term-win-ps-status.webp)
+![ผลคำสั่ง docker compose ps และ saan-status บน Windows](container/docker-term-win-ps-status.webp)
 
 container ทั้งหมดตั้ง `restart: unless-stopped` เมื่อเครื่องเปิดใหม่ ระบบจะกลับมาเอง (บน Windows หลังจาก Docker Desktop เริ่มทำงาน)
 
@@ -337,7 +337,7 @@ docker compose exec saan ls -l /srv/saan/backups
 docker compose cp saan:/srv/saan/backups/<ชื่อไฟล์>.zip .
 ```
 
-![สำรองด้วย saan-backup แล้วคัดลอกไฟล์ออกจาก container](images/container/docker-term-linux-backup.webp)
+![สำรองด้วย saan-backup แล้วคัดลอกไฟล์ออกจาก container](container/docker-term-linux-backup.webp)
 
 ไฟล์สำรองมีข้อมูลส่วนบุคคลของนักเรียนและบุคลากร เก็บในที่ที่จำกัดคนเข้าถึง
 
@@ -361,7 +361,7 @@ docker compose exec saan saan-restore /srv/saan/backups/saan-20261116-120000.zip
 5. กู้คืน
 6. เปิดระบบ และส่งข้อมูลทั้งหมดไปเว็บไซต์โรงเรียนใหม่
 
-![ผลคำสั่ง saan-restore ครบ 6 ขั้น](images/container/docker-term-linux-restore.webp)
+![ผลคำสั่ง saan-restore ครบ 6 ขั้น](container/docker-term-linux-restore.webp)
 
 ถ้าขั้นใดล้มเหลว คำสั่งจะคืนไฟล์ที่ย้ายออกไป และบอกชื่อไฟล์สำรองจากขั้นที่ 1 ให้สั่ง `saan-restore <ไฟล์นั้น>` เพื่อกลับไปที่ข้อมูลก่อนกู้คืน
 
@@ -399,7 +399,7 @@ docker compose up -d
 
 วิธีปกติคือหน้า "อัปเดตระบบ" ในหลังบ้าน `https://<ที่อยู่>:8443/admin/updates` (เฉพาะผู้ดูแลระบบ) ระบบสำรองข้อมูลก่อนติดตั้งและคืนรุ่นเดิมเองถ้าไม่สำเร็จ ใช้กับ container ได้เหมือนติดตั้งบนโฮสติ้ง ขั้นตอนเต็มอยู่ในคู่มือ [อัปเดตสาน](https://saan.linuxthai.org/wiki/install/update/)
 
-![หน้าอัปเดตระบบแสดงรุ่นที่ติดตั้ง โหมดการอัปเดต และประวัติการติดตั้งโมดูล](images/container/docker-admin-updates.webp)
+![หน้าอัปเดตระบบแสดงรุ่นที่ติดตั้ง โหมดการอัปเดต และประวัติการติดตั้งโมดูล](container/docker-admin-updates.webp)
 
 ### 11.2 อัปเดต image (Debian, PHP, Apache และแพ็กเกจสานใน image)
 
@@ -417,7 +417,7 @@ docker compose exec saan saan-update
 - `saan-update` ติดตั้งเฉพาะแพ็กเกจใน image ที่ใหม่กว่ารุ่นที่ติดตั้งอยู่ ผ่านตัวอัปเดตของสานเอง (ตรวจลายเซ็น สำรองข้อมูล และคืนรุ่นเดิมถ้าล้มเหลว) ถ้าอัปเดตจากหลังบ้านไปแล้ว คำสั่งนี้จะแจ้งว่าไม่มีอะไรต้องติดตั้ง
 - ถ้า `.env` เปลี่ยน `SAAN_VERSION` ให้ตรงกับรุ่นที่ต้องการก่อน build
 
-![อัปเดต image แล้วสั่ง saan-update เมื่อไม่มีแพ็กเกจที่ใหม่กว่า](images/container/docker-term-linux-update.webp)
+![อัปเดต image แล้วสั่ง saan-update เมื่อไม่มีแพ็กเกจที่ใหม่กว่า](container/docker-term-linux-update.webp)
 
 ## 12. แก้ปัญหาที่พบบ่อย
 
